@@ -10,3 +10,9 @@
 [submodule "stl"]
 	path = stl
 	url = https://github.com/max-pasichnyk/stl
+[submodule "glm"]
+	path = glm
+	url = https://github.com/g-truc/glm.git
+[submodule "glew"]
+	path = glew
+	url = https://github.com/nigels-com/glew.git

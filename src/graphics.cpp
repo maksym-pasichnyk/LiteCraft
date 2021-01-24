@@ -2,6 +2,8 @@
 
 #include "fmt/format.h"
 
+#include <vector>
+
 namespace {
     void debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const *message, void const *user_param) {
         auto source_str = [source]() -> std::string_view {

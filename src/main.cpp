@@ -13,6 +13,7 @@
 #include <mutex>
 #include <random>
 #include <set>
+#include <fmt/format.h>
 
 #include "input.hpp"
 #include "camera.hpp"
@@ -69,12 +70,20 @@ struct ClientWorld {
 		return Tile::air;
 	}
 
+    auto getTile(glm::ivec3 pos) -> Tile* {
+        return getTile(pos.x, pos.y, pos.z);
+    }
+
 	void setTile(int32 x, int32 y, int32 z, Tile* tile) {
 		if (y >= 0 && y < 256) {
 			if (auto chunk = getChunk(ChunkPos::asLong(x >> 4, z >> 4))) {
 				chunk->setTile(x, y, z, tile);
 			}
 		}
+    }
+
+    void setTile(glm::ivec3 pos, Tile* tile) {
+        setTile(pos.x, pos.y, pos.z, tile);
     }
 };
 
@@ -254,44 +263,72 @@ float check_up_velocity(IBlockReader auto& blocks, glm::vec3 entity_pos, float v
 	return vel;
 }
 
-float check_front_velocity(IBlockReader auto& blocks, glm::vec3 position, float velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) {
-	if (check_collide(blocks, position.x, position.y, position.z + half_collider_width + velocity)) {
-		return 0;
-	}
-	if (check_collide(blocks, position.x, position.y + collider_height, position.z + half_collider_width + velocity)) {
-		return 0;
-	}
-	return velocity;
+float check_front_velocity(IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) {
+    const auto new_pos = position + velocity;
+    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y, new_pos.z + half_collider_width)) {
+        return 0;
+    }
+    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z + half_collider_width)) {
+        return 0;
+    }
+    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
+        return 0;
+    }
+    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
+        return 0;
+    }
+	return velocity.z;
 }
 
-float check_back_velocity(IBlockReader auto& blocks, glm::vec3 entity_pos, float vel, float half_collider_width = 0.3f, float collider_height = 1.8f) {
-	if (check_collide(blocks, entity_pos.x, entity_pos.y, entity_pos.z - half_collider_width + vel)) {
-		return 0;
-	}
-	if (check_collide(blocks, entity_pos.x, entity_pos.y + collider_height, entity_pos.z - half_collider_width + vel)) {
-		return 0;
-	}
-	return vel;
+float check_back_velocity(IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) {
+    const auto new_pos = position + velocity;
+    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y, new_pos.z - half_collider_width)) {
+        return 0;
+    }
+    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z - half_collider_width)) {
+        return 0;
+    }
+    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y + collider_height, new_pos.z - half_collider_width)) {
+        return 0;
+    }
+    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z - half_collider_width)) {
+        return 0;
+    }
+    return velocity.z;
 }
 
-float check_left_velocity(IBlockReader auto& blocks, glm::vec3 entity_pos, float vel, float half_collider_width = 0.3f, float collider_height = 1.8f) {
-	if (check_collide(blocks, entity_pos.x - half_collider_width + vel, entity_pos.y, entity_pos.z)) {
-		return 0;
-	}
-	if (check_collide(blocks, entity_pos.x - half_collider_width + vel, entity_pos.y + collider_height, entity_pos.z)) {
-		return 0;
-	}
-	return vel;
+float check_left_velocity(IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) {
+    const auto new_pos = position + velocity;
+    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z - half_collider_width)) {
+        return 0;
+    }
+    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z + half_collider_width)) {
+        return 0;
+    }
+    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z - half_collider_width)) {
+        return 0;
+    }
+    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
+        return 0;
+    }
+    return velocity.x;
 }
 
-float check_right_velocity(IBlockReader auto& blocks, glm::vec3 entity_pos, float vel, float half_collider_width = 0.3f, float collider_height = 1.8f) {
-	if (check_collide(blocks, entity_pos.x + half_collider_width + vel, entity_pos.y, entity_pos.z)) {
-		return 0;
-	}
-	if (check_collide(blocks, entity_pos.x + half_collider_width + vel, entity_pos.y + collider_height, entity_pos.z)) {
-		return 0;
-	}
-	return vel;
+float check_right_velocity(IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) {
+    const auto new_pos = position + velocity;
+    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y, new_pos.z - half_collider_width)) {
+        return 0;
+    }
+    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y, new_pos.z + half_collider_width)) {
+        return 0;
+    }
+    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y + collider_height, new_pos.z - half_collider_width)) {
+        return 0;
+    }
+    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
+        return 0;
+    }
+    return velocity.x;
 }
 
 struct App {
@@ -476,35 +513,40 @@ struct App {
 		float c = glm::cos(yaw);
 		float s = glm::sin(yaw);
 
-		velocity.x = 0;
-		velocity.z = 0;
 
-		float moveSpeed = 10.f;
+        bool is_liquid = client_world.getTile(transform.position.x, transform.position.y + 1, transform.position.z)->renderType == RenderType::Liquid;
+
+        glm::vec3 ivelocity{};
 		if (input.IsKeyPressed(Input::Key::Up)) {
-			velocity += glm::vec3{-s, 0, c} * dt * moveSpeed;
+            ivelocity += glm::vec3{-s, 0, c};
 		}
 		if (input.IsKeyPressed(Input::Key::Down)) {
-			velocity -= glm::vec3{-s, 0, c} * dt * moveSpeed;
+            ivelocity -= glm::vec3{-s, 0, c};
 		}
 		if (input.IsKeyPressed(Input::Key::Left)) {
-			velocity -= glm::vec3{c, 0, s} * dt * moveSpeed;
+            ivelocity -= glm::vec3{c, 0, s};
 		}
 		if (input.IsKeyPressed(Input::Key::Right)) {
-			velocity += glm::vec3{c, 0, s} * dt * moveSpeed;
+            ivelocity += glm::vec3{c, 0, s};
 		}
+
+        velocity.x = 0;
+        velocity.z = 0;
+
+        if (ivelocity.x != 0 || ivelocity.z != 0) {
+            velocity += glm::normalize(ivelocity) * dt * (is_liquid ? 5.0f : 10.0f);
+        }
 
 		if (velocity.z > 0) {
-			velocity.z = check_front_velocity(client_world, transform.position, velocity.z);
+			velocity.z = check_front_velocity(client_world, transform.position, velocity);
 		} else if (velocity.z < 0) {
-			velocity.z = check_back_velocity(client_world, transform.position, velocity.z);
+			velocity.z = check_back_velocity(client_world, transform.position, velocity);
 		}
 		if (velocity.x > 0) {
-			velocity.x = check_right_velocity(client_world, transform.position, velocity.x);
+			velocity.x = check_right_velocity(client_world, transform.position, velocity);
 		} else if (velocity.x < 0) {
-			velocity.x = check_left_velocity(client_world, transform.position, velocity.x);
+			velocity.x = check_left_velocity(client_world, transform.position, velocity);
 		}
-
-		bool is_liquid = client_world.getTile(transform.position.x, transform.position.y + 1, transform.position.z)->renderType == RenderType::Liquid;
 
 		if (is_liquid) {
 			velocity.y = -2.5 * dt;
@@ -536,24 +578,37 @@ struct App {
 		};
 
 		rayTraceResult = rayTraceBlocks(client_world, ray_trace_context);
-		if (cooldown == 0 && input.IsMouseButtonPressed(Input::MouseButton::Left)) {
-			if (rayTraceResult.has_value()) {
-				cooldown = 10;
-				auto [pos_x, pos_y, pos_z] = rayTraceResult->pos;
+        if (cooldown == 0 && rayTraceResult.has_value()) {
+            std::set<int64> positions{};
+            if (input.IsMouseButtonPressed(Input::MouseButton::Left)) {
+                cooldown = 10;
 
-				client_world.setTile(pos_x, pos_y, pos_z, Tile::air);
+                const auto pos = rayTraceResult->pos;
 
-				std::set<int64> positions{};
-				for (int x = pos_x - 1; x <= pos_x + 1; x++) {
-					for (int z = pos_z - 1; z <= pos_z + 1; z++) {
-						positions.emplace(ChunkPos::asLong(x >> 4, z >> 4));
-					}
-				}
+                client_world.setTile(pos, Tile::air);
 
-				for (auto position : positions) {
-					client_world.getChunk(position)->is_dirty = true;
-				}
-			}
+                for (int x = pos.x - 1; x <= pos.x + 1; x++) {
+                    for (int z = pos.z - 1; z <= pos.z + 1; z++) {
+                        positions.emplace(ChunkPos::asLong(x >> 4, z >> 4));
+                    }
+                }
+            } else if (input.IsMouseButtonPressed(Input::MouseButton::Right)) {
+                cooldown = 10;
+
+                const auto pos = rayTraceResult->pos + rayTraceResult->dir;
+
+                client_world.setTile(pos, Tile::water);
+
+                for (int x = pos.x - 1; x <= pos.x + 1; x++) {
+                    for (int z = pos.z - 1; z <= pos.z + 1; z++) {
+                        positions.emplace(ChunkPos::asLong(x >> 4, z >> 4));
+                    }
+                }
+            }
+
+            for (auto position : positions) {
+                client_world.getChunk(position)->is_dirty = true;
+            }
 		}
     }
 
@@ -622,34 +677,33 @@ struct App {
 		sf::Shader::bind(&transparent_pipeline);
 		renderLayers(RenderLayer::Transparent);
 
-
 		if (rayTraceResult.has_value()) {
-			auto[pos_x, pos_y, pos_z] = rayTraceResult->pos;
+			const auto pos = rayTraceResult->pos;
 
 			VBuffer buf{};
 			buf.quad(0, 1, 1, 2, 2, 3, 3, 0);
-			buf.vertex(pos_x + 0, pos_y + 0, pos_z + 0, 0, 0, 0, 0, 0, 0xFF);
-			buf.vertex(pos_x + 0, pos_y + 1, pos_z + 0, 0, 1, 0, 0, 0, 0xFF);
-			buf.vertex(pos_x + 1, pos_y + 1, pos_z + 0, 1, 1, 0, 0, 0, 0xFF);
-			buf.vertex(pos_x + 1, pos_y + 0, pos_z + 0, 1, 0, 0, 0, 0, 0xFF);
+			buf.vertex(pos.x + 0, pos.y + 0, pos.z + 0, 0, 0, 0, 0, 0, 0xFF);
+			buf.vertex(pos.x + 0, pos.y + 1, pos.z + 0, 0, 1, 0, 0, 0, 0xFF);
+			buf.vertex(pos.x + 1, pos.y + 1, pos.z + 0, 1, 1, 0, 0, 0, 0xFF);
+			buf.vertex(pos.x + 1, pos.y + 0, pos.z + 0, 1, 0, 0, 0, 0, 0xFF);
 
 			buf.quad(0, 1, 1, 2, 2, 3, 3, 0);
-			buf.vertex(pos_x + 1, pos_y + 0, pos_z + 0, 0, 0, 0, 0, 0, 0xFF);
-			buf.vertex(pos_x + 1, pos_y + 1, pos_z + 0, 0, 1, 0, 0, 0, 0xFF);
-			buf.vertex(pos_x + 1, pos_y + 1, pos_z + 1, 1, 1, 0, 0, 0, 0xFF);
-			buf.vertex(pos_x + 1, pos_y + 0, pos_z + 1, 1, 0, 0, 0, 0, 0xFF);
+			buf.vertex(pos.x + 1, pos.y + 0, pos.z + 0, 0, 0, 0, 0, 0, 0xFF);
+			buf.vertex(pos.x + 1, pos.y + 1, pos.z + 0, 0, 1, 0, 0, 0, 0xFF);
+			buf.vertex(pos.x + 1, pos.y + 1, pos.z + 1, 1, 1, 0, 0, 0, 0xFF);
+			buf.vertex(pos.x + 1, pos.y + 0, pos.z + 1, 1, 0, 0, 0, 0, 0xFF);
 
 			buf.quad(0, 1, 1, 2, 2, 3, 3, 0);
-			buf.vertex(pos_x + 1, pos_y + 0, pos_z + 1, 0, 0, 0, 0, 0, 0xFF);
-			buf.vertex(pos_x + 1, pos_y + 1, pos_z + 1, 0, 1, 0, 0, 0, 0xFF);
-			buf.vertex(pos_x + 0, pos_y + 1, pos_z + 1, 1, 1, 0, 0, 0, 0xFF);
-			buf.vertex(pos_x + 0, pos_y + 0, pos_z + 1, 1, 0, 0, 0, 0, 0xFF);
+			buf.vertex(pos.x + 1, pos.y + 0, pos.z + 1, 0, 0, 0, 0, 0, 0xFF);
+			buf.vertex(pos.x + 1, pos.y + 1, pos.z + 1, 0, 1, 0, 0, 0, 0xFF);
+			buf.vertex(pos.x + 0, pos.y + 1, pos.z + 1, 1, 1, 0, 0, 0, 0xFF);
+			buf.vertex(pos.x + 0, pos.y + 0, pos.z + 1, 1, 0, 0, 0, 0, 0xFF);
 
 			buf.quad(0, 1, 1, 2, 2, 3, 3, 0);
-			buf.vertex(pos_x + 0, pos_y + 0, pos_z + 1, 0, 0, 0, 0, 0, 0xFF);
-			buf.vertex(pos_x + 0, pos_y + 1, pos_z + 1, 0, 1, 0, 0, 0, 0xFF);
-			buf.vertex(pos_x + 0, pos_y + 1, pos_z + 0, 1, 1, 0, 0, 0, 0xFF);
-			buf.vertex(pos_x + 0, pos_y + 0, pos_z + 0, 1, 0, 0, 0, 0, 0xFF);
+			buf.vertex(pos.x + 0, pos.y + 0, pos.z + 1, 0, 0, 0, 0, 0, 0xFF);
+			buf.vertex(pos.x + 0, pos.y + 1, pos.z + 1, 0, 1, 0, 0, 0, 0xFF);
+			buf.vertex(pos.x + 0, pos.y + 1, pos.z + 0, 1, 1, 0, 0, 0, 0xFF);
+			buf.vertex(pos.x + 0, pos.y + 0, pos.z + 0, 1, 0, 0, 0, 0, 0xFF);
 
 			selection_mesh->SetIndices(buf.indices);
 			selection_mesh->SetVertices(buf.vertices);
