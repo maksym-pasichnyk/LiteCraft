@@ -5,6 +5,7 @@
 #include <SFML/Graphics/Color.hpp>
 #include <GL/glew.h>
 #include <span>
+#include <vector>
 
 #include <stdint.hpp>
 

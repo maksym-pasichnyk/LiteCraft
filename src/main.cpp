@@ -13,12 +13,13 @@
 #include <mutex>
 #include <random>
 #include <set>
+#include <queue>
 #include <fmt/format.h>
 
 #include "input.hpp"
 #include "camera.hpp"
 #include "transform.hpp"
-#include "tile.hpp"
+#include "block.hpp"
 #include "chunk.hpp"
 #include "chunk_pos.hpp"
 #include "block_reader.hpp"
@@ -32,11 +33,17 @@ extern void generateTerrain(Chunk* chunk, int32 chunk_x, int32 chunk_z);
 extern void generateTree(Chunk* chunk, int32 x, int32 z, IBlockReader auto& blocks, Random& random);
 extern void generateFeatures(Chunk* chunk, IBlockReader auto& blocks, int32 chunk_x, int32 chunk_z, int64 worldSeed);
 
-std::map<std::string, TileData> tile_datas;
+std::map<std::string, BlockGraphics> tile_datas;
+
+struct LiquidNode {
+    glm::ivec3 pos;
+    int data;
+};
 
 struct ClientWorld {
 	std::mutex chunk_mutex;
     std::map<int64, Chunk*> chunks{};
+    std::queue<LiquidNode> liquids{};
 
 	void loadChunk(int64 position, Chunk* chunk) {
 		chunk_mutex.lock();
@@ -61,29 +68,29 @@ struct ClientWorld {
 		return chunk;
 	}
 
-	auto getTile(int32 x, int32 y, int32 z) -> Tile* {
+	auto getBlock(int32 x, int32 y, int32 z) -> BlockState {
 		if (y >= 0 && y < 256) {
 			if (auto chunk = getChunk(ChunkPos::asLong(x >> 4, z >> 4))) {
-				return chunk->getTile(x, y, z)?:Tile::air;
+				return chunk->getBlock(x, y, z);
 			}
 		}
-		return Tile::air;
+		return {};
 	}
 
-    auto getTile(glm::ivec3 pos) -> Tile* {
-        return getTile(pos.x, pos.y, pos.z);
+    auto getBlock(glm::ivec3 pos) -> BlockState {
+        return getBlock(pos.x, pos.y, pos.z);
     }
 
-	void setTile(int32 x, int32 y, int32 z, Tile* tile) {
+	void setBlock(int32 x, int32 y, int32 z, BlockState blockState) {
 		if (y >= 0 && y < 256) {
 			if (auto chunk = getChunk(ChunkPos::asLong(x >> 4, z >> 4))) {
-				chunk->setTile(x, y, z, tile);
+				chunk->setBlock(x, y, z, blockState);
 			}
 		}
     }
 
-    void setTile(glm::ivec3 pos, Tile* tile) {
-        setTile(pos.x, pos.y, pos.z, tile);
+    void setBlock(glm::ivec3 pos, BlockState blockState) {
+        setBlock(pos.x, pos.y, pos.z, blockState);
     }
 };
 
@@ -148,10 +155,9 @@ struct World {
 
     template <usize Radius>
     void fillRegion(WorldGenRegion<Radius>& region, ChunkState state) {
-    	int32 chunk_x = region.chunk_x;
-    	int32 chunk_z = region.chunk_z;
-
-    	int32 radius = (int32) Radius;
+        const auto radius = static_cast<int32>(Radius);
+        const auto chunk_x = region.chunk_x;
+    	const auto chunk_z = region.chunk_z;
 
 		usize i = 0;
 		for (int32 z = chunk_z - radius; z <= chunk_z + radius; z++) {
@@ -228,7 +234,7 @@ auto check_collide(IBlockReader auto& blocks, float x, float y, float z) -> bool
 	int32_t iy = glm::floor(y);
 	int32_t iz = glm::floor(z);
 
-	return blocks.getTile(ix, iy, iz)->renderType == RenderType::Block;
+	return blocks.getBlock(ix, iy, iz).block->renderType == RenderType::Block;
 }
 
 float check_down_velocity(IBlockReader auto& blocks, glm::vec3 position, float velocity, float half_collider_width = 0.3f) {
@@ -265,69 +271,69 @@ float check_up_velocity(IBlockReader auto& blocks, glm::vec3 entity_pos, float v
 
 float check_front_velocity(IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) {
     const auto new_pos = position + velocity;
-    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y, new_pos.z + half_collider_width)) {
+    if (check_collide(blocks, new_pos.x/* + half_collider_width*/, new_pos.y, new_pos.z + half_collider_width)) {
         return 0;
     }
-    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z + half_collider_width)) {
+//    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z + half_collider_width)) {
+//        return 0;
+//    }
+    if (check_collide(blocks, new_pos.x/* + half_collider_width*/, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
         return 0;
     }
-    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
-        return 0;
-    }
-    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
-        return 0;
-    }
+//    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
+//        return 0;
+//    }
 	return velocity.z;
 }
 
 float check_back_velocity(IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) {
     const auto new_pos = position + velocity;
-    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y, new_pos.z - half_collider_width)) {
+    if (check_collide(blocks, new_pos.x/* + half_collider_width*/, new_pos.y, new_pos.z - half_collider_width)) {
         return 0;
     }
-    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z - half_collider_width)) {
+//    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z - half_collider_width)) {
+//        return 0;
+//    }
+    if (check_collide(blocks, new_pos.x/* + half_collider_width*/, new_pos.y + collider_height, new_pos.z - half_collider_width)) {
         return 0;
     }
-    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y + collider_height, new_pos.z - half_collider_width)) {
-        return 0;
-    }
-    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z - half_collider_width)) {
-        return 0;
-    }
+//    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z - half_collider_width)) {
+//        return 0;
+//    }
     return velocity.z;
 }
 
 float check_left_velocity(IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) {
     const auto new_pos = position + velocity;
-    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z - half_collider_width)) {
+    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z/* - half_collider_width*/)) {
         return 0;
     }
-    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z + half_collider_width)) {
+//    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z + half_collider_width)) {
+//        return 0;
+//    }
+    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z/* - half_collider_width*/)) {
         return 0;
     }
-    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z - half_collider_width)) {
-        return 0;
-    }
-    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
-        return 0;
-    }
+//    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
+//        return 0;
+//    }
     return velocity.x;
 }
 
 float check_right_velocity(IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) {
     const auto new_pos = position + velocity;
-    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y, new_pos.z - half_collider_width)) {
+    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y, new_pos.z/* - half_collider_width*/)) {
         return 0;
     }
-    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y, new_pos.z + half_collider_width)) {
+//    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y, new_pos.z + half_collider_width)) {
+//        return 0;
+//    }
+    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y + collider_height, new_pos.z/* - half_collider_width*/)) {
         return 0;
     }
-    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y + collider_height, new_pos.z - half_collider_width)) {
-        return 0;
-    }
-    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
-        return 0;
-    }
+//    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
+//        return 0;
+//    }
     return velocity.x;
 }
 
@@ -382,7 +388,7 @@ struct App {
 
 		loadBlocks();
 
-		Tile::initTiles();
+		Block::initTiles();
 
 		world = std::make_unique<World>();
 
@@ -399,7 +405,7 @@ struct App {
 		for (auto& [name, data] : blocks.items()) {
 			if (name == "format_version"sv) continue;
 
-			TileData tile_data{};
+			BlockGraphics tile_data{};
 
 			if (data.contains("isotropic")) {
 				auto& isotropic = data["isotropic"];
@@ -514,7 +520,7 @@ struct App {
 		float s = glm::sin(yaw);
 
 
-        bool is_liquid = client_world.getTile(transform.position.x, transform.position.y + 1, transform.position.z)->renderType == RenderType::Liquid;
+        bool is_liquid = client_world.getBlock(transform.position.x, transform.position.y + 1, transform.position.z).block->renderType == RenderType::Liquid;
 
         glm::vec3 ivelocity{};
 		if (input.IsKeyPressed(Input::Key::Up)) {
@@ -585,7 +591,7 @@ struct App {
 
                 const auto pos = rayTraceResult->pos;
 
-                client_world.setTile(pos, Tile::air);
+                client_world.setBlock(pos, {Block::air, 0});
 
                 for (int x = pos.x - 1; x <= pos.x + 1; x++) {
                     for (int z = pos.z - 1; z <= pos.z + 1; z++) {
@@ -597,7 +603,8 @@ struct App {
 
                 const auto pos = rayTraceResult->pos + rayTraceResult->dir;
 
-                client_world.setTile(pos, Tile::water);
+                client_world.setBlock(pos, {Block::water, 0});
+                client_world.liquids.emplace(pos);
 
                 for (int x = pos.x - 1; x <= pos.x + 1; x++) {
                     for (int z = pos.z - 1; z <= pos.z + 1; z++) {
@@ -720,7 +727,6 @@ struct App {
     void run() {
         window.setMouseCursorGrabbed(true);
         window.setMouseCursorVisible(false);
-
 
         auto [display_width, display_height] = window.getSize();
 		sf::Mouse::setPosition(sf::Vector2i(display_width / 2, display_height / 2), window);

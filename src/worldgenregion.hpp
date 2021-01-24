@@ -5,7 +5,7 @@
 #include <array>
 
 #include "chunk.hpp"
-#include "tile.hpp"
+#include "block.hpp"
 
 template <usize Size>
 struct WorldGenRegion {
@@ -38,12 +38,20 @@ struct WorldGenRegion {
 		return nullptr;
 	}
 
-    auto getTile(int32 x, int32 y, int32 z) const -> Tile* {
-        return getChunk(x >> 4, z >> 4)->getTile(x, y, z) ?: Tile::air;
+    auto getBlock(int32 x, int32 y, int32 z) const -> BlockState {
+        return getChunk(x >> 4, z >> 4)->getBlock(x, y, z);
     }
 
-	void setTile(int32 x, int32 y, int32 z, Tile* tile) {
-        return getChunk(x >> 4, z >> 4)->setTile(x, y, z, tile);
+    auto getBlock(glm::ivec3 pos) const -> BlockState {
+        return getBlock(pos.x, pos.y, pos.z);
+    }
+
+    void setBlock(int32 x, int32 y, int32 z, BlockState blockState) {
+        getChunk(x >> 4, z >> 4)->setBlock(x, y, z, blockState);
+    }
+
+    void setBlock(glm::ivec3 pos, Block* block) {
+        setBlock(pos.x, pos.y, pos.z, block);
     }
 
     auto getMainChunk() const -> Chunk* {

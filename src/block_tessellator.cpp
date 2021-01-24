@@ -1,4 +1,4 @@
-#include "tile.hpp"
+#include "block.hpp"
 #include "chunk.hpp"
 #include "block_reader.hpp"
 #include "texture_atlas.hpp"
@@ -15,17 +15,17 @@ auto getTintColor(Tint tint) -> glm::u8vec3 {
 	}
 }
 
-void renderBlock(int32 x, int32 y, int32 z, Tile* tile, RenderBuffer& rb, IBlockReader auto const& blocks) {
+void renderBlock(int32 x, int32 y, int32 z, BlockState blockState, RenderBuffer& rb, IBlockReader auto const& blocks) {
 	const auto fx = float(x);// - 0.5f;
 	const auto fy = float(y);// - 0.5f;
 	const auto fz = float(z);// - 0.5f;
 
-	auto [r, g, b] = getTintColor(tile->tint);
+	auto [r, g, b] = getTintColor(blockState.block->tint);
 
-	auto builder = rb.getForLayer(tile->renderLayer);
+	auto builder = rb.getForLayer(blockState.block->renderLayer);
 
-	if (blocks.getTile(x, y, z - 1)->renderType != tile->renderType) {
-		auto coords = tile->southTexture->get(0);
+	if (blocks.getBlock(x, y, z - 1).block->renderType != blockState.block->renderType) {
+		auto coords = blockState.block->graphics->southTexture->get(0);
 
 		builder.quad();
 		builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, 0xFF);
@@ -34,8 +34,8 @@ void renderBlock(int32 x, int32 y, int32 z, Tile* tile, RenderBuffer& rb, IBlock
 		builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, 0xFF);
 	}
 
-	if (blocks.getTile(x + 1, y, z)->renderType != tile->renderType) {
-		auto coords = tile->eastTexture->get(0);
+	if (blocks.getBlock(x + 1, y, z).block->renderType != blockState.block->renderType) {
+		auto coords = blockState.block->graphics->eastTexture->get(0);
 
 		builder.quad();
 		builder.vertex(fx + 1, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, 0xFF);
@@ -44,8 +44,8 @@ void renderBlock(int32 x, int32 y, int32 z, Tile* tile, RenderBuffer& rb, IBlock
 		builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, 0xFF);
 	}
 
-	if (blocks.getTile(x, y, z + 1)->renderType != tile->renderType) {
-		auto coords = tile->northTexture->get(0);
+	if (blocks.getBlock(x, y, z + 1).block->renderType != blockState.block->renderType) {
+		auto coords = blockState.block->graphics->northTexture->get(0);
 
 		builder.quad();
 		builder.vertex(fx + 1, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, 0xFF);
@@ -54,8 +54,8 @@ void renderBlock(int32 x, int32 y, int32 z, Tile* tile, RenderBuffer& rb, IBlock
 		builder.vertex(fx + 0, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, 0xFF);
 	}
 
-	if (blocks.getTile(x - 1, y, z)->renderType != tile->renderType) {
-		auto coords = tile->westTexture->get(0);
+	if (blocks.getBlock(x - 1, y, z).block->renderType != blockState.block->renderType) {
+		auto coords = blockState.block->graphics->westTexture->get(0);
 
 		builder.quad();
 		builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, 0xFF);
@@ -64,8 +64,8 @@ void renderBlock(int32 x, int32 y, int32 z, Tile* tile, RenderBuffer& rb, IBlock
 		builder.vertex(fx + 0, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, 0xFF);
 	}
 
-	if (y == 255 || blocks.getTile(x, y + 1, z)->renderType != tile->renderType) {
-		auto coords = tile->topTexture->get(0);
+	if (y == 255 || blocks.getBlock(x, y + 1, z).block->renderType != blockState.block->renderType) {
+		auto coords = blockState.block->graphics->topTexture->get(0);
 
 		builder.quad();
 		builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.minV, r, g, b, 0xFF);
@@ -74,8 +74,8 @@ void renderBlock(int32 x, int32 y, int32 z, Tile* tile, RenderBuffer& rb, IBlock
 		builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.minV, r, g, b, 0xFF);
 	}
 
-	if (y == 0 || blocks.getTile(x, y - 1, z)->renderType != tile->renderType) {
-		auto coords = tile->bottomTexture->get(0);
+	if (y == 0 || blocks.getBlock(x, y - 1, z).block->renderType != blockState.block->renderType) {
+		auto coords = blockState.block->graphics->bottomTexture->get(0);
 
 		builder.quad();
 		builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, 0xFF);
@@ -85,16 +85,16 @@ void renderBlock(int32 x, int32 y, int32 z, Tile* tile, RenderBuffer& rb, IBlock
 	}
 }
 
-void renderCross(int32 x, int32 y, int32 z, Tile* tile, RenderBuffer& rb, IBlockReader auto const& blocks) {
+void renderCross(int32 x, int32 y, int32 z, BlockState blockState, RenderBuffer& rb, IBlockReader auto const& blocks) {
 	const auto fx = float(x);// - 0.5f;
 	const auto fy = float(y);// - 0.5f;
 	const auto fz = float(z);// - 0.5f;
 
-	auto coords = tile->southTexture->get(0);
+	auto coords = blockState.block->graphics->southTexture->get(0);
 
-	auto [r, g, b] = getTintColor(tile->tint);
+	auto [r, g, b] = getTintColor(blockState.block->tint);
 
-	auto builder = rb.getForLayer(tile->renderLayer);
+	auto builder = rb.getForLayer(blockState.block->renderLayer);
 
 	builder.quad();
 	builder.quadInv();
@@ -111,7 +111,7 @@ void renderCross(int32 x, int32 y, int32 z, Tile* tile, RenderBuffer& rb, IBlock
 	builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, 0xFF);
 }
 
-void renderLiquid(int32 x, int32 y, int32 z, Tile* tile, RenderBuffer& rb, IBlockReader auto const& blocks) {
+void renderLiquid(int32 x, int32 y, int32 z, BlockState blockState, RenderBuffer& rb, IBlockReader auto const& blocks) {
 	const auto fx = float(x);// - 0.5f;
 	const auto fy = float(y);// - 0.5f;
 	const auto fz = float(z);// - 0.5f;
@@ -120,12 +120,12 @@ void renderLiquid(int32 x, int32 y, int32 z, Tile* tile, RenderBuffer& rb, IBloc
 	uint8 g = 0xAF;
 	uint8 b = 0xF5;
 
-	auto builder = rb.getForLayer(tile->renderLayer);
+	auto builder = rb.getForLayer(blockState.block->renderLayer);
 
-	bool up_is_liquid = blocks.getTile(x, y + 1, z)->renderType == RenderType::Liquid;
+	bool up_is_liquid = blocks.getBlock(x, y + 1, z).block->renderType == RenderType::Liquid;
 
-	if (blocks.getTile(x, y, z - 1)->renderType == RenderType::Air) {
-		auto coords = tile->southTexture->get(0);
+	if (blocks.getBlock(x, y, z - 1).block->renderType == RenderType::Air) {
+		auto coords = blockState.block->graphics->southTexture->get(0);
 		coords.maxV = coords.minV + (coords.maxV - coords.minV) / 32.0f;
 
 		builder.quad();
@@ -136,8 +136,8 @@ void renderLiquid(int32 x, int32 y, int32 z, Tile* tile, RenderBuffer& rb, IBloc
 		builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, 0xFF);
 	}
 
-	if (blocks.getTile(x + 1, y, z)->renderType == RenderType::Air) {
-		auto coords = tile->eastTexture->get(0);
+	if (blocks.getBlock(x + 1, y, z).block->renderType == RenderType::Air) {
+		auto coords = blockState.block->graphics->eastTexture->get(0);
 		coords.maxV = coords.minV + (coords.maxV - coords.minV) / 32.0f;
 
 		builder.quad();
@@ -148,8 +148,8 @@ void renderLiquid(int32 x, int32 y, int32 z, Tile* tile, RenderBuffer& rb, IBloc
 		builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, 0xFF);
 	}
 
-	if (blocks.getTile(x, y, z + 1)->renderType == RenderType::Air) {
-		auto coords = tile->northTexture->get(0);
+	if (blocks.getBlock(x, y, z + 1).block->renderType == RenderType::Air) {
+		auto coords = blockState.block->graphics->northTexture->get(0);
 		coords.maxV = coords.minV + (coords.maxV - coords.minV) / 32.0f;
 
 		builder.quad();
@@ -160,8 +160,8 @@ void renderLiquid(int32 x, int32 y, int32 z, Tile* tile, RenderBuffer& rb, IBloc
 		builder.vertex(fx + 0, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, 0xFF);
 	}
 
-	if (blocks.getTile(x - 1, y, z)->renderType == RenderType::Air) {
-		auto coords = tile->westTexture->get(0);
+	if (blocks.getBlock(x - 1, y, z).block->renderType == RenderType::Air) {
+		auto coords = blockState.block->graphics->westTexture->get(0);
 		coords.maxV = coords.minV + (coords.maxV - coords.minV) / 32.0f;
 
 		builder.quad();
@@ -172,8 +172,8 @@ void renderLiquid(int32 x, int32 y, int32 z, Tile* tile, RenderBuffer& rb, IBloc
 		builder.vertex(fx + 0, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, 0xFF);
 	}
 
-	if (y == 255 || blocks.getTile(x, y + 1, z)->renderType == RenderType::Air) {
-		auto coords = tile->topTexture->get(0);
+	if (y == 255 || blocks.getBlock(x, y + 1, z).block->renderType == RenderType::Air) {
+		auto coords = blockState.block->graphics->topTexture->get(0);
 		coords.maxV = coords.minV + (coords.maxV - coords.minV) / 32.0f;
 
 
@@ -185,8 +185,8 @@ void renderLiquid(int32 x, int32 y, int32 z, Tile* tile, RenderBuffer& rb, IBloc
 		builder.vertex(fx + 1, fy + (up_is_liquid ? 1 : 0.9375f), fz + 0, coords.maxU, coords.minV, r, g, b, 0xFF);
 	}
 
-	if (y == 0 || blocks.getTile(x, y - 1, z)->renderType == RenderType::Air) {
-		auto coords = tile->bottomTexture->get(0);
+	if (y == 0 || blocks.getBlock(x, y - 1, z).block->renderType == RenderType::Air) {
+		auto coords = blockState.block->graphics->bottomTexture->get(0);
 		coords.maxV = coords.minV + (coords.maxV - coords.minV) / 32.0f;
 
 		builder.quad();
@@ -207,24 +207,24 @@ void renderBlocks(RenderBuffer& rb, IBlockReader auto const& blocks) {
     for (int32 x = start_x; x < start_x + 16; x++) {
         for (int32 z = start_z; z < start_z + 16; z++) {
             for (int32 y = 0; y < 256; y++) {
-                auto tile = blocks.getTile(x, y, z);
+                auto blockState = blocks.getBlock(x, y, z);
 
-                if (tile->renderType == RenderType::Air) {
+                if (blockState.block->renderType == RenderType::Air) {
                     continue;
                 }
 
-				switch (tile->renderType) {
+				switch (blockState.block->renderType) {
                 case RenderType::Air:
                 	break;
                 case RenderType::Block:
                 case RenderType::Leaves:
-                	renderBlock(x, y, z, tile, rb, blocks);
+                	renderBlock(x, y, z, blockState, rb, blocks);
                 	break;
                 case RenderType::Cross:
-                	renderCross(x, y, z, tile, rb, blocks);
+                	renderCross(x, y, z, blockState, rb, blocks);
                 	break;
                 case RenderType::Liquid:
-                	renderLiquid(x, y, z, tile, rb, blocks);
+                	renderLiquid(x, y, z, blockState, rb, blocks);
 					break;
 				}
             }

@@ -1,11 +1,12 @@
 #pragma once
 
+#include "mesh.hpp"
+#include "block.hpp"
+
+#include <glm/vec3.hpp>
+
 #include <vector>
 #include <memory>
-
-#include "mesh.hpp"
-
-struct Tile;
 
 enum class ChunkState {
 	Empty,
@@ -23,7 +24,7 @@ struct Light {
 };
 
 struct ChunkSection {
-	Tile* tiles[16][16][16]{nullptr};
+    BlockState states[16][16][16]{};
 };
 
 struct RenderLayerBuilder {
@@ -143,21 +144,20 @@ struct Chunk {
 	ChunkLayer layers[3]{};
     std::unique_ptr<Mesh> mesh{nullptr};
 
-    void setTile(int32 x, int32 y, int32 z, Tile* tile) {
+    void setBlock(int32 x, int32 y, int32 z, BlockState blockState) {
     	auto& section = sections[y >> 4];
     	if (section == nullptr) {
     		section = new ChunkSection();
     	}
-    	section->tiles[x & 15][y & 15][z & 15] = tile;
+    	section->states[x & 15][y & 15][z & 15] = blockState;
     }
 
-    auto getTile(int32 x, int32 y, int32 z) -> Tile* {
+    auto getBlock(int32 x, int32 y, int32 z) -> BlockState {
     	auto& section = sections[y >> 4];
     	if (section == nullptr) {
-    		section = new ChunkSection();
-			return nullptr;
+			return {};
     	}
-        return section->tiles[x & 15][y & 15][z & 15];
+        return section->states[x & 15][y & 15][z & 15];
     }
 
 //    void setLight(int32 x, int32 y, int32 z, Light light) {

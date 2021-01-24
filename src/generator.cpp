@@ -3,7 +3,7 @@
 #include "chunk_pos.hpp"
 #include "block_reader.hpp"
 #include "worldgenregion.hpp"
-#include "tile.hpp"
+#include "block.hpp"
 
 #include <stdint.hpp>
 #include <glm/ext.hpp>
@@ -84,11 +84,11 @@ void generateTerrain(Chunk* chunk, int32 chunk_x, int32 chunk_z) {
             chunk->heightmap[x & 15][z & 15] = height;
 
             for (int32 y = 0; y < height; y++) {
-                chunk->setTile(x, y, z, Tile::grass);
+                chunk->setBlock(x, y, z, {Block::grass, 0});
             }
 
             for (int32 y = height; y < 68; y++) {
-                chunk->setTile(x, y, z, Tile::water);
+                chunk->setBlock(x, y, z, {Block::water, 0});
             }
         }
     }
@@ -100,21 +100,21 @@ void generateTree(Chunk* chunk, int32 x, int32 z, IBlockReader auto& blocks, Ran
 	int32 treeHeight = 4 + random.nextInt(0, 2);
 
 	for (int32 y = treeHeight - 2; y <= treeHeight + 1; y++) {
-		blocks.setTile(x - 1, y + height, z - 1, Tile::leaves);
-		blocks.setTile(x + 0, y + height, z - 1, Tile::leaves);
-		blocks.setTile(x + 1, y + height, z - 1, Tile::leaves);
+        blocks.setBlock(x - 1, y + height, z - 1, {Block::leaves, 0});
+        blocks.setBlock(x + 0, y + height, z - 1, {Block::leaves, 0});
+        blocks.setBlock(x + 1, y + height, z - 1, {Block::leaves, 0});
 
-		blocks.setTile(x - 1, y + height, z, Tile::leaves);
-		blocks.setTile(x + 0, y + height, z, Tile::leaves);
-		blocks.setTile(x + 1, y + height, z, Tile::leaves);
+        blocks.setBlock(x - 1, y + height, z, {Block::leaves, 0});
+        blocks.setBlock(x + 0, y + height, z, {Block::leaves, 0});
+        blocks.setBlock(x + 1, y + height, z, {Block::leaves, 0});
 
-		blocks.setTile(x - 1, y + height, z + 1, Tile::leaves);
-		blocks.setTile(x + 0, y + height, z + 1, Tile::leaves);
-		blocks.setTile(x + 1, y + height, z + 1, Tile::leaves);
+        blocks.setBlock(x - 1, y + height, z + 1, {Block::leaves, 0});
+        blocks.setBlock(x + 0, y + height, z + 1, {Block::leaves, 0});
+        blocks.setBlock(x + 1, y + height, z + 1, {Block::leaves, 0});
 	}
 
 	for (int32 y = height; y < height + treeHeight; y++) {
-		blocks.setTile(x, y, z, Tile::log);
+        blocks.setBlock(x, y, z, {Block::log, 0});
 	}
 }
 
@@ -134,11 +134,11 @@ void generateFeatures(Chunk* chunk, IBlockReader auto& blocks, int32 chunk_x, in
 				if (n < 15) {
 					generateTree(chunk, (chunk_x << 4) + x, (chunk_z << 4) + z, blocks, random);
 				} else if (n < 40) {
-					blocks.setTile((chunk_x << 4) + x, height, (chunk_z << 4) + z, Tile::red_flower);
+                    blocks.setBlock((chunk_x << 4) + x, height, (chunk_z << 4) + z, {Block::red_flower, 0});
 				} else if (n < 80) {
-					blocks.setTile((chunk_x << 4) + x, height, (chunk_z << 4) + z, Tile::yellow_flower);
+                    blocks.setBlock((chunk_x << 4) + x, height, (chunk_z << 4) + z, {Block::yellow_flower, 0});
 				} else if (n < 200) {
-					blocks.setTile((chunk_x << 4) + x, height, (chunk_z << 4) + z, Tile::tallgrass);
+                    blocks.setBlock((chunk_x << 4) + x, height, (chunk_z << 4) + z, {Block::tallgrass, 0});
 				}
 			}
         }

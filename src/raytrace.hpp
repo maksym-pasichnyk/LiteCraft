@@ -1,7 +1,7 @@
 //module;
 
 #include "block_reader.hpp"
-#include "tile.hpp"
+#include "block.hpp"
 
 #include <glm/glm.hpp>
 #include <optional>
@@ -16,7 +16,7 @@ struct RayTraceContext {
 struct RayTraceResult {
 	glm::ivec3 pos;
 	glm::ivec3 dir;
-	Tile* tile{nullptr};
+	BlockState blockState;
 };
 
 auto rayTraceBlocks(IBlockReader auto& blocks, const RayTraceContext& context) -> std::optional<RayTraceResult> {
@@ -40,12 +40,12 @@ auto rayTraceBlocks(IBlockReader auto& blocks, const RayTraceContext& context) -
 
 		// todo: shape
 
-		auto tile = blocks.getTile(pos);
-		if (tile != Tile::air) {
+		auto blockState = blocks.getBlock(pos);
+		if (blockState.block != Block::air) {
 			return RayTraceResult{
 				.pos = pos,
 				.dir = -dir,
-				.tile = tile
+				.blockState = blockState
 			};
 		}
 	}
