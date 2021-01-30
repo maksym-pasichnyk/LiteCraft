@@ -12,10 +12,11 @@ layout (location = 0) in struct {
 
 void main() {
     vec4 tex = texture(sTexture, v_in.tex);
-    vec4 col = mix(tex, tex * v_in.color, tex.a);
+    vec3 col = mix(tex.rgb, tex.rgb * v_in.color.rgb, tex.a);
+    col *= vec3(v_in.color.a);
 
     float gamma = 1.3;
     col.rgb = pow(col.rgb, vec3(gamma));
-//    col.rgb = mix(col.rgb, v_in.fogColor.rgb, v_in.fogColor.a);
-    out_color = col;
+    col.rgb = mix(col.rgb, v_in.fogColor.rgb, v_in.fogColor.a);
+    out_color = vec4(col, 1.0);
 }

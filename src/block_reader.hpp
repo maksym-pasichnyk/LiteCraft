@@ -4,9 +4,11 @@
 #include <concepts>
 
 #include "block.hpp"
+#include "block_table.hpp"
 
 template <typename T>
-concept IBlockReader = requires(T& self, BlockState blockState, int32 x, int32 y, int32 z) {
-    { self.getBlock(x, y, z)} -> std::same_as<BlockState>;
-    { self.setBlock(x, y, z, blockState)} -> std::same_as<void>;
+concept IBlockReader = requires(T& self, BlockLayers blockLayers, int32 x, int32 y, int32 z) {
+    { self.getBlock(x, y, z)} -> std::same_as<BlockLayers>;
+    { self.setBlock(x, y, z, blockLayers)} -> std::same_as<void>;
+//    { self.getChunk(x, z)} -> std::same_as<Chunk*>;
 };

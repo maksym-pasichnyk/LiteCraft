@@ -47,11 +47,11 @@ struct VertexBuilder {
         indices.push_back(i + 3);
     }
 
-    void vertex(f32 x, f32 y, f32 z, f32 u, f32 v, uint8 r, uint8 g, uint8 b, uint8 a) {
+    void vertex(f32 x, f32 y, f32 z, f32 u, f32 v, uint8 r, uint8 g, uint8 b, uint8 light) {
         vertices.push_back(Vertex{
                 .point{x, y, z},
                 .tex{u, v},
-                .color{r, g, b, a}
+                .color{r, g, b, light}
         });
     }
 };

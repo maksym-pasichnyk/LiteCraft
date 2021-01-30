@@ -15,7 +15,7 @@ add_subdirectory(glm)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(minecraft src/main.cpp src/graphics.hpp src/graphics.cpp src/input.hpp src/camera.hpp src/transform.hpp src/mesh.hpp src/block.hpp src/block_reader.hpp src/chunk_pos.hpp src/chunk.hpp src/texture_atlas.hpp src/resource_manager.hpp src/stb_image.hpp src/stb_image.cpp src/block_tessellator.cpp src/generator.cpp src/random.hpp src/block.cpp src/raytrace.hpp src/worldgenregion.hpp)
+add_executable(minecraft src/main.cpp src/graphics.hpp src/graphics.cpp src/input.hpp src/camera.hpp src/transform.hpp src/mesh.hpp src/block.hpp src/block_reader.hpp src/chunk_pos.hpp src/chunk.hpp src/texture_atlas.hpp src/resource_manager.hpp src/stb_image.hpp src/stb_image.cpp src/block_tessellator.cpp src/generator.cpp src/random.hpp src/block.cpp src/raytrace.hpp src/worldgenregion.hpp src/block_table.hpp block_data.h)
 target_link_libraries(minecraft atomic sfml-window sfml-system sfml-graphics GL GLEW stl fmt pthread nlohmann_json glm)
 
 #add_dependencies(minecraft raytrace.pcm)

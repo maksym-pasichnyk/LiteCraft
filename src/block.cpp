@@ -1,5 +1,9 @@
 #include "block.hpp"
 
+
+std::vector<Block*> Block::id_to_block;
+std::vector<Block*> Block::block_to_id;
+
 Block* Block::acacia_button = nullptr;
 Block* Block::acacia_door = nullptr;
 Block* Block::acacia_fence_gate = nullptr;
@@ -341,7 +345,7 @@ Block* Block::wool = nullptr;
 Block* Block::yellow_flower = nullptr;
 Block* Block::yellow_glazed_terracotta = nullptr;
 
-void Block::initTiles() {
+void Block::initBlocks() {
 	acacia_button = new Block("acacia_button");
 	acacia_door = new Block("acacia_door");
 	acacia_fence_gate = new Block("acacia_fence_gate");
@@ -491,7 +495,7 @@ void Block::initTiles() {
 	info_update = new Block("info_update");
 	info_update2 = new Block("info_update2");
 	invisibleBedrock = new Block("invisibleBedrock");
-	iron_bars = new Block("iron_bars");
+	iron_bars = (new Block("iron_bars"))->setRenderType(RenderType::Pane);
 	iron_block = new Block("iron_block");
 	iron_door = new Block("iron_door");
 	iron_ore = new Block("iron_ore");
@@ -682,4 +686,6 @@ void Block::initTiles() {
 	wool = new Block("wool");
 	yellow_flower = (new Block("yellow_flower"))->setRenderType(RenderType::Cross)->setRenderLayer(RenderLayer::Cutout);
 	yellow_glazed_terracotta = new Block("yellow_glazed_terracotta");
+
+	id_to_block.resize(5000);
 }

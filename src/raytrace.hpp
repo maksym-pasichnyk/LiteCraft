@@ -16,7 +16,7 @@ struct RayTraceContext {
 struct RayTraceResult {
 	glm::ivec3 pos;
 	glm::ivec3 dir;
-	BlockState blockState;
+//	BlockLayers blockLayers;
 };
 
 auto rayTraceBlocks(IBlockReader auto& blocks, const RayTraceContext& context) -> std::optional<RayTraceResult> {
@@ -40,12 +40,12 @@ auto rayTraceBlocks(IBlockReader auto& blocks, const RayTraceContext& context) -
 
 		// todo: shape
 
-		auto blockState = blocks.getBlock(pos);
-		if (blockState.block != Block::air) {
+		auto block = Block::id_to_block[(int) blocks.getBlock(pos).layer1.id];
+		if (block != Block::air) {
 			return RayTraceResult{
 				.pos = pos,
 				.dir = -dir,
-				.blockState = blockState
+//				.blockState = block
 			};
 		}
 	}

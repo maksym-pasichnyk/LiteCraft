@@ -1,31 +1,18 @@
 #pragma once
 
+#include "block_table.hpp"
+#include "block_reader.hpp"
+
 #include "mesh.hpp"
 #include "block.hpp"
+#include "chunk_pos.hpp"
 
 #include <glm/vec3.hpp>
 
 #include <vector>
 #include <memory>
 
-enum class ChunkState {
-	Empty,
-	StructureStart,
-	StructureReferences,
-	Noise,
-	Features,
-	Light,
-	Full
-};
-
-struct Light {
-	int8 block : 4;
-	int8 sky   : 4;
-};
-
-struct ChunkSection {
-    BlockState states[16][16][16]{};
-};
+struct WorldGenRegion;
 
 struct RenderLayerBuilder {
 	std::vector<Vertex>& vertices;
@@ -50,11 +37,11 @@ struct RenderLayerBuilder {
         indices.push_back(i + 3);
     }
 
-    void vertex(f32 x, f32 y, f32 z, f32 u, f32 v, uint8 r, uint8 g, uint8 b, uint8 a) {
+    void vertex(f32 x, f32 y, f32 z, f32 u, f32 v, uint8 r, uint8 g, uint8 b, uint8_t light) {
         vertices.push_back(Vertex{
                 .point{x, y, z},
                 .tex{u, v},
-                .color{r, g, b, a}
+                .color{r, g, b, light}
         });
     }
 };
@@ -129,14 +116,188 @@ struct ChunkLayer {
 	int32 index_count = 0;
 };
 
+enum class ChunkState {
+	Empty,
+	StructureStart,
+	StructureReferences,
+	Noise,
+	Features,
+	Light,
+	Full
+};
+
+struct Light {
+	int8 block : 4;
+	int8 sky   : 4;
+};
+
+struct ChunkSection {
+    std::array<BlockData[4096], 2> layers;
+};
+
+struct StructureBoundingBox {
+    int min_x;
+    int min_y;
+    int min_z;
+    int max_x;
+    int max_y;
+    int max_z;
+
+
+    constexpr bool contains(int x, int y, int z) const noexcept {
+        return min_x <= x && x <= max_x &&
+               min_y <= y && y <= max_y &&
+               min_z <= z && z <= max_z;
+    }
+
+    constexpr bool intersect(const StructureBoundingBox& boundingBox) const noexcept {
+        return min_x <= boundingBox.max_x && max_x >= boundingBox.min_x &&
+               min_y <= boundingBox.max_y && max_y >= boundingBox.min_y &&
+               min_z <= boundingBox.max_z && max_z >= boundingBox.min_z;
+    }
+
+    static constexpr StructureBoundingBox withSize(int x, int y, int z, int size_x, int size_y, int size_z) {
+        return StructureBoundingBox{x, y, z, x + size_x - 1, y + size_y - 1, z + size_z - 1};
+    }
+
+    static constexpr StructureBoundingBox fromChunkPos(int chunk_x, int chunk_z) {
+        const int pos_x = chunk_x << 4;
+        const int pos_z = chunk_z << 4;
+
+        return StructureBoundingBox{pos_x, 0, pos_z, pos_x + 15, 255, pos_z + 15};
+    }
+};
+
+enum DIRECTION {
+    SOUTH = 0,
+    EAST = 3,
+    NORTH = 2,
+    WEST = 1
+};
+
+enum {
+    BlockPane_WEST = 1,
+    BlockPane_NORTH = 2,
+    BlockPane_EAST = 4,
+    BlockPane_SOUTH = 8,
+};
+
+#include <fmt/format.h>
+
+struct StructurePiece {
+    DIRECTION coordBaseMode;
+    StructureBoundingBox boundingBox;
+
+    virtual ~StructurePiece() = default;
+
+    virtual void place(WorldGenRegion& region, BlockTable& global_pallete, StructureBoundingBox bb) = 0;
+
+    int get_x_with_offset(int x, int z) {
+        switch (coordBaseMode) {
+            case SOUTH:
+            case NORTH:
+                return boundingBox.min_x + x;
+            case WEST:
+                return boundingBox.max_x - z;
+            case EAST:
+                return boundingBox.min_x + z;
+        }
+        return x;
+    }
+
+    int get_y_with_offset(int y) {
+        return boundingBox.min_y + y;
+    }
+
+    int get_z_with_offset(int x, int z) {
+        switch (coordBaseMode) {
+            case NORTH:
+                return boundingBox.max_z - z;
+            case SOUTH:
+                return boundingBox.min_z + z;
+            case WEST:
+            case EAST:
+                return boundingBox.min_z + x;
+        }
+        return z;
+    }
+
+    auto setBlock(IBlockReader auto &blocks, StructureBoundingBox sbb, int x, int y, int z, BlockData blockData) {
+        glm::ivec3 blockpos{get_x_with_offset(x, z), get_y_with_offset(y), get_z_with_offset(x, z)};
+
+        if (sbb.contains(blockpos.x, blockpos.y, blockpos.z)) {
+            if (coordBaseMode == EAST || coordBaseMode == NORTH) {
+                auto val = 0;
+                if (blockData.val & BlockPane_WEST) {
+                    val |= BlockPane_WEST;
+                }
+                if (blockData.val & BlockPane_NORTH) {
+                    val |= BlockPane_SOUTH;
+                }
+                if (blockData.val & BlockPane_EAST) {
+                    val |= BlockPane_EAST;
+                }
+                if (blockData.val & BlockPane_SOUTH) {
+                    val |= BlockPane_NORTH;
+                }
+                blockData.val = val;
+            }
+
+            if (coordBaseMode == EAST || coordBaseMode == WEST) {
+                auto val = 0;
+                if (blockData.val & BlockPane_WEST) {
+                    val |= BlockPane_SOUTH;
+                }
+                if (blockData.val & BlockPane_NORTH) {
+                    val |= BlockPane_WEST;
+                }
+                if (blockData.val & BlockPane_EAST) {
+                    val |= BlockPane_NORTH;
+                }
+                if (blockData.val & BlockPane_SOUTH) {
+                    val |= BlockPane_EAST;
+                }
+                blockData.val = val;
+            }
+
+            blocks.setBlock(blockpos.x, blockpos.y, blockpos.z, {blockData});
+        }
+    }
+};
+
+struct StructureStart {
+    StructureBoundingBox boundingBox;
+    std::vector<std::unique_ptr<StructurePiece>> pieces;
+
+    virtual ~StructureStart() = default;
+    virtual void build(int pos_x, int pos_z) = 0;
+
+    void updateBoundingBox() {
+        boundingBox.min_x = std::numeric_limits<int>::max();
+        boundingBox.min_y = std::numeric_limits<int>::max();
+        boundingBox.min_z = std::numeric_limits<int>::max();
+        boundingBox.max_x = std::numeric_limits<int>::min();
+        boundingBox.max_y = std::numeric_limits<int>::min();
+        boundingBox.max_z = std::numeric_limits<int>::min();
+
+        for (auto& piece : pieces) {
+            boundingBox.min_x = std::min(boundingBox.min_x, piece->boundingBox.min_x);
+            boundingBox.min_y = std::min(boundingBox.min_y, piece->boundingBox.min_y);
+            boundingBox.min_z = std::min(boundingBox.min_z, piece->boundingBox.min_z);
+            boundingBox.max_x = std::max(boundingBox.max_x, piece->boundingBox.max_x);
+            boundingBox.max_y = std::max(boundingBox.max_y, piece->boundingBox.max_y);
+            boundingBox.max_z = std::max(boundingBox.max_z, piece->boundingBox.max_z);
+        }
+    }
+};
+
 struct Chunk {
 	ChunkState state = ChunkState::Empty;
 	bool is_dirty = false;
     bool needRender = false;
     bool needUpdate = false;
 
-	ChunkSection* sections[16]{};
-//    Light lights[256][16][16]{};
+	std::array<ChunkSection*, 16> sections{};
 
     int32 heightmap[16][16];
 
@@ -144,29 +305,28 @@ struct Chunk {
 	ChunkLayer layers[3]{};
     std::unique_ptr<Mesh> mesh{nullptr};
 
-    void setBlock(int32 x, int32 y, int32 z, BlockState blockState) {
+    std::vector<std::shared_ptr<StructureStart>> structureStarts;
+    std::vector<std::weak_ptr<StructureStart>> structureReferences;
+
+    void setBlock(int32 x, int32 y, int32 z, BlockLayers blockLayers) {
     	auto& section = sections[y >> 4];
     	if (section == nullptr) {
     		section = new ChunkSection();
     	}
-    	section->states[x & 15][y & 15][z & 15] = blockState;
+    	section->layers[0][toIndex(x, y, z)] = blockLayers.layer1;
+    	section->layers[1][toIndex(x, y, z)] = blockLayers.layer2;
     }
 
-    auto getBlock(int32 x, int32 y, int32 z) -> BlockState {
+    auto getBlock(int32 x, int32 y, int32 z) -> BlockLayers {
     	auto& section = sections[y >> 4];
     	if (section == nullptr) {
 			return {};
     	}
-        return section->states[x & 15][y & 15][z & 15];
+        return {
+            section->layers[0][toIndex(x, y, z)],
+            section->layers[1][toIndex(x, y, z)]
+        };
     }
-
-//    void setLight(int32 x, int32 y, int32 z, Light light) {
-//        lights[y][x & 15][z & 15] = light;
-//    }
-//
-//    auto getLight(int32 x, int32 y, int32 z) -> Light {
-//        return lights[y][x & 15][z & 15];
-//    }
 
     void updateMesh() {
         if (!mesh) {
@@ -192,5 +352,13 @@ struct Chunk {
 			index_offset += layers[submesh_index].index_count;
 			submesh_index++;
         }
+    }
+
+    static constexpr int32_t toIndex(int32_t x, int32_t y, int32_t z) {
+        const auto inner_x = x & 15;
+        const auto inner_y = y & 15;
+        const auto inner_z = z & 15;
+
+        return (inner_x << 8) | (inner_z << 4) | inner_y;
     }
 };

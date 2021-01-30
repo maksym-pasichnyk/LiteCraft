@@ -29,6 +29,7 @@ enum class RenderType {
 	Block,
 	Leaves,
 	Cross,
+	Pane
 };
 
 enum class RenderLayer {
@@ -39,18 +40,11 @@ enum class RenderLayer {
 
 extern std::map<std::string, BlockGraphics> tile_datas;
 
-struct BlockData {
-    uint16_t id;
-    uint16_t val;
-};
-
-struct BlockLayers {
-    BlockData layer1;
-    BlockData layer2;
-};
-
 struct LiquidBlock;
 struct Block {
+    static std::vector<Block*> id_to_block;
+    static std::vector<Block*> block_to_id;
+
 	[[maybe_unused]] static Block* acacia_button;
 	[[maybe_unused]] static Block* acacia_door;
 	[[maybe_unused]] static Block* acacia_fence_gate;
@@ -392,8 +386,8 @@ struct Block {
 	[[maybe_unused]] static Block* yellow_flower;
 	[[maybe_unused]] static Block* yellow_glazed_terracotta;
 
-	explicit Block(const std::string& key) {
-        graphics = &tile_datas.at(key);
+	explicit Block(const std::string& name) {
+        graphics = &tile_datas.at(name);
 	}
 
 	auto setRenderType(RenderType renderTypeIn) -> Block* {
@@ -411,7 +405,7 @@ struct Block {
 		return this;
 	}
 
-	static void initTiles();
+	static void initBlocks();
 
 	Tint tint = Tint::None;
 	RenderType renderType = RenderType::Block;
@@ -419,10 +413,10 @@ struct Block {
     BlockGraphics* graphics{nullptr};
 };
 
-struct BlockState {
-    Block* block = Block::air;
-    int data = 0;
-};
+//struct BlockState {
+//    Block* block = Block::air;
+//    int data = 0;
+//};
 
 struct LiquidBlock : Block {
     using Block::Block;

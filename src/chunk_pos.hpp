@@ -1,10 +1,26 @@
 #pragma once
 
-#include <stdint.hpp>
+#include <cstdint>
+
+enum class Dimension {
+    Overworld = 0,
+    Nether = 1,
+    End = 2
+};
+
+//struct SubchunkPos {
+//    int32_t x;
+//    int32_t z;
+//    uint8_t subchunk;
+//    Dimension dimension;
+//
+//    constexpr auto operator<=>(const ChunkPos&) const noexcept = default;
+//};
 
 struct ChunkPos {
-    int32 x;
-    int32 z;
+    int32_t x;
+    int32_t z;
+//    Dimension dimension;
 
     constexpr auto operator<=>(const ChunkPos&) const noexcept = default;
 
@@ -17,7 +33,34 @@ struct ChunkPos {
         return (int64) x & 0xFFFFFFFFLL | ((int64) z & 0xFFFFFFFFLL) << 32;
     }
 
-    constexpr auto asLong() -> int64 {
+    constexpr auto asLong() const -> int64 {
         return asLong(x, z);
     }
+
+//    constexpr SubchunkPos subchunkPos(uint8_t subchunk) const {
+//        return { x, z, subchunk, dimension };
+//    }
 };
+
+//struct WorldPos {
+//    int32_t x;
+//    uint8_t y;
+//    int32_t z;
+//    Dimension dimension;
+//
+//    constexpr ChunkPos chunkPos() const {
+//        return { x >> 4, z >> 4, dimension };
+//    }
+//
+//    constexpr int32 subchunkIndex() const {
+//        return y >> 4;
+//    }
+//
+//    constexpr int32_t blockIndex() const {
+//        const auto inner_x = x & 15;
+//        const auto inner_y = y & 15;
+//        const auto inner_z = z & 15;
+//
+//        return (inner_x << 8) | (inner_z << 4) | inner_y;
+//    }
+//};
