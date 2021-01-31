@@ -10,7 +10,6 @@ add_definitions(-DGLM_FORCE_XYZW_ONLY)
 add_subdirectory(fmt)
 add_subdirectory(stl)
 add_subdirectory(json)
-add_subdirectory(range-v3)
 add_subdirectory(glm)
 
 set(CMAKE_CXX_STANDARD 20)

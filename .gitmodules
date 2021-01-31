@@ -1,9 +1,6 @@
 [submodule "json"]
 	path = json
 	url = https://github.com/nlohmann/json
-[submodule "range-v3"]
-	path = range-v3
-	url = https://github.com/ericniebler/range-v3
 [submodule "fmt"]
 	path = fmt
 	url = https://github.com/fmtlib/fmt
@@ -13,6 +10,3 @@
 [submodule "glm"]
 	path = glm
 	url = https://github.com/g-truc/glm.git
-[submodule "glew"]
-	path = glew
-	url = https://github.com/nigels-com/glew.git
