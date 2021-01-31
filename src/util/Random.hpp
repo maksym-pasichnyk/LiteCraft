@@ -15,21 +15,21 @@ struct Random {
 		return rand;
 	}
 
-	static auto seedSlimeChunk(int32 x, int32 z, long baseSeed, long modifier) -> Random {
-		return from(baseSeed + int64(x * x * 4987142) + int64(x * 5947611) + int64(z * z) * 4392871LL + int64(z * 389711) ^ modifier);
+	static auto seedSlimeChunk(int32_t x, int32_t z, int64_t baseSeed, int64_t modifier) -> Random {
+		return from(baseSeed + int64_t(x * x * 4987142) + int64_t(x * 5947611) + int64_t(z * z) * 4392871LL + int64_t(z * 389711) ^ modifier);
 	}
 
-	auto nextInt(int32 min, int32 max) -> int32 {
+	auto nextInt(int32_t min, int32_t max) -> int32_t {
 		return min + nextInt(max - min);
 	}
 
-	auto nextInt(uint16 bound) -> int32 {
-		int32 r = next(31);
-		uint16 m = bound - 1u;
-		if ((bound & m) == 0) {
-			r = int32((bound * uint64(r)) >> 31u);
+	auto nextInt(int bound) -> int32_t {
+		int32_t r = next(31);
+        int32_t m = bound - 1u;
+		if ((bound & m) == 0) { // i.e., bound is a power of 2
+			r = int32_t((bound * uint64(r)) >> 31u);
 		} else {
-			int32 u = r;
+			int32_t u = r;
 			while (u - (r = u % bound) + m < 0) {
 				u = next(31);
 			}
@@ -37,13 +37,13 @@ struct Random {
 		return r;
 	}
 
-	auto next(int bits) -> int32 {
+	auto next(int bits) -> int32_t {
 		seed = (seed * RANDOM_MULTIPLIER + RANDOM_ADDEND) & RANDOM_MASK;
-		return int32(seed >> (48u - bits));
+		return int32_t(seed >> (48u - bits));
 	}
 
 	auto nextLong() -> int64_t {
-        return (int64(next(32)) << 32) | int64(next(32));
+        return (int64_t(next(32)) << 32) | int64_t(next(32));
     }
 
     auto nextBoolean() -> bool {
@@ -55,15 +55,7 @@ struct Random {
     }
 
 	auto nextDouble() -> double {
-    	return double(((int64(int32(next(26))) << 27u)) | int32(next(27))) * RANDOM_SCALE;
-	}
-
-	void advance4() {
-		seed = (seed * 0x32EB772C5F11LLU + 0x2D3873C4CD04LLU) & RANDOM_MASK;
-	}
-
-	void advance6() {
-		seed = (seed * 0x45D73749A7F9LLU + 0x17617168255ELLU) & RANDOM_MASK;
+    	return double(((int64_t(int32_t(next(26))) << 27u)) | int32_t(next(27))) * RANDOM_SCALE;
 	}
 
 	auto initialScramble(int64_t v) -> int64_t {
@@ -74,38 +66,38 @@ struct Random {
 		seed = initialScramble(v);
 	}
 
-	auto setBaseChunkSeed(int32 x, int32 z) -> int64 {
-		auto i = int64(x) * 0x4F9939F508LL + int64(z) * 0x1ef1565bd5LL;
+	auto setBaseChunkSeed(int32_t x, int32_t z) -> int64_t {
+		auto i = int64_t(x) * 0x4F9939F508LL + int64_t(z) * 0x1ef1565bd5LL;
 		setSeed(i);
 		return i;
 	}
 
-	auto setDecorationSeed(int64 baseSeed, int32 x, int32 z) -> int64 {
+	auto setDecorationSeed(int64_t baseSeed, int32_t x, int32_t z) -> int64_t {
 		setSeed(baseSeed);
-		int64 i = nextLong() | 1L;
-		int64 j = nextLong() | 1L;
-		int64 k = int64(x) * i + int64(z) * j ^ baseSeed;
+		int64_t i = nextLong() | 1L;
+		int64_t j = nextLong() | 1L;
+		int64_t k = int64_t(x) * i + int64_t(z) * j ^ baseSeed;
 		setSeed(k);
 		return k;
 	}
 
-	auto setFeatureSeed(int64 baseSeed, int32 x, int32 z) -> int64 {
-		int64 i = baseSeed + int64(x) + int64(10000 * z);
+	auto setFeatureSeed(int64_t baseSeed, int32_t x, int32_t z) -> int64_t {
+		int64_t i = baseSeed + int64_t(x) + int64_t(10000 * z);
 		setSeed(i);
 		return i;
 	}
 
-	auto setLargeFeatureSeed(int64 baseSeed, int32 x, int32 z) {
+	auto setLargeFeatureSeed(int64_t baseSeed, int32_t x, int32_t z) -> int64_t {
 		setSeed(baseSeed);
-		int64 i = nextLong();
-		int64 j = nextLong();
-		int64 k = int64(x) * i ^ int64(z) * j ^baseSeed;
+		int64_t i = nextLong();
+		int64_t j = nextLong();
+		int64_t k = int64_t(x) * i ^ int64_t(z) * j ^baseSeed;
 		setSeed(k);
 		return k;
 	}
 
-	auto setLargeFeatureSeedWithSalt(int64 baseSeed, int32 x, int32 z, int32 modifier) {
-		int64 i = int64(x) * 0x4F9939F508LL + int64(z) * 0x1ef1565bd5LL + baseSeed + int64(modifier);
+	auto setLargeFeatureSeedWithSalt(int64_t baseSeed, int32_t x, int32_t z, int32_t modifier) -> int64_t {
+		int64_t i = int64_t(x) * 0x4F9939F508LL + int64_t(z) * 0x1ef1565bd5LL + baseSeed + int64_t(modifier);
 		setSeed(i);
 		return i;
 	}

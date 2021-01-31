@@ -26,16 +26,24 @@ struct ChunkPos {
     constexpr auto operator<=>(const ChunkPos&) const noexcept = default;
 
     template<typename T>
-    constexpr auto cast() -> T {
+    constexpr T cast() const noexcept {
         return T{x, z};
     }
 
-    constexpr static auto asLong(int x, int z) -> int64_t {
+    constexpr static int64_t asLong(int x, int z) noexcept {
         return static_cast<int64_t>(x) & 0xFFFFFFFFLL | (static_cast<int64_t>(z) & 0xFFFFFFFFLL) << 32;
     }
 
-    constexpr auto asLong() const -> int64_t {
+    constexpr int64_t asLong() const noexcept {
         return asLong(x, z);
+    }
+
+    constexpr int32_t getStartX() const noexcept {
+        return x << 4;
+    }
+
+    constexpr int32_t getStartZ() const noexcept {
+        return z << 4;
     }
 
 //    constexpr SubchunkPos subchunkPos(uint8_t subchunk) const {

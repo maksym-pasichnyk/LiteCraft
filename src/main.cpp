@@ -28,12 +28,12 @@
 #include "raytrace.hpp"
 #include "worldgenregion.hpp"
 
-extern void renderBlocks(RenderBuffer& rb, BlockTable& global_pallete, const WorldGenRegion& blocks);
-extern void generateTerrain(Chunk* chunk, BlockTable& global_pallete, int32 chunk_x, int32 chunk_z);
-extern void generateTree(Chunk* chunk, BlockTable& global_pallete, int32 x, int32 z, WorldGenRegion& blocks, Random& random);
-extern void generateStructures(Chunk* chunk, BlockTable& global_pallete, WorldGenRegion& blocks, int32 chunk_x, int32 chunk_z, int64 worldSeed);
-extern void generateStructureReferences(Chunk* chunk, BlockTable& global_pallete, WorldGenRegion& blocks, int32 chunk_x, int32 chunk_z, int64 worldSeed);
-extern void generateFeatures(Chunk* chunk, BlockTable& global_pallete, WorldGenRegion& blocks, int32 chunk_x, int32 chunk_z, int64 worldSeed);
+extern void renderBlocks(RenderBuffer& rb, BlockTable& pallete, const WorldGenRegion& blocks);
+extern void generateSurface(Chunk* chunk, BlockTable& pallete);
+extern void generateTerrain(Chunk* chunk, BlockTable& pallete);
+extern void generateStructures(Chunk* chunk, BlockTable& pallete, WorldGenRegion& blocks, int64 worldSeed);
+extern void getStructureReferences(Chunk* chunk, BlockTable& pallete, WorldGenRegion& blocks, int64 worldSeed);
+extern void generateFeatures(Chunk* chunk, BlockTable& pallete, WorldGenRegion& blocks, int64 worldSeed);
 
 std::map<std::string, BlockGraphics> tile_datas;
 
@@ -72,7 +72,7 @@ struct ClientWorld {
 		return chunk;
 	}
 
-	auto getBlock(int32 x, int32 y, int32 z) const -> BlockLayers {
+	auto getBlock(int32 x, int32 y, int32 z) const -> BlockData {
 		if (y >= 0 && y < 256) {
 			if (auto chunk = getChunk(ChunkPos::asLong(x >> 4, z >> 4))) {
 				return chunk->getBlock(x, y, z);
@@ -81,20 +81,20 @@ struct ClientWorld {
 		return {};
 	}
 
-    auto getBlock(glm::ivec3 pos) -> BlockLayers {
+    auto getBlock(glm::ivec3 pos) -> BlockData {
         return getBlock(pos.x, pos.y, pos.z);
     }
 
-	void setBlock(int32 x, int32 y, int32 z, BlockLayers blockLayers) {
+	void setBlock(int32 x, int32 y, int32 z, BlockData blockData) {
 		if (y >= 0 && y < 256) {
 			if (auto chunk = getChunk(ChunkPos::asLong(x >> 4, z >> 4))) {
-				chunk->setBlock(x, y, z, blockLayers);
+				chunk->setBlock(x, y, z, blockData);
 			}
 		}
     }
 
-    void setBlock(glm::ivec3 pos, BlockLayers blockLayers) {
-        setBlock(pos.x, pos.y, pos.z, blockLayers);
+    void setBlock(glm::ivec3 pos, BlockData blockData) {
+        setBlock(pos.x, pos.y, pos.z, blockData);
     }
 };
 
@@ -172,9 +172,10 @@ struct World {
 
     auto getChunk(int32 chunk_x, int32 chunk_z, ChunkState state = ChunkState::Full) -> Chunk* {
     	if (state == ChunkState::Empty) {
-        	auto& chunk = chunks[ChunkPos::asLong(chunk_x, chunk_z)];
+    	    const ChunkPos chunkPos{chunk_x, chunk_z};
+        	auto& chunk = chunks[chunkPos.asLong()];
         	if (chunk == nullptr) {
-				chunk = std::make_unique<Chunk>();
+				chunk = std::make_unique<Chunk>(chunkPos);
 			}
 			return chunk.get();
     	}
@@ -189,22 +190,25 @@ struct World {
 			case ChunkState::StructureStart: {
                 WorldGenRegion region{1, chunk_x, chunk_z};
                 fillRegion(region, parent_state);
-                generateStructures(chunk, global_pallete, region, chunk_x, chunk_z, 0);
+                generateStructures(chunk, global_pallete, region, 0);
                 break;
             }
 			case ChunkState::StructureReferences: {
 				WorldGenRegion region{8, chunk_x, chunk_z};
 				fillRegion(region, parent_state);
-                generateStructureReferences(chunk, global_pallete, region, chunk_x, chunk_z, 0);
+                getStructureReferences(chunk, global_pallete, region, 0);
 				break;
 			}
 			case ChunkState::Noise:
-				generateTerrain(chunk, global_pallete, chunk_x, chunk_z);
+				generateTerrain(chunk, global_pallete);
 				break;
+            case ChunkState::Surface:
+                generateSurface(chunk, global_pallete);
+                break;
 			case ChunkState::Features: {
 				WorldGenRegion region{8, chunk_x, chunk_z};
 				fillRegion(region, parent_state);
-				generateFeatures(chunk, global_pallete, region, chunk_x, chunk_z, 0);
+				generateFeatures(chunk, global_pallete, region, 0);
 				break;
 			}
 			case ChunkState::Light: {
@@ -230,13 +234,12 @@ struct CameraConstants {
 	glm::vec3 position;
 };
 
-
 auto check_collide(const IBlockReader auto& blocks, float x, float y, float z) -> bool {
 	int32_t ix = glm::floor(x);
 	int32_t iy = glm::floor(y);
 	int32_t iz = glm::floor(z);
 
-	return Block::id_to_block[(int) blocks.getBlock(ix, iy, iz).layer1.id]->renderType == RenderType::Block;
+	return Block::id_to_block[(int) blocks.getBlock(ix, iy, iz).id]->renderType == RenderType::Block;
 }
 
 float check_down_velocity(const IBlockReader auto& blocks, glm::vec3 position, float velocity, float half_collider_width = 0.3f) {
@@ -865,7 +868,7 @@ struct App {
 		float s = glm::sin(yaw);
 
 
-        bool is_liquid = Block::id_to_block[(int) client_world.getBlock(transform.position.x, transform.position.y + 1, transform.position.z).layer1.id]->renderType == RenderType::Liquid;
+        bool is_liquid = Block::id_to_block[(int) client_world.getBlock(transform.position.x, transform.position.y + 1, transform.position.z).id]->renderType == RenderType::Liquid;
 
         glm::vec3 ivelocity{};
 		if (input.IsKeyPressed(Input::Key::Up)) {
@@ -938,10 +941,7 @@ struct App {
 
                 const auto pos = rayTraceResult->pos;
 
-                client_world.setBlock(pos, {
-                    BlockData{BlockID::AIR, 0},
-                    BlockData{BlockID::AIR, 0}
-                });
+                client_world.setBlock(pos, BlockData{BlockID::AIR, 0});
 
                 for (int x = pos.x - 1; x <= pos.x + 1; x++) {
                     for (int z = pos.z - 1; z <= pos.z + 1; z++) {
@@ -951,12 +951,9 @@ struct App {
             } else if (input.IsMouseButtonPressed(Input::MouseButton::Right)) {
                 cooldown = 10;
 
-                const auto pos = rayTraceResult->pos;// + rayTraceResult->dir;
+                const auto pos = rayTraceResult->pos + rayTraceResult->dir;
 
-                client_world.setBlock(pos, {
-                        BlockData{global_pallete.getId("water"), 0},
-                        BlockData{BlockID::AIR, 0},
-                });
+                client_world.setBlock(pos, BlockData{global_pallete.getId("water"), 0});
 
 //                client_world.setBlock(pos, {Block::water, 0});
                 client_world.liquids.emplace(pos);
@@ -994,7 +991,7 @@ struct App {
 		auto display_size = window.getSize();
 		glViewport(0, 0, display_size.x, display_size.y);
 
-        bool is_liquid = Block::id_to_block[(int) client_world.getBlock(transform.position.x, std::floor(transform.position.y + 1.68), transform.position.z).layer1.id]->renderType == RenderType::Liquid;
+        bool is_liquid = Block::id_to_block[(int) client_world.getBlock(transform.position.x, std::floor(transform.position.y + 1.68), transform.position.z).id]->renderType == RenderType::Liquid;
 
         std::array<float, 4> color{0, 0.68, 1.0, 1};
 

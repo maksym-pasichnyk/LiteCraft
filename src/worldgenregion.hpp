@@ -44,16 +44,16 @@ struct WorldGenRegion {
 		return nullptr;
 	}
 
-    auto getBlock(int32 x, int32 y, int32 z) const -> BlockLayers {
+    auto getBlock(int32 x, int32 y, int32 z) const -> BlockData {
         return getChunk(x >> 4, z >> 4)->getBlock(x, y, z);
     }
 
-    auto getBlock(glm::ivec3 pos) const -> BlockLayers {
+    auto getBlock(glm::ivec3 pos) const -> BlockData {
         return getBlock(pos.x, pos.y, pos.z);
     }
 
-    void setBlock(int32 x, int32 y, int32 z, BlockLayers blockLayers) {
-        getChunk(x >> 4, z >> 4)->setBlock(x, y, z, blockLayers);
+    void setBlock(int32 x, int32 y, int32 z, BlockData blockData) {
+        getChunk(x >> 4, z >> 4)->setBlock(x, y, z, blockData);
     }
 
 //    void setBlock(glm::ivec3 pos, Block* block) {

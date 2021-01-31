@@ -16,7 +16,7 @@ struct RayTraceContext {
 struct RayTraceResult {
 	glm::ivec3 pos;
 	glm::ivec3 dir;
-//	BlockLayers blockLayers;
+//	BlockData blockData;
 };
 
 auto rayTraceBlocks(IBlockReader auto& blocks, const RayTraceContext& context) -> std::optional<RayTraceResult> {
@@ -40,7 +40,7 @@ auto rayTraceBlocks(IBlockReader auto& blocks, const RayTraceContext& context) -
 
 		// todo: shape
 
-		auto block = Block::id_to_block[(int) blocks.getBlock(pos).layer1.id];
+		auto block = Block::id_to_block[(int) blocks.getBlock(pos).id];
 		if (block != Block::air) {
 			return RayTraceResult{
 				.pos = pos,

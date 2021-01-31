@@ -121,6 +121,7 @@ enum class ChunkState {
 	StructureStart,
 	StructureReferences,
 	Noise,
+	Surface,
 	Features,
 	Light,
 	Full
@@ -132,7 +133,7 @@ struct Light {
 };
 
 struct ChunkSection {
-    std::array<BlockData[4096], 2> layers;
+    std::array<BlockData, 4096> blocks;
 };
 
 struct StructureBoundingBox {
@@ -260,7 +261,7 @@ struct StructurePiece {
                 blockData.val = val;
             }
 
-            blocks.setBlock(blockpos.x, blockpos.y, blockpos.z, {blockData});
+            blocks.setBlock(blockpos.x, blockpos.y, blockpos.z, blockData);
         }
     }
 };
@@ -292,6 +293,7 @@ struct StructureStart {
 };
 
 struct Chunk {
+    ChunkPos pos;
 	ChunkState state = ChunkState::Empty;
 	bool is_dirty = false;
     bool needRender = false;
@@ -308,24 +310,22 @@ struct Chunk {
     std::vector<std::shared_ptr<StructureStart>> structureStarts;
     std::vector<std::weak_ptr<StructureStart>> structureReferences;
 
-    void setBlock(int32 x, int32 y, int32 z, BlockLayers blockLayers) {
+    explicit Chunk(ChunkPos pos) : pos{pos} {}
+
+    void setBlock(int32 x, int32 y, int32 z, BlockData blockData) {
     	auto& section = sections[y >> 4];
     	if (section == nullptr) {
     		section = new ChunkSection();
     	}
-    	section->layers[0][toIndex(x, y, z)] = blockLayers.layer1;
-    	section->layers[1][toIndex(x, y, z)] = blockLayers.layer2;
+    	section->blocks[toIndex(x, y, z)] = blockData;
     }
 
-    auto getBlock(int32 x, int32 y, int32 z) -> BlockLayers {
+    auto getBlock(int32 x, int32 y, int32 z) -> BlockData {
     	auto& section = sections[y >> 4];
     	if (section == nullptr) {
 			return {};
     	}
-        return {
-            section->layers[0][toIndex(x, y, z)],
-            section->layers[1][toIndex(x, y, z)]
-        };
+        return section->blocks[toIndex(x, y, z)];
     }
 
     void updateMesh() {
