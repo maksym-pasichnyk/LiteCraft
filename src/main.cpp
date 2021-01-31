@@ -19,12 +19,12 @@
 #include "input.hpp"
 #include "camera.hpp"
 #include "transform.hpp"
-#include "block.hpp"
-#include "chunk.hpp"
-#include "chunk_pos.hpp"
-#include "block_reader.hpp"
-#include "texture_atlas.hpp"
-#include "random.hpp"
+#include "Block.hpp"
+#include "Chunk.hpp"
+#include "src/util/math/ChunkPos.hpp"
+#include "BlockReader.hpp"
+#include "TextureAtlas.hpp"
+#include "src/util/Random.hpp"
 #include "raytrace.hpp"
 #include "worldgenregion.hpp"
 
@@ -349,7 +349,7 @@ struct App {
     Transform transform {
         .yaw = 0,
         .pitch = 0,
-        .position = {0, 70, 0}
+        .position = {0, 100, 0}
     };
 	glm::vec3 velocity{0, 0, 0};
 	int cooldown = 0;
@@ -994,8 +994,18 @@ struct App {
 		auto display_size = window.getSize();
 		glViewport(0, 0, display_size.x, display_size.y);
 
-		float color[4]{0, 0.68, 1.0, 1};
-		glClearNamedFramebufferfv(0, GL_COLOR, 0, color);
+        bool is_liquid = Block::id_to_block[(int) client_world.getBlock(transform.position.x, std::floor(transform.position.y + 1.68), transform.position.z).layer1.id]->renderType == RenderType::Liquid;
+
+        std::array<float, 4> color{0, 0.68, 1.0, 1};
+
+        glm::vec2 fog_offset{9, 13};
+        if (is_liquid) {
+            color = {0.27, 0.68, 0.96, 1};
+
+            fog_offset = glm::vec2{0, 5 };
+        }
+
+		glClearNamedFramebufferfv(0, GL_COLOR, 0, color.data());
 		glClearNamedFramebufferfi(0, GL_DEPTH_STENCIL, 0, 1, 0);
 
 		glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
@@ -1022,21 +1032,29 @@ struct App {
 			}
 		}
 
-		glEnable(GL_CULL_FACE);
+        glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 		glDisable(GL_BLEND);
 		glDepthRange(0.01, 1.0);
+        glUniform3f(0, 1, 0.68, 1.0);
+        glUniform2f(4, fog_offset.x, fog_offset.y);
 
 		sf::Shader::bind(&opaque_pipeline);
+        glUniform3fv(0, 1, color.data());
+        glUniform2f(4, fog_offset.x, fog_offset.y);
 		renderLayers(RenderLayer::Opaque);
 
 		sf::Shader::bind(&cutout_pipeline);
+        glUniform3fv(0, 1, color.data());
+        glUniform2f(4, fog_offset.x, fog_offset.y);
 		renderLayers(RenderLayer::Cutout);
 
 		glEnable(GL_BLEND);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 		sf::Shader::bind(&transparent_pipeline);
+        glUniform3fv(0, 1, color.data());
+        glUniform2f(4, fog_offset.x, fog_offset.y);
 		renderLayers(RenderLayer::Transparent);
 
 		if (rayTraceResult.has_value()) {

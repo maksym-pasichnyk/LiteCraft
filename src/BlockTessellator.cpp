@@ -1,7 +1,7 @@
-#include "block.hpp"
-#include "chunk.hpp"
-#include "block_reader.hpp"
-#include "texture_atlas.hpp"
+#include "Block.hpp"
+#include "Chunk.hpp"
+#include "BlockReader.hpp"
+#include "TextureAtlas.hpp"
 #include "worldgenregion.hpp"
 
 #include <glm/vec3.hpp>
@@ -289,6 +289,7 @@ void renderBlocks(RenderBuffer& rb, BlockTable& global_pallete, const WorldGenRe
                 	break;
                 case RenderType::Liquid:
                 	renderLiquid(x, y, z, block, rb, blocks);
+                    break;
                 case RenderType::Pane:
                     renderPane(x, y, z, block, rb, blocks);
 					break;

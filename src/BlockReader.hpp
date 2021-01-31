@@ -3,8 +3,8 @@
 #include <stdint.hpp>
 #include <concepts>
 
-#include "block.hpp"
-#include "block_table.hpp"
+#include "Block.hpp"
+#include "BlockTable.hpp"
 
 template <typename T>
 concept IBlockReader = requires(T& self, BlockLayers blockLayers, int32 x, int32 y, int32 z) {

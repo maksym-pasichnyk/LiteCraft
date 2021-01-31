@@ -9,6 +9,11 @@ layout (binding = 0) uniform CameraConstants {
 	vec3 position;
 } camera;
 
+
+layout(location = 0) uniform vec3 FOG_COLOR;// = vec3(0, 0.68, 1.0);
+layout(location = 4) uniform vec2 FOG_CONTROL;// = vec2(9, 13);
+layout(location = 7) uniform float RENDER_DISTANCE = 8.0f;
+
 layout (location = 0) in vec3 in_point;
 layout (location = 1) in vec2 in_tex;
 layout (location = 2) in vec4 in_color;
@@ -24,10 +29,6 @@ void main() {
 
 	v_out.color = in_color;
 	v_out.tex = in_tex;
-
-	vec3 FOG_COLOR = vec3(0, 0.68, 1.0);
-	float RENDER_DISTANCE = 8.0f;
-	vec2 FOG_CONTROL = vec2(9, 13);
 
 	vec3 relPos = camera.position - in_point.xyz;
 	float cameraDepth = length(relPos);

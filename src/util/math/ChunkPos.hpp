@@ -1,5 +1,6 @@
 #pragma once
 
+#include <compare>
 #include <cstdint>
 
 enum class Dimension {
@@ -29,11 +30,11 @@ struct ChunkPos {
         return T{x, z};
     }
 
-    constexpr static auto asLong(int x, int z) -> int64 {
-        return (int64) x & 0xFFFFFFFFLL | ((int64) z & 0xFFFFFFFFLL) << 32;
+    constexpr static auto asLong(int x, int z) -> int64_t {
+        return static_cast<int64_t>(x) & 0xFFFFFFFFLL | (static_cast<int64_t>(z) & 0xFFFFFFFFLL) << 32;
     }
 
-    constexpr auto asLong() const -> int64 {
+    constexpr auto asLong() const -> int64_t {
         return asLong(x, z);
     }
 

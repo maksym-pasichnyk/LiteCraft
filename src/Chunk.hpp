@@ -1,11 +1,11 @@
 #pragma once
 
-#include "block_table.hpp"
-#include "block_reader.hpp"
+#include "BlockTable.hpp"
+#include "BlockReader.hpp"
 
 #include "mesh.hpp"
-#include "block.hpp"
-#include "chunk_pos.hpp"
+#include "Block.hpp"
+#include "src/util/math/ChunkPos.hpp"
 
 #include <glm/vec3.hpp>
 

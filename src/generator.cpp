@@ -1,6 +1,6 @@
-#include "chunk.hpp"
-#include "random.hpp"
-#include "block_reader.hpp"
+#include "Chunk.hpp"
+#include "src/util/Random.hpp"
+#include "BlockReader.hpp"
 #include "worldgenregion.hpp"
 
 #include <stdint.hpp>
@@ -41,8 +41,8 @@ void generateTerrain(Chunk* chunk, BlockTable& global_pallete, int32 chunk_x, in
 
     for (int32 x = start_x; x < start_x + 16; x++) {
         for (int32 z = start_z; z < start_z + 16; z++) {
-//            f32 noise = getNoiseValue(x, z);
-            int32 height = 6;//noise * 60 + 40;
+            f32 noise = getNoiseValue(x, z);
+            int32 height = noise * 60 + 40;
 
             chunk->heightmap[x & 15][z & 15] = height;
 
@@ -53,12 +53,12 @@ void generateTerrain(Chunk* chunk, BlockTable& global_pallete, int32 chunk_x, in
                 });
             }
 
-//            for (int32 y = height; y < 68; y++) {
-//                chunk->setBlock(x, y, z, {
-//                        BlockData{global_pallete.getId("water"), 0},
-//                        BlockData{BlockID::AIR, 0},
-//                });
-//            }
+            for (int32 y = height; y < 68; y++) {
+                chunk->setBlock(x, y, z, {
+                        BlockData{global_pallete.getId("water"), 0},
+                        BlockData{BlockID::AIR, 0},
+                });
+            }
         }
     }
 }

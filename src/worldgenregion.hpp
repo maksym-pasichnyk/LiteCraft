@@ -4,8 +4,8 @@
 #include <glm/vec2.hpp>
 #include <array>
 
-#include "chunk.hpp"
-#include "block.hpp"
+#include "Chunk.hpp"
+#include "Block.hpp"
 
 struct WorldGenRegion {
     int32 radius;
