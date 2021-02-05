@@ -40,11 +40,12 @@ public:
     }
 
     static int64_t floorMod(int64_t x, int64_t y) {
-        return x - floorDiv(x, y) * y;
+//        return x - floorDiv(x, y) * y;
+        return ((x % y) + y) % y;
     }
 
-    int random(int bound) override {
-        const int i = static_cast<int>(floorMod(positionSeed >> 24, bound));
+    int32_t random(int32_t bound) override {
+        const auto i = static_cast<int32_t>(floorMod(positionSeed >> 24, bound));
         positionSeed = FastRandom::mix(positionSeed, seed);
         return i;
     }

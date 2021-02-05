@@ -1,9 +1,10 @@
 #pragma once
 
+#include "INoiseGenerator.hpp"
+#include "../../util/Random.hpp"
+
 #include <cmath>
 #include <array>
-
-#include "../../util/Random.hpp"
 
 class SimplexNoiseGenerator {
 public:
@@ -31,11 +32,14 @@ public:
 
 private:
     int p[512];
+
+public:
     double xo;
     double yo;
     double zo;
 
 public:
+    explicit SimplexNoiseGenerator(Random&& rand) : SimplexNoiseGenerator(rand) {}
     explicit SimplexNoiseGenerator(Random& rand) {
         xo = rand.nextDouble() * 256.0;
         yo = rand.nextDouble() * 256.0;
@@ -50,11 +54,11 @@ public:
         }
     }
 
-    int getPermutValue(int permutIndex) {
+    constexpr int getPermutValue(int permutIndex) const {
         return p[permutIndex & 255];
     }
 
-    double getValue2D(double x, double y) {
+    constexpr double getValue2D(double x, double y) const {
         const double d0 = (x + y) * F2;
         const int i = std::floor(x + d0);
         const int j = std::floor(y + d0);
@@ -88,7 +92,7 @@ public:
         return 70.0 * (d10 + d11 + d12);
     }
 
-    double getValue3D(double x, double y, double z) {
+    constexpr double getValue3D(double x, double y, double z) const {
         const double d1 = (x + y + z) * 0.3333333333333333;
         const int i = std::floor(x + d1);
         const int j = std::floor(y + d1);
@@ -175,7 +179,7 @@ public:
         return 32.0 * (d19 + d20 + d21 + d22);
     }
 
-    static double getContrib(int gradIndex, double x, double y, double z, double offset) {
+    static constexpr double getContrib(int gradIndex, double x, double y, double z, double offset) {
         double d1 = offset - x * x - y * y - z * z;
         double d0;
         if (d1 < 0.0) {
@@ -187,7 +191,7 @@ public:
         return d0;
     }
 
-    static double processGrad(const int (&gradElement)[3], double xFactor, double yFactor, double zFactor) {
+    static constexpr double processGrad(const int (&gradElement)[3], double xFactor, double yFactor, double zFactor) {
         return static_cast<double>(gradElement[0]) * xFactor +
                static_cast<double>(gradElement[1]) * yFactor +
                static_cast<double>(gradElement[2]) * zFactor;

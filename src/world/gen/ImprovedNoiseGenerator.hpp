@@ -6,19 +6,20 @@
 #include <array>
 
 class ImprovedNoiseGenerator {
-    std::array<uint8_t, 256> permutations;
+    std::array<int8_t, 256> permutations;
+
+public:
     double xCoord;
     double yCoord;
     double zCoord;
 
-public:
 //    ImprovedNoiseGenerator(const ImprovedNoiseGenerator&) = delete;
 //    ImprovedNoiseGenerator& operator=(const ImprovedNoiseGenerator&) = delete;
-
-    explicit ImprovedNoiseGenerator(Random&& rand) {
-        xCoord = rand.nextDouble();
-        yCoord = rand.nextDouble();
-        zCoord = rand.nextDouble();
+    explicit ImprovedNoiseGenerator(Random&& rand) : ImprovedNoiseGenerator(rand) {}
+    explicit ImprovedNoiseGenerator(Random& rand) {
+        xCoord = rand.nextDouble() * 256.0;
+        yCoord = rand.nextDouble() * 256.0;
+        zCoord = rand.nextDouble() * 256.0;
 
         for (int i = 0; i < 256; ++i) {
             permutations[i] = i;
@@ -30,11 +31,11 @@ public:
         }
     }
 
-    int getPermutValue(int permutIndex) {
+    int getPermutValue(int permutIndex) const {
         return permutations[permutIndex & 255] & 255;
     }
 
-    double calcValue(int ix, int iy, int iz, double dx, double dy, double dz, double xFade, double yFade, double zFade) {
+    double calcValue(int ix, int iy, int iz, double dx, double dy, double dz, double xFade, double yFade, double zFade) const {
         const int i = getPermutValue(ix) + iy;
         const int j = getPermutValue(i) + iz;
         const int k = getPermutValue(i + 1) + iz;
@@ -53,7 +54,7 @@ public:
         return lerp3(xFade, yFade, zFade, d0, d1, d2, d3, d4, d5, d6, d7);
     }
 
-    double getNoiseValue(double x, double y, double z, double unk1, double unk2) {
+    double getNoiseValue(double x, double y, double z, double unk1, double unk2) const {
         const double d0 = x + xCoord;
         const double d1 = y + yCoord;
         const double d2 = z + zCoord;
@@ -74,10 +75,8 @@ public:
         return calcValue(i, j, k, d3, d4 - d9, d5, d6, d7, d8);
     }
 
-
-
 public:
-    static double dotGrad(int gradIndex, double xFactor, double yFactor, double zFactor) {
+    static constexpr double dotGrad(int gradIndex, double xFactor, double yFactor, double zFactor) {
         return SimplexNoiseGenerator::processGrad(SimplexNoiseGenerator::GRADS[gradIndex & 15], xFactor, yFactor, zFactor);
     }
 
@@ -85,19 +84,19 @@ public:
         return v * v * v * (v * (v * 6.0 - 15.0) + 10.0);
     }
 
-    static float lerp(float pct, float start, float end) {
+    static constexpr float lerp(float pct, float start, float end) {
         return start + pct * (end - start);
     }
 
-    static double lerp(double pct, double start, double end) {
+    static constexpr double lerp(double pct, double start, double end) {
         return start + pct * (end - start);
     }
 
-    static double lerp2(double xFade, double yFade, double d0, double d1, double d2, double d3) {
+    static constexpr double lerp2(double xFade, double yFade, double d0, double d1, double d2, double d3) {
         return lerp(yFade, lerp(xFade, d0, d1), lerp(xFade, d2, d3));
     }
 
-    static double lerp3(double xFade, double yFade, double zFade, double d0, double d1, double d2, double d3, double d4, double d5, double d6, double d7) {
+    static constexpr double lerp3(double xFade, double yFade, double zFade, double d0, double d1, double d2, double d3, double d4, double d5, double d6, double d7) {
         return lerp(zFade, lerp2(xFade, yFade, d0, d1, d2, d3), lerp2(xFade, yFade, d4, d5, d6, d7));
     }
 };

@@ -23,7 +23,7 @@ struct Random {
 		return min + nextInt(max - min);
 	}
 
-	auto nextInt(int bound) -> int32_t {
+	auto nextInt(int32_t bound) -> int32_t {
 		int32_t r = next(31);
         int32_t m = bound - 1u;
 		if ((bound & m) == 0) { // i.e., bound is a power of 2
@@ -37,7 +37,7 @@ struct Random {
 		return r;
 	}
 
-	auto next(int bits) -> int32_t {
+	auto next(int32_t bits) -> int32_t {
 		seed = (seed * RANDOM_MULTIPLIER + RANDOM_ADDEND) & RANDOM_MASK;
 		return int32_t(seed >> (48u - bits));
 	}
@@ -61,6 +61,12 @@ struct Random {
 	auto initialScramble(int64_t v) -> int64_t {
 		return (v ^ RANDOM_MULTIPLIER) & RANDOM_MASK;
 	}
+
+    void skip(int bits) {
+        for (int i = 0; i < bits; ++i) {
+            next(1);
+        }
+    }
 
 	void setSeed(uint64 v) {
 		seed = initialScramble(v);

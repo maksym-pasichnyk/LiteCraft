@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <memory>
+#include <cassert>
 
 struct WorldGenRegion;
 
@@ -292,6 +293,19 @@ struct StructureStart {
     }
 };
 
+//std::
+
+#include <bitset>
+
+
+struct Heightmap {
+    int16_t data[16][16];
+
+    int32_t get(int32_t x, int32_t z) {
+        return data[x][z];
+    }
+};
+
 struct Chunk {
     ChunkPos pos;
 	ChunkState state = ChunkState::Empty;
@@ -301,22 +315,25 @@ struct Chunk {
 
 	std::array<ChunkSection*, 16> sections{};
 
-    int32 heightmap[16][16];
+    std::array<int32, 16 * 16> heightmap;
 
 	RenderBuffer rb{};
 	ChunkLayer layers[3]{};
     std::unique_ptr<Mesh> mesh{nullptr};
 
     std::vector<std::shared_ptr<StructureStart>> structureStarts;
-    std::vector<std::weak_ptr<StructureStart>> structureReferences;
+//    std::vector<std::weak_ptr<StructureStart>> structureReferences;
 
-    explicit Chunk(ChunkPos pos) : pos{pos} {}
+    explicit Chunk(ChunkPos pos) : pos{pos} {
+        heightmap.fill(-1);
+    }
 
     void setBlock(int32 x, int32 y, int32 z, BlockData blockData) {
     	auto& section = sections[y >> 4];
     	if (section == nullptr) {
     		section = new ChunkSection();
     	}
+        heightmap[(x & 15) + (z & 15) * 16] = -1;
     	section->blocks[toIndex(x, y, z)] = blockData;
     }
 
@@ -343,6 +360,7 @@ struct Chunk {
 
 		int32 submesh_index = 0;
         int32 index_offset = 0;
+
         for (auto& submesh : rb.indices) {
         	layers[submesh_index].index_offset = index_offset;
         	layers[submesh_index].index_count = submesh.size();
@@ -354,7 +372,24 @@ struct Chunk {
         }
     }
 
-    static constexpr int32_t toIndex(int32_t x, int32_t y, int32_t z) {
+    auto getHeight(int32_t x, int32_t z) -> int32_t {
+        const auto i = (x & 15) + (z & 15) * 16;
+        if (heightmap[i] == -1) {
+            for (int y = 255; y >= 0; y--) {
+                if (getBlock(x, y, z).id != BlockID::AIR) {
+                    heightmap[i] = y + 1;
+                    break;
+                }
+            }
+        }
+        return heightmap[i];
+    }
+
+    auto getTopBlockY(/*type, */int32_t x, int32_t z) -> int32_t {
+        return getHeight(x, z) - 1;
+    }
+
+    static constexpr auto toIndex(int32_t x, int32_t y, int32_t z) noexcept -> int32_t {
         const auto inner_x = x & 15;
         const auto inner_y = y & 15;
         const auto inner_z = z & 15;

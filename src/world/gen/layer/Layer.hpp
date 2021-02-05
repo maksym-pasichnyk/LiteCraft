@@ -13,8 +13,8 @@ public:
         return area.getValue(x, z);
     }
 
-//    Biome& getBiome(std::map<int, Biome*> biomes, int x, int z) {
-//        const auto biomeId = area.getValue(x, z);
-//        return *biomes.at(biomeId);
-//    }
+    Biome* getBiome(std::map<int, Biome*>& biomes, int x, int z) {
+        const auto biomeId = area.getValue(x, z);
+        return biomes.at(biomeId);
+    }
 };

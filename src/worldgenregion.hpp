@@ -7,17 +7,22 @@
 #include "Chunk.hpp"
 #include "Block.hpp"
 
+struct Biome;
+
 struct WorldGenRegion {
-    int32 radius;
-	int32 size;
-	int32 chunk_x;
-	int32 chunk_z;
+    int64_t seed;
+    int32_t radius;
+	int32_t size;
+	int32_t chunk_x;
+	int32_t chunk_z;
+
 	glm::ivec2 bounds_min{};
 	glm::ivec2 bounds_max{};
 	std::vector<Chunk*> chunks;
 
-	WorldGenRegion(int32_t radius, int32 chunk_x, int32 chunk_z)
-	    : radius(radius)
+	WorldGenRegion(int32_t radius, int32_t chunk_x, int32_t chunk_z, int64_t seed)
+	    : seed(seed)
+        , radius(radius)
 	    , size(radius * 2 + 1)
 	    , chunk_x(chunk_x)
 	    , chunk_z(chunk_z)
@@ -29,22 +34,26 @@ struct WorldGenRegion {
 		bounds_max.y = chunk_z + radius;
 	}
 
-	auto toIndex(int32 x, int32 z) const -> usize {
+	auto toIndex(int32_t x, int32_t z) const -> usize {
 		return (x - bounds_min.x) + (z - bounds_min.y) * size;
 	}
 
-	auto chunkExists(int32 x, int32 z) const -> bool {
+	auto chunkExists(int32_t x, int32_t z) const -> bool {
 		return bounds_min.x <= x && x <= bounds_max.x && bounds_min.y <= z && z <= bounds_max.y;
 	}
 
-	auto getChunk(int32 x, int32 z) const -> Chunk* {
+    auto getMainChunkPos() const -> ChunkPos {
+        return {chunk_x, chunk_z};
+    }
+
+	auto getChunk(int32_t x, int32_t z) const -> Chunk* {
 		if (chunkExists(x, z)) {
 			return chunks[toIndex(x, z)];
 		}
 		return nullptr;
 	}
 
-    auto getBlock(int32 x, int32 y, int32 z) const -> BlockData {
+    auto getBlock(int32_t x, int32_t y, int32_t z) const -> BlockData {
         return getChunk(x >> 4, z >> 4)->getBlock(x, y, z);
     }
 
@@ -52,7 +61,7 @@ struct WorldGenRegion {
         return getBlock(pos.x, pos.y, pos.z);
     }
 
-    void setBlock(int32 x, int32 y, int32 z, BlockData blockData) {
+    void setBlock(int32_t x, int32_t y, int32_t z, BlockData blockData) {
         getChunk(x >> 4, z >> 4)->setBlock(x, y, z, blockData);
     }
 
@@ -63,4 +72,16 @@ struct WorldGenRegion {
     auto getMainChunk() const -> Chunk* {
 		return chunks[(radius * (radius + 1)) << 1];
     }
+
+    auto getBiome(glm::ivec3 pos) -> Biome* {
+        return nullptr;
+    }
+
+    auto getBiome(int32_t x, int32_t y, int32_t z) -> Biome* {
+        return nullptr;
+    }
+
+    auto getSeed() const -> int64_t {
+	    return seed;
+	}
 };

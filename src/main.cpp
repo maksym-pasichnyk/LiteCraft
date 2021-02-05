@@ -24,16 +24,11 @@
 #include "src/util/math/ChunkPos.hpp"
 #include "BlockReader.hpp"
 #include "TextureAtlas.hpp"
-#include "src/util/Random.hpp"
 #include "raytrace.hpp"
 #include "worldgenregion.hpp"
+#include "world/gen/NoiseChunkGenerator.hpp"
 
 extern void renderBlocks(RenderBuffer& rb, BlockTable& pallete, const WorldGenRegion& blocks);
-extern void generateSurface(Chunk* chunk, BlockTable& pallete);
-extern void generateTerrain(Chunk* chunk, BlockTable& pallete);
-extern void generateStructures(Chunk* chunk, BlockTable& pallete, WorldGenRegion& blocks, int64 worldSeed);
-extern void getStructureReferences(Chunk* chunk, BlockTable& pallete, WorldGenRegion& blocks, int64 worldSeed);
-extern void generateFeatures(Chunk* chunk, BlockTable& pallete, WorldGenRegion& blocks, int64 worldSeed);
 
 std::map<std::string, BlockGraphics> tile_datas;
 
@@ -101,9 +96,13 @@ struct ClientWorld {
 ClientWorld client_world{};
 
 struct World {
+    NoiseChunkGenerator generator{global_pallete};
+
     std::atomic<ChunkPos> player_position{ChunkPos{100, 100}};
     std::vector<std::jthread> workers{};
     std::map<int64, std::unique_ptr<Chunk>> chunks{};
+
+    int64_t seed;
 
     World() {
         workers.emplace_back(std::bind_front(&World::runWorker, this));
@@ -127,7 +126,7 @@ struct World {
 				if (chunk->is_dirty) {
                     chunk->is_dirty = false;
 
-					WorldGenRegion region{1, (int32)(pos & 0xFFFFFFFFLL), (int32) ((pos >> 32) & 0xFFFFFFFF)};
+					WorldGenRegion region{1, (int32)(pos & 0xFFFFFFFFLL), (int32) ((pos >> 32) & 0xFFFFFFFF), seed};
 					fillRegion(region, ChunkState::Full);
 
 					renderBlocks(chunk->rb, global_pallete, region);
@@ -142,7 +141,7 @@ struct World {
     void loadChunks(int32 center_x, int32 center_z) {
         for (int32 chunk_x = center_x - 8; chunk_x <= center_x + 8; chunk_x++) {
             for (int32 chunk_z = center_z - 8; chunk_z <= center_z + 8; chunk_z++) {
-				WorldGenRegion region{1, chunk_x, chunk_z};
+				WorldGenRegion region{1, chunk_x, chunk_z, seed};
 				fillRegion(region, ChunkState::Full);
 
 				auto chunk = region.getMainChunk();
@@ -188,31 +187,34 @@ struct World {
 			case ChunkState::Empty:
 				break;
 			case ChunkState::StructureStart: {
-                WorldGenRegion region{1, chunk_x, chunk_z};
-                fillRegion(region, parent_state);
-                generateStructures(chunk, global_pallete, region, 0);
+//                WorldGenRegion region{1, chunk_x, chunk_z, seed};
+//                fillRegion(region, parent_state);
+//                generator.generateStructures(region, chunk);
                 break;
             }
 			case ChunkState::StructureReferences: {
-				WorldGenRegion region{8, chunk_x, chunk_z};
-				fillRegion(region, parent_state);
-                getStructureReferences(chunk, global_pallete, region, 0);
+//				WorldGenRegion region{8, chunk_x, chunk_z, seed};
+//				fillRegion(region, parent_state);
+//                generator.getStructureReferences(region, chunk);
 				break;
 			}
 			case ChunkState::Noise:
-				generateTerrain(chunk, global_pallete);
+                generator.generateTerrain(chunk, global_pallete);
 				break;
-            case ChunkState::Surface:
-                generateSurface(chunk, global_pallete);
+            case ChunkState::Surface: {
+                WorldGenRegion region{0, chunk_x, chunk_z, seed};
+                fillRegion(region, parent_state);
+                generator.generateSurface(region, chunk, global_pallete);
                 break;
+            }
 			case ChunkState::Features: {
-				WorldGenRegion region{8, chunk_x, chunk_z};
-				fillRegion(region, parent_state);
-				generateFeatures(chunk, global_pallete, region, 0);
+//				WorldGenRegion region{8, chunk_x, chunk_z, seed};
+//				fillRegion(region, parent_state);
+//				generator.generateFeatures(region, chunk, global_pallete);
 				break;
 			}
 			case ChunkState::Light: {
-				WorldGenRegion region{1, chunk_x, chunk_z};
+				WorldGenRegion region{1, chunk_x, chunk_z, seed};
 				fillRegion(region, parent_state);
 				break;
 			}
@@ -366,7 +368,7 @@ struct App {
     std::vector<Chunk*> chunkToRenders;
 
     std::unique_ptr<Mesh> selection_mesh;
-    std::unique_ptr<World> world{};
+    std::unique_ptr<World> world;
 
     std::optional<RayTraceResult> rayTraceResult{std::nullopt};
 
@@ -740,7 +742,6 @@ struct App {
 
 		world = std::make_unique<World>();
 
-
         glCreateBuffers(1, &ubo);
         glNamedBufferStorage(ubo, sizeof(CameraConstants), nullptr, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
         ubo_ptr = glMapNamedBufferRange(ubo, 0, sizeof(CameraConstants), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
@@ -836,7 +837,7 @@ struct App {
         auto forward = transform.forward();
         auto right = transform.right();
 
-        float moveSpeed = 10.f;
+        float moveSpeed = 100.f;
         if (input.IsKeyPressed(Input::Key::Up)) {
             velocity += forward * dt * moveSpeed;
         }
@@ -871,58 +872,63 @@ struct App {
         bool is_liquid = Block::id_to_block[(int) client_world.getBlock(transform.position.x, transform.position.y + 1, transform.position.z).id]->renderType == RenderType::Liquid;
 
         glm::vec3 ivelocity{};
-		if (input.IsKeyPressed(Input::Key::Up)) {
-            ivelocity += glm::vec3{-s, 0, c};
-		}
-		if (input.IsKeyPressed(Input::Key::Down)) {
-            ivelocity -= glm::vec3{-s, 0, c};
-		}
-		if (input.IsKeyPressed(Input::Key::Left)) {
-            ivelocity -= glm::vec3{c, 0, s};
-		}
-		if (input.IsKeyPressed(Input::Key::Right)) {
-            ivelocity += glm::vec3{c, 0, s};
-		}
+//		if (input.IsKeyPressed(Input::Key::Up)) {
+//            ivelocity += glm::vec3{-s, 0, c};
+//		}
+//		if (input.IsKeyPressed(Input::Key::Down)) {
+//            ivelocity -= glm::vec3{-s, 0, c};
+//		}
+//		if (input.IsKeyPressed(Input::Key::Left)) {
+//            ivelocity -= glm::vec3{c, 0, s};
+//		}
+//		if (input.IsKeyPressed(Input::Key::Right)) {
+//            ivelocity += glm::vec3{c, 0, s};
+//		}
+//
+//        velocity.x = 0;
+//        velocity.z = 0;
+//
+//        if (ivelocity.x != 0 || ivelocity.z != 0) {
+//            velocity += glm::normalize(ivelocity) * dt * (is_liquid ? 5.0f : 100.0f);
+//        }
 
-        velocity.x = 0;
-        velocity.z = 0;
+//		if (velocity.z > 0) {
+//			velocity.z = check_front_velocity(client_world, transform.position, velocity);
+//		} else if (velocity.z < 0) {
+//			velocity.z = check_back_velocity(client_world, transform.position, velocity);
+//		}
+//		if (velocity.x > 0) {
+//			velocity.x = check_right_velocity(client_world, transform.position, velocity);
+//		} else if (velocity.x < 0) {
+//			velocity.x = check_left_velocity(client_world, transform.position, velocity);
+//		}
 
-        if (ivelocity.x != 0 || ivelocity.z != 0) {
-            velocity += glm::normalize(ivelocity) * dt * (is_liquid ? 5.0f : 10.0f);
-        }
+//		if (is_liquid) {
+//			velocity.y = -2.5 * dt;
+//		} else {
+//			velocity.y -= 9.8 * dt * dt;
+//		}
 
-		if (velocity.z > 0) {
-			velocity.z = check_front_velocity(client_world, transform.position, velocity);
-		} else if (velocity.z < 0) {
-			velocity.z = check_back_velocity(client_world, transform.position, velocity);
-		}
-		if (velocity.x > 0) {
-			velocity.x = check_right_velocity(client_world, transform.position, velocity);
-		} else if (velocity.x < 0) {
-			velocity.x = check_left_velocity(client_world, transform.position, velocity);
-		}
+//		if (velocity.y < 0) {
+//			velocity.y = check_down_velocity(client_world, transform.position, velocity.y);
+//		}
 
-		if (is_liquid) {
-			velocity.y = -2.5 * dt;
-		} else {
-			velocity.y -= 9.8 * dt * dt;
-		}
+//		if (input.IsKeyPressed(Input::Key::Jump)) {
+//		if (input.IsKeyPressed(Input::Key::Jump)) {
+////			if (is_liquid) {
+////				velocity.y = 2.5 * dt;
+////			} else if (velocity.y == 0) {
+//				velocity.y = 5 * dt;
+////			}
+//		} else {
+//            velocity.y = 0;
+//		}
 
-		if (velocity.y < 0) {
-			velocity.y = check_down_velocity(client_world, transform.position, velocity.y);
-		}
+//		if (velocity.y > 0) {
+//			velocity.y = check_up_velocity(client_world, transform.position, velocity.y);
+//		}
 
-		if (input.IsKeyPressed(Input::Key::Jump)) {
-			if (is_liquid) {
-				velocity.y = 2.5 * dt;
-			} else if (velocity.y == 0) {
-				velocity.y = 5 * dt;
-			}
-		}
-
-		if (velocity.y > 0) {
-			velocity.y = check_up_velocity(client_world, transform.position, velocity.y);
-		}
+        velocity = calc_free_camera_velocity(input, transform, dt);
 
 		transform.position += velocity;
 
