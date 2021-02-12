@@ -5,32 +5,26 @@
 
 #include <memory>
 
-static long lfloor(double value) {
-    long i = (long)value;
-    return value < (double)i ? i - 1L : i;
-}
+namespace Math {
+    inline static long lfloor(double value) {
+        long i = (long) value;
+        return value < (double) i ? i - 1L : i;
+    }
 
-static double maintainPrecision(double v) {
-    return v - (double)lfloor(v / 3.3554432E7 + 0.5) * 3.3554432E7;
-}
+    inline static float lerp(float pct, float start, float end) {
+        return start + pct * (end - start);
+    }
 
-static float lerp(float pct, float start, float end) {
-    return start + pct * (end - start);
-}
+    inline static double lerp(double pct, double start, double end) {
+        return start + pct * (end - start);
+    }
 
-static double lerp(double pct, double start, double end) {
-    return start + pct * (end - start);
-}
+    inline static double clamp(double num, double min, double max) {
+        return num < min ? min : num > max ? max : num;
+    }
 
-static double clamp(double num, double min, double max) {
-    return num < min ? min : num > max ? max : num;
-}
-
-static double clampedLerp(double lowerBnd, double upperBnd, double slide) {
-    if (slide < 0.0) {
-        return lowerBnd;
-    } else {
-        return slide > 1.0 ? upperBnd : lerp(slide, lowerBnd, upperBnd);
+    inline static double clampedLerp(double lowerBnd, double upperBnd, double slide) {
+        return slide < 0.0 ? lowerBnd : slide > 1.0 ? upperBnd : lerp(slide, lowerBnd, upperBnd);
     }
 }
 
@@ -115,7 +109,10 @@ struct OctavesNoiseGenerator : public INoiseGenerator {
         for(int i = 0; i < octaves.size(); ++i) {
             auto& improvednoisegenerator = octaves[i];
             if (improvednoisegenerator.has_value()) {
-                noise += doubles[i] * improvednoisegenerator->getNoiseValue(maintainPrecision(x * d1), useHeightOffset ? -improvednoisegenerator->yCoord : maintainPrecision(y * d1), maintainPrecision(z * d1), p_215462_7_ * d1, p_215462_9_ * d1) * d2;
+                noise += doubles[i] * improvednoisegenerator->getNoiseValue(
+                        maintainPrecision(x * d1),
+                        useHeightOffset ? -improvednoisegenerator->yCoord : maintainPrecision(y * d1),
+                        maintainPrecision(z * d1), p_215462_7_ * d1, p_215462_9_ * d1) * d2;
             }
 
             d1 *= 2.0;
@@ -132,5 +129,9 @@ struct OctavesNoiseGenerator : public INoiseGenerator {
     ImprovedNoiseGenerator* getOctave(size_t i) {
         auto& octave = octaves[octaves.size() - i - 1];
         return octave.has_value() ? &*octave : nullptr;
+    }
+
+    inline static double maintainPrecision(double v) {
+        return v - (double) Math::lfloor(v / 3.3554432E7 + 0.5) * 3.3554432E7;
     }
 };

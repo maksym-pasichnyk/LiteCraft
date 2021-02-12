@@ -1,20 +1,24 @@
 #pragma once
 
-#include <src/SurfaceBuilder.h>
+#include "src/SurfaceBuilder.h"
+#include "src/BlockTable.hpp"
+#include "src/util/Random.hpp"
+#include "src/world/gen/PerlinNoiseGenerator.hpp"
 
 #include <glm/vec3.hpp>
-
 #include <functional>
 #include <variant>
-#include <src/util/Random.hpp>
+#include <memory>
 
 struct Chunk;
 
+using SurfaceBuilder = void (*)(BlockTable& pallete, Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel);
 
 struct Biome {
 //    static PerlinNoiseGenerator TEMPERATURE_NOISE;
 //    static PerlinNoiseGenerator FROZEN_TEMPERATURE_NOISE;
-//    static PerlinNoiseGenerator INFO_NOISE;
+    inline static const PerlinNoiseGenerator INFO_NOISE = PerlinNoiseGenerator(Random::from(2345), 0, 0);
+
 
 //    struct TemperatureModifier {
 //        TemperatureModifier() : TemperatureModifier(none()) {}
@@ -101,24 +105,15 @@ struct Biome {
 //        float downfall;
 //    };
 
-    Biome(float depth, float scale) : depth(depth), scale(scale) {}
+    Biome(float depth, float scale, SurfaceBuilder builder) : depth(depth), scale(scale), builder(builder) {}
 
-    auto getDepth() const -> float {
+    float getDepth() const {
         return depth;
     }
 
-    float getBaseHeight() const {
-        return depth;
-    }
-
-    float getHeightVariation() const {
+    float getScale() const {
         return scale;
     }
-    void buildSurface(Random& rand, Chunk *chunk, int32_t xStart, int32_t zStart, int32_t startHeight, double noise, BlockData defaultBlock, BlockData fluidBlock, int32_t seaLevel) {
-        buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, fluidBlock, defaultBlock, defaultBlock, defaultBlock, seaLevel);
-    }
-
-    void buildSurface(Random& rand, Chunk* chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData middle, BlockData bottom, int sealevel);
 //    auto getSkyColor() const -> int32_t {
 //        return 0xFFFFFFFF;
 //    }
@@ -133,8 +128,20 @@ struct Biome {
 ////        return temperatureModifier.getTemperatureAtPosition(pos, temperature);
 //    }
 
+    void buildSurface(BlockTable& pallete, Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int sealevel) {
+        top = {pallete.getId("grass")};
+        filler = {pallete.getId("stone")};
+        underWater = {pallete.getId("gravel")};
+        builder(pallete, rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top, filler, underWater, sealevel);
+    }
+
 private:
-//    SurfaceBuilder surfaceBuilder;
+    SurfaceBuilder builder;
+
+    BlockData top;
+    BlockData filler;
+    BlockData underWater;
+    //    SurfaceBuilder surfaceBuilder;
 //    Climate climate;
 //    BiomeGenerationSettings generationSettings;
     float depth;

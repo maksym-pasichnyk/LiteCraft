@@ -9,9 +9,8 @@ layout (binding = 0) uniform CameraConstants {
 	vec3 position;
 } camera;
 
-
-layout(location = 0) uniform vec3 FOG_COLOR;// = vec3(0, 0.68, 1.0);
-layout(location = 4) uniform vec2 FOG_CONTROL;// = vec2(9, 13);
+layout(location = 0) uniform vec3 FOG_COLOR;
+layout(location = 4) uniform vec2 FOG_CONTROL;
 layout(location = 7) uniform float RENDER_DISTANCE = 8.0f;
 
 layout (location = 0) in vec3 in_point;
@@ -27,7 +26,11 @@ layout (location = 0) out struct {
 void main() {
 	gl_Position = camera.transform * vec4(in_point, 1.0);
 
-	v_out.color = in_color;
+	int light = int(in_color.a * 255);
+	float block_light = float(light & 15);
+	float sky_light = float((light >> 4) & 15);
+
+	v_out.color = vec4(in_color.rgb, max(block_light, sky_light) / 15.0f);
 	v_out.tex = in_tex;
 
 	vec3 relPos = camera.position - in_point.xyz;

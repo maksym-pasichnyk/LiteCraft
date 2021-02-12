@@ -14,10 +14,10 @@
 //    int zPos = zStart & 15;
 //
 //    for(int yPos = startHeight; yPos >= 0; --yPos) {
-//        BlockData blockstate2 = chunk->getBlock(xPos, yPos, zPos);
+//        BlockData blockstate2 = chunk->getData(xPos, yPos, zPos);
 //        if (/*blockstate2.isAir()*/blockstate2.id == BlockID::AIR) {
 //            i = -1;
-//        } else if (/*blockstate2.isIn(defaultBlock.getBlock())*/ blockstate2.id == defaultBlock.id) {
+//        } else if (/*blockstate2.isIn(defaultBlock.getData())*/ blockstate2.id == defaultBlock.id) {
 //            if (i == -1) {
 //                if (j <= 0) {
 //                    blockstate = {BlockID::AIR, 0};// Blocks.AIR.getDefaultState();

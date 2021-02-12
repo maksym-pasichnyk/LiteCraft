@@ -1,7 +1,7 @@
 #pragma once
 
-#include <SFML/Window.hpp>
 #include <bitset>
+#include <SDL2/SDL.h>
 
 class Input {
 public:
@@ -50,29 +50,24 @@ public:
     }
 
     void update() {
-        lastFrameKeys = thisFrameKeys;
+        const auto keys = SDL_GetKeyboardState(nullptr);
 
-        thisFrameKeys.set((int) Key::Left,_isKeyPressed(sf::Keyboard::Left) || _isKeyPressed(sf::Keyboard::A));
-        thisFrameKeys.set((int) Key::Right,_isKeyPressed(sf::Keyboard::Right) || _isKeyPressed(sf::Keyboard::D));
-        thisFrameKeys.set((int) Key::Up,_isKeyPressed(sf::Keyboard::Up) || _isKeyPressed(sf::Keyboard::W));
-        thisFrameKeys.set((int) Key::Down,_isKeyPressed(sf::Keyboard::Down) || _isKeyPressed(sf::Keyboard::S));
-        thisFrameKeys.set((int) Key::Esc, _isKeyPressed(sf::Keyboard::Escape));
-        thisFrameKeys.set((int) Key::Jump, _isKeyPressed(sf::Keyboard::Space));
+        lastFrameKeys = thisFrameKeys;
+        thisFrameKeys.set((int) Key::Left, keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A]);
+        thisFrameKeys.set((int) Key::Right, keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D]);
+        thisFrameKeys.set((int) Key::Up, keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W]);
+        thisFrameKeys.set((int) Key::Down, keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S]);
+        thisFrameKeys.set((int) Key::Esc, keys[SDL_SCANCODE_ESCAPE]);
+        thisFrameKeys.set((int) Key::Jump, keys[SDL_SCANCODE_SPACE]);
+
+        const auto mouse = SDL_GetMouseState(nullptr, nullptr);
 
         lastFrameMouse = thisFrameMouse;
-        thisFrameMouse.set((int) MouseButton::Left, _isMouseButtonPressed(sf::Mouse::Left));
-        thisFrameMouse.set((int) MouseButton::Right, _isMouseButtonPressed(sf::Mouse::Right));
-        thisFrameMouse.set((int) MouseButton::Middle, _isMouseButtonPressed(sf::Mouse::Middle));
+        thisFrameMouse.set((int) MouseButton::Left, (mouse & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0);
+        thisFrameMouse.set((int) MouseButton::Right, (mouse & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0);
+        thisFrameMouse.set((int) MouseButton::Middle, (mouse & SDL_BUTTON(SDL_BUTTON_MIDDLE)) != 0);
     }
-
 private:
-    static bool _isKeyPressed(sf::Keyboard::Key key) {
-        return sf::Keyboard::isKeyPressed(key);
-    }
-    static bool _isMouseButtonPressed(sf::Mouse::Button button) {
-        return sf::Mouse::isButtonPressed(button);
-    }
-
     std::bitset<5> thisFrameMouse;
     std::bitset<5> lastFrameMouse;
 

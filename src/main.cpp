@@ -2,8 +2,6 @@
 #include <stdint.hpp>
 
 #include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <SFML/Graphics.hpp>
 
 #include <map>
 #include <string>
@@ -14,6 +12,7 @@
 #include <random>
 #include <set>
 #include <queue>
+#include <span>
 #include <fmt/format.h>
 
 #include "input.hpp"
@@ -28,7 +27,13 @@
 #include "worldgenregion.hpp"
 #include "world/gen/NoiseChunkGenerator.hpp"
 
-extern void renderBlocks(RenderBuffer& rb, BlockTable& pallete, const WorldGenRegion& blocks);
+#include <SDL2/SDL.h>
+
+#include <imgui.h>
+#include <backends/imgui_impl_sdl.h>
+#include <backends/imgui_impl_opengl3.h>
+
+extern void renderBlocks(RenderBuffer& rb, BlockTable& pallete, WorldGenRegion& blocks);
 
 std::map<std::string, BlockGraphics> tile_datas;
 
@@ -56,49 +61,71 @@ struct ClientWorld {
 		chunk_mutex.unlock();
 	}
 
-	auto getChunk(int64 position) const -> Chunk* {
-		Chunk* chunk{nullptr};
-		chunk_mutex.lock();
-		auto it = chunks.find(position);
-		if (it != chunks.end()) {
-			chunk = it->second;
-		}
-		chunk_mutex.unlock();
-		return chunk;
+    auto getChunk(int64 position) const -> Chunk* {
+        Chunk* chunk{nullptr};
+        chunk_mutex.lock();
+        auto it = chunks.find(position);
+        if (it != chunks.end()) {
+            chunk = it->second;
+        }
+        chunk_mutex.unlock();
+        return chunk;
+    }
+
+	auto getChunk(int32 x, int32 z) const -> Chunk* {
+		return getChunk(ChunkPos::asLong(x, z));
 	}
 
-	auto getBlock(int32 x, int32 y, int32 z) const -> BlockData {
+    auto getData(glm::ivec3 pos) const -> BlockData {
+        return getData(pos.x, pos.y, pos.z);
+    }
+
+	auto getData(int32 x, int32 y, int32 z) const -> BlockData {
 		if (y >= 0 && y < 256) {
-			if (auto chunk = getChunk(ChunkPos::asLong(x >> 4, z >> 4))) {
-				return chunk->getBlock(x, y, z);
+			if (auto chunk = getChunk(x >> 4, z >> 4)) {
+				return chunk->getData(x, y, z);
 			}
 		}
 		return {};
 	}
 
-    auto getBlock(glm::ivec3 pos) -> BlockData {
-        return getBlock(pos.x, pos.y, pos.z);
+    void setData(glm::ivec3 pos, BlockData blockData) {
+        setData(pos.x, pos.y, pos.z, blockData);
     }
 
-	void setBlock(int32 x, int32 y, int32 z, BlockData blockData) {
+	void setData(int32 x, int32 y, int32 z, BlockData blockData) {
 		if (y >= 0 && y < 256) {
-			if (auto chunk = getChunk(ChunkPos::asLong(x >> 4, z >> 4))) {
-				chunk->setBlock(x, y, z, blockData);
+			if (auto chunk = getChunk(x >> 4, z >> 4)) {
+                chunk->setData(x, y, z, blockData);
 			}
 		}
     }
 
-    void setBlock(glm::ivec3 pos, BlockData blockData) {
-        setBlock(pos.x, pos.y, pos.z, blockData);
+    auto getBlock(glm::ivec3 pos) const -> Block* {
+        return getBlock(pos.x, pos.y, pos.z);
     }
+
+    auto getBlock(int32_t x, int32_t y, int32_t z) const -> Block* {
+        return Block::id_to_block[(int) getData(x, y, z).id];
+    }
+
+    auto getSkyLight(int32_t x, int32_t y, int32_t z) const -> int32 {
+        if (y >= 0 && y < 256) {
+            if (auto chunk = getChunk(x >> 4, z >> 4)) {
+                return chunk->getSkyLight(x, y, z);
+            }
+        }
+        return 0;
+	}
 };
 
 ClientWorld client_world{};
 
 struct World {
     NoiseChunkGenerator generator{global_pallete};
+//    WorldLightManager lightManager;
 
-    std::atomic<ChunkPos> player_position{ChunkPos{100, 100}};
+    std::atomic<ChunkPos> player_position{ChunkPos::from(100, 100)};
     std::vector<std::jthread> workers{};
     std::map<int64, std::unique_ptr<Chunk>> chunks{};
 
@@ -113,7 +140,7 @@ struct World {
     }
 
     void runWorker(std::stop_token&& token) {
-        ChunkPos last_player_position{-9999,-9999 };
+        auto last_player_position = ChunkPos::from(-9999,-9999);
 
         while (!token.stop_requested()) {
             auto player_pos = player_position.load();
@@ -126,9 +153,11 @@ struct World {
 				if (chunk->is_dirty) {
                     chunk->is_dirty = false;
 
-					WorldGenRegion region{1, (int32)(pos & 0xFFFFFFFFLL), (int32) ((pos >> 32) & 0xFFFFFFFF), seed};
-					fillRegion(region, ChunkState::Full);
+                    const auto chunk_x = (int32)(pos & 0xFFFFFFFFLL);
+                    const auto chunk_z = (int32)((pos >> 32) & 0xFFFFFFFF);
 
+                    auto chunksInRadius = getChunksInRadius(1, chunk_x, chunk_z, ChunkState::Full);
+					WorldGenRegion region{chunksInRadius, 1, chunk_x, chunk_z, seed};
 					renderBlocks(chunk->rb, global_pallete, region);
                     chunk->needUpdate = true;
 				}
@@ -141,8 +170,8 @@ struct World {
     void loadChunks(int32 center_x, int32 center_z) {
         for (int32 chunk_x = center_x - 8; chunk_x <= center_x + 8; chunk_x++) {
             for (int32 chunk_z = center_z - 8; chunk_z <= center_z + 8; chunk_z++) {
-				WorldGenRegion region{1, chunk_x, chunk_z, seed};
-				fillRegion(region, ChunkState::Full);
+                auto chunksInRadius = getChunksInRadius(1, chunk_x, chunk_z, ChunkState::Full);
+				WorldGenRegion region{chunksInRadius, 1, chunk_x, chunk_z, seed};
 
 				auto chunk = region.getMainChunk();
                 if (chunk->needRender) {
@@ -156,77 +185,83 @@ struct World {
         }
     }
 
-    void fillRegion(WorldGenRegion& region, ChunkState state) {
-        const auto radius = region.radius;
-        const auto chunk_x = region.chunk_x;
-    	const auto chunk_z = region.chunk_z;
+    auto getChunksInRadius(int32 radius, int32 chunk_x, int32 chunk_z, ChunkState state) -> std::vector<Chunk*> {
+        const usize count = radius * 2 + 1;
+        std::vector<Chunk*> ret{count * count};
 
-		usize i = 0;
-		for (int32 z = chunk_z - radius; z <= chunk_z + radius; z++) {
-			for (int32 x = chunk_x - radius; x <= chunk_x + radius; x++) {
-				region.chunks[i++] = getChunk(x, z, state);
-			}
-		}
+        usize i = 0;
+        for (int32 z = chunk_z - radius; z <= chunk_z + radius; z++) {
+            for (int32 x = chunk_x - radius; x <= chunk_x + radius; x++) {
+                ret.at(i++) = getChunk(x, z, state);
+            }
+        }
+
+        return std::move(ret);
+    }
+
+    auto findChunk(int32 chunk_x, int32 chunk_z) -> Chunk* {
+        const auto pos = ChunkPos::from(chunk_x, chunk_z);
+        auto it = chunks.find(pos.asLong());
+        if (it == chunks.end()) {
+            it = chunks.emplace(pos.asLong(), std::make_unique<Chunk>(pos)).first;
+        }
+        return it->second.get();
     }
 
     auto getChunk(int32 chunk_x, int32 chunk_z, ChunkState state = ChunkState::Full) -> Chunk* {
-    	if (state == ChunkState::Empty) {
-    	    const ChunkPos chunkPos{chunk_x, chunk_z};
-        	auto& chunk = chunks[chunkPos.asLong()];
-        	if (chunk == nullptr) {
-				chunk = std::make_unique<Chunk>(chunkPos);
-			}
-			return chunk.get();
-    	}
+        auto chunk = findChunk(chunk_x, chunk_z);
 
-    	auto parent_state = (ChunkState)((int32)state - 1);
+        for (int i = (int) chunk->state + 1; i <= (int) state; i++) {
+            const auto parent_state = (ChunkState)((int)i - 1);
 
-		auto chunk = getChunk(chunk_x, chunk_z, parent_state);
-		if (chunk->state == parent_state) {
-			switch (state) {
-			case ChunkState::Empty:
-				break;
-			case ChunkState::StructureStart: {
-//                WorldGenRegion region{1, chunk_x, chunk_z, seed};
-//                fillRegion(region, parent_state);
-//                generator.generateStructures(region, chunk);
-                break;
+            switch ((ChunkState) i) {
+                case ChunkState::Empty: break;
+                case ChunkState::StructureStart: {
+//                    auto chunksInRadius = getChunkInRadius(1, chunk_x, chunk_z, parent_state);
+//                    WorldGenRegion region{1, chunk_x, chunk_z, seed};
+//                    fillRegion(region, parent_state);
+//                    generator.generateStructures(region, chunk);
+                    break;
+                }
+                case ChunkState::StructureReferences: {
+//                    auto chunksInRadius = getChunkInRadius(8, chunk_x, chunk_z, parent_state);
+//                    WorldGenRegion region{8, chunk_x, chunk_z, seed};
+//                    fillRegion(region, parent_state);
+//                    generator.getStructureReferences(region, chunk);
+                    break;
+                }
+                case ChunkState::Noise:
+                    generator.generateTerrain(*chunk, global_pallete);
+                    break;
+                case ChunkState::Surface: {
+                    auto chunksInRadius = getChunksInRadius(0, chunk_x, chunk_z, parent_state);
+                    WorldGenRegion region{chunksInRadius, 0, chunk_x, chunk_z, seed};
+                    generator.generateSurface(region, *chunk, global_pallete);
+                    break;
+                }
+                case ChunkState::Features: {
+//                    WorldGenRegion region{8, chunk_x, chunk_z, seed};
+//                    fillRegion(region, parent_state);
+//                    generator.generateFeatures(region, chunk, global_pallete);
+                    break;
+                }
+                case ChunkState::Light: {
+//                    auto chunksInRadius = getChunksInRadius(1, chunk_x, chunk_z, parent_state);
+//                    WorldGenRegion region{chunksInRadius, 1, chunk_x, chunk_z, seed};
+//                    lightManager.calculateLight(region, chunk_x * 16, chunk_z * 16);
+                    break;
+                }
+                case ChunkState::Full: {
+//                    WorldGenRegion<0> region{chunk_x, chunk_z};
+//                    fillRegion(region, parent_state);
+                    chunk->needRender = true;
+                    break;
+                }
             }
-			case ChunkState::StructureReferences: {
-//				WorldGenRegion region{8, chunk_x, chunk_z, seed};
-//				fillRegion(region, parent_state);
-//                generator.getStructureReferences(region, chunk);
-				break;
-			}
-			case ChunkState::Noise:
-                generator.generateTerrain(chunk, global_pallete);
-				break;
-            case ChunkState::Surface: {
-                WorldGenRegion region{0, chunk_x, chunk_z, seed};
-                fillRegion(region, parent_state);
-                generator.generateSurface(region, chunk, global_pallete);
-                break;
-            }
-			case ChunkState::Features: {
-//				WorldGenRegion region{8, chunk_x, chunk_z, seed};
-//				fillRegion(region, parent_state);
-//				generator.generateFeatures(region, chunk, global_pallete);
-				break;
-			}
-			case ChunkState::Light: {
-				WorldGenRegion region{1, chunk_x, chunk_z, seed};
-				fillRegion(region, parent_state);
-				break;
-			}
-			case ChunkState::Full: {
-//				WorldGenRegion<0> region{chunk_x, chunk_z};
-//				fillRegion(region, parent_state);
-				chunk->needRender = true;
-				break;
-			}
-			}
-            chunk->state = state;
-		}
+
+            chunk->state = (ChunkState) i;
+
+        }
 		return chunk;
     }
 };
@@ -236,132 +271,137 @@ struct CameraConstants {
 	glm::vec3 position;
 };
 
-auto check_collide(const IBlockReader auto& blocks, float x, float y, float z) -> bool {
-	int32_t ix = glm::floor(x);
-	int32_t iy = glm::floor(y);
-	int32_t iz = glm::floor(z);
+struct Clock {
 
-	return Block::id_to_block[(int) blocks.getBlock(ix, iy, iz).id]->renderType == RenderType::Block;
-}
+};
 
-float check_down_velocity(const IBlockReader auto& blocks, glm::vec3 position, float velocity, float half_collider_width = 0.3f) {
-	if (check_collide(blocks, position.x - half_collider_width, position.y + velocity, position.z - half_collider_width)) {
-		return 0;
-	}
-	if (check_collide(blocks, position.x + half_collider_width, position.y + velocity, position.z - half_collider_width)) {
-		return 0;
-	}
-	if (check_collide(blocks, position.x + half_collider_width, position.y + velocity, position.z + half_collider_width)) {
-		return 0;
-	}
-	if (check_collide(blocks, position.x - half_collider_width, position.y + velocity, position.z + half_collider_width)) {
-		return 0;
-	}
-	return velocity;
-}
+struct Shader {
+    static std::string source(const std::string &path) {
+        std::ifstream file(path, std::ios::in);
+        std::stringstream stream{};
+        stream << file.rdbuf();
+        file.close();
+        return stream.str();
+    }
 
-float check_up_velocity(const IBlockReader auto& blocks, glm::vec3 entity_pos, float vel, float half_collider_width = 0.3f, float collider_height = 1.8f) {
-	if (check_collide(blocks, entity_pos.x - half_collider_width, entity_pos.y + collider_height + vel, entity_pos.z - half_collider_width)) {
-		return 0;
-	}
-	if (check_collide(blocks, entity_pos.x + half_collider_width, entity_pos.y + collider_height + vel, entity_pos.z - half_collider_width)) {
-		return 0;
-	}
-	if (check_collide(blocks, entity_pos.x + half_collider_width, entity_pos.y + collider_height + vel, entity_pos.z + half_collider_width)) {
-		return 0;
-	}
-	if (check_collide(blocks, entity_pos.x - half_collider_width, entity_pos.y + collider_height + vel, entity_pos.z + half_collider_width)) {
-		return 0;
-	}
-	return vel;
-}
+    static bool validate(const GLuint program) {
+        GLint isLinked = 0;
+        glGetProgramiv(program, GL_LINK_STATUS, (int *)&isLinked);
+        if (isLinked == GL_FALSE) {
+            GLint maxLength = 0;
+            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
+            std::basic_string<GLchar> infoLog{};
+            infoLog.resize(maxLength);
+            glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
+            fmt::print("{}\n", infoLog);
+            return false;
+        }
+        return true;
+    }
 
-float check_front_velocity(const IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) {
-    const auto new_pos = position + velocity;
-    if (check_collide(blocks, new_pos.x/* + half_collider_width*/, new_pos.y, new_pos.z + half_collider_width)) {
-        return 0;
-    }
-//    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z + half_collider_width)) {
-//        return 0;
-//    }
-    if (check_collide(blocks, new_pos.x/* + half_collider_width*/, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
-        return 0;
-    }
-//    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
-//        return 0;
-//    }
-	return velocity.z;
-}
+    static GLuint compile(const std::string &source, GLenum type) {
+        auto data = source.data();
+        auto size = GLint(source.size());
 
-float check_back_velocity(const IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) {
-    const auto new_pos = position + velocity;
-    if (check_collide(blocks, new_pos.x/* + half_collider_width*/, new_pos.y, new_pos.z - half_collider_width)) {
-        return 0;
-    }
-//    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z - half_collider_width)) {
-//        return 0;
-//    }
-    if (check_collide(blocks, new_pos.x/* + half_collider_width*/, new_pos.y + collider_height, new_pos.z - half_collider_width)) {
-        return 0;
-    }
-//    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z - half_collider_width)) {
-//        return 0;
-//    }
-    return velocity.z;
-}
+        GLuint shader = glCreateShader(type);
+        glShaderSource(shader, 1, &data, &size);
+        glCompileShader(shader);
 
-float check_left_velocity(const IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) {
-    const auto new_pos = position + velocity;
-    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z/* - half_collider_width*/)) {
-        return 0;
-    }
-//    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z + half_collider_width)) {
-//        return 0;
-//    }
-    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z/* - half_collider_width*/)) {
-        return 0;
-    }
-//    if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
-//        return 0;
-//    }
-    return velocity.x;
-}
+        GLint length = 0;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
+        if (length > 0) {
+            std::basic_string<GLchar> infoLog{};
+            infoLog.resize(length);
+            glGetShaderInfoLog(shader, length, &length, infoLog.data());
+            fmt::print("{}\n", infoLog);
+        }
 
-float check_right_velocity(const IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) {
-    const auto new_pos = position + velocity;
-    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y, new_pos.z/* - half_collider_width*/)) {
-        return 0;
+	    GLint status = GL_FALSE;
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+        if (status == GL_FALSE) {
+            glDeleteShader(shader);
+            return 0;
+        }
+
+        return shader;
     }
-//    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y, new_pos.z + half_collider_width)) {
-//        return 0;
-//    }
-    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y + collider_height, new_pos.z/* - half_collider_width*/)) {
-        return 0;
+
+    static GLuint create(const std::string &vertex_path, const std::string &fragment_path) {
+        auto vertex = compile(source(vertex_path), GL_VERTEX_SHADER);
+        auto fragment = compile(source(fragment_path), GL_FRAGMENT_SHADER);
+
+        GLuint program = glCreateProgram();
+        glAttachShader(program, vertex);
+        glAttachShader(program, fragment);
+
+        glLinkProgram(program);
+
+        glDeleteShader(vertex);
+        glDeleteShader(fragment);
+
+        GLint length = 0;
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
+        if (length > 0) {
+            std::basic_string<GLchar> infoLog{};
+            infoLog.resize(length);
+            glGetProgramInfoLog(program, length, &length, &infoLog[0]);
+            fmt::print("{}\n", infoLog);
+        }
+
+        GLint isLinked = 0;
+        glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
+        if (isLinked == GL_FALSE) {
+            glDeleteProgram(program);
+            return 0;
+        }
+        return program;
     }
-//    if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
-//        return 0;
-//    }
-    return velocity.x;
-}
+};
+
+struct UniformBufferObject {
+    GLuint ubo;
+    uint8* ptr;
+
+    static auto create(usize size) -> UniformBufferObject {
+        GLuint ubo;
+        glCreateBuffers(1, &ubo);
+        glNamedBufferStorage(ubo, size, nullptr, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+        auto ptr = glMapNamedBufferRange(ubo, 0, size, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+        return {ubo, reinterpret_cast<uint8*>(ptr)};
+    }
+
+    void write(const void* data, usize offset, usize size) {
+        std::memcpy(ptr + offset, data, size);
+    }
+};
+
+struct RenderFrame {
+    GLuint camera_ubo;
+    void* camera_ptr;
+};
 
 struct App {
-    sf::Window window{};
-    sf::Clock clock{};
-    ResourceManager resource_manager{};
+    bool running = true;
+
+    SDL_Window* window;
+    SDL_GLContext context;
+    ResourceManager resources{};
 
     Input input{};
+    Clock clock{};
     Camera camera{};
     Transform transform {
         .yaw = 0,
         .pitch = 0,
-        .position = {0, 100, 0}
+        .position = {637, 71, 220}
     };
 	glm::vec3 velocity{0, 0, 0};
 	int cooldown = 0;
 
-	sf::Shader opaque_pipeline;
-	sf::Shader cutout_pipeline;
-	sf::Shader transparent_pipeline;
+    GLuint simple_pipeline;
+    GLuint opaque_pipeline;
+    GLuint cutout_pipeline;
+    GLuint transparent_pipeline;
 
     TextureAtlas texture_atlas;
 
@@ -372,25 +412,35 @@ struct App {
 
     std::optional<RayTraceResult> rayTraceResult{std::nullopt};
 
-	GLuint ubo;
-	void* ubo_ptr{nullptr};
+    int frameIndex = 0;
+
+    std::array<RenderFrame, 2> frames;
 
     App(const char* title, uint32 width, uint32 height) {
 		stbi_set_flip_vertically_on_load(true);
 
-        window.create(sf::VideoMode(width, height), title, sf::Style::Close, sf::ContextSettings{24, 8});
-        window.setFramerateLimit(60);
-        window.setActive();
+        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+        SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
+        window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+        context = SDL_GL_CreateContext(window);
+
+        SDL_SetWindowResizable(window, SDL_TRUE);
 
         glewInit();
 
-		resource_manager.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla"));
+        create_frames();
+        create_imgui();
 
-		opaque_pipeline.loadFromFile("../resources/default.vert", "../resources/default.frag");
-		cutout_pipeline.loadFromFile("../resources/default.vert", "../resources/cutout.frag");
-		transparent_pipeline.loadFromFile("../resources/default.vert", "../resources/transparent.frag");
+		resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla"));
 
-		texture_atlas.loadMetaFile(resource_manager);
+        simple_pipeline = Shader::create("../resources/simple.vert", "../resources/simple.frag");
+        opaque_pipeline = Shader::create("../resources/default.vert", "../resources/default.frag");
+		cutout_pipeline = Shader::create("../resources/default.vert", "../resources/cutout.frag");
+		transparent_pipeline = Shader::create("../resources/default.vert", "../resources/transparent.frag");
+
+		texture_atlas.loadMetaFile(resources);
 		texture_atlas.loadTexture();
 
 		loadBlocks();
@@ -741,14 +791,30 @@ struct App {
         }
 
 		world = std::make_unique<World>();
+    }
 
-        glCreateBuffers(1, &ubo);
-        glNamedBufferStorage(ubo, sizeof(CameraConstants), nullptr, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-        ubo_ptr = glMapNamedBufferRange(ubo, 0, sizeof(CameraConstants), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+    void create_frames() {
+        selection_mesh = std::make_unique<Mesh>();
+
+        for (int i = 0; i < 2; i++) {
+            glCreateBuffers(1, &frames[i].camera_ubo);
+            glNamedBufferStorage(frames[i].camera_ubo, sizeof(CameraConstants), nullptr, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+            frames[i].camera_ptr = glMapNamedBufferRange(frames[i].camera_ubo, 0, sizeof(CameraConstants), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+        }
+    }
+
+    void create_imgui() {
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+
+        ImGui::StyleColorsDark();
+
+        ImGui_ImplSDL2_InitForOpenGL(window, context);
+        ImGui_ImplOpenGL3_Init("#version 150");
     }
 
 	void loadBlocks() {
-		auto blocks = Json::parse(resource_manager.loadFile("blocks.json").value(), nullptr, true, true);
+		auto blocks = Json::parse(resources.loadFile("blocks.json").value(), nullptr, true, true);
 
 		using namespace std::string_view_literals;
 		for (auto& [name, data] : blocks.items()) {
@@ -807,132 +873,46 @@ struct App {
 	}
 
     void handleEvents() {
-        sf::Event event{};
-        while (window.pollEvent(event)) {
-        	if (event.type == sf::Event::LostFocus) {
-				window.setMouseCursorVisible(true);
-			} else if (event.type == sf::Event::GainedFocus) {
-        		window.setMouseCursorVisible(false);
-        	} else if (event.type == sf::Event::MouseMoved) {
+        SDL_PumpEvents();
 
-        	} else if (event.type == sf::Event::Closed) {
-                window.close();
+        SDL_Event event{};
+        while (SDL_PollEvent(&event)) {
+            ImGui_ImplSDL2_ProcessEvent(&event);
+
+//        	if (event.type == sf::Event::LostFocus) {
+////				window.setMouseCursorVisible(true);
+//			} else if (event.type == sf::Event::GainedFocus) {
+////        		window.setMouseCursorVisible(false);
+//        	} else if (event.type == sf::Event::MouseMoved) {
+//
+//        	} else
+            if (event.type == SDL_QUIT) {
+                running = false;
+//                window.close();
             }
         }
     }
 
-	static void rotate_camera(Transform& transform, sf::Vector2i mouse_delta, float dt) {
-		if (mouse_delta.x != 0 || mouse_delta.y != 0) {
-			float d4 = 0.5f * 0.6F + 0.2F;
-			float d5 = d4 * d4 * d4 * 8.0f;
-
-			transform.yaw = transform.yaw - mouse_delta.x * d5 * dt * 9.0f;
-			transform.pitch = glm::clamp(transform.pitch - mouse_delta.y * d5 * dt * 9.0f, -90.0f, 90.0f);
-		}
-	}
-
-	static auto calc_free_camera_velocity(Input& input, Transform& transform, float dt) -> glm::vec3 {
-    	glm::vec3 velocity{0, 0, 0};
-
-        auto forward = transform.forward();
-        auto right = transform.right();
-
-        float moveSpeed = 100.f;
-        if (input.IsKeyPressed(Input::Key::Up)) {
-            velocity += forward * dt * moveSpeed;
-        }
-        if (input.IsKeyPressed(Input::Key::Down)) {
-            velocity -= forward * dt * moveSpeed;
-        }
-        if (input.IsKeyPressed(Input::Key::Left)) {
-            velocity -= right * dt * moveSpeed;
-        }
-        if (input.IsKeyPressed(Input::Key::Right)) {
-            velocity += right * dt * moveSpeed;
-        }
-        return velocity;
-    }
-
 	void update_player_input(float dt) {
-		auto display_size = window.getSize();
+        if (cooldown > 0) {
+            cooldown -= 1;
+        }
 
-		sf::Vector2i mouse_center(display_size.x / 2, display_size.y / 2);
-		auto mouse_position = sf::Mouse::getPosition(window);
+        glm::ivec2 display_size;
+        SDL_GetWindowSize(window, &display_size.x, &display_size.y);
+
+        glm::ivec2 mouse_center{display_size.x / 2, display_size.y / 2};
+		glm::ivec2 mouse_position;
+        SDL_GetMouseState(&mouse_position.x, &mouse_position.y);
 		auto mouse_delta = mouse_position - mouse_center;
-		sf::Mouse::setPosition(mouse_center, window);
+        SDL_WarpMouseInWindow(window, mouse_center.x, mouse_center.y);
 
 		rotate_camera(transform, mouse_delta, dt);
 
-		float yaw = glm::radians(transform.yaw);
+        const auto topBlock = client_world.getBlock(transform.position.x, transform.position.y + 1, transform.position.z);
+        const bool is_liquid = topBlock->renderType == RenderType::Liquid;
 
-		float c = glm::cos(yaw);
-		float s = glm::sin(yaw);
-
-
-        bool is_liquid = Block::id_to_block[(int) client_world.getBlock(transform.position.x, transform.position.y + 1, transform.position.z).id]->renderType == RenderType::Liquid;
-
-        glm::vec3 ivelocity{};
-//		if (input.IsKeyPressed(Input::Key::Up)) {
-//            ivelocity += glm::vec3{-s, 0, c};
-//		}
-//		if (input.IsKeyPressed(Input::Key::Down)) {
-//            ivelocity -= glm::vec3{-s, 0, c};
-//		}
-//		if (input.IsKeyPressed(Input::Key::Left)) {
-//            ivelocity -= glm::vec3{c, 0, s};
-//		}
-//		if (input.IsKeyPressed(Input::Key::Right)) {
-//            ivelocity += glm::vec3{c, 0, s};
-//		}
-//
-//        velocity.x = 0;
-//        velocity.z = 0;
-//
-//        if (ivelocity.x != 0 || ivelocity.z != 0) {
-//            velocity += glm::normalize(ivelocity) * dt * (is_liquid ? 5.0f : 100.0f);
-//        }
-
-//		if (velocity.z > 0) {
-//			velocity.z = check_front_velocity(client_world, transform.position, velocity);
-//		} else if (velocity.z < 0) {
-//			velocity.z = check_back_velocity(client_world, transform.position, velocity);
-//		}
-//		if (velocity.x > 0) {
-//			velocity.x = check_right_velocity(client_world, transform.position, velocity);
-//		} else if (velocity.x < 0) {
-//			velocity.x = check_left_velocity(client_world, transform.position, velocity);
-//		}
-
-//		if (is_liquid) {
-//			velocity.y = -2.5 * dt;
-//		} else {
-//			velocity.y -= 9.8 * dt * dt;
-//		}
-
-//		if (velocity.y < 0) {
-//			velocity.y = check_down_velocity(client_world, transform.position, velocity.y);
-//		}
-
-//		if (input.IsKeyPressed(Input::Key::Jump)) {
-//		if (input.IsKeyPressed(Input::Key::Jump)) {
-////			if (is_liquid) {
-////				velocity.y = 2.5 * dt;
-////			} else if (velocity.y == 0) {
-//				velocity.y = 5 * dt;
-////			}
-//		} else {
-//            velocity.y = 0;
-//		}
-
-//		if (velocity.y > 0) {
-//			velocity.y = check_up_velocity(client_world, transform.position, velocity.y);
-//		}
-
-        velocity = calc_free_camera_velocity(input, transform, dt);
-
-		transform.position += velocity;
-
-//		fmt::print("{}, {}, {}\n", transform.position.x, transform.position.y, transform.position.z);
+		transform.position += calc_free_camera_velocity(input, transform, dt);
 
 		RayTraceContext ray_trace_context {
 			.position = transform.position + glm::vec3(0, 1.68, 0),
@@ -947,7 +927,7 @@ struct App {
 
                 const auto pos = rayTraceResult->pos;
 
-                client_world.setBlock(pos, BlockData{BlockID::AIR, 0});
+                client_world.setData(pos, BlockData{BlockID::AIR, 0});
 
                 for (int x = pos.x - 1; x <= pos.x + 1; x++) {
                     for (int z = pos.z - 1; z <= pos.z + 1; z++) {
@@ -959,9 +939,9 @@ struct App {
 
                 const auto pos = rayTraceResult->pos + rayTraceResult->dir;
 
-                client_world.setBlock(pos, BlockData{global_pallete.getId("water"), 0});
+                client_world.setData(pos, BlockData{global_pallete.getId("water"), 0});
 
-//                client_world.setBlock(pos, {Block::water, 0});
+//                client_world.setData(pos, {Block::water, 0});
                 client_world.liquids.emplace(pos);
 
                 for (int x = pos.x - 1; x <= pos.x + 1; x++) {
@@ -977,85 +957,84 @@ struct App {
 		}
     }
 
+    void setup_camera() {
+        auto projection_matrix = camera.getProjection();
+        auto transform_matrix = transform.getViewMatrix();
+        auto camera_matrix = projection_matrix * transform_matrix;
+
+        CameraConstants camera_constants{
+                .transform = camera_matrix,
+                .position = transform.position
+        };
+
+        std::memcpy(frames[frameIndex].camera_ptr, &camera_constants, sizeof(CameraConstants));
+    }
+
+    void setup_terrain() {
+        int32 center_x = (int32) transform.position.x >> 4;
+        int32 center_z = (int32) transform.position.z >> 4;
+        world->player_position = {center_x, center_z};
+
+        chunkToRenders.clear();
+
+        for (int32 chunk_x = center_x - 8; chunk_x <= center_x + 8; chunk_x++) {
+            for (int32 chunk_z = center_z - 8; chunk_z <= center_z + 8; chunk_z++) {
+                auto chunk = client_world.getChunk(ChunkPos::asLong(chunk_x, chunk_z));
+
+                if (chunk != nullptr) {
+                    if (chunk->needUpdate) {
+                        chunk->needUpdate = false;
+                        chunk->updateMesh();
+                    }
+
+                    if (chunk->mesh) {
+                        chunkToRenders.emplace_back(chunk);
+                    }
+                }
+            }
+        }
+    }
+
 	void render_terrain() {
-		int32 center_x = (int32) transform.position.x >> 4;
-		int32 center_z = (int32) transform.position.z >> 4;
-
-		world->player_position = {center_x, center_z};
-
-		auto projection_matrix = camera.getProjection();
-		auto transform_matrix = transform.getViewMatrix();
-		auto camera_matrix = projection_matrix * transform_matrix;
-
-		CameraConstants camera_constants{
-				.transform = camera_matrix,
-				.position = transform.position
-		};
-
-		std::memcpy(ubo_ptr, &camera_constants, sizeof(CameraConstants));
-
-		auto display_size = window.getSize();
-		glViewport(0, 0, display_size.x, display_size.y);
-
-        bool is_liquid = Block::id_to_block[(int) client_world.getBlock(transform.position.x, std::floor(transform.position.y + 1.68), transform.position.z).id]->renderType == RenderType::Liquid;
+        const auto topBlock = client_world.getBlock(transform.position.x, std::floor(transform.position.y + 1.68), transform.position.z);
+        const bool is_liquid = topBlock->renderType == RenderType::Liquid;
 
         std::array<float, 4> color{0, 0.68, 1.0, 1};
 
         glm::vec2 fog_offset{9, 13};
         if (is_liquid) {
             color = {0.27, 0.68, 0.96, 1};
-
             fog_offset = glm::vec2{0, 5 };
         }
 
 		glClearNamedFramebufferfv(0, GL_COLOR, 0, color.data());
 		glClearNamedFramebufferfi(0, GL_DEPTH_STENCIL, 0, 1, 0);
 
-		glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 0, frames[frameIndex].camera_ubo);
 
-		sf::Texture::bind(&texture_atlas.texture);
+        glBindTexture(GL_TEXTURE_2D, texture_atlas.texture);
 		glActiveTexture(GL_TEXTURE0);
-
-		chunkToRenders.clear();
-
-		for (int32 chunk_x = center_x - 8; chunk_x <= center_x + 8; chunk_x++) {
-			for (int32 chunk_z = center_z - 8; chunk_z <= center_z + 8; chunk_z++) {
-				auto chunk = client_world.getChunk(ChunkPos::asLong(chunk_x, chunk_z));
-
-				if (chunk != nullptr) {
-					if (chunk->needUpdate) {
-						chunk->needUpdate = false;
-						chunk->updateMesh();
-					}
-
-					if (chunk->mesh) {
-						chunkToRenders.emplace_back(chunk);
-					}
-				}
-			}
-		}
 
         glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 		glDisable(GL_BLEND);
 		glDepthRange(0.01, 1.0);
-        glUniform3f(0, 1, 0.68, 1.0);
-        glUniform2f(4, fog_offset.x, fog_offset.y);
 
-		sf::Shader::bind(&opaque_pipeline);
+        glUseProgram(opaque_pipeline);
         glUniform3fv(0, 1, color.data());
         glUniform2f(4, fog_offset.x, fog_offset.y);
 		renderLayers(RenderLayer::Opaque);
 
-		sf::Shader::bind(&cutout_pipeline);
+        glUseProgram(cutout_pipeline);
         glUniform3fv(0, 1, color.data());
         glUniform2f(4, fog_offset.x, fog_offset.y);
 		renderLayers(RenderLayer::Cutout);
 
 		glEnable(GL_BLEND);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
-		sf::Shader::bind(&transparent_pipeline);
+
+		glUseProgram(transparent_pipeline);
         glUniform3fv(0, 1, color.data());
         glUniform2f(4, fog_offset.x, fog_offset.y);
 		renderLayers(RenderLayer::Transparent);
@@ -1063,7 +1042,7 @@ struct App {
 		if (rayTraceResult.has_value()) {
 			const auto pos = rayTraceResult->pos;
 
-			VBuffer buf{};
+			SimpleVBuffer buf{};
 			buf.quad(0, 1, 1, 2, 2, 3, 3, 0);
 			buf.vertex(pos.x + 0, pos.y + 0, pos.z + 0, 0, 0, 0, 0, 0, 0xFF);
 			buf.vertex(pos.x + 0, pos.y + 1, pos.z + 0, 0, 1, 0, 0, 0, 0xFF);
@@ -1091,49 +1070,58 @@ struct App {
 			selection_mesh->SetIndices(buf.indices);
 			selection_mesh->SetVertices(buf.vertices);
 
+			glUseProgram(simple_pipeline);
+
 			glDisable(GL_BLEND);
 			glDepthRange(0, 1.0);
 			glBindVertexArray(selection_mesh->vao);
 			glDrawElements(GL_LINES, selection_mesh->index_count, GL_UNSIGNED_INT, nullptr);
 		}
 
-		sf::Shader::bind(nullptr);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glUseProgram(0);
 	}
 
     void run() {
-        window.setMouseCursorGrabbed(true);
-        window.setMouseCursorVisible(false);
+        glm::ivec2 display_size;
+        SDL_GetWindowSize(window, &display_size.x, &display_size.y);
+        SDL_WarpMouseInWindow(window, display_size.x / 2, display_size.y / 2);
 
-        auto [display_width, display_height] = window.getSize();
-		sf::Mouse::setPosition(sf::Vector2i(display_width / 2, display_height / 2), window);
-
-		camera.setSize(display_width, display_height);
-
-		selection_mesh = std::make_unique<Mesh>();
-
-        float dt = 1.0f / 60.0f;
+		camera.setSize(display_size.x, display_size.y);
 
         using namespace std::chrono_literals;
 
         std::this_thread::sleep_for(1000ms);
 
-        clock.restart();
-        while (handleEvents(), window.isOpen()) {
+        auto startTime = std::chrono::high_resolution_clock::now();
+        while (handleEvents(), running) {
+            auto time = std::chrono::high_resolution_clock::now();
+            auto dt = std::chrono::duration<double>(time - startTime).count();
+            startTime = time;
+
 			input.update();
+            update_player_input(dt);
 
-			if (window.hasFocus()) {
-				update_player_input(dt);
-			}
-
-			if (cooldown > 0) {
-				cooldown -= 1;
-			}
-
+            setup_camera();
+            setup_terrain();
 			render_terrain();
 
-			window.display();
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplSDL2_NewFrame(window);
+            ImGui::NewFrame();
 
-            dt = clock.restart().asSeconds();
+            ImGui::SetNextWindowPos(ImVec2(0, 0));
+            ImGui::SetNextWindowSize(ImVec2(300, 150));
+            ImGui::Begin("Debug panel", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground);
+            ImGui::Text("Position: %.2f, %.2f, %.2f", transform.position.x, transform.position.y, transform.position.z);
+            ImGui::End();
+
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+            SDL_GL_SwapWindow(window);
+
+            frameIndex = (frameIndex + 1) % 2;
         }
     }
 
@@ -1148,6 +1136,39 @@ struct App {
 			}
 		}
 	}
+
+private:
+    static void rotate_camera(Transform& transform, glm::ivec2 mouse_delta, float dt) {
+        if (mouse_delta.x != 0 || mouse_delta.y != 0) {
+            float d4 = 0.5f * 0.6F + 0.2F;
+            float d5 = d4 * d4 * d4 * 8.0f;
+
+            transform.yaw = transform.yaw - mouse_delta.x * d5 * dt * 9.0f;
+            transform.pitch = glm::clamp(transform.pitch - mouse_delta.y * d5 * dt * 9.0f, -90.0f, 90.0f);
+        }
+    }
+
+    static auto calc_free_camera_velocity(Input& input, Transform& transform, float dt) -> glm::vec3 {
+        glm::vec3 velocity{0, 0, 0};
+
+        auto forward = transform.forward();
+        auto right = transform.right();
+
+        float moveSpeed = 100.f;
+        if (input.IsKeyPressed(Input::Key::Up)) {
+            velocity += forward * dt * moveSpeed;
+        }
+        if (input.IsKeyPressed(Input::Key::Down)) {
+            velocity -= forward * dt * moveSpeed;
+        }
+        if (input.IsKeyPressed(Input::Key::Left)) {
+            velocity -= right * dt * moveSpeed;
+        }
+        if (input.IsKeyPressed(Input::Key::Right)) {
+            velocity += right * dt * moveSpeed;
+        }
+        return velocity;
+    }
 };
 
 auto main() -> int32 {

@@ -19,7 +19,8 @@ struct RayTraceResult {
 //	BlockData blockData;
 };
 
-auto rayTraceBlocks(IBlockReader auto& blocks, const RayTraceContext& context) -> std::optional<RayTraceResult> {
+template <typename IBlockReader>
+auto rayTraceBlocks(IBlockReader /*auto*/& blocks, const RayTraceContext& context) -> std::optional<RayTraceResult> {
 	auto rayPos = context.position;
 	auto rayDir = context.direction;
 
@@ -40,7 +41,7 @@ auto rayTraceBlocks(IBlockReader auto& blocks, const RayTraceContext& context) -
 
 		// todo: shape
 
-		auto block = Block::id_to_block[(int) blocks.getBlock(pos).id];
+		auto block = blocks.getBlock(pos);
 		if (block != Block::air) {
 			return RayTraceResult{
 				.pos = pos,

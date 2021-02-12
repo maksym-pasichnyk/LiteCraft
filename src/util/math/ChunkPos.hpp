@@ -23,6 +23,10 @@ struct ChunkPos {
     int32_t z;
 //    Dimension dimension;
 
+    constexpr static auto from(int32_t x, int32_t z) noexcept -> ChunkPos {
+        return {x, z};
+    }
+
     constexpr auto operator<=>(const ChunkPos&) const noexcept = default;
 
     template<typename T>

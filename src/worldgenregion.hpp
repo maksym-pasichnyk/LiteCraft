@@ -18,15 +18,15 @@ struct WorldGenRegion {
 
 	glm::ivec2 bounds_min{};
 	glm::ivec2 bounds_max{};
-	std::vector<Chunk*> chunks;
+    std::span<Chunk*> chunks;
 
-	WorldGenRegion(int32_t radius, int32_t chunk_x, int32_t chunk_z, int64_t seed)
+	WorldGenRegion(std::span<Chunk*> chunks, int32_t radius, int32_t chunk_x, int32_t chunk_z, int64_t seed)
 	    : seed(seed)
         , radius(radius)
 	    , size(radius * 2 + 1)
 	    , chunk_x(chunk_x)
 	    , chunk_z(chunk_z)
-	    , chunks(size * size)
+	    , chunks(chunks)
     {
 		bounds_min.x = chunk_x - radius;
 		bounds_min.y = chunk_z - radius;
@@ -53,21 +53,60 @@ struct WorldGenRegion {
 		return nullptr;
 	}
 
-    auto getBlock(int32_t x, int32_t y, int32_t z) const -> BlockData {
-        return getChunk(x >> 4, z >> 4)->getBlock(x, y, z);
+	auto getBlock(int32_t x, int32_t y, int32_t z) const -> Block* {
+        return Block::id_to_block[(int) getData(x, y, z).id];
+	}
+
+    auto getData(int32_t x, int32_t y, int32_t z) const -> BlockData {
+	    if (y < 0 || y > 255) {
+	        return {};
+	    }
+        return getChunk(x >> 4, z >> 4)->getData(x, y, z);
     }
 
-    auto getBlock(glm::ivec3 pos) const -> BlockData {
-        return getBlock(pos.x, pos.y, pos.z);
+    auto getData(glm::ivec3 pos) const -> BlockData {
+        return getData(pos.x, pos.y, pos.z);
     }
 
-    void setBlock(int32_t x, int32_t y, int32_t z, BlockData blockData) {
-        getChunk(x >> 4, z >> 4)->setBlock(x, y, z, blockData);
+    void setData(int32_t x, int32_t y, int32_t z, BlockData blockData) {
+        getChunk(x >> 4, z >> 4)->setData(x, y, z, blockData);
     }
 
-//    void setBlock(glm::ivec3 pos, Block* block) {
-//        setBlock(pos.x, pos.y, pos.z, block);
-//    }
+    void setData(glm::ivec3 pos, BlockData blockData) {
+        setData(pos.x, pos.y, pos.z, blockData);
+    }
+
+    void setSkyLight(int32_t x, int32_t y, int32_t z, int32_t new_light) {
+        getChunk(x >> 4, z >> 4)->setSkyLight(x, y, z, new_light);
+    }
+
+    void setSkyLight(glm::ivec3 pos, int32_t new_light) {
+        setSkyLight(pos.x, pos.y, pos.z, new_light);
+    }
+
+    void setBlockLight(int32_t x, int32_t y, int32_t z, int32_t new_light) {
+        getChunk(x >> 4, z >> 4)->setBlockLight(x, y, z, new_light);
+    }
+
+    void setBlockLight(glm::ivec3 pos, int32_t new_light) {
+        setBlockLight(pos.x, pos.y, pos.z, new_light);
+    }
+
+    auto getSkyLight(int32_t x, int32_t y, int32_t z) -> int32_t {
+        return getChunk(x >> 4, z >> 4)->getSkyLight(x, y, z);
+    }
+
+    auto getSkyLight(glm::ivec3 pos) -> int32_t {
+        return getSkyLight(pos.x, pos.y, pos.z);
+    }
+
+    auto getBlockLight(int32_t x, int32_t y, int32_t z) -> int32_t {
+        return getChunk(x >> 4, z >> 4)->getBlockLight(x, y, z);
+    }
+
+    auto getBlockLight(glm::ivec3 pos) -> int32_t {
+        return getBlockLight(pos.x, pos.y, pos.z);
+    }
 
     auto getMainChunk() const -> Chunk* {
 		return chunks[(radius * (radius + 1)) << 1];

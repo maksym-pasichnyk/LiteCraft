@@ -40,29 +40,180 @@ SlideSettings bottomSlide{
         0
 };
 
-struct BiomeMaker {
-
+struct ISurfaceBuilder {
+    virtual void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) = 0;
 };
 
-Biome* makeGenericOceanBiome(bool isDeapVariant) {
-    return new Biome(isDeapVariant ?  -1.8F : -1.0F, 0.1);
-}
+struct NoopSurface {
+    static void buildSurface(BlockTable& pallete, Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) {
+    }
+};
 
-Biome* makeOceanBiome(bool isDeapVariant) {
-    return makeGenericOceanBiome(isDeapVariant);
-}
+struct DefaultSurface {
+    static void buildSurface(BlockTable& pallete, Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) {
+        BlockData blockstate = top;
+        BlockData blockstate1 = filler;
+        int i = -1;
+        int j = (int)(noise / 3.0 + 3.0 + rand.nextDouble() * 0.25);
+        int xPos = xStart & 15;
+        int zPos = zStart & 15;
 
-Biome* makePlainsBiome(bool isSunflowerVariant) {
-    return new Biome(0.125, 0.05);
-}
+        for(int yPos = startHeight; yPos >= 0; --yPos) {
+            BlockData blockstate2 = chunk.getData(xPos, yPos, zPos);
+            if (/*blockstate2.isAir()*/blockstate2.id == BlockID::AIR) {
+                i = -1;
+            } else if (/*blockstate2.isIn(defaultBlock.getData())*/ blockstate2.id == defaultBlock.id) {
+                if (i == -1) {
+                    if (j <= 0) {
+                        blockstate = {BlockID::AIR, 0};// Blocks.AIR.getDefaultState();
+                        blockstate1 = defaultBlock;
+                    } else if (yPos >= sealevel - 4 && yPos <= sealevel + 1) {
+                        blockstate = top;
+                        blockstate1 = filler;
+                    }
 
-Biome* makeDesertBiome(float depth, float scale, bool hasVillageAndOutpost, bool hasDesertPyramid, bool hasFossils) {
-    return new Biome(depth, scale);
-}
+                    if (yPos < sealevel && /*(blockstate == null || blockstate.isAir())*/ blockstate.id == BlockID::AIR) {
+//                    if (biome->getTemperature(xStart, yPos, zStart) < 0.15F) {
+//                        blockstate = Blocks.ICE.getDefaultState();
+//                    } else {
+                        blockstate = defaultFluid;
+//                    }
+                    }
 
-Biome* makeMountainBiome(float depth, float scale, /*ConfiguredSurfaceBuilder<SurfaceBuilderConfig> surfaceBuilder,*/ bool isEdge) {
-    return new Biome(depth, scale);
-}
+                    i = j;
+                    if (yPos >= sealevel - 1) {
+                        chunk.setData(xPos, yPos, zPos, blockstate/*, false*/);
+                    } else if (yPos < sealevel - 7 - j) {
+                        blockstate = BlockData{BlockID::AIR, 0};// Blocks.AIR.getDefaultState();
+                        blockstate1 = defaultBlock;
+                        chunk.setData(xPos, yPos, zPos, underWater/*, false*/);
+                    } else {
+                        chunk.setData(xPos, yPos, zPos, blockstate1/*, false*/);
+                    }
+                } else if (i > 0) {
+                    --i;
+                    chunk.setData(xPos, yPos, zPos, blockstate1/*, false*/);
+//                if (i == 0 && blockstate1.isIn(Blocks.SAND) && j > 1) {
+//                    i = random.nextInt(4) + Math.max(0, yPos - 63);
+//                    blockstate1 = blockstate1.isIn(Blocks.RED_SAND)
+//                                  ? Blocks.RED_SANDSTONE.getDefaultState()
+//                                  : Blocks.SANDSTONE.getDefaultState();
+//                }
+                }
+            }
+        }
+    }
+};
+
+struct MountainSurface {
+    static void buildSurface(BlockTable& pallete, Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) {
+        if (noise > 1.0) {
+            DefaultSurface::buildSurface(pallete, rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top/*stone*/, filler/*stone*/, underWater/*gravel*/, sealevel);
+        } else {
+            DefaultSurface::buildSurface(pallete, rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top/*grass*/, filler/*dirt*/, underWater/*gravel*/, sealevel);
+        }
+    }
+};
+
+struct ShatteredSavannaSurface {
+    static void buildSurface(BlockTable& pallete, Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) {
+        if (noise > 1.75) {
+            DefaultSurface::buildSurface(pallete, rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top/*stone*/, filler/*stone*/, underWater/*gravel*/, sealevel);
+        } else if (noise > -0.5) {
+            DefaultSurface::buildSurface(pallete, rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top/*coarse_dirt*/, filler/*dirt*/, underWater/*gravel*/, sealevel);
+        } else {
+            DefaultSurface::buildSurface(pallete, rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top/*grass*/, filler/*dirt*/, underWater/*gravel*/, sealevel);
+        }
+    }
+};
+
+struct GravellyMountainSurface {
+    static void buildSurface(BlockTable& pallete, Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) {
+        if (noise < -1.0 || noise > 2.0) {
+            DefaultSurface::buildSurface(pallete, rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top/*gravel*/, filler/*gravel*/, underWater/*gravel*/, sealevel);
+        } else if (noise > 1.0) {
+            DefaultSurface::buildSurface(pallete, rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top/*stone*/, filler/*stone*/, underWater/*gravel*/, sealevel);
+        } else {
+            DefaultSurface::buildSurface(pallete, rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top/*grass*/, filler/*dirt*/, underWater/*gravel*/, sealevel);
+        }
+    }
+};
+
+struct GiantTreeTaigaSurface {
+    static void buildSurface(BlockTable& pallete, Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) {
+        if (noise > 1.75) {
+            DefaultSurface::buildSurface(pallete, rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top/*coarse_dirt*/, filler/*dirt*/, underWater/*gravel*/, sealevel);
+        } else if (noise > -0.95) {
+            DefaultSurface::buildSurface(pallete, rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top/*podzol*/, filler/*dirt*/, underWater/*gravel*/, sealevel);
+        } else {
+            DefaultSurface::buildSurface(pallete, rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top/*grass*/, filler/*dirt*/, underWater/*gravel*/, sealevel);
+        }
+    }
+};
+
+struct SwampSurface {
+//    {pallete.getId("grass")}, {pallete.getId("dirt")}, {pallete.getId("gravel")}
+
+    static void buildSurface(BlockTable& pallete, Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) {
+        double d0 = Biome::INFO_NOISE.noiseAt((double)xStart * 0.25, (double)zStart * 0.25, false);
+        if (d0 > 0.0) {
+            const int i = xStart & 15;
+            const int j = zStart & 15;
+
+            for(int k = startHeight; k >= 0; --k) {
+                if (/*!chunk.getData(i, k, j).isAir()*/chunk.getData(i, k, j).id != BlockID::AIR) {
+//                    if (k == 62 && !chunkIn.getBlockState(i, k, j).isIn(defaultFluid.getData())) {
+                    if (k == 62 && chunk.getData(i, k, j).id != defaultFluid.id) {
+                        chunk.setData(i, k, j, defaultFluid/*, false*/);
+                    }
+                    break;
+                }
+            }
+        }
+
+        DefaultSurface::buildSurface(pallete, rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top, filler, underWater, sealevel);
+    }
+};
+
+struct BadlandsSurface {
+    static void buildSurface(BlockTable& pallete, Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) {
+    }
+};
+
+struct WoodedBadlandsSurface {
+    static void buildSurface(BlockTable& pallete, Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) {
+    }
+};
+
+struct ErodedBadlandsSurface {
+    static void buildSurface(BlockTable& pallete, Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) {
+    }
+};
+
+struct FrozenOceanSurface {
+    static void buildSurface(BlockTable& pallete, Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) {
+    }
+};
+
+struct NetherSurface {
+    static void buildSurface(BlockTable& pallete, Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) {
+    }
+};
+
+struct NetherForestsSurface {
+    static void buildSurface(BlockTable& pallete, Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) {
+    }
+};
+
+struct SoulSandValleySurface {
+    static void buildSurface(BlockTable& pallete, Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) {
+    }
+};
+
+struct BasaltDeltasSurface {
+    static void buildSurface(BlockTable& pallete, Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) {
+    }
+};
 
 struct OverworldBiomeProvider : BiomeProvider {
     std::unique_ptr<Layer> genBiomes{};
@@ -76,26 +227,26 @@ struct OverworldBiomeProvider : BiomeProvider {
     }
 };
 
-//void generateTree(Chunk* chunk, BlockTable& pallete, int32_t x, int32_t z, WorldGenRegion& blocks, Random& rand) {
-//	const auto height = chunk->heightmap[x & 15][z & 15];
+//void generateTree(Chunk& chunk, BlockTable& pallete, int32_t x, int32_t z, WorldGenRegion& blocks, Random& rand) {
+//	const auto height = chunk.heightmap[x & 15][z & 15];
 //    const auto treeHeight = 4 + rand.nextInt(0, 2);
 //
 //	for (auto y = treeHeight - 2; y <= treeHeight + 1; y++) {
-//        blocks.setBlock(x - 1, y + height, z - 1, BlockData{pallete.getId("leaves"), 0});
-//        blocks.setBlock(x + 0, y + height, z - 1, BlockData{pallete.getId("leaves"), 0});
-//        blocks.setBlock(x + 1, y + height, z - 1, BlockData{pallete.getId("leaves"), 0});
+//        blocks.setData(x - 1, y + height, z - 1, BlockData{pallete.getId("leaves"), 0});
+//        blocks.setData(x + 0, y + height, z - 1, BlockData{pallete.getId("leaves"), 0});
+//        blocks.setData(x + 1, y + height, z - 1, BlockData{pallete.getId("leaves"), 0});
 //
-//        blocks.setBlock(x - 1, y + height, z, BlockData{pallete.getId("leaves"), 0});
-//        blocks.setBlock(x + 0, y + height, z, BlockData{pallete.getId("leaves"), 0});
-//        blocks.setBlock(x + 1, y + height, z, BlockData{pallete.getId("leaves"), 0});
+//        blocks.setData(x - 1, y + height, z, BlockData{pallete.getId("leaves"), 0});
+//        blocks.setData(x + 0, y + height, z, BlockData{pallete.getId("leaves"), 0});
+//        blocks.setData(x + 1, y + height, z, BlockData{pallete.getId("leaves"), 0});
 //
-//        blocks.setBlock(x - 1, y + height, z + 1, BlockData{pallete.getId("leaves"), 0});
-//        blocks.setBlock(x + 0, y + height, z + 1, BlockData{pallete.getId("leaves"), 0});
-//        blocks.setBlock(x + 1, y + height, z + 1, BlockData{pallete.getId("leaves"), 0});
+//        blocks.setData(x - 1, y + height, z + 1, BlockData{pallete.getId("leaves"), 0});
+//        blocks.setData(x + 0, y + height, z + 1, BlockData{pallete.getId("leaves"), 0});
+//        blocks.setData(x + 1, y + height, z + 1, BlockData{pallete.getId("leaves"), 0});
 //	}
 //
 //	for (auto y = height; y < height + treeHeight; y++) {
-//        blocks.setBlock(x, y, z, BlockData{pallete.getId("log"), 0});
+//        blocks.setData(x, y, z, BlockData{pallete.getId("log"), 0});
 //	}
 //}
 
@@ -108,85 +259,85 @@ NoiseChunkGenerator::NoiseChunkGenerator(BlockTable& pallete) {
 
     auto randomSeed = Random::from(seed);
 
-    biomes[0] = makeOceanBiome(false);
-    biomes[1] = makePlainsBiome(false);
-    biomes[2] = makeDesertBiome(0.125, 0.05, true, true, true);
-    biomes[3] = makeMountainBiome(1.0, 0.5, false);
-    biomes[4] = new Biome(0.1, 0.2);
-    biomes[5] = new Biome(0.2, 0.2);
-    biomes[6] = new Biome(-0.2, 0.1);
-    biomes[7] = new Biome(-0.5, 0.0);
-    biomes[8] = new Biome(0.1, 0.2);
-    biomes[9] = new Biome(0.1, 0.2);
-    biomes[10] = new Biome(-1.0, 0.1);
-    biomes[11] = new Biome(-0.5, 0.0);
-    biomes[12] = new Biome(0.125, 0.05);
-    biomes[13] = new Biome(0.45, 0.3);
-    biomes[14] = new Biome(0.2, 0.3);
-    biomes[15] = new Biome(0.0, 0.025);
-    biomes[16] = new Biome(0.0, 0.025);
-    biomes[17] = new Biome(0.45, 0.3);
-    biomes[18] = new Biome(0.45, 0.3);
-    biomes[19] = new Biome(0.45, 0.3);
-    biomes[20] = new Biome(0.8, 0.3);
-    biomes[21] = new Biome(0.1, 0.2);
-    biomes[22] = new Biome(0.45, 0.3);
-    biomes[23] = new Biome(0.1, 0.2);
-    biomes[24] = new Biome(-1.8, 0.1);
-    biomes[25] = new Biome(0.1, 0.8);
-    biomes[26] = new Biome(0.0, 0.025);
-    biomes[27] = new Biome(0.1, 0.2);
-    biomes[28] = new Biome(0.45, 0.3);
-    biomes[29] = new Biome(0.1, 0.2);
-    biomes[30] = new Biome(0.2, 0.2);
-    biomes[31] = new Biome(0.45, 0.3);
-    biomes[32] = new Biome(0.2, 0.2);
-    biomes[33] = new Biome(0.45, 0.3);
-    biomes[34] = new Biome(1.0, 0.5);
-    biomes[35] = new Biome(0.125, 0.05);
-    biomes[36] = new Biome(1.5, 0.025);
-    biomes[37] = new Biome(0.1, 0.2);
-    biomes[38] = new Biome(1.5, 0.025);
-    biomes[39] = new Biome(1.5, 0.025);
-    biomes[40] = new Biome(0.1, 0.2);
-    biomes[41] = new Biome(0.1, 0.2);
-    biomes[42] = new Biome(0.1, 0.2);
-    biomes[43] = new Biome(0.1, 0.2);
-    biomes[44] = new Biome(-1.0, 0.1);
-    biomes[45] = new Biome(-1.0, 0.1);
-    biomes[46] = new Biome(-1.0, 0.1);
-    biomes[47] = new Biome(-1.8, 0.1);
-    biomes[48] = new Biome(-1.8, 0.1);
-    biomes[49] = new Biome(-1.8, 0.1);
-    biomes[50] = new Biome(-1.8, 0.1);
-    biomes[127] = new Biome(0.1, 0.2);
-    biomes[129] = new Biome(0.125, 0.05);
-    biomes[130] = new Biome(0.225, 0.25);
-    biomes[131] = new Biome(1.0, 0.5);
-    biomes[132] = new Biome(0.1, 0.4);
-    biomes[133] = new Biome(0.3, 0.4);
-    biomes[134] = new Biome(-0.1, 0.3);
-    biomes[140] = new Biome(0.425, 0.45000002);
-    biomes[149] = new Biome(0.2, 0.4);
-    biomes[151] = new Biome(0.2, 0.4);
-    biomes[155] = new Biome(0.2, 0.4);
-    biomes[156] = new Biome(0.55, 0.5);
-    biomes[157] = new Biome(0.2, 0.4);
-    biomes[158] = new Biome(0.3, 0.4);
-    biomes[160] = new Biome(0.2, 0.2);
-    biomes[161] = new Biome(0.2, 0.2);
-    biomes[162] = new Biome(1.0, 0.5);
-    biomes[163] = new Biome(0.3625, 1.225);
-    biomes[164] = new Biome(1.05, 1.2125001);
-    biomes[165] = new Biome(0.1, 0.2);
-    biomes[166] = new Biome(0.45, 0.3);
-    biomes[167] = new Biome(0.45, 0.3);
-    biomes[168] = new Biome(0.1, 0.2);
-    biomes[169] = new Biome(0.45, 0.3);
-    biomes[170] = new Biome(0.1, 0.2);
-    biomes[171] = new Biome(0.1, 0.2);
-    biomes[172] = new Biome(0.1, 0.2);
-    biomes[173] = new Biome(0.1, 0.2);
+    biomes[0] = new Biome(-1.0, 0.1, DefaultSurface::buildSurface);
+    biomes[1] = new Biome(0.125, 0.05, DefaultSurface::buildSurface);
+    biomes[2] = new Biome(0.125, 0.05, DefaultSurface::buildSurface);
+    biomes[3] = new Biome(1.0, 0.5, MountainSurface::buildSurface);
+    biomes[4] = new Biome(0.1, 0.2, DefaultSurface::buildSurface);
+    biomes[5] = new Biome(0.2, 0.2, DefaultSurface::buildSurface);
+    biomes[6] = new Biome(-0.2, 0.1, SwampSurface::buildSurface);
+    biomes[7] = new Biome(-0.5, 0.0, DefaultSurface::buildSurface);
+    biomes[8] = new Biome(0.1, 0.2, NetherSurface::buildSurface);
+    biomes[9] = new Biome(0.1, 0.2, DefaultSurface::buildSurface);
+    biomes[10] = new Biome(-1.0, 0.1, FrozenOceanSurface::buildSurface);
+    biomes[11] = new Biome(-0.5, 0.0, DefaultSurface::buildSurface);
+    biomes[12] = new Biome(0.125, 0.05, DefaultSurface::buildSurface);
+    biomes[13] = new Biome(0.45, 0.3, DefaultSurface::buildSurface);
+    biomes[14] = new Biome(0.2, 0.3, DefaultSurface::buildSurface);
+    biomes[15] = new Biome(0.0, 0.025, DefaultSurface::buildSurface);
+    biomes[16] = new Biome(0.0, 0.025, DefaultSurface::buildSurface);
+    biomes[17] = new Biome(0.45, 0.3, DefaultSurface::buildSurface);
+    biomes[18] = new Biome(0.45, 0.3, DefaultSurface::buildSurface);
+    biomes[19] = new Biome(0.45, 0.3, DefaultSurface::buildSurface);
+    biomes[20] = new Biome(0.8, 0.3, DefaultSurface::buildSurface);
+    biomes[21] = new Biome(0.1, 0.2, DefaultSurface::buildSurface);
+    biomes[22] = new Biome(0.45, 0.3, DefaultSurface::buildSurface);
+    biomes[23] = new Biome(0.1, 0.2, DefaultSurface::buildSurface);
+    biomes[24] = new Biome(-1.8, 0.1, DefaultSurface::buildSurface);
+    biomes[25] = new Biome(0.1, 0.8, DefaultSurface::buildSurface);
+    biomes[26] = new Biome(0.0, 0.025, DefaultSurface::buildSurface);
+    biomes[27] = new Biome(0.1, 0.2, DefaultSurface::buildSurface);
+    biomes[28] = new Biome(0.45, 0.3, DefaultSurface::buildSurface);
+    biomes[29] = new Biome(0.1, 0.2, DefaultSurface::buildSurface);
+    biomes[30] = new Biome(0.2, 0.2, DefaultSurface::buildSurface);
+    biomes[31] = new Biome(0.45, 0.3, DefaultSurface::buildSurface);
+    biomes[32] = new Biome(0.2, 0.2, GiantTreeTaigaSurface::buildSurface);
+    biomes[33] = new Biome(0.45, 0.3, GiantTreeTaigaSurface::buildSurface);
+    biomes[34] = new Biome(1.0, 0.5, DefaultSurface::buildSurface);
+    biomes[35] = new Biome(0.125, 0.05, DefaultSurface::buildSurface);
+    biomes[36] = new Biome(1.5, 0.025, DefaultSurface::buildSurface);
+    biomes[37] = new Biome(0.1, 0.2, BadlandsSurface::buildSurface);
+    biomes[38] = new Biome(1.5, 0.025, WoodedBadlandsSurface::buildSurface);
+    biomes[39] = new Biome(1.5, 0.025, BadlandsSurface::buildSurface);
+    biomes[40] = new Biome(0.1, 0.2, DefaultSurface::buildSurface);
+    biomes[41] = new Biome(0.1, 0.2, DefaultSurface::buildSurface);
+    biomes[42] = new Biome(0.1, 0.2, DefaultSurface::buildSurface);
+    biomes[43] = new Biome(0.1, 0.2, DefaultSurface::buildSurface);
+    biomes[44] = new Biome(-1.0, 0.1, DefaultSurface::buildSurface);
+    biomes[45] = new Biome(-1.0, 0.1, DefaultSurface::buildSurface);
+    biomes[46] = new Biome(-1.0, 0.1, DefaultSurface::buildSurface);
+    biomes[47] = new Biome(-1.8, 0.1, DefaultSurface::buildSurface);
+    biomes[48] = new Biome(-1.8, 0.1, DefaultSurface::buildSurface);
+    biomes[49] = new Biome(-1.8, 0.1, DefaultSurface::buildSurface);
+    biomes[50] = new Biome(-1.8, 0.1, FrozenOceanSurface::buildSurface);
+    biomes[127] = new Biome(0.1, 0.2, NoopSurface::buildSurface);
+    biomes[129] = new Biome(0.125, 0.05, DefaultSurface::buildSurface);
+    biomes[130] = new Biome(0.225, 0.25, DefaultSurface::buildSurface);
+    biomes[131] = new Biome(1.0, 0.5, GravellyMountainSurface::buildSurface);
+    biomes[132] = new Biome(0.1, 0.4, DefaultSurface::buildSurface);
+    biomes[133] = new Biome(0.3, 0.4, DefaultSurface::buildSurface);
+    biomes[134] = new Biome(-0.1, 0.3, SwampSurface::buildSurface);
+    biomes[140] = new Biome(0.425, 0.45000002, DefaultSurface::buildSurface);
+    biomes[149] = new Biome(0.2, 0.4, DefaultSurface::buildSurface);
+    biomes[151] = new Biome(0.2, 0.4, DefaultSurface::buildSurface);
+    biomes[155] = new Biome(0.2, 0.4, DefaultSurface::buildSurface);
+    biomes[156] = new Biome(0.55, 0.5, DefaultSurface::buildSurface);
+    biomes[157] = new Biome(0.2, 0.4, DefaultSurface::buildSurface);
+    biomes[158] = new Biome(0.3, 0.4, DefaultSurface::buildSurface);
+    biomes[160] = new Biome(0.2, 0.2, GiantTreeTaigaSurface::buildSurface);
+    biomes[161] = new Biome(0.2, 0.2, GiantTreeTaigaSurface::buildSurface);
+    biomes[162] = new Biome(1.0, 0.5, GravellyMountainSurface::buildSurface);
+    biomes[163] = new Biome(0.3625, 1.225, ShatteredSavannaSurface::buildSurface);
+    biomes[164] = new Biome(1.05, 1.2125001, ShatteredSavannaSurface::buildSurface);
+    biomes[165] = new Biome(0.1, 0.2, ErodedBadlandsSurface::buildSurface);
+    biomes[166] = new Biome(0.45, 0.3, WoodedBadlandsSurface::buildSurface);
+    biomes[167] = new Biome(0.45, 0.3, BadlandsSurface::buildSurface);
+    biomes[168] = new Biome(0.1, 0.2, DefaultSurface::buildSurface);
+    biomes[169] = new Biome(0.45, 0.3, DefaultSurface::buildSurface);
+    biomes[170] = new Biome(0.1, 0.2, SoulSandValleySurface::buildSurface);
+    biomes[171] = new Biome(0.1, 0.2, NetherForestsSurface::buildSurface);
+    biomes[172] = new Biome(0.1, 0.2, NetherForestsSurface::buildSurface);
+    biomes[173] = new Biome(0.1, 0.2, BasaltDeltasSurface::buildSurface);
 
     minLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, -15, 0);
     maxLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, -15, 0);
@@ -232,7 +383,7 @@ auto NoiseChunkGenerator::getNoiseValue(int32_t x, int32_t z) -> float {
     return val / max;
 }
 
-void NoiseChunkGenerator::makeBedrock(Chunk *chunk, BlockTable &pallete, Random &rand) const {
+void NoiseChunkGenerator::makeBedrock(Chunk& chunk, BlockTable &pallete, Random &rand) const {
     const auto maxAvailableHeight = dimensionHeight - 1 - bedrockRoofPosition;
     const bool makeRoofBedrock = maxAvailableHeight + 4 >= 0 && maxAvailableHeight < dimensionHeight;
     const bool makeFloorBedrock = bedrockFloorPosition + 4 >= 0 && bedrockFloorPosition < dimensionHeight;
@@ -243,7 +394,7 @@ void NoiseChunkGenerator::makeBedrock(Chunk *chunk, BlockTable &pallete, Random 
                 if (makeRoofBedrock) {
                     for (auto y = 0; y < 5; y++) {
                         if (y <= rand.nextInt(5)) {
-                            chunk->setBlock(x, maxAvailableHeight - y, z, BlockData{pallete.getId("bedrock"), 0});
+                            chunk.setData(x, maxAvailableHeight - y, z, BlockData{pallete.getId("bedrock"), 0});
                         }
                     }
                 }
@@ -251,7 +402,7 @@ void NoiseChunkGenerator::makeBedrock(Chunk *chunk, BlockTable &pallete, Random 
                 if (makeFloorBedrock) {
                     for (auto y = 4; y >= 0; y--) {
                         if (y <= rand.nextInt(5)) {
-                            chunk->setBlock(x, bedrockFloorPosition + y, z, BlockData{pallete.getId("bedrock"), 0});
+                            chunk.setData(x, bedrockFloorPosition + y, z, BlockData{pallete.getId("bedrock"), 0});
                         }
                     }
                 }
@@ -267,9 +418,9 @@ double NoiseChunkGenerator::sampleAndClampNoise(int x, int y, int z, double xzSc
     double d = 1.0;
 
     for (int i = 0; i < 16; ++i) {
-        const double x2 = maintainPrecision((double)x * xzScale * d);
-        const double y2 = maintainPrecision((double)y * yScale * d);
-        const double z2 = maintainPrecision((double)z * xzScale * d);
+        const double x2 = OctavesNoiseGenerator::maintainPrecision((double)x * xzScale * d);
+        const double y2 = OctavesNoiseGenerator::maintainPrecision((double)y * yScale * d);
+        const double z2 = OctavesNoiseGenerator::maintainPrecision((double)z * xzScale * d);
         const double e = yScale * d;
         auto minLimitNoise = minLimitPerlinNoise->getOctave(i);
         if (minLimitNoise != nullptr) {
@@ -284,14 +435,17 @@ double NoiseChunkGenerator::sampleAndClampNoise(int x, int y, int z, double xzSc
         if (i < 8) {
             auto mainNoise = mainLimitPerlinNoise->getOctave(i);
             if (mainNoise != nullptr) {
-                c += mainNoise->getNoiseValue(maintainPrecision((double)x * xzFactor * d), maintainPrecision((double)y * yFactor * d), maintainPrecision((double)z * xzFactor * d), yFactor * d, (double)y * yFactor * d) / d;
+                c += mainNoise->getNoiseValue(
+                        OctavesNoiseGenerator::maintainPrecision((double)x * xzFactor * d),
+                        OctavesNoiseGenerator::maintainPrecision((double)y * yFactor * d),
+                        OctavesNoiseGenerator::maintainPrecision((double)z * xzFactor * d), yFactor * d, (double)y * yFactor * d) / d;
             }
         }
 
         d /= 2.0;
     }
 
-    return clampedLerp(a / 512.0, b / 512.0, (c / 10.0 + 1.0) / 2.0);
+    return Math::clampedLerp(a / 512.0, b / 512.0, (c / 10.0 + 1.0) / 2.0);
 }
 
 double NoiseChunkGenerator::getRandomDensity(int x, int z) {
@@ -318,13 +472,13 @@ void NoiseChunkGenerator::fillNoiseColumn(double column[33], int xpos, int zpos)
     float f1 = 0.0F;
     float f2 = 0.0F;
     const int seaLevel = 63;//settings->seaLevel;
-    const float mainBiomeDepth = biomeProvider->getNoiseBiome(xpos, seaLevel, zpos)->getBaseHeight();
+    const float mainBiomeDepth = biomeProvider->getNoiseBiome(xpos, seaLevel, zpos)->getDepth();
 
     for (int xPos = -2; xPos <= 2; ++xPos) {
         for (int zPos = -2; zPos <= 2; ++zPos) {
             const auto biome = biomeProvider->getNoiseBiome(xpos + xPos, seaLevel, zpos + zPos);
-            const float secondBiomeDepth = biome->getBaseHeight();
-            const float scale = biome->getHeightVariation();
+            const float secondBiomeDepth = biome->getDepth();
+            const float scale = biome->getScale();
             float f6;
             float f7;
             /*if (noisesettings.amplified() && secondBiomeDepth > 0.0F) {
@@ -369,18 +523,18 @@ void NoiseChunkGenerator::fillNoiseColumn(double column[33], int xpos, int zpos)
         }
 
         if (topSlide.size > 0.0) {
-            noise = clampedLerp(topSlide.target, noise, ((double)(noiseSizeY - y) - topSlide.offset) / topSlide.size);
+            noise = Math::clampedLerp(topSlide.target, noise, ((double)(noiseSizeY - y) - topSlide.offset) / topSlide.size);
         }
 
         if (bottomSlide.size > 0.0) {
-            noise = clampedLerp(bottomSlide.target, noise, ((double)y - bottomSlide.offset) / bottomSlide.size);
+            noise = Math::clampedLerp(bottomSlide.target, noise, ((double)y - bottomSlide.offset) / bottomSlide.size);
         }
 
         column[y] = noise;
     }
 }
 
-//void NoiseChunkGenerator::generateNoise(WorldGenRegion& region, Chunk* chunk, int chunkPosX, int chunkPosZ) {
+//void NoiseChunkGenerator::generateNoise(WorldGenRegion& region, Chunk& chunk, int chunkPosX, int chunkPosZ) {
 //    const int seaLevel = region.getSeaLevel();
 //    const int xStart = chunkPosX << 4;
 //    const int zStart = chunkPosZ << 4;
@@ -430,10 +584,10 @@ void NoiseChunkGenerator::fillNoiseColumn(double column[33], int xpos, int zpos)
 //                            d18 = (d18 / 2.0) - ((d18 * d18 * d18) / 24.0);
 //
 //                            if (d18 > 0.0) {
-//                                chunk->SetBlockData(xpos & 15, ypos/* & 15*/, zpos & 15, TCRAFT::BlockData{ E_BLOCKTYPE_STONE, 0 });
+//                                chunk.SetBlockData(xpos & 15, ypos/* & 15*/, zpos & 15, TCRAFT::BlockData{ E_BLOCKTYPE_STONE, 0 });
 //                            }
 //                            else if (ypos < seaLevel) {
-//                                chunk->SetBlockData(xpos & 15, ypos/* & 15*/, zpos & 15, TCRAFT::BlockData{ oceanBlock, 0 });
+//                                chunk.SetBlockData(xpos & 15, ypos/* & 15*/, zpos & 15, TCRAFT::BlockData{ oceanBlock, 0 });
 //                            }
 //                        }
 //                    }
@@ -445,27 +599,27 @@ void NoiseChunkGenerator::fillNoiseColumn(double column[33], int xpos, int zpos)
 //    }
 //}
 
-void NoiseChunkGenerator::generateSurface(WorldGenRegion &region, Chunk *chunk, BlockTable &pallete) {
-    const auto xStart = chunk->pos.getStartX();
-    const auto zStart = chunk->pos.getStartZ();
+void NoiseChunkGenerator::generateSurface(WorldGenRegion &region, Chunk& chunk, BlockTable &pallete) {
+    const auto xStart = chunk.pos.getStartX();
+    const auto zStart = chunk.pos.getStartZ();
 
     Random rand{};
-    rand.setBaseChunkSeed(chunk->pos.x, chunk->pos.z);
+    rand.setBaseChunkSeed(chunk.pos.x, chunk.pos.z);
 
     for (auto x = 0; x < 16; x++) {
         for (auto z = 0; z < 16; z++) {
             const auto xPos = xStart + x;
             const auto zPos = zStart + z;
-            const auto yPos = chunk->getTopBlockY(/*Heightmap.Type.WORLD_SURFACE_WG,*/ x, z) + 1;
+            const auto yPos = chunk.getTopBlockY(/*Heightmap.Type.WORLD_SURFACE_WG,*/ x, z) + 1;
             const auto noise = 15.0 * surfaceNoise->noiseAt(
                     static_cast<double>(xPos) * 0.0625,
                     static_cast<double>(zPos) * 0.0625,
                     0.0625,
                     (double) x * 0.0625
             );
-            auto biome = region.getBiome(xPos, yPos, zPos);
-            biome->buildSurface(rand, chunk, xPos, zPos, yPos, noise, defaultBlock, defaultFluid,
-                                {pallete.getId("grass")}, {pallete.getId("dirt")}, {pallete.getId("gravel")}, 63);
+            auto biome = biomeProvider->getNoiseBiome(xPos, yPos, zPos);
+//            auto biome = region.getBiome(xPos, yPos, zPos);
+            biome->buildSurface(pallete, rand, chunk, xPos, zPos, yPos, noise, defaultBlock, defaultFluid, 63);
 
 //            biome->buildSurface(rand, chunk, xPos, zPos, yPos, noise, defaultBlock, defaultFluid, 63);
         }
@@ -474,9 +628,9 @@ void NoiseChunkGenerator::generateSurface(WorldGenRegion &region, Chunk *chunk, 
     makeBedrock(chunk, pallete, rand);
 }
 
-void NoiseChunkGenerator::generateTerrain(Chunk *chunk, BlockTable &pallete) {
-    const auto chunkPosX = chunk->pos.x;
-    const auto chunkPosZ = chunk->pos.z;
+void NoiseChunkGenerator::generateTerrain(Chunk& chunk, BlockTable &pallete) {
+    const auto chunkPosX = chunk.pos.x;
+    const auto chunkPosZ = chunk.pos.z;
     const auto xStart = chunkPosX << 4;
     const auto zStart = chunkPosZ << 4;
     const int seaLevel = 63;
@@ -509,32 +663,30 @@ void NoiseChunkGenerator::generateTerrain(Chunk *chunk, BlockTable &pallete) {
                     const int ypos = y * verticalNoiseGranularity + l1;
 
                     const double d8 = (double) l1 / (double) verticalNoiseGranularity;
-                    const double d9 = lerp(d8, d0, d4);
-                    const double d10 = lerp(d8, d2, d6);
-                    const double d11 = lerp(d8, d1, d5);
-                    const double d12 = lerp(d8, d3, d7);
+                    const double d9 = Math::lerp(d8, d0, d4);
+                    const double d10 = Math::lerp(d8, d2, d6);
+                    const double d11 = Math::lerp(d8, d1, d5);
+                    const double d12 = Math::lerp(d8, d3, d7);
 
                     for (int l2 = 0; l2 < horizontalNoiseGranularity; ++l2) {
                         const int xpos = /*xStart +*/ x * horizontalNoiseGranularity + l2;
                         const double d13 = (double) l2 / (double) horizontalNoiseGranularity;
-                        const double d14 = lerp(d13, d9, d10);
-                        const double d15 = lerp(d13, d11, d12);
+                        const double d14 = Math::lerp(d13, d9, d10);
+                        const double d15 = Math::lerp(d13, d11, d12);
 
                         for (int k3 = 0; k3 < horizontalNoiseGranularity; ++k3) {
                             const int zpos = /*zStart + */z * horizontalNoiseGranularity + k3;
                             const double d16 = (double) k3 / (double) horizontalNoiseGranularity;
-                            const double d17 = lerp(d16, d14, d15);
-                            double d18 = clamp(d17 / 200.0, -1.0, 1.0);
+                            const double d17 = Math::lerp(d16, d14, d15);
+                            double d18 = Math::clamp(d17 / 200.0, -1.0, 1.0);
 
                             d18 = (d18 / 2.0) - ((d18 * d18 * d18) / 24.0);
 
 
                             if (d18 > 0.0) {
-                                chunk->setBlock(xpos & 15, ypos, zpos & 15, BlockData{pallete.getId("stone")});
+                                chunk.setData(xpos & 15, ypos, zpos & 15, BlockData{pallete.getId("stone")});
                             } else if (ypos < seaLevel) {
-//                                fmt::print("{}, {}\n", xStart + (xpos & 15), zStart + (zpos & 15));
-
-                                chunk->setBlock(xpos & 15, ypos, zpos & 15, BlockData{pallete.getId("water")});
+                                chunk.setData(xpos & 15, ypos, zpos & 15, BlockData{pallete.getId("water")});
                             }
                         }
                     }
@@ -546,25 +698,25 @@ void NoiseChunkGenerator::generateTerrain(Chunk *chunk, BlockTable &pallete) {
     }
 
 
-//    const auto xStart = chunk->pos.getStartX();
-//    const auto zStart = chunk->pos.getStartZ();
+//    const auto xStart = chunk.pos.getStartX();
+//    const auto zStart = chunk.pos.getStartZ();
 //
 //    Random random{};
-//    random.setBaseChunkSeed(chunk->pos.x, chunk->pos.z);
+//    random.setBaseChunkSeed(chunk.pos.x, chunk.pos.z);
 //
 //    for (auto x = xStart; x < xStart + 16; x++) {
 //        for (auto z = zStart; z < zStart + 16; z++) {
 //            const auto noise = getNoiseValue(x, z);
 //            const auto height = static_cast<int32_t>(noise * 60 + 40);
 //
-//            chunk->heightmap[x & 15][z & 15] = height;
+//            chunk.heightmap[x & 15][z & 15] = height;
 //
 //            for (auto y = 0; y < height; y++) {
-//                chunk->setBlock(x, y, z, BlockData{pallete.getId("grass"), 0});
+//                chunk.setData(x, y, z, BlockData{pallete.getId("grass"), 0});
 //            }
 //
 //            for (auto y = height; y < 68; y++) {
-//                chunk->setBlock(x, y, z, BlockData{pallete.getId("water"), 0});
+//                chunk.setData(x, y, z, BlockData{pallete.getId("water"), 0});
 //            }
 //        }
 //    }

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <SFML/System/Vector2.hpp>
-#include <SFML/System/Vector3.hpp>
-#include <SFML/Graphics/Color.hpp>
+#include <glm/vec4.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 #include <GL/glew.h>
 #include <span>
 #include <vector>
@@ -10,11 +10,11 @@
 #include <stdint.hpp>
 
 struct Vertex {
-    sf::Vector3f point;
-    sf::Vector2f tex;
-    sf::Color color;
+    glm::vec3 point;
+    glm::vec2 tex;
+    glm::u8vec4 color;
 
-    static auto from(sf::Vector3f point, sf::Vector2f tex, sf::Color color) -> Vertex {
+    static auto from(glm::vec3 point, glm::vec2 tex, glm::u8vec4 color) -> Vertex {
         return {point, tex, color};
     }
 };

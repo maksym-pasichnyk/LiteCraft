@@ -39,8 +39,8 @@ public:
     double zo;
 
 public:
-    explicit SimplexNoiseGenerator(Random&& rand) : SimplexNoiseGenerator(rand) {}
-    explicit SimplexNoiseGenerator(Random& rand) {
+    explicit constexpr SimplexNoiseGenerator(Random&& rand) : SimplexNoiseGenerator(rand) {}
+    explicit constexpr SimplexNoiseGenerator(Random& rand) {
         xo = rand.nextDouble() * 256.0;
         yo = rand.nextDouble() * 256.0;
         zo = rand.nextDouble() * 256.0;
