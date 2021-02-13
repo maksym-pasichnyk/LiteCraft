@@ -44,36 +44,84 @@ struct LiquidNode {
 
 BlockTable global_pallete{};
 
-struct ClientWorld {
-	mutable std::mutex chunk_mutex;
-    std::map<int64, Chunk*> chunks{};
-    std::queue<LiquidNode> liquids{};
+struct ChunkArray {
+private:
+    int viewDistance = -1;
+    int sideLength = -1;
+    std::atomic_int centerX{0};
+    std::atomic_int centerZ{0};
 
-	void loadChunk(int64 position, Chunk* chunk) {
-		chunk_mutex.lock();
-		chunks.insert_or_assign(position, chunk);
-		chunk_mutex.unlock();
-	}
+    std::vector</*std::atomic<*/Chunk*/*>*/> chunks;
 
-	void unloadChunk(int64 position) {
-		chunk_mutex.lock();
-		chunks.erase(position);
-		chunk_mutex.unlock();
-	}
-
-    auto getChunk(int64 position) const -> Chunk* {
-        Chunk* chunk{nullptr};
-        chunk_mutex.lock();
-        auto it = chunks.find(position);
-        if (it != chunks.end()) {
-            chunk = it->second;
-        }
-        chunk_mutex.unlock();
-        return chunk;
+public:
+    void setViewDistance(int viewDistanceIn) {
+        viewDistance = viewDistanceIn;
+        sideLength = viewDistance * 2 + 1;
+        chunks.resize(sideLength * sideLength);
     }
 
+    auto get(int32_t i) const -> Chunk* {
+        return chunks.at(i);
+    }
+
+    auto set(int32_t i, Chunk* chunk) {
+        chunks.at(i) = chunk;
+    }
+
+    auto getIndex(int32_t x, int32_t z) const -> int32_t {
+        return floorMod(z, sideLength) * sideLength + floorMod(x, sideLength);
+    }
+
+    auto inView(int x, int z) const -> bool {
+        return std::abs(x - centerX) <= viewDistance && std::abs(z - centerZ) <= viewDistance;
+    }
+
+    void setCenter(int32_t x, int32_t z) {
+        centerX = x;
+        centerZ = z;
+    }
+private:
+
+    static auto floorMod(int32_t x, int32_t y) -> int32_t {
+        return ((x % y) + y) % y;
+    }
+};
+
+struct ClientWorld {
+	mutable std::mutex chunk_mutex;
+    ChunkArray chunkArray;
+//    std::map<int64, Chunk*> chunks{};
+    std::queue<LiquidNode> liquids{};
+
+    ClientWorld() {
+        chunkArray.setViewDistance(8);
+    }
+
+	void loadChunk(int32 x, int32 z, Chunk* chunk) {
+        std::unique_lock lock{chunk_mutex};
+
+        if (chunkArray.inView(x, z)) {
+//            fmt::print("set chunk at {}, {}\n", x, z);
+
+            chunkArray.set(chunkArray.getIndex(x, z), chunk);
+        }
+	}
+
+	void unloadChunk(int32 x, int32 z) {
+        std::unique_lock lock{chunk_mutex};
+
+        if (chunkArray.inView(x, z)) {
+            chunkArray.set(chunkArray.getIndex(x, z), nullptr);
+        }
+	}
+
 	auto getChunk(int32 x, int32 z) const -> Chunk* {
-		return getChunk(ChunkPos::asLong(x, z));
+        std::unique_lock lock{chunk_mutex};
+
+        if (chunkArray.inView(x, z)) {
+            return chunkArray.get(chunkArray.getIndex(x, z));
+        }
+        return nullptr;
 	}
 
     auto getData(glm::ivec3 pos) const -> BlockData {
@@ -139,6 +187,10 @@ struct World {
     	workers.clear();
     }
 
+    void updatePlayerPosition(ChunkPos newChunkPos) {
+        player_position = newChunkPos;
+    }
+
     void runWorker(std::stop_token&& token) {
         auto last_player_position = ChunkPos::from(-9999,-9999);
 
@@ -167,25 +219,74 @@ struct World {
         }
     }
 
+//    void tryRender(std::span<Chunk*> chunks) {
+//        for (auto chunk : chunks) {
+//            if (chunk->needRender) {
+//                auto chunksInRadius = findChunksInRadius(1, chunk->pos.x, chunk->pos.z, ChunkState::Full);
+//
+//                if (!chunksInRadius.empty()) {
+//                    WorldGenRegion region{chunksInRadius, 1, chunk->pos.x, chunk->pos.z, seed};
+//
+//                    chunk->needRender = false;
+//                    renderBlocks(chunk->rb, global_pallete, region);
+//                    chunk->needUpdate = true;
+//                }
+//
+//                tryRender(chunksInRadius);
+//            }
+//        }
+//    }
+
     void loadChunks(int32 center_x, int32 center_z) {
+        double totalTime = 0;
+        int totalCount = 0;
         for (int32 chunk_x = center_x - 8; chunk_x <= center_x + 8; chunk_x++) {
             for (int32 chunk_z = center_z - 8; chunk_z <= center_z + 8; chunk_z++) {
-                auto chunksInRadius = getChunksInRadius(1, chunk_x, chunk_z, ChunkState::Full);
-				WorldGenRegion region{chunksInRadius, 1, chunk_x, chunk_z, seed};
+                auto startTime = std::chrono::high_resolution_clock::now();
+                auto chunk = getChunk(chunk_x, chunk_z, ChunkState::Full);
 
-				auto chunk = region.getMainChunk();
                 if (chunk->needRender) {
+                    auto chunksInRadius = getChunksInRadius(1, chunk_x, chunk_z, ChunkState::Full);
+                    WorldGenRegion region{chunksInRadius, 1, chunk->pos.x, chunk->pos.z, seed};
+
                     chunk->needRender = false;
-					renderBlocks(chunk->rb, global_pallete, region);
+                    renderBlocks(chunk->rb, global_pallete, region);
                     chunk->needUpdate = true;
                 }
+//                tryRender(chunksInRadius);
 
-                client_world.loadChunk(ChunkPos::asLong(chunk_x, chunk_z), chunk);
+                client_world.loadChunk(chunk_x, chunk_z, chunk);
+
+                auto stopTime = std::chrono::high_resolution_clock::now();
+
+                totalTime += std::chrono::duration<double, std::milli>(stopTime - startTime).count();
+                totalCount++;
             }
         }
+        fmt::print("generator: {}ms, {}, avg: {}ms\n", totalTime, totalCount, totalTime / totalCount);
+    }
+
+    auto findChunksInRadius(int32 radius, int32 chunk_x, int32 chunk_z, ChunkState state) -> std::vector<Chunk*> {
+        const usize count = radius * 2 + 1;
+        std::vector<Chunk*> ret{count * count};
+
+        usize i = 0;
+        for (int32 z = chunk_z - radius; z <= chunk_z + radius; z++) {
+            for (int32 x = chunk_x - radius; x <= chunk_x + radius; x++) {
+                auto chunk = findChunk(x, z, state);
+                if (chunk == nullptr) {
+                    return {};
+                }
+                ret.at(i++) = chunk;
+            }
+        }
+
+        return std::move(ret);
     }
 
     auto getChunksInRadius(int32 radius, int32 chunk_x, int32 chunk_z, ChunkState state) -> std::vector<Chunk*> {
+        if (radius == -1) return {};
+
         const usize count = radius * 2 + 1;
         std::vector<Chunk*> ret{count * count};
 
@@ -208,25 +309,57 @@ struct World {
         return it->second.get();
     }
 
+    auto findChunk(int32 chunk_x, int32 chunk_z, ChunkState state) -> Chunk* {
+        const auto pos = ChunkPos::from(chunk_x, chunk_z);
+        auto it = chunks.find(pos.asLong());
+        if (it != chunks.end()) {
+            auto chunk = it->second.get();
+            if (chunk->state >= state) {
+                return chunk;
+            }
+        }
+        return nullptr;
+    }
+
+    auto getTaskRange(ChunkState state) {
+        switch (state) {
+            case ChunkState::Empty:
+                return -1;
+            case ChunkState::StructureStart:
+                return 0;
+            case ChunkState::StructureReferences:
+                return 0;
+            case ChunkState::Noise:
+                return 0;
+            case ChunkState::Surface:
+                return 0;
+            case ChunkState::Features:
+                return 0;
+            case ChunkState::Light:
+                return 0;
+            case ChunkState::Full:
+                return 0;
+        }
+        return -1;
+    }
+
     auto getChunk(int32 chunk_x, int32 chunk_z, ChunkState state = ChunkState::Full) -> Chunk* {
         auto chunk = findChunk(chunk_x, chunk_z);
 
         for (int i = (int) chunk->state + 1; i <= (int) state; i++) {
             const auto parent_state = (ChunkState)((int)i - 1);
+            const auto range = getTaskRange((ChunkState) i);
+            auto chunksInRadius = getChunksInRadius(range, chunk_x, chunk_z, parent_state);
 
             switch ((ChunkState) i) {
                 case ChunkState::Empty: break;
                 case ChunkState::StructureStart: {
-//                    auto chunksInRadius = getChunkInRadius(1, chunk_x, chunk_z, parent_state);
-//                    WorldGenRegion region{1, chunk_x, chunk_z, seed};
-//                    fillRegion(region, parent_state);
+//                    WorldGenRegion region{chunksInRadius, range, chunk_x, chunk_z, seed};
 //                    generator.generateStructures(region, chunk);
                     break;
                 }
                 case ChunkState::StructureReferences: {
-//                    auto chunksInRadius = getChunkInRadius(8, chunk_x, chunk_z, parent_state);
-//                    WorldGenRegion region{8, chunk_x, chunk_z, seed};
-//                    fillRegion(region, parent_state);
+//                    WorldGenRegion region{chunksInRadius, range, chunk_x, chunk_z, seed};
 //                    generator.getStructureReferences(region, chunk);
                     break;
                 }
@@ -234,26 +367,22 @@ struct World {
                     generator.generateTerrain(*chunk, global_pallete);
                     break;
                 case ChunkState::Surface: {
-                    auto chunksInRadius = getChunksInRadius(0, chunk_x, chunk_z, parent_state);
-                    WorldGenRegion region{chunksInRadius, 0, chunk_x, chunk_z, seed};
+                    WorldGenRegion region{chunksInRadius, range, chunk_x, chunk_z, seed};
                     generator.generateSurface(region, *chunk, global_pallete);
                     break;
                 }
                 case ChunkState::Features: {
-//                    WorldGenRegion region{8, chunk_x, chunk_z, seed};
-//                    fillRegion(region, parent_state);
+//                    WorldGenRegion region{chunksInRadius, range, chunk_x, chunk_z, seed};
 //                    generator.generateFeatures(region, chunk, global_pallete);
                     break;
                 }
                 case ChunkState::Light: {
-//                    auto chunksInRadius = getChunksInRadius(1, chunk_x, chunk_z, parent_state);
-//                    WorldGenRegion region{chunksInRadius, 1, chunk_x, chunk_z, seed};
+//                    WorldGenRegion region{chunksInRadius, range, chunk_x, chunk_z, seed};
 //                    lightManager.calculateLight(region, chunk_x * 16, chunk_z * 16);
                     break;
                 }
                 case ChunkState::Full: {
-//                    WorldGenRegion<0> region{chunk_x, chunk_z};
-//                    fillRegion(region, parent_state);
+//                    WorldGenRegion region{chunksInRadius, 1, chunk_x, chunk_z, seed};
                     chunk->needRender = true;
                     break;
                 }
@@ -920,41 +1049,41 @@ struct App {
 		};
 
 		rayTraceResult = rayTraceBlocks(client_world, ray_trace_context);
-        if (cooldown == 0 && rayTraceResult.has_value()) {
-            std::set<int64> positions{};
-            if (input.IsMouseButtonPressed(Input::MouseButton::Left)) {
-                cooldown = 10;
-
-                const auto pos = rayTraceResult->pos;
-
-                client_world.setData(pos, BlockData{BlockID::AIR, 0});
-
-                for (int x = pos.x - 1; x <= pos.x + 1; x++) {
-                    for (int z = pos.z - 1; z <= pos.z + 1; z++) {
-                        positions.emplace(ChunkPos::asLong(x >> 4, z >> 4));
-                    }
-                }
-            } else if (input.IsMouseButtonPressed(Input::MouseButton::Right)) {
-                cooldown = 10;
-
-                const auto pos = rayTraceResult->pos + rayTraceResult->dir;
-
-                client_world.setData(pos, BlockData{global_pallete.getId("water"), 0});
-
-//                client_world.setData(pos, {Block::water, 0});
-                client_world.liquids.emplace(pos);
-
-                for (int x = pos.x - 1; x <= pos.x + 1; x++) {
-                    for (int z = pos.z - 1; z <= pos.z + 1; z++) {
-                        positions.emplace(ChunkPos::asLong(x >> 4, z >> 4));
-                    }
-                }
-            }
-
-            for (auto position : positions) {
-                client_world.getChunk(position)->is_dirty = true;
-            }
-		}
+//        if (cooldown == 0 && rayTraceResult.has_value()) {
+//            std::set<int64> positions{};
+//            if (input.IsMouseButtonPressed(Input::MouseButton::Left)) {
+//                cooldown = 10;
+//
+//                const auto pos = rayTraceResult->pos;
+//
+//                client_world.setData(pos, BlockData{BlockID::AIR, 0});
+//
+//                for (int x = pos.x - 1; x <= pos.x + 1; x++) {
+//                    for (int z = pos.z - 1; z <= pos.z + 1; z++) {
+//                        positions.emplace(ChunkPos::asLong(x >> 4, z >> 4));
+//                    }
+//                }
+//            } else if (input.IsMouseButtonPressed(Input::MouseButton::Right)) {
+//                cooldown = 10;
+//
+//                const auto pos = rayTraceResult->pos + rayTraceResult->dir;
+//
+//                client_world.setData(pos, BlockData{global_pallete.getId("water"), 0});
+//
+////                client_world.setData(pos, {Block::water, 0});
+//                client_world.liquids.emplace(pos);
+//
+//                for (int x = pos.x - 1; x <= pos.x + 1; x++) {
+//                    for (int z = pos.z - 1; z <= pos.z + 1; z++) {
+//                        positions.emplace(ChunkPos::asLong(x >> 4, z >> 4));
+//                    }
+//                }
+//            }
+//
+//            for (auto position : positions) {
+//                client_world.getChunk(position)->is_dirty = true;
+//            }
+//		}
     }
 
     void setup_camera() {
@@ -973,15 +1102,17 @@ struct App {
     void setup_terrain() {
         int32 center_x = (int32) transform.position.x >> 4;
         int32 center_z = (int32) transform.position.z >> 4;
+        client_world.chunkArray.setCenter(center_x, center_z);
         world->player_position = {center_x, center_z};
 
         chunkToRenders.clear();
 
         for (int32 chunk_x = center_x - 8; chunk_x <= center_x + 8; chunk_x++) {
             for (int32 chunk_z = center_z - 8; chunk_z <= center_z + 8; chunk_z++) {
-                auto chunk = client_world.getChunk(ChunkPos::asLong(chunk_x, chunk_z));
+                auto chunk = client_world.getChunk(chunk_x, chunk_z);
 
                 if (chunk != nullptr) {
+//                    fmt::print("render chunk at {}, {}\n", chunk_x, chunk_z);
                     if (chunk->needUpdate) {
                         chunk->needUpdate = false;
                         chunk->updateMesh();
@@ -1083,28 +1214,50 @@ struct App {
 	}
 
     void run() {
+        using namespace std::chrono_literals;
+
+        int32 center_x = (int32) transform.position.x >> 4;
+        int32 center_z = (int32) transform.position.z >> 4;
+        client_world.chunkArray.setCenter(center_x, center_z);
+
+        world = std::make_unique<World>();
+
         glm::ivec2 display_size;
         SDL_GetWindowSize(window, &display_size.x, &display_size.y);
         SDL_WarpMouseInWindow(window, display_size.x / 2, display_size.y / 2);
 
 		camera.setSize(display_size.x, display_size.y);
 
-        using namespace std::chrono_literals;
-
         std::this_thread::sleep_for(1000ms);
+
+        double frameTime = 0;
+        int frameCount = 0;
+        int FPS = 0;
+
+        // todo: game loop
 
         auto startTime = std::chrono::high_resolution_clock::now();
         while (handleEvents(), running) {
             auto time = std::chrono::high_resolution_clock::now();
             auto dt = std::chrono::duration<double>(time - startTime).count();
+            frameTime += dt;
+            frameCount += 1;
+
+            if (frameTime > 1) {
+                FPS = frameCount;
+
+                frameTime -= 1;
+                frameCount = 0;
+            }
+
             startTime = time;
 
-			input.update();
+            input.update();
             update_player_input(dt);
 
             setup_camera();
             setup_terrain();
-			render_terrain();
+            render_terrain();
 
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplSDL2_NewFrame(window);
@@ -1114,6 +1267,7 @@ struct App {
             ImGui::SetNextWindowSize(ImVec2(300, 150));
             ImGui::Begin("Debug panel", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground);
             ImGui::Text("Position: %.2f, %.2f, %.2f", transform.position.x, transform.position.y, transform.position.z);
+            ImGui::Text("FPS: %d", FPS);
             ImGui::End();
 
             ImGui::Render();
