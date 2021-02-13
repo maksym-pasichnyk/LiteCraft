@@ -14,10 +14,6 @@ struct BlockData {
     uint16_t val = 0;
 };
 
-struct BlockLayers {
-    BlockData layer1;
-    BlockData layer2;
-};
 
 struct BlockTable {
     BlockTable(const BlockTable&) = delete;

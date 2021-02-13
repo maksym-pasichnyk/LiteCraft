@@ -18,11 +18,14 @@ class NoiseChunkGenerator : public ChunkGenerator {
     std::unique_ptr<BiomeProvider> biomeProvider;
 
     std::array<float, 25> biomeWeights;
-    int noiseSizeX = 4;
-    int noiseSizeZ = 4;
-    int noiseSizeY = 32;
-    int horizontalNoiseGranularity = 4;
-    int verticalNoiseGranularity = 8;
+    int dimensionHeight;
+    int noiseSizeX;
+    int noiseSizeZ;
+    int noiseSizeY;
+    int horizontalNoiseGranularity;
+    int verticalNoiseGranularity;
+    int bedrockFloorPosition;
+    int bedrockRoofPosition;
 
     std::unique_ptr<OctavesNoiseGenerator> minLimitPerlinNoise;
     std::unique_ptr<OctavesNoiseGenerator> maxLimitPerlinNoise;
@@ -33,17 +36,12 @@ class NoiseChunkGenerator : public ChunkGenerator {
     std::unique_ptr<SimplexNoiseGenerator> endNoise;
 
     int64_t seed = 1;
-    int bedrockFloorPosition = 0;
-    int bedrockRoofPosition = -1;
-    int dimensionHeight = 256;
 
     BlockData defaultBlock;
     BlockData defaultFluid;
 
 public:
     NoiseChunkGenerator(BlockTable& pallete);
-
-    auto getNoiseValue(int32_t x, int32_t z) -> float;
 
     double getRandomDensity(int x, int z);
     double sampleAndClampNoise(int x, int y, int z, double xzScale, double yScale, double xzFactor, double yFactor);

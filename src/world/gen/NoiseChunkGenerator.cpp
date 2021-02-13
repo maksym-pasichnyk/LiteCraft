@@ -9,10 +9,10 @@
 std::map<int, Biome*> biomes {};
 
 struct ScalingSettings {
-    float xz_scale;
-    float y_scale;
-    float xz_factor;
-    float y_factor;
+    double xz_scale;
+    double y_scale;
+    double xz_factor;
+    double y_factor;
 };
 
 struct SlideSettings {
@@ -21,24 +21,72 @@ struct SlideSettings {
     float offset;
 };
 
-ScalingSettings sampling{
-        0.9999999814507745,
-        0.9999999814507745,
-        80,
-        160
+;
+
+;
+
+struct NoiseSettings {
+    ScalingSettings sampling;
+    SlideSettings topSlide;
+    SlideSettings bottomSlide;
+    int height;
+    int sizeVertical;
+    int sizeHorizontal;
+    double destinyFactor;
+    double densityOffset;
+    bool randomDensityOffset;
 };
 
-SlideSettings topSlide{
-        -10,
-        3,
-        0
+NoiseSettings settings{
+    .sampling{
+        .xz_scale = 0.9999999814507745,
+        .y_scale = 0.9999999814507745,
+        .xz_factor = 80,
+        .y_factor = 160
+    },
+    .topSlide{
+        .target = -10,
+        .size = 3,
+        .offset = 0
+    },
+    .bottomSlide{
+        .target = -30,
+        .size = 0,
+        .offset = 0
+    },
+    .height = 256,
+    .sizeVertical = 2,
+    .sizeHorizontal = 1,
+    .destinyFactor = 1.0,
+    .densityOffset = -0.46875,
+    .randomDensityOffset = true
 };
 
-SlideSettings bottomSlide{
-        -30,
-        0,
-        0
-};
+//NoiseSettings settings{
+//    .sampling{
+//        .xz_scale = 1,
+//        .y_scale = 3,
+//        .xz_factor = 80,
+//        .y_factor = 60
+//    },
+//    .topSlide{
+//        .target = 120,
+//        .size = 3,
+//        .offset = 0
+//    },
+//    .bottomSlide{
+//        .target = 320,
+//        .size = 4,
+//        .offset = -1
+//    },
+//    .height = 128,
+//    .sizeVertical = 2,
+//    .sizeHorizontal = 1,
+//    .destinyFactor = 1.0,
+//    .densityOffset = 0.019921875,
+//    .randomDensityOffset = false
+//};
+
 
 struct ISurfaceBuilder {
     virtual void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) = 0;
@@ -254,10 +302,19 @@ NoiseChunkGenerator::NoiseChunkGenerator(BlockTable& pallete) {
     defaultBlock = BlockData{pallete.getId("stone")};
     defaultFluid = BlockData{pallete.getId("water")};
 
+    dimensionHeight = settings.height;
+    bedrockFloorPosition = 0;
+    bedrockRoofPosition = -1;
+
+    horizontalNoiseGranularity = settings.sizeHorizontal * 4;
+    verticalNoiseGranularity = settings.sizeVertical * 4;
+
+    noiseSizeX = 16 / horizontalNoiseGranularity;
+    noiseSizeY = dimensionHeight / verticalNoiseGranularity;
+    noiseSizeZ = 16 / horizontalNoiseGranularity;
+
 //    fmt::print("defaultBlock: {}\n", defaultBlock.id);
 //    fmt::print("defaultFluid: {}\n", defaultFluid.id);
-
-    auto randomSeed = Random::from(seed);
 
     biomes[0] = new Biome(-1.0, 0.1, DefaultSurface::buildSurface);
     biomes[1] = new Biome(0.125, 0.05, DefaultSurface::buildSurface);
@@ -339,6 +396,7 @@ NoiseChunkGenerator::NoiseChunkGenerator(BlockTable& pallete) {
     biomes[172] = new Biome(0.1, 0.2, NetherForestsSurface::buildSurface);
     biomes[173] = new Biome(0.1, 0.2, BasaltDeltasSurface::buildSurface);
 
+    auto randomSeed = Random::from(seed);
     minLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, -15, 0);
     maxLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, -15, 0);
     mainLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, -7, 0);
@@ -356,31 +414,6 @@ NoiseChunkGenerator::NoiseChunkGenerator(BlockTable& pallete) {
             biomeWeights[i + 2 + (j + 2) * 5] = 10.0F / std::sqrt(static_cast<float>(i * i + j * j) + 0.2F);
         }
     }
-}
-
-auto NoiseChunkGenerator::getNoiseValue(int32_t x, int32_t z) -> float {
-    auto scale = 256.0f;
-    auto frequency = 1.0f / scale;
-
-    auto amplitute = 1.0f;
-    auto lacunarity = 2.0f;
-    auto persistence = 0.5f;
-
-    auto val = 0.0f;
-    auto max = 0.0f;
-
-    for (auto i = 0; i < 8; i++) {
-        auto noise = glm::simplex(glm::vec2{float(x) * frequency, float(z) * frequency});
-        noise = noise * 0.5f + 0.5f;
-
-        val += noise * amplitute;
-        max += amplitute;
-
-        frequency *= lacunarity;
-        amplitute *= persistence;
-    }
-
-    return val / max;
 }
 
 void NoiseChunkGenerator::makeBedrock(Chunk& chunk, BlockTable &pallete, Random &rand) const {
@@ -503,13 +536,13 @@ void NoiseChunkGenerator::fillNoiseColumn(double column[33], int xpos, int zpos)
     biomeDepth = (f10 * 0.5F - 0.125F) * 0.265625;
     biomeScale = 96.0 / (scale * 0.9F + 0.1F);
 //      }
-    const double xzScale = 684.412 * sampling.xz_scale;
-    const double yScale = 684.412 * sampling.y_scale;
-    const double xzFactor = xzScale / sampling.xz_factor;
-    const double yFactor = yScale / sampling.y_factor;
-    const double randomDensity = getRandomDensity(xpos, zpos);
-    const double destinyFactor = 1.0;// noisesettings.destinyFactor();
-    const double densityOffset = -0.46875;// noisesettings.densityOffset();
+    const double xzScale = 684.412 * settings.sampling.xz_scale;
+    const double yScale = 684.412 * settings.sampling.y_scale;
+    const double xzFactor = xzScale / settings.sampling.xz_factor;
+    const double yFactor = yScale / settings.sampling.y_factor;
+    const double randomDensity = settings.randomDensityOffset ? getRandomDensity(xpos, zpos) : 0.0;
+    const double destinyFactor = settings.destinyFactor;
+    const double densityOffset = settings.densityOffset;
 
     for (int y = 0; y <= noiseSizeY; ++y) {
         double noise = sampleAndClampNoise(xpos, y, zpos, xzScale, yScale, xzFactor, yFactor);
@@ -522,82 +555,17 @@ void NoiseChunkGenerator::fillNoiseColumn(double column[33], int xpos, int zpos)
             noise = noise + falloff;
         }
 
-        if (topSlide.size > 0.0) {
-            noise = Math::clampedLerp(topSlide.target, noise, ((double)(noiseSizeY - y) - topSlide.offset) / topSlide.size);
+        if (settings.topSlide.size > 0.0) {
+            noise = Math::clampedLerp(settings.topSlide.target, noise, ((double)(noiseSizeY - y) - settings.topSlide.offset) / settings.topSlide.size);
         }
 
-        if (bottomSlide.size > 0.0) {
-            noise = Math::clampedLerp(bottomSlide.target, noise, ((double)y - bottomSlide.offset) / bottomSlide.size);
+        if (settings.bottomSlide.size > 0.0) {
+            noise = Math::clampedLerp(settings.bottomSlide.target, noise, ((double)y - settings.bottomSlide.offset) / settings.bottomSlide.size);
         }
 
         column[y] = noise;
     }
 }
-
-//void NoiseChunkGenerator::generateNoise(WorldGenRegion& region, Chunk& chunk, int chunkPosX, int chunkPosZ) {
-//    const int seaLevel = region.getSeaLevel();
-//    const int xStart = chunkPosX << 4;
-//    const int zStart = chunkPosZ << 4;
-//
-//    for (int z = 0; z < noiseSizeZ + 1; ++z) {
-//        fillNoiseColumn(region, noises[0][z], chunkPosX * noiseSizeX, chunkPosZ * noiseSizeZ + z);
-//    }
-//
-//    for (int x = 0; x < noiseSizeX; x++) {
-//        for (int z = 0; z < noiseSizeZ + 1; ++z) {
-//            fillNoiseColumn(region, noises[1][z], chunkPosX * noiseSizeX + x + 1, chunkPosZ * noiseSizeZ + z);
-//        }
-//
-//        for (int z = 0; z < noiseSizeZ; ++z) {
-//            for (int y = noiseSizeY - 1; y >= 0; --y) {
-//                const double d0 = noises[0][z][y];
-//                const double d1 = noises[0][z + 1][y];
-//                const double d2 = noises[1][z][y];
-//                const double d3 = noises[1][z + 1][y];
-//                const double d4 = noises[0][z][y + 1];
-//                const double d5 = noises[0][z + 1][y + 1];
-//                const double d6 = noises[1][z][y + 1];
-//                const double d7 = noises[1][z + 1][y + 1];
-//
-//                for (int l1 = verticalNoiseGranularity - 1; l1 >= 0; --l1) {
-//                    const int ypos = y * verticalNoiseGranularity + l1;
-//                    //                    const int k2 = ypos >> 4;
-//
-//                    const double d8 = (double)l1 / (double)verticalNoiseGranularity;
-//                    const double d9 = lerp(d8, d0, d4);
-//                    const double d10 = lerp(d8, d2, d6);
-//                    const double d11 = lerp(d8, d1, d5);
-//                    const double d12 = lerp(d8, d3, d7);
-//
-//                    for (int l2 = 0; l2 < horizontalNoiseGranularity; ++l2) {
-//                        const int xpos = xStart + x * horizontalNoiseGranularity + l2;
-//                        const double d13 = (double)l2 / (double)horizontalNoiseGranularity;
-//                        const double d14 = lerp(d13, d9, d10);
-//                        const double d15 = lerp(d13, d11, d12);
-//                        for (int k3 = 0; k3 < horizontalNoiseGranularity; ++k3) {
-//                            const int zpos = zStart + z * horizontalNoiseGranularity + k3;
-//                            //                            int i4 = zpos & 15;
-//                            const double d16 = (double)k3 / (double)horizontalNoiseGranularity;
-//                            const double d17 = lerp(d16, d14, d15);
-//                            double d18 = clamp(d17 / 200.0, -1.0, 1.0);
-//
-//                            d18 = (d18 / 2.0) - ((d18 * d18 * d18) / 24.0);
-//
-//                            if (d18 > 0.0) {
-//                                chunk.SetBlockData(xpos & 15, ypos/* & 15*/, zpos & 15, TCRAFT::BlockData{ E_BLOCKTYPE_STONE, 0 });
-//                            }
-//                            else if (ypos < seaLevel) {
-//                                chunk.SetBlockData(xpos & 15, ypos/* & 15*/, zpos & 15, TCRAFT::BlockData{ oceanBlock, 0 });
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        std::swap(noises[0], noises[1]);
-//    }
-//}
 
 void NoiseChunkGenerator::generateSurface(WorldGenRegion &region, Chunk& chunk, BlockTable &pallete) {
     const auto xStart = chunk.pos.getStartX();
@@ -620,8 +588,6 @@ void NoiseChunkGenerator::generateSurface(WorldGenRegion &region, Chunk& chunk, 
             auto biome = biomeProvider->getNoiseBiome(xPos, yPos, zPos);
 //            auto biome = region.getBiome(xPos, yPos, zPos);
             biome->buildSurface(pallete, rand, chunk, xPos, zPos, yPos, noise, defaultBlock, defaultFluid, 63);
-
-//            biome->buildSurface(rand, chunk, xPos, zPos, yPos, noise, defaultBlock, defaultFluid, 63);
         }
     }
 
