@@ -6,6 +6,8 @@
 #include <vector>
 #include <string>
 
+#include "BlockTable.hpp"
+
 struct TextureAtlasTextureItem;
 
 struct BlockGraphics {
@@ -406,6 +408,8 @@ struct Block {
 	}
 
 	static void initBlocks();
+	static void registerBlock(BlockTable& pallete, const std::string& name, Block* block);
+	static void registerBlocks(BlockTable& pallete);
 
 	Tint tint = Tint::None;
 	RenderType renderType = RenderType::Block;
