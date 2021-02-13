@@ -187,8 +187,60 @@ struct World {
     	workers.clear();
     }
 
-    void updatePlayerPosition(ChunkPos newChunkPos) {
-        player_position = newChunkPos;
+    static auto getChunkDistance(ChunkPos chunkPos, int chunk_x, int chunk_z) -> int {
+        return std::max(std::abs(chunkPos.x - chunk_x), std::abs(chunkPos.z - chunk_z));
+    }
+
+    void setChunkLoadedAtClient(int chunk_x, int chunk_z, bool wasLoaded, bool needLoad) {
+        if (wasLoaded && !needLoad) {
+            client_world.unloadChunk(chunk_x, chunk_z);
+        } else if (needLoad && !wasLoaded) {
+            auto chunk = getChunk(chunk_x, chunk_z, ChunkState::Full);
+            if (chunk->needRender) {
+                auto chunksInRadius = getChunksInRadius(1, chunk_x, chunk_z, ChunkState::Full);
+                WorldGenRegion region{chunksInRadius, 1, chunk->pos.x, chunk->pos.z, seed};
+
+                chunk->needRender = false;
+                renderBlocks(chunk->rb, global_pallete, region);
+                chunk->needUpdate = true;
+            }
+            client_world.loadChunk(chunk_x, chunk_z, chunk);
+        }
+    }
+
+    void updatePlayerPosition(ChunkPos newChunkPos, ChunkPos oldChunkPos) {
+        const int center_x = newChunkPos.x;
+        const int center_z = newChunkPos.z;
+
+        if (std::abs(newChunkPos.x - oldChunkPos.x) <= 2 * 8 && std::abs(newChunkPos.z - oldChunkPos.z) <= 2 * 8) {
+            const int xStart = std::min(newChunkPos.x, oldChunkPos.x) - 8;
+            const int zStart = std::min(newChunkPos.z, oldChunkPos.z) - 8;
+            const int xEnd = std::max(newChunkPos.x, oldChunkPos.x) + 8;
+            const int zEnd = std::max(newChunkPos.z, oldChunkPos.z) + 8;
+
+            for (int chunk_x = xStart; chunk_x <= xEnd; chunk_x++) {
+                for (int chunk_z = zStart; chunk_z <= zEnd; chunk_z++) {
+                    const bool wasLoaded = getChunkDistance(oldChunkPos, chunk_x, chunk_z) <= 8;
+                    const bool needLoad = getChunkDistance(newChunkPos, chunk_x, chunk_z) <= 8;
+
+                    setChunkLoadedAtClient(chunk_x, chunk_z, wasLoaded, needLoad);
+                }
+            }
+        } else {
+            for (int32 chunk_x = oldChunkPos.x - 8; chunk_x <= oldChunkPos.x + 8; chunk_x++) {
+                for (int32 chunk_z = oldChunkPos.z - 8; chunk_z <= oldChunkPos.z + 8; chunk_z++) {
+                    setChunkLoadedAtClient(chunk_x, chunk_z, true, false);
+                }
+            }
+
+            for (int32 chunk_x = newChunkPos.x - 8; chunk_x <= newChunkPos.x + 8; chunk_x++) {
+                for (int32 chunk_z = newChunkPos.z - 8; chunk_z <= newChunkPos.z + 8; chunk_z++) {
+                    setChunkLoadedAtClient(chunk_x, chunk_z, false, true);
+                }
+            }
+        }
+
+        auto stopTime = std::chrono::high_resolution_clock::now();
     }
 
     void runWorker(std::stop_token&& token) {
@@ -197,8 +249,8 @@ struct World {
         while (!token.stop_requested()) {
             auto player_pos = player_position.load();
             if (last_player_position != player_pos) {
+                updatePlayerPosition(player_pos, last_player_position);
                 last_player_position = player_pos;
-                loadChunks(player_pos.x, player_pos.z);
             }
 
             for (auto& [pos, chunk] : chunks) {
@@ -236,35 +288,6 @@ struct World {
 //            }
 //        }
 //    }
-
-    void loadChunks(int32 center_x, int32 center_z) {
-        double totalTime = 0;
-        int totalCount = 0;
-        for (int32 chunk_x = center_x - 8; chunk_x <= center_x + 8; chunk_x++) {
-            for (int32 chunk_z = center_z - 8; chunk_z <= center_z + 8; chunk_z++) {
-                auto startTime = std::chrono::high_resolution_clock::now();
-                auto chunk = getChunk(chunk_x, chunk_z, ChunkState::Full);
-
-                if (chunk->needRender) {
-                    auto chunksInRadius = getChunksInRadius(1, chunk_x, chunk_z, ChunkState::Full);
-                    WorldGenRegion region{chunksInRadius, 1, chunk->pos.x, chunk->pos.z, seed};
-
-                    chunk->needRender = false;
-                    renderBlocks(chunk->rb, global_pallete, region);
-                    chunk->needUpdate = true;
-                }
-//                tryRender(chunksInRadius);
-
-                client_world.loadChunk(chunk_x, chunk_z, chunk);
-
-                auto stopTime = std::chrono::high_resolution_clock::now();
-
-                totalTime += std::chrono::duration<double, std::milli>(stopTime - startTime).count();
-                totalCount++;
-            }
-        }
-        fmt::print("generator: {}ms, {}, avg: {}ms\n", totalTime, totalCount, totalTime / totalCount);
-    }
 
     auto findChunksInRadius(int32 radius, int32 chunk_x, int32 chunk_z, ChunkState state) -> std::vector<Chunk*> {
         const usize count = radius * 2 + 1;
