@@ -13,6 +13,7 @@
 #include <set>
 #include <queue>
 #include <span>
+#include <valarray>
 #include <fmt/format.h>
 
 #include "input.hpp"
@@ -25,6 +26,7 @@
 #include "TextureAtlas.hpp"
 #include "raytrace.hpp"
 #include "worldgenregion.hpp"
+#include "ChunkRenderCache.h"
 #include "world/gen/NoiseChunkGenerator.hpp"
 
 #include <SDL2/SDL.h>
@@ -33,7 +35,7 @@
 #include <backends/imgui_impl_sdl.h>
 #include <backends/imgui_impl_opengl3.h>
 
-extern void renderBlocks(RenderBuffer& rb, BlockTable& pallete, WorldGenRegion& blocks);
+extern void renderBlocks(RenderBuffer& rb, BlockTable& pallete, ChunkRenderCache& blocks);
 
 std::map<std::string, BlockGraphics> tile_datas;
 
@@ -48,24 +50,38 @@ struct ChunkArray {
 private:
     int viewDistance = -1;
     int sideLength = -1;
+    int loaded = 0;
     std::atomic_int centerX{0};
     std::atomic_int centerZ{0};
+    std::vector<std::atomic<Chunk*>> chunks;
 
-    std::vector</*std::atomic<*/Chunk*/*>*/> chunks;
+    static_assert(std::atomic<Chunk*>::is_always_lock_free);
 
 public:
     void setViewDistance(int viewDistanceIn) {
         viewDistance = viewDistanceIn;
         sideLength = viewDistance * 2 + 1;
-        chunks.resize(sideLength * sideLength);
+        chunks = std::vector<std::atomic<Chunk*>>(sideLength * sideLength);
+    }
+
+    auto getLoaded() const -> int {
+        return loaded;
     }
 
     auto get(int32_t i) const -> Chunk* {
-        return chunks.at(i);
+        return chunks.at(i).load();
     }
 
     auto set(int32_t i, Chunk* chunk) {
-        chunks.at(i) = chunk;
+        auto old_chunk = chunks.at(i).exchange(chunk);
+
+        if (old_chunk) {
+            loaded -= 1;
+        }
+
+        if (chunk) {
+            loaded += 1;
+        }
     }
 
     auto getIndex(int32_t x, int32_t z) const -> int32_t {
@@ -88,9 +104,7 @@ private:
 };
 
 struct ClientWorld {
-	mutable std::mutex chunk_mutex;
     ChunkArray chunkArray;
-//    std::map<int64, Chunk*> chunks{};
     std::queue<LiquidNode> liquids{};
 
     ClientWorld() {
@@ -98,12 +112,8 @@ struct ClientWorld {
     }
 
 	void loadChunk(int32 x, int32 z, Chunk* chunk) {
-        {
-            std::unique_lock lock{chunk_mutex};
-
-            if (chunkArray.inView(x, z)) {
-                chunkArray.set(chunkArray.getIndex(x, z), chunk);
-            }
+        if (chunkArray.inView(x, z)) {
+            chunkArray.set(chunkArray.getIndex(x, z), chunk);
         }
 
         for (int chunk_x = x - 1; chunk_x <= x + 1; ++chunk_x) {
@@ -115,16 +125,12 @@ struct ClientWorld {
 	}
 
 	void unloadChunk(int32 x, int32 z) {
-        std::unique_lock lock{chunk_mutex};
-
         if (chunkArray.inView(x, z)) {
             chunkArray.set(chunkArray.getIndex(x, z), nullptr);
         }
 	}
 
 	auto getChunk(int32 x, int32 z) const -> Chunk* {
-        std::unique_lock lock{chunk_mutex};
-
         if (chunkArray.inView(x, z)) {
             return chunkArray.get(chunkArray.getIndex(x, z));
         }
@@ -453,23 +459,6 @@ struct Shader {
     }
 };
 
-struct UniformBufferObject {
-    GLuint ubo;
-    uint8* ptr;
-
-    static auto create(usize size) -> UniformBufferObject {
-        GLuint ubo;
-        glCreateBuffers(1, &ubo);
-        glNamedBufferStorage(ubo, size, nullptr, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-        auto ptr = glMapNamedBufferRange(ubo, 0, size, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-        return {ubo, reinterpret_cast<uint8*>(ptr)};
-    }
-
-    void write(const void* data, usize offset, usize size) {
-        std::memcpy(ptr + offset, data, size);
-    }
-};
-
 struct RenderFrame {
     GLuint camera_ubo;
     void* camera_ptr;
@@ -723,22 +712,21 @@ struct App {
         std::memcpy(frames[frameIndex].camera_ptr, &camera_constants, sizeof(CameraConstants));
     }
 
-    auto findChunksInRadius(int32 radius, int32 chunk_x, int32 chunk_z) -> std::vector<Chunk*> {
-        const usize count = radius * 2 + 1;
-        std::vector<Chunk*> ret{count * count};
+    auto create_render_cache(int32 chunk_x, int32 chunk_z) -> std::optional<ChunkRenderCache> {
+        ChunkRenderCache cache{chunk_x, chunk_z};
 
         usize i = 0;
-        for (int32 z = chunk_z - radius; z <= chunk_z + radius; z++) {
-            for (int32 x = chunk_x - radius; x <= chunk_x + radius; x++) {
+        for (int32 z = chunk_z - 1; z <= chunk_z + 1; z++) {
+            for (int32 x = chunk_x - 1; x <= chunk_x + 1; x++) {
                 auto chunk = client_world.getChunk(x, z);
                 if (chunk == nullptr) {
-                    return {};
+                    return std::nullopt;
                 }
-                ret.at(i++) = chunk;
+                cache.chunks[i++] = chunk;
             }
         }
 
-        return std::move(ret);
+        return cache;
     }
 
     void setup_terrain() {
@@ -757,10 +745,9 @@ struct App {
                     if (chunk->is_dirty) {
                         chunk->is_dirty = false;
 
-                        auto chunksInRadius = findChunksInRadius(1, chunk_x, chunk_z);
-                        if (!chunksInRadius.empty()) {
-                            WorldGenRegion region{chunksInRadius, 1, chunk_x, chunk_z, /*seed*/0};
-                            renderBlocks(chunk->rb, global_pallete, region);
+                        auto renderCache = create_render_cache(chunk_x, chunk_z);
+                        if (renderCache.has_value()) {
+                            renderBlocks(chunk->rb, global_pallete, *renderCache);
                             chunk->needUpdate = true;
                         }
                     }
@@ -919,8 +906,10 @@ struct App {
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::SetNextWindowSize(ImVec2(300, 150));
             ImGui::Begin("Debug panel", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground);
-            ImGui::Text("Position: %.2f, %.2f, %.2f", transform.position.x, transform.position.y, transform.position.z);
             ImGui::Text("FPS: %d", FPS);
+            ImGui::Text("Position: %.2f, %.2f, %.2f", transform.position.x, transform.position.y, transform.position.z);
+            ImGui::Text("Server chunks: %d", static_cast<int>(world->chunks.size()));
+            ImGui::Text("Client chunks: %d", client_world.chunkArray.getLoaded());
             ImGui::End();
 
             ImGui::Render();

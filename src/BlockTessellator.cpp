@@ -2,9 +2,10 @@
 #include "Chunk.hpp"
 #include "BlockReader.hpp"
 #include "TextureAtlas.hpp"
-#include "worldgenregion.hpp"
+#include "ChunkRenderCache.h"
 
 #include <glm/vec3.hpp>
+#include <span>
 
 auto getTintColor(Tint tint) -> glm::u8vec3 {
 	if (tint == Tint::Grass) {
@@ -20,7 +21,7 @@ int vertexAO(int side1, int side2, int corner) {
     return side1 && side2 ? 0 : (3 - (side1 + side2 + corner));
 }
 
-void renderBlock(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, WorldGenRegion& blocks) {
+void renderBlock(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
 	const auto fx = float(x);// - 0.2f;
 	const auto fy = float(y);// - 0.2f;
 	const auto fz = float(z);// - 0.2f;
@@ -164,7 +165,7 @@ void renderBlock(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, Worl
 	}
 }
 
-void renderCross(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, WorldGenRegion& blocks) {
+void renderCross(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
 	const auto fx = float(x);// - 0.2f;
 	const auto fy = float(y);// - 0.2f;
 	const auto fz = float(z);// - 0.2f;
@@ -190,7 +191,7 @@ void renderCross(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, Worl
 	builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, 0xFF);
 }
 
-void renderLiquid(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, WorldGenRegion& blocks) {
+void renderLiquid(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
 	const auto fx = float(x);// - 0.2f;
 	const auto fy = float(y);// - 0.2f;
 	const auto fz = float(z);// - 0.2f;
@@ -315,7 +316,7 @@ void renderBox(RenderLayerBuilder& builder, int32 x, int32 y, int32 z, Block* bl
     builder.vertex(fx + max.x, fy + max.y, fz + min.z, coords.maxU, coords.minV, 0xFF, 0xFF, 0xFF, 0xFF);
 }
 
-void renderPane(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, WorldGenRegion& blocks) {
+void renderPane(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
     auto builder = rb.getForLayer(block->renderLayer);
 
     auto val = blocks.getData(x, y, z).val;
@@ -336,7 +337,7 @@ void renderPane(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, World
     }
 }
 
-void renderBlocks(RenderBuffer& rb, BlockTable& global_pallete, WorldGenRegion& blocks) {
+void renderBlocks(RenderBuffer& rb, BlockTable& global_pallete, ChunkRenderCache& blocks) {
 	rb.clear();
 
 	int32 start_x = blocks.chunk_x << 4;
