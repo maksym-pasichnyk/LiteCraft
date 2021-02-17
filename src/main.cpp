@@ -15,6 +15,8 @@
 #include <span>
 #include <valarray>
 #include <fmt/format.h>
+#include <sys/types.h>
+#include <sys/sysinfo.h>
 
 #include "input.hpp"
 #include "camera.hpp"
@@ -103,15 +105,14 @@ private:
     }
 };
 
-struct ClientWorld {
+struct ClientChunkProvider {
     ChunkArray chunkArray;
-    std::queue<LiquidNode> liquids{};
 
-    ClientWorld() {
-        chunkArray.setViewDistance(8);
+    ClientChunkProvider(int viewDistance) {
+        chunkArray.setViewDistance(viewDistance);
     }
 
-	void loadChunk(int32 x, int32 z, Chunk* chunk) {
+    void loadChunk(int32 x, int32 z, Chunk* chunk) {
         if (chunkArray.inView(x, z)) {
             chunkArray.set(chunkArray.getIndex(x, z), chunk);
         }
@@ -122,19 +123,50 @@ struct ClientWorld {
                 if (chunk) chunk->is_dirty = true;
             }
         }
+    }
+
+    void unloadChunk(int32 x, int32 z) {
+        if (chunkArray.inView(x, z)) {
+            const auto i = chunkArray.getIndex(x, z);
+            auto chunk = chunkArray.get(i);
+            if (isValid(chunk, x, z)) {
+                chunkArray.set(i, nullptr);
+            }
+        }
+    }
+
+    auto getChunk(int32 x, int32 z) const -> Chunk* {
+        if (chunkArray.inView(x, z)) {
+            auto chunk = chunkArray.get(chunkArray.getIndex(x, z));
+            if (isValid(chunk, x, z)) {
+                return chunk;
+            }
+        }
+        return nullptr;
+    }
+
+    static auto isValid(Chunk* chunk, int x, int z) -> bool {
+        return chunk != nullptr && chunk->pos.x == x && chunk->pos.z == z;
+    }
+};
+
+struct ClientWorld {
+    std::unique_ptr<ClientChunkProvider> provider;
+
+    ClientWorld() {
+        provider = std::make_unique<ClientChunkProvider>(8);
+    }
+
+	void loadChunk(int32 x, int32 z, Chunk* chunk) {
+        provider->loadChunk(x, z, chunk);
 	}
 
 	void unloadChunk(int32 x, int32 z) {
-        if (chunkArray.inView(x, z)) {
-            chunkArray.set(chunkArray.getIndex(x, z), nullptr);
-        }
+        provider->unloadChunk(x, z);
 	}
 
 	auto getChunk(int32 x, int32 z) const -> Chunk* {
-        if (chunkArray.inView(x, z)) {
-            return chunkArray.get(chunkArray.getIndex(x, z));
-        }
-        return nullptr;
+        return provider->getChunk(x, z);
 	}
 
     auto getData(glm::ivec3 pos) const -> BlockData {
@@ -460,6 +492,11 @@ struct Shader {
 };
 
 struct RenderFrame {
+    GLuint fbo;
+    GLuint render_texture;
+    GLuint depth_texture;
+    GLuint rbo;
+
     GLuint camera_ubo;
     void* camera_ptr;
 };
@@ -510,11 +547,11 @@ struct App {
         window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
         context = SDL_GL_CreateContext(window);
 
-        SDL_SetWindowResizable(window, SDL_TRUE);
+//        SDL_SetWindowResizable(window, SDL_TRUE);
 
         glewInit();
 
-        create_frames();
+        create_frames(width, height);
         create_imgui();
 
 		resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla"));
@@ -535,13 +572,29 @@ struct App {
 		world = std::make_unique<World>();
     }
 
-    void create_frames() {
+    void create_frames(uint32 width, uint32 height) {
         selection_mesh = std::make_unique<Mesh>();
 
         for (int i = 0; i < 2; i++) {
             glCreateBuffers(1, &frames[i].camera_ubo);
             glNamedBufferStorage(frames[i].camera_ubo, sizeof(CameraConstants), nullptr, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
             frames[i].camera_ptr = glMapNamedBufferRange(frames[i].camera_ubo, 0, sizeof(CameraConstants), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+
+            glCreateTextures(GL_TEXTURE_2D, 1, &frames[i].render_texture);
+            glTextureStorage2D(frames[i].render_texture, 1, GL_RGB8, width, height);
+            glTextureParameteri(frames[i].render_texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTextureParameteri(frames[i].render_texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            glCreateRenderbuffers(1, &frames[i].rbo);
+            glNamedRenderbufferStorage(frames[i].rbo, GL_DEPTH24_STENCIL8, width, height);
+
+            glCreateFramebuffers(1, &frames[i].fbo);
+            glNamedFramebufferTexture(frames[i].fbo, GL_COLOR_ATTACHMENT0, frames[i].render_texture, 0);
+            glNamedFramebufferRenderbuffer(frames[i].fbo, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, frames[i].rbo);
+
+            if(glCheckNamedFramebufferStatus(frames[i].fbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+                fmt::print("ERROR::FRAMEBUFFER:: Framebuffer is not complete!: {}\n", glGetError());
+            }
         }
     }
 
@@ -732,7 +785,7 @@ struct App {
     void setup_terrain() {
         int32 center_x = (int32) transform.position.x >> 4;
         int32 center_z = (int32) transform.position.z >> 4;
-        client_world.chunkArray.setCenter(center_x, center_z);
+        client_world.provider->chunkArray.setCenter(center_x, center_z);
         world->player_position = {center_x, center_z};
 
         chunkToRenders.clear();
@@ -778,10 +831,12 @@ struct App {
             fog_offset = glm::vec2{0, 5 };
         }
 
-		glClearNamedFramebufferfv(0, GL_COLOR, 0, color.data());
-		glClearNamedFramebufferfi(0, GL_DEPTH_STENCIL, 0, 1, 0);
+		glClearNamedFramebufferfv(frames[frameIndex].fbo, GL_COLOR, 0, color.data());
+		glClearNamedFramebufferfi(frames[frameIndex].fbo, GL_DEPTH_STENCIL, 0, 1, 0);
 
-		glBindBufferBase(GL_UNIFORM_BUFFER, 0, frames[frameIndex].camera_ubo);
+        glBindFramebuffer(GL_FRAMEBUFFER, frames[frameIndex].fbo);
+
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, frames[frameIndex].camera_ubo);
 
         glBindTexture(GL_TEXTURE_2D, texture_atlas.texture);
 		glActiveTexture(GL_TEXTURE0);
@@ -858,7 +913,7 @@ struct App {
 
         int32 center_x = (int32) transform.position.x >> 4;
         int32 center_z = (int32) transform.position.z >> 4;
-        client_world.chunkArray.setCenter(center_x, center_z);
+        client_world.provider->chunkArray.setCenter(center_x, center_z);
 
         world = std::make_unique<World>();
 
@@ -905,15 +960,19 @@ struct App {
 
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::SetNextWindowSize(ImVec2(300, 150));
-            ImGui::Begin("Debug panel", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground);
+            ImGui::Begin("Debug panel", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoSavedSettings);
             ImGui::Text("FPS: %d", FPS);
             ImGui::Text("Position: %.2f, %.2f, %.2f", transform.position.x, transform.position.y, transform.position.z);
             ImGui::Text("Server chunks: %d", static_cast<int>(world->chunks.size()));
-            ImGui::Text("Client chunks: %d", client_world.chunkArray.getLoaded());
+            ImGui::Text("Client chunks: %d", client_world.provider->chunkArray.getLoaded());
             ImGui::End();
 
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+            glBlitNamedFramebuffer(frames[frameIndex].fbo, 0, 0, 0, 800, 600, 0, 0, 800, 600, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
             SDL_GL_SwapWindow(window);
 

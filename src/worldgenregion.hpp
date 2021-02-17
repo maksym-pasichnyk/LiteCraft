@@ -1,7 +1,9 @@
 #pragma once
 
-#include <stdint.hpp>
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+
+#include <stdint.hpp>
 #include <array>
 
 #include "Chunk.hpp"

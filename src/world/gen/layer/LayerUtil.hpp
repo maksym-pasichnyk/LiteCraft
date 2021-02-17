@@ -1,7 +1,7 @@
 #pragma once
 
 #include "src/world/gen/LazyAreaLayerContext.hpp"
-#include "src/world/gen/layer/area/IAreaFactory.hpp"
+#include "src/world/gen/area/IAreaFactory.hpp"
 #include "Layer.hpp"
 
 #include <cstdint>

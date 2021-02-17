@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/world/gen/layer/area/IArea.hpp"
+#include "src/world/gen/area/IArea.hpp"
 
 class Layer {
     IArea area;

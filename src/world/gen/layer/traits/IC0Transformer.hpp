@@ -3,7 +3,7 @@
 #include "IAreaTransformer1.hpp"
 #include "IDimOffset0Transformer.hpp"
 #include "src/world/gen/INoiseRandom.hpp"
-#include "src/world/gen/layer/area/IArea.hpp"
+#include "src/world/gen/area/IArea.hpp"
 
 template <typename T>
 concept cIC0Transformer = requires(T self, IExtendedNoiseRandom& rand, int i) {

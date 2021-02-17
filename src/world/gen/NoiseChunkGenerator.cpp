@@ -597,8 +597,6 @@ void NoiseChunkGenerator::generateSurface(WorldGenRegion &region, Chunk& chunk, 
 void NoiseChunkGenerator::generateTerrain(Chunk& chunk, BlockTable &pallete) {
     const auto chunkPosX = chunk.pos.x;
     const auto chunkPosZ = chunk.pos.z;
-    const auto xStart = chunkPosX << 4;
-    const auto zStart = chunkPosZ << 4;
     const int seaLevel = 63;
 
     double noises[2][5][33];
@@ -635,13 +633,13 @@ void NoiseChunkGenerator::generateTerrain(Chunk& chunk, BlockTable &pallete) {
                     const double d12 = Math::lerp(d8, d3, d7);
 
                     for (int l2 = 0; l2 < horizontalNoiseGranularity; ++l2) {
-                        const int xpos = /*xStart +*/ x * horizontalNoiseGranularity + l2;
+                        const int xpos = x * horizontalNoiseGranularity + l2;
                         const double d13 = (double) l2 / (double) horizontalNoiseGranularity;
                         const double d14 = Math::lerp(d13, d9, d10);
                         const double d15 = Math::lerp(d13, d11, d12);
 
                         for (int k3 = 0; k3 < horizontalNoiseGranularity; ++k3) {
-                            const int zpos = /*zStart + */z * horizontalNoiseGranularity + k3;
+                            const int zpos = z * horizontalNoiseGranularity + k3;
                             const double d16 = (double) k3 / (double) horizontalNoiseGranularity;
                             const double d17 = Math::lerp(d16, d14, d15);
                             double d18 = Math::clamp(d17 / 200.0, -1.0, 1.0);

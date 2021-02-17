@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../../biome/Biome.hpp"
-#include "../../../../util/math/ChunkPos.hpp"
+#include "src/world/biome/Biome.hpp"
+#include "src/util/math/ChunkPos.hpp"
 
 #include <functional>
 #include <memory>

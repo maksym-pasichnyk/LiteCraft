@@ -2,7 +2,7 @@
 
 #include "IDimTransformer.hpp"
 #include "src/world/gen/IExtendedNoiseRandom.hpp"
-#include "src/world/gen/layer/area/IAreaFactory.hpp"
+#include "src/world/gen/area/IAreaFactory.hpp"
 #include "src/world/gen/LazyAreaLayerContext.hpp"
 
 template <typename T>

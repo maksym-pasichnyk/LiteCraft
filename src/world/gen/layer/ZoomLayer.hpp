@@ -2,7 +2,7 @@
 
 #include "src/world/gen/layer/traits/IAreaTransformer1.hpp"
 #include "src/world/gen/IExtendedNoiseRandom.hpp"
-#include "src/world/gen/layer/area/IArea.hpp"
+#include "src/world/gen/area/IArea.hpp"
 
 #include <memory>
 

@@ -3,7 +3,7 @@
 #include "IAreaTransformer1.hpp"
 #include "src/world/gen/IExtendedNoiseRandom.hpp"
 #include "IDimOffset1Transformer.hpp"
-#include "src/world/gen/layer/area/IArea.hpp"
+#include "src/world/gen/area/IArea.hpp"
 
 template <typename T>
 struct IBishopTransformer : IDimOffset1Transformer {

@@ -4,7 +4,7 @@
 #include "src/world/gen/layer/traits/IDimOffset0Transformer.hpp"
 #include "src/world/gen/INoiseRandom.hpp"
 #include "LayerUtil.hpp"
-#include "src/world/gen/layer/area/IArea.hpp"
+#include "src/world/gen/area/IArea.hpp"
 
 #include <memory>
 
