@@ -239,6 +239,8 @@ struct World {
     void setChunkLoadedAtClient(int chunk_x, int chunk_z, bool wasLoaded, bool needLoad) {
         if (wasLoaded && !needLoad) {
             client_world.unloadChunk(chunk_x, chunk_z);
+
+            chunks.erase(ChunkPos::asLong(chunk_x, chunk_z));
         } else if (needLoad && !wasLoaded) {
             auto chunk = getChunk(chunk_x, chunk_z, ChunkState::Full);
             client_world.loadChunk(chunk_x, chunk_z, chunk);

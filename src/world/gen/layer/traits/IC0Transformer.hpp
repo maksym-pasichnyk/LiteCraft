@@ -12,7 +12,7 @@ concept cIC0Transformer = requires(T self, IExtendedNoiseRandom& rand, int i) {
 
 template <typename T>
 struct IC0Transformer : IDimOffset0Transformer {
-    int apply2(IExtendedNoiseRandom& rand, const IArea& area, int x, int z) requires cIC0Transformer<T> {
+    int apply2(IExtendedNoiseRandom& rand, const IArea auto& area, int x, int z) requires cIC0Transformer<T> {
         const auto d0 = area.getValue(getOffsetX(x), getOffsetZ(z));
         const auto out = static_cast<T*>(this)->apply(rand, d0);
 //        std::printf("IC0Transformer[%s]: %d -> %d\n", typeid(T).name(), out, d0);

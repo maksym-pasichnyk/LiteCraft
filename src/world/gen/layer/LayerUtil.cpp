@@ -23,7 +23,7 @@
 #include <utility>
 
 
-IAreaFactory repeat(int64_t seed, IAreaTransformer1 auto layer, IAreaFactory area, int count, const std::function<LazyAreaLayerContext(int64_t)>& contextFactory) {
+IAreaFactory<LazyArea> repeat(int64_t seed, IAreaTransformer1 auto layer, IAreaFactory<LazyArea> area, int count, const std::function<std::unique_ptr<LazyAreaLayerContext>(int64_t)>& contextFactory) {
     auto iareafactory = std::move(area);
 
     for(int i = 0; i < count; ++i) {
@@ -35,12 +35,12 @@ IAreaFactory repeat(int64_t seed, IAreaTransformer1 auto layer, IAreaFactory are
 
 std::unique_ptr<Layer> LayerUtil::createOverworldBiomes(int64_t seed, bool legacyBiomes, int biomeScale, int _4) {
     auto factory = createOverworldBiomes(legacyBiomes, biomeScale, _4, [seed] (int64_t seedModification) {
-        return LazyAreaLayerContext(/*25,*/ seed, seedModification);
+        return std::make_unique<LazyAreaLayerContext>(200, seed, seedModification);
     });
     return std::make_unique<Layer>(factory.makeArea());
 }
 
-IAreaFactory LayerUtil::createOverworldBiomes(bool legacyBiomes, int biomeScale, int repeatCount, const std::function<LazyAreaLayerContext(int64_t)>& contextFactory) {
+IAreaFactory<LazyArea> LayerUtil::createOverworldBiomes(bool legacyBiomes, int biomeScale, int repeatCount, const std::function<std::unique_ptr<LazyAreaLayerContext>(int64_t)>& contextFactory) {
     auto layer1 = make(IslandLayer{}, contextFactory(1));
     auto layer2 = make(ZoomLayerFuzzy{}, contextFactory(2000), layer1);
     auto layer3 = make(AddIslandLayer{}, contextFactory(1), layer2);

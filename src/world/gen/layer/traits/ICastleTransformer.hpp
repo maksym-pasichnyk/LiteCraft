@@ -12,7 +12,7 @@ concept cICastleTransformer = requires(T self, INoiseRandom& rand, int north, in
 
 template <typename T>
 struct ICastleTransformer : IDimOffset1Transformer {
-    int apply2(IExtendedNoiseRandom& rand, const IArea& area, int x, int z) requires cICastleTransformer<T>
+    int apply2(IExtendedNoiseRandom& rand, const IArea auto& area, int x, int z) requires cICastleTransformer<T>
     {
         return static_cast<T*>(this)->apply(rand,
                             area.getValue(getOffsetX(x + 1), getOffsetZ(z + 0)),

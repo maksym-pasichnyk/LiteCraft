@@ -27,6 +27,8 @@ class NoiseChunkGenerator : public ChunkGenerator {
     int bedrockFloorPosition;
     int bedrockRoofPosition;
 
+    double noises[2][5][33];
+
     std::unique_ptr<OctavesNoiseGenerator> minLimitPerlinNoise;
     std::unique_ptr<OctavesNoiseGenerator> maxLimitPerlinNoise;
     std::unique_ptr<OctavesNoiseGenerator> mainLimitPerlinNoise;

@@ -16,7 +16,7 @@ struct ZoomLayer {
         return z >> 1;
     }
 
-    int apply2(IExtendedNoiseRandom& context, const IArea& area, int x, int z) {
+    int apply2(IExtendedNoiseRandom& context, const IArea auto& area, int x, int z) {
         const int biome1 = area.getValue(getOffsetX(x), getOffsetZ(z));
         context.setPosition(x >> 1 << 1, z >> 1 << 1);
         const int j = x & 1;

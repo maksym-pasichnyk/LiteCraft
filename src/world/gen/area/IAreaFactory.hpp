@@ -5,10 +5,11 @@
 #include <memory>
 #include <functional>
 
-struct IAreaFactory : private std::function<IArea()> {
-    using function::function;
+template <IArea T>
+struct IAreaFactory : private std::function<T()> {
+    using std::function<T()>::function;
 
-    IArea makeArea() {
+    T makeArea() {
         return (*this)();
     }
 };

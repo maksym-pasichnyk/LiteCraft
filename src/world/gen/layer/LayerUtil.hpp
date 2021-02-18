@@ -130,5 +130,5 @@ struct LayerUtil {
 
     static std::unique_ptr<Layer> createOverworldBiomes(int64_t seed, bool legacyBiomes, int biomeScale, int _4);
 
-    static IAreaFactory createOverworldBiomes(bool legacyBiomes, int biomeScale, int repeatCount, const std::function<LazyAreaLayerContext(int64_t)>& contextFactory);
+    static IAreaFactory<LazyArea> createOverworldBiomes(bool legacyBiomes, int biomeScale, int repeatCount, const std::function<std::unique_ptr<LazyAreaLayerContext>(int64_t)>& contextFactory);
 };

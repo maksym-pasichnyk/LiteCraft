@@ -8,14 +8,28 @@
 
 class LazyAreaLayerContext : public virtual IExtendedNoiseRandom {
 public:
+    int maxCacheSize;
     int64_t seed;
     int64_t positionSeed;
     ImprovedNoiseGenerator noise;
 
 public:
-    LazyAreaLayerContext(int64_t _seed, int64_t seedModifier)
-        : seed(hash(_seed, seedModifier))
+    LazyAreaLayerContext(int maxCacheSize, int64_t _seed, int64_t seedModifier)
+        : maxCacheSize(maxCacheSize)
+        , seed(hash(_seed, seedModifier))
         , noise(Random::from(_seed)) {}
+
+    LazyArea makeArea(IPixelTransformer pixelTransformer) {
+        return LazyArea(std::move(pixelTransformer), maxCacheSize);
+    }
+
+    LazyArea makeArea(IPixelTransformer pixelTransformer, LazyArea& area) {
+        return LazyArea(std::move(pixelTransformer), std::min(1024, area.getMaxCacheSize() * 4));
+    }
+
+    LazyArea makeArea(IPixelTransformer pixelTransformer, LazyArea& area1, LazyArea& area2) {
+        return LazyArea(std::move(pixelTransformer), std::min(1024, std::max(area1.getMaxCacheSize(), area2.getMaxCacheSize() * 4)));
+    }
 
     ImprovedNoiseGenerator& getNoiseGenerator() override {
         return noise;
