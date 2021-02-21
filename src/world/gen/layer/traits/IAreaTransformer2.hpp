@@ -1,9 +1,9 @@
 #pragma once
 
 #include "IDimTransformer.hpp"
-#include "src/world/gen/IExtendedNoiseRandom.hpp"
-#include "src/world/gen/area/IAreaFactory.hpp"
-#include "src/world/gen/LazyAreaLayerContext.hpp"
+#include "../../IExtendedNoiseRandom.hpp"
+#include "../../area/IAreaFactory.hpp"
+#include "../../LazyAreaLayerContext.hpp"
 
 template <typename T>
 concept IAreaTransformer2 = requires(T self, INoiseRandom& rand, const LazyArea& area1, const LazyArea& area2, int x, int z) {

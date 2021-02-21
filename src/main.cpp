@@ -15,20 +15,19 @@
 #include <span>
 #include <valarray>
 #include <fmt/format.h>
-#include <sys/types.h>
-#include <sys/sysinfo.h>
 
 #include "input.hpp"
 #include "camera.hpp"
 #include "transform.hpp"
 #include "Block.hpp"
-#include "Chunk.hpp"
-#include "src/util/math/ChunkPos.hpp"
+#include "world/chunk/Chunk.hpp"
 #include "BlockReader.hpp"
 #include "TextureAtlas.hpp"
 #include "raytrace.hpp"
 #include "worldgenregion.hpp"
 #include "ChunkRenderCache.h"
+#include "util/math/ChunkPos.hpp"
+#include "world/biome/Biome.hpp"
 #include "world/gen/NoiseChunkGenerator.hpp"
 
 #include <SDL2/SDL.h>
@@ -37,7 +36,7 @@
 #include <backends/imgui_impl_sdl.h>
 #include <backends/imgui_impl_opengl3.h>
 
-extern void renderBlocks(RenderBuffer& rb, BlockTable& pallete, ChunkRenderCache& blocks);
+extern void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks);
 
 std::map<std::string, BlockGraphics> tile_datas;
 
@@ -45,8 +44,6 @@ struct LiquidNode {
     glm::ivec3 pos;
     int data;
 };
-
-BlockTable global_pallete{};
 
 struct ChunkArray {
 private:
@@ -215,7 +212,7 @@ struct ClientWorld {
 ClientWorld client_world{};
 
 struct World {
-    NoiseChunkGenerator generator{global_pallete};
+    NoiseChunkGenerator generator;
 //    WorldLightManager lightManager;
 
     std::atomic<ChunkPos> player_position{ChunkPos::from(100, 100)};
@@ -242,8 +239,10 @@ struct World {
 
             chunks.erase(ChunkPos::asLong(chunk_x, chunk_z));
         } else if (needLoad && !wasLoaded) {
-            auto chunk = getChunk(chunk_x, chunk_z, ChunkState::Full);
-            client_world.loadChunk(chunk_x, chunk_z, chunk);
+            auto chunk = provideChunk(chunk_x, chunk_z, ChunkState::Full);
+            if (chunk != nullptr) {
+                client_world.loadChunk(chunk_x, chunk_z, chunk);
+            }
         }
     }
 
@@ -290,32 +289,7 @@ struct World {
         }
     }
 
-    auto getChunksInRadius(int32 radius, int32 chunk_x, int32 chunk_z, ChunkState state) -> std::vector<Chunk*> {
-        if (radius == -1) return {};
-
-        const usize count = radius * 2 + 1;
-        std::vector<Chunk*> ret{count * count};
-
-        usize i = 0;
-        for (int32 z = chunk_z - radius; z <= chunk_z + radius; z++) {
-            for (int32 x = chunk_x - radius; x <= chunk_x + radius; x++) {
-                ret.at(i++) = getChunk(x, z, state);
-            }
-        }
-
-        return std::move(ret);
-    }
-
-    auto findChunk(int32 chunk_x, int32 chunk_z) -> Chunk* {
-        const auto pos = ChunkPos::from(chunk_x, chunk_z);
-        auto it = chunks.find(pos.asLong());
-        if (it == chunks.end()) {
-            it = chunks.emplace(pos.asLong(), std::make_unique<Chunk>(pos)).first;
-        }
-        return it->second.get();
-    }
-
-    auto findChunk(int32 chunk_x, int32 chunk_z, ChunkState state) -> Chunk* {
+    auto getChunk(int32 chunk_x, int32 chunk_z, ChunkState state) -> Chunk* {
         const auto pos = ChunkPos::from(chunk_x, chunk_z);
         auto it = chunks.find(pos.asLong());
         if (it != chunks.end()) {
@@ -325,6 +299,26 @@ struct World {
             }
         }
         return nullptr;
+    }
+
+    auto getChunksInRadius(int32 radius, int32 chunk_x, int32 chunk_z, ChunkState state) -> std::optional<std::vector<Chunk*>> {
+        if (radius == -1) return {};
+
+        const usize count = radius * 2 + 1;
+        std::vector<Chunk*> ret{count * count};
+
+        usize i = 0;
+        for (int32 z = chunk_z - radius; z <= chunk_z + radius; z++) {
+            for (int32 x = chunk_x - radius; x <= chunk_x + radius; x++) {
+                auto chunk = provideChunk(x, z, state);
+                if (chunk == nullptr) {
+                    return std::nullopt;
+                }
+                ret.at(i++) = chunk;
+            }
+        }
+
+        return std::move(ret);
     }
 
     auto getTaskRange(ChunkState state) {
@@ -342,60 +336,58 @@ struct World {
             case ChunkState::Features:
                 return 0;
             case ChunkState::Light:
-                return 0;
+                return 1;
             case ChunkState::Full:
                 return 0;
         }
         return -1;
     }
 
-    auto getChunk(int32 chunk_x, int32 chunk_z, ChunkState state = ChunkState::Full) -> Chunk* {
-        auto chunk = findChunk(chunk_x, chunk_z);
+    auto chunkLoad(int32 chunk_x, int32 chunk_z) -> Chunk* {
+        const auto pos = ChunkPos::from(chunk_x, chunk_z);
+        auto it = chunks.find(pos.asLong());
+        if (it == chunks.end()) {
+            it = chunks.emplace(pos.asLong(), std::make_unique<Chunk>(pos)).first;
+        }
+        return it->second.get();
+    }
+
+    auto provideChunk(int32 chunk_x, int32 chunk_z, ChunkState state = ChunkState::Full) -> Chunk* {
+        auto chunk = chunkLoad(chunk_x, chunk_z);
 
         for (int i = (int) chunk->state + 1; i <= (int) state; i++) {
-            const auto parent_state = (ChunkState)((int)i - 1);
+            const auto parent_state = (ChunkState) ((int) i - 1);
             const auto range = getTaskRange((ChunkState) i);
             auto chunksInRadius = getChunksInRadius(range, chunk_x, chunk_z, parent_state);
 
+            WorldGenRegion region{*chunksInRadius, range, chunk_x, chunk_z, seed};
+
             switch ((ChunkState) i) {
-                case ChunkState::Empty: break;
-                case ChunkState::StructureStart: {
-//                    WorldGenRegion region{chunksInRadius, range, chunk_x, chunk_z, seed};
-//                    generator.generateStructures(region, chunk);
+                case ChunkState::Empty:
                     break;
-                }
-                case ChunkState::StructureReferences: {
-//                    WorldGenRegion region{chunksInRadius, range, chunk_x, chunk_z, seed};
-//                    generator.getStructureReferences(region, chunk);
+                case ChunkState::StructureStart:
+                    generator.generateStructures(region, *chunk);
                     break;
-                }
+            case ChunkState::StructureReferences:
+//                    generator.getStructureReferences(region, *chunk);
+                    break;
                 case ChunkState::Noise:
-                    generator.generateTerrain(*chunk, global_pallete);
+                    generator.generateTerrain(*chunk);
                     break;
-                case ChunkState::Surface: {
-                    WorldGenRegion region{chunksInRadius, range, chunk_x, chunk_z, seed};
-                    generator.generateSurface(region, *chunk, global_pallete);
+                case ChunkState::Surface:
+                    generator.generateSurface(region, *chunk);
                     break;
-                }
-                case ChunkState::Features: {
-//                    WorldGenRegion region{chunksInRadius, range, chunk_x, chunk_z, seed};
-//                    generator.generateFeatures(region, chunk, global_pallete);
+                case ChunkState::Features:
+                    generator.generateFeatures(region, *chunk);
                     break;
-                }
-                case ChunkState::Light: {
-//                    WorldGenRegion region{chunksInRadius, range, chunk_x, chunk_z, seed};
+                case ChunkState::Light:
 //                    lightManager.calculateLight(region, chunk_x * 16, chunk_z * 16);
                     break;
-                }
-                case ChunkState::Full: {
-//                    WorldGenRegion region{chunksInRadius, 1, chunk_x, chunk_z, seed};
-//                    chunk->needRender = true;
+                case ChunkState::Full:
                     break;
-                }
             }
 
             chunk->state = (ChunkState) i;
-
         }
 		return chunk;
     }
@@ -526,6 +518,7 @@ struct App {
     GLuint cutout_pipeline;
     GLuint transparent_pipeline;
 
+    BlockTable block_pallete{};
     TextureAtlas texture_atlas;
 
     std::vector<Chunk*> chunkToRenders;
@@ -569,7 +562,9 @@ struct App {
 		loadBlocks();
 
         Block::initBlocks();
-        Block::registerBlocks(global_pallete);
+        Block::registerBlocks(block_pallete);
+
+        Biome::registerBiomes();
 
 		world = std::make_unique<World>();
     }
@@ -701,13 +696,12 @@ struct App {
         glm::ivec2 mouse_center{display_size.x / 2, display_size.y / 2};
 		glm::ivec2 mouse_position;
         SDL_GetMouseState(&mouse_position.x, &mouse_position.y);
-		auto mouse_delta = mouse_position - mouse_center;
+		const auto mouse_delta = mouse_position - mouse_center;
         SDL_WarpMouseInWindow(window, mouse_center.x, mouse_center.y);
 
 		rotate_camera(transform, mouse_delta, dt);
 
         const auto topBlock = client_world.getBlock(transform.position.x, transform.position.y + 1, transform.position.z);
-        const bool is_liquid = topBlock->renderType == RenderType::Liquid;
 
 		transform.position += calc_free_camera_velocity(input, transform, dt);
 
@@ -736,7 +730,7 @@ struct App {
 //
 //                const auto pos = rayTraceResult->pos + rayTraceResult->dir;
 //
-//                client_world.setData(pos, BlockData{global_pallete.getId("water"), 0});
+//                client_world.setData(pos, BlockData{block_pallete.getId("water"), 0});
 //
 ////                client_world.setData(pos, {Block::water, 0});
 //                client_world.liquids.emplace(pos);
@@ -749,15 +743,15 @@ struct App {
 //            }
 //
 //            for (auto position : positions) {
-//                client_world.getChunk(position)->is_dirty = true;
+//                client_world.provideChunk(position)->is_dirty = true;
 //            }
 //		}
     }
 
     void setup_camera() {
-        auto projection_matrix = camera.getProjection();
-        auto transform_matrix = transform.getViewMatrix();
-        auto camera_matrix = projection_matrix * transform_matrix;
+        const auto projection_matrix = camera.getProjection();
+        const auto transform_matrix = transform.getViewMatrix();
+        const auto camera_matrix = projection_matrix * transform_matrix;
 
         CameraConstants camera_constants{
                 .transform = camera_matrix,
@@ -802,7 +796,7 @@ struct App {
 
                         auto renderCache = create_render_cache(chunk_x, chunk_z);
                         if (renderCache.has_value()) {
-                            renderBlocks(chunk->rb, global_pallete, *renderCache);
+                            renderBlocks(chunk->rb, *renderCache);
                             chunk->needUpdate = true;
                         }
                     }
@@ -984,6 +978,7 @@ struct App {
 
 	void renderLayers(RenderLayer layer) {
 		for (auto chunk : chunkToRenders) {
+		    // todo: sometimes crash here
 			glBindVertexArray(chunk->mesh->vao);
 
 			auto [index_offset, index_count] = chunk->layers[(int) layer];

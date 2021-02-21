@@ -1,6 +1,6 @@
 #include "ChunkGenerator.hpp"
 
-#include "../../Chunk.hpp"
+#include "../chunk/Chunk.hpp"
 #include "../../worldgenregion.hpp"
 #include "../../util/Random.hpp"
 
@@ -10,19 +10,19 @@ struct ExampleStructurePiece : StructurePiece {
         boundingBox = StructureBoundingBox::withSize(pos_x - 1, 6, pos_z - 1, 3, 10, 3);
     }
 
-    void place(WorldGenRegion& region, BlockTable& pallete, StructureBoundingBox sbb) override {
+    void place(WorldGenRegion& region, StructureBoundingBox sbb) override {
         for (auto y = 0; y < 10; y++) {
-            setBlock(region, sbb, 0, y, 0, get(pallete, "iron_bars", 2 | 4));
-            setBlock(region, sbb, 0, y, 1, get(pallete, "wood", 0));
-            setBlock(region, sbb, 0, y, 2, get(pallete, "iron_bars", 8 | 4));
+            setBlock(region, sbb, 0, y, 0, {BlockIDs::iron_bars, 2 | 4});
+            setBlock(region, sbb, 0, y, 1, {BlockIDs::wood, 0});
+            setBlock(region, sbb, 0, y, 2, {BlockIDs::iron_bars, 8 | 4});
 
-            setBlock(region, sbb, 1, y, 0, get(pallete, "wood", 0));
-            setBlock(region, sbb, 1, y, 1, get(pallete, "wood", 0));
-            setBlock(region, sbb, 1, y, 2, get(pallete, "wood", 0));
+            setBlock(region, sbb, 1, y, 0, {BlockIDs::wood, 0});
+            setBlock(region, sbb, 1, y, 1, {BlockIDs::wood, 0});
+            setBlock(region, sbb, 1, y, 2, {BlockIDs::wood, 0});
 
-            setBlock(region, sbb, 2, y, 0, get(pallete, "iron_bars", 2 | 1));
-            setBlock(region, sbb, 2, y, 1, get(pallete, "wood", 0));
-            setBlock(region, sbb, 2, y, 2, get(pallete, "iron_bars", 8 | 1));
+            setBlock(region, sbb, 2, y, 0, {BlockIDs::iron_bars, 2 | 1});
+            setBlock(region, sbb, 2, y, 1, {BlockIDs::wood, 0});
+            setBlock(region, sbb, 2, y, 2, {BlockIDs::iron_bars, 8 | 1});
         }
     }
 
@@ -36,7 +36,6 @@ struct ExampleStructureStart : StructureStart {
         pieces.emplace_back(new ExampleStructurePiece(pos_x + 8, pos_z + 8));
     }
 };
-
 
 void ChunkGenerator::generateStructures(WorldGenRegion &region, Chunk& chunk) {
     if (std::abs(chunk.pos.x) % 2 == std::abs(chunk.pos.z) % 2) {
@@ -54,25 +53,25 @@ void ChunkGenerator::getStructureReferences(WorldGenRegion &region, Chunk& chunk
         for (auto z = chunk.pos.z - 8; z <= chunk.pos.z + 8; z++) {
             for (auto& start : region.getChunk(x, z)->structureStarts) {
                 if (sbb.intersect(start->boundingBox)) {
-//                    chunk.structureReferences.emplace_back(start);
+                    chunk.structureReferences.emplace_back(start);
                 }
             }
         }
     }
 }
 
-void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk, BlockTable &pallete) {
+void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
     Random random{};
 
     const auto chunkPos = region.getMainChunkPos();
     const auto seed = random.setDecorationSeed(region.getSeed(), chunkPos.getStartX(), chunkPos.getStartZ());
     const auto sbb = StructureBoundingBox::fromChunkPos(chunkPos.x, chunkPos.z);
 
-//        for (auto& structure : chunk.structureReferences) {
-//            for (auto& piece : structure.lock()->pieces) {
-//                piece->place(region, pallete, sbb);
-//            }
-//        }
+    for (auto& structure : chunk.structureReferences) {
+        for (auto& piece : structure->pieces) {
+            piece->place(region, sbb);
+        }
+    }
 
 //    for (int32_t x = 0; x < 16; x++) {
 //        for (int32_t z = 0; z < 16; z++) {

@@ -45,7 +45,6 @@ extern std::map<std::string, BlockGraphics> tile_datas;
 struct LiquidBlock;
 struct Block {
     static std::vector<Block*> id_to_block;
-    static std::vector<Block*> block_to_id;
 
 	[[maybe_unused]] static Block* acacia_button;
 	[[maybe_unused]] static Block* acacia_door;
@@ -408,7 +407,7 @@ struct Block {
 	}
 
 	static void initBlocks();
-	static void registerBlock(BlockTable& pallete, const std::string& name, Block* block);
+	static auto registerBlock(BlockTable& pallete, const std::string& name, Block* block) -> BlockID;
 	static void registerBlocks(BlockTable& pallete);
 
 	Tint tint = Tint::None;

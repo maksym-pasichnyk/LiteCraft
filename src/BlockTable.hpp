@@ -1,13 +1,11 @@
 #pragma once
 
+#include "ids.h"
+
 #include <string>
 #include <vector>
 #include <string_view>
 #include <unordered_map>
-
-enum class BlockID : unsigned short {
-    AIR = 1
-};
 
 struct BlockData {
     BlockID id = BlockID::AIR;

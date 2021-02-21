@@ -1,7 +1,7 @@
 #pragma once
 
-#include "src/world/gen/layer/traits/IAreaTransformer2.hpp"
-#include "src/world/gen/layer/traits/IDimOffset0Transformer.hpp"
+#include "traits/IAreaTransformer2.hpp"
+#include "traits/IDimOffset0Transformer.hpp"
 #include "LayerUtil.hpp"
 
 struct MixRiverLayer : IDimOffset0Transformer {

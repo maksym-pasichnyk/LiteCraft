@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/world/gen/area/IArea.hpp"
+#include "../area/IArea.hpp"
 
 #include <memory>
 

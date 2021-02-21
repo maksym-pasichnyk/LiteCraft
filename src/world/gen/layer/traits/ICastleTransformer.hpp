@@ -2,8 +2,8 @@
 
 #include "IAreaTransformer1.hpp"
 #include "IDimOffset1Transformer.hpp"
-#include "src/world/gen/IExtendedNoiseRandom.hpp"
-#include "src/world/gen/area/IArea.hpp"
+#include "../../IExtendedNoiseRandom.hpp"
+#include "../../area/IArea.hpp"
 
 template <typename T>
 concept cICastleTransformer = requires(T self, INoiseRandom& rand, int north, int west, int south, int east, int center) {

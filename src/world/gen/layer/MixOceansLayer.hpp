@@ -1,10 +1,10 @@
 #pragma once
 
-#include "src/world/gen/layer/traits/IAreaTransformer2.hpp"
-#include "src/world/gen/layer/traits/IDimOffset0Transformer.hpp"
-#include "src/world/gen/INoiseRandom.hpp"
+#include "traits/IAreaTransformer2.hpp"
+#include "traits/IDimOffset0Transformer.hpp"
+#include "../INoiseRandom.hpp"
+#include "../area/IArea.hpp"
 #include "LayerUtil.hpp"
-#include "src/world/gen/area/IArea.hpp"
 
 #include <memory>
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "INoiseRandom.hpp"
-#include "src/world/gen/area/IArea.hpp"
 
 #include <cstdint>
 #include <memory>

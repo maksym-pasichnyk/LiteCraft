@@ -3,9 +3,9 @@
 #include <utility>
 
 #include "IDimTransformer.hpp"
-#include "src/world/gen/IExtendedNoiseRandom.hpp"
-#include "src/world/gen/area/IAreaFactory.hpp"
-#include "src/world/gen/LazyAreaLayerContext.hpp"
+#include "../../IExtendedNoiseRandom.hpp"
+#include "../../area/IAreaFactory.hpp"
+#include "../../LazyAreaLayerContext.hpp"
 
 #include <functional>
 

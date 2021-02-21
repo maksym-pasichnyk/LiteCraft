@@ -1,11 +1,10 @@
 #include "Block.hpp"
-#include "Chunk.hpp"
+#include "world/chunk/Chunk.hpp"
 #include "BlockReader.hpp"
 #include "TextureAtlas.hpp"
 #include "ChunkRenderCache.h"
 
 #include <glm/vec3.hpp>
-#include <span>
 
 auto getTintColor(Tint tint) -> glm::u8vec3 {
 	if (tint == Tint::Grass) {
@@ -337,7 +336,7 @@ void renderPane(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, Chunk
     }
 }
 
-void renderBlocks(RenderBuffer& rb, BlockTable& global_pallete, ChunkRenderCache& blocks) {
+void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
 	rb.clear();
 
 	int32 start_x = blocks.chunk_x << 4;

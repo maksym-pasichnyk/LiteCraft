@@ -1,7 +1,7 @@
 #pragma once
 
-#include "src/world/gen/layer/traits/ICastleTransformer.hpp"
-#include "src/world/gen/INoiseRandom.hpp"
+#include "traits/ICastleTransformer.hpp"
+#include "../INoiseRandom.hpp"
 #include "LayerUtil.hpp"
 
 #include <memory>

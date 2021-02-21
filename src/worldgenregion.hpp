@@ -6,7 +6,7 @@
 #include <stdint.hpp>
 #include <array>
 
-#include "Chunk.hpp"
+#include "src/world/chunk/Chunk.hpp"
 #include "Block.hpp"
 
 struct Biome;

@@ -1,20 +1,23 @@
 #pragma once
 
-#include "src/SurfaceBuilder.h"
-#include "src/BlockTable.hpp"
-#include "src/util/Random.hpp"
-#include "src/world/gen/PerlinNoiseGenerator.hpp"
+#include "../../SurfaceBuilder.h"
+#include "../../BlockTable.hpp"
+#include "../../util/Random.hpp"
+#include "../gen/PerlinNoiseGenerator.hpp"
 
 #include <glm/vec3.hpp>
 #include <functional>
 #include <variant>
 #include <memory>
+#include <map>
 
 struct Chunk;
 
-using SurfaceBuilder = void (*)(BlockTable& pallete, Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel);
+using SurfaceBuilder = void (*)(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel);
 
 struct Biome {
+    static std::map<int, std::unique_ptr<Biome>> biomes;
+
 //    static PerlinNoiseGenerator TEMPERATURE_NOISE;
 //    static PerlinNoiseGenerator FROZEN_TEMPERATURE_NOISE;
     inline static const PerlinNoiseGenerator INFO_NOISE = PerlinNoiseGenerator(Random::from(2345), 0, 0);
@@ -128,12 +131,15 @@ struct Biome {
 ////        return temperatureModifier.getTemperatureAtPosition(pos, temperature);
 //    }
 
-    void buildSurface(BlockTable& pallete, Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int sealevel) {
-        top = {pallete.getId("grass")};
-        filler = {pallete.getId("stone")};
-        underWater = {pallete.getId("gravel")};
-        builder(pallete, rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top, filler, underWater, sealevel);
+    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int sealevel) {
+        top = {BlockIDs::grass, 0};
+        filler = {BlockIDs::stone, 0};
+        underWater = {BlockIDs::gravel, 0};
+        builder(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top, filler, underWater, sealevel);
     }
+
+    static void registerBiome(int id, Biome* biome);
+    static void registerBiomes();
 
 private:
     SurfaceBuilder builder;

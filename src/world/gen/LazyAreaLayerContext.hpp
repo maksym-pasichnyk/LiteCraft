@@ -2,6 +2,7 @@
 
 #include "IExtendedNoiseRandom.hpp"
 #include "ImprovedNoiseGenerator.hpp"
+#include "area/IArea.hpp"
 #include "../../util/FastRandom.hpp"
 
 #include <memory>

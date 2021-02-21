@@ -1,8 +1,8 @@
 #pragma once
 
-#include "src/world/gen/layer/traits/IAreaTransformer1.hpp"
-#include "src/world/gen/IExtendedNoiseRandom.hpp"
-#include "src/world/gen/area/IArea.hpp"
+#include "traits/IAreaTransformer1.hpp"
+#include "../IExtendedNoiseRandom.hpp"
+#include "../area/IArea.hpp"
 
 #include <memory>
 

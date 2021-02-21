@@ -1,5 +1,5 @@
 #include "DefaultSurfaceBuilder.h"
-#include "Chunk.hpp"
+#include "world/chunk/Chunk.hpp"
 #include "world/biome/Biome.hpp"
 
 #include <glm/glm.hpp>

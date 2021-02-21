@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/world/gen/layer/traits/ICastleTransformer.hpp"
+#include "traits/ICastleTransformer.hpp"
 #include "LayerUtil.hpp"
 
 #include <set>

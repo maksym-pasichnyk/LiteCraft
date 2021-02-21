@@ -43,13 +43,13 @@ class NoiseChunkGenerator : public ChunkGenerator {
     BlockData defaultFluid;
 
 public:
-    NoiseChunkGenerator(BlockTable& pallete);
+    NoiseChunkGenerator();
 
     double getRandomDensity(int x, int z);
     double sampleAndClampNoise(int x, int y, int z, double xzScale, double yScale, double xzFactor, double yFactor);
     void fillNoiseColumn(double column[33], int xpos, int zpos);
 
-    void makeBedrock(Chunk& chunk, BlockTable& pallete, Random& rand) const;
-    void generateSurface(WorldGenRegion& region, Chunk& chunk, BlockTable& pallete) override;
-    void generateTerrain(Chunk& chunk, BlockTable& pallete) override;
+    void makeBedrock(Chunk& chunk, Random& rand) const;
+    void generateSurface(WorldGenRegion& region, Chunk& chunk) override;
+    void generateTerrain(Chunk& chunk) override;
 };

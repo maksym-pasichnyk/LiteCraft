@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/world/gen/layer/traits/IC0Transformer.hpp"
+#include "traits/IC0Transformer.hpp"
 #include "LayerUtil.hpp"
 
 #include <span>

@@ -11,7 +11,15 @@
 //#include <range/v3/all.hpp>
 
 struct NativeImage {
-	void* pixels = nullptr;
+    struct ImageDataPtrFree {
+        void operator()(void* ptr) {
+            stbi_image_free(ptr);
+        }
+    };
+
+    using ImageDataPtr = std::unique_ptr<void, ImageDataPtrFree>;
+
+    ImageDataPtr pixels;
 	int width = 0;
 	int height = 0;
 	int channels = 0;
@@ -23,7 +31,7 @@ struct NativeImage {
 		auto pixels = stbi_load_from_memory(data, bytes.size(), &width, &height, &channels, 0);
 
 		return NativeImage{
-			.pixels = pixels,
+			.pixels = ImageDataPtr{pixels},
 			.width = width,
 			.height = height,
 			.channels = channels
@@ -32,7 +40,7 @@ struct NativeImage {
 };
 
 struct ResourcePack {
-	ResourcePack(std::filesystem::path path) : basePath(std::move(path)) {}
+	explicit ResourcePack(std::filesystem::path path) : basePath(std::move(path)) {}
 
 	std::filesystem::path getFullPath(const std::filesystem::path& path) {
 		return basePath / path;

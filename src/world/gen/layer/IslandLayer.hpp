@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/world/gen/layer/traits/IAreaTransformer0.hpp"
+#include "traits/IAreaTransformer0.hpp"
 
 #include <memory>
 

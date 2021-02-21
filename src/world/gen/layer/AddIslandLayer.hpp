@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/world/gen/layer/traits/IBishopTransformer.hpp"
+#include "traits/IBishopTransformer.hpp"
 #include "LayerUtil.hpp"
 
 #include <memory>

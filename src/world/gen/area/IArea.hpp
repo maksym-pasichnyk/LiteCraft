@@ -43,11 +43,9 @@ public:
         }
     }
 
-    void eraseFirst() {
-        if (!ls.empty()) {
-            hash.erase(ls.front());
-            ls.pop_front();
-        }
+    void pop_front() {
+        hash.erase(ls.front());
+        ls.pop_front();
     }
 
     bool contains(const K& k) const noexcept {
@@ -71,10 +69,7 @@ class LazyArea {
 public:
     explicit LazyArea(IPixelTransformer&& pixelTransformer, int maxCacheSize)
         : pixelTransformer(std::move(pixelTransformer))
-        , maxCacheSize(maxCacheSize)
-    {
-        assert(cache != nullptr);
-    }
+        , maxCacheSize(maxCacheSize) {}
 
     int getValue(int x, int z) const {
         const auto i = ChunkPos::asLong(x, z);
@@ -85,7 +80,8 @@ public:
         cache.insert(std::pair{i, v});
         if (cache.size() > maxCacheSize) {
             for (int j = 0; j < maxCacheSize / 16; ++j) {
-                cache.eraseFirst();
+                if (cache.empty()) break;
+                cache.pop_front();
             }
         }
         return v;

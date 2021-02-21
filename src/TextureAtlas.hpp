@@ -37,7 +37,7 @@ struct TextureAtlasSprite {
 		NativeImage image;
 
 		void *pixels() const {
-			return image.pixels;
+			return image.pixels.get();
 		}
 
 		int width() const {
@@ -134,8 +134,8 @@ struct TextureAtlasPack {
 		TextureRect rect;
 	};
 
-	void addSprite(const TextureAtlasSprite::Info& info) {
-		holders.emplace_back(std::make_unique<Holder>(info));
+	void addSprite(std::string path, NativeImage image) {
+		holders.emplace_back(std::make_unique<Holder>(TextureAtlasSprite::Info{std::move(path), std::move(image)}));
 	}
 
 	bool expandAndAllocateSlot(Holder* holder) {
@@ -147,11 +147,11 @@ struct TextureAtlasPack {
 		);
 
 		slots.reserve(2);
-		slots.emplace_back(new Slot(currentWidth, 0, textureSize - currentWidth, currentHeight));
+		slots.emplace_back(std::make_unique<Slot>(currentWidth, 0, textureSize - currentWidth, currentHeight));
 		if (slots.back()->canFit(holder->width, holder->height)) {
 			slot = slots.back().get();
 		}
-		slots.emplace_back(new Slot(0, currentHeight, textureSize, textureSize - currentHeight));
+		slots.emplace_back(std::make_unique<Slot>(0, currentHeight, textureSize, textureSize - currentHeight));
 		if (!slot && slots.back()->canFit(holder->width, holder->height)) {
 			slot = slots.back().get();
 		}
@@ -309,15 +309,15 @@ struct TextureAtlas /*: Texture*/ {
 		padding = object.at("padding").get<int>();
 		num_mip_levels = object.at("num_mip_levels").get<int>();
 
-		auto& texture_data = object.at("texture_data");
+		const auto& texture_data = object.at("texture_data");
 
 		std::vector<ParsedAtlasNode> nodes;
 		_loadAtlasNodes(texture_data, nodes);
 
 		std::set<std::string> requireTextures;
-		for (auto& node : nodes) {
-			for (auto& element : node.elements) {
-				requireTextures.emplace(/*std::move*/(element.path));
+		for (const auto& node : nodes) {
+			for (const auto& element : node.elements) {
+				requireTextures.emplace(element.path);
 			}
 		}
 
@@ -328,22 +328,22 @@ struct TextureAtlas /*: Texture*/ {
 //			| ranges::views::unique;
 
 		TextureAtlasPack textureAtlasPack{};
-		for (auto &path : requireTextures) {
-			textureAtlasPack.addSprite({path, resource_manager.loadTextureData(path).value()});
+		for (const auto &path : requireTextures) {
+			textureAtlasPack.addSprite(path, resource_manager.loadTextureData(path).value());
 		}
 		sheet = textureAtlasPack.build();
 
-		std::map<std::string, TextureAtlasSprite> sprites;
-		for (auto &sprite : sheet->sprites) {
+		std::map<std::string, std::reference_wrapper<const TextureAtlasSprite>> sprites;
+		for (const auto &sprite : sheet->sprites) {
 			sprites.emplace(sprite.info.path, sprite);
 		}
 
-		for (auto &node : nodes) {
+		for (const auto &node : nodes) {
 			auto& item = items[node.name];
 
 			item.textures.reserve(node.elements.size());
-			for (auto &element : node.elements) {
-				auto sprite = sprites.at(element.path);
+			for (const auto &element : node.elements) {
+				const auto& sprite = sprites.at(element.path).get();
 
 				TextureRect rect{
 						sprite.originX,

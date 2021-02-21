@@ -1,8 +1,8 @@
 #pragma once
 
-#include "src/world/gen/area/IAreaFactory.hpp"
-#include "src/world/gen/IExtendedNoiseRandom.hpp"
-#include "src/world/gen/LazyAreaLayerContext.hpp"
+#include "../../area/IAreaFactory.hpp"
+#include "../../IExtendedNoiseRandom.hpp"
+#include "../../LazyAreaLayerContext.hpp"
 
 #include <memory>
 #include <utility>

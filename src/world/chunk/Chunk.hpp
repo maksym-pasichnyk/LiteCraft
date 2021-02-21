@@ -1,10 +1,10 @@
 #pragma once
 
-#include "BlockTable.hpp"
-#include "BlockReader.hpp"
+#include "src/BlockTable.hpp"
+#include "src/BlockReader.hpp"
 
-#include "mesh.hpp"
-#include "Block.hpp"
+#include "src/mesh.hpp"
+#include "src/Block.hpp"
 #include "src/util/math/ChunkPos.hpp"
 
 #include <glm/vec3.hpp>
@@ -193,7 +193,7 @@ struct StructurePiece {
 
     virtual ~StructurePiece() = default;
 
-    virtual void place(WorldGenRegion& region, BlockTable& global_pallete, StructureBoundingBox bb) = 0;
+    virtual void place(WorldGenRegion& region, StructureBoundingBox bb) = 0;
 
     int get_x_with_offset(int x, int z) {
         switch (coordBaseMode) {
@@ -294,16 +294,19 @@ struct StructureStart {
     }
 };
 
-//std::
-
-#include <bitset>
-
-
 struct Heightmap {
-    int16_t data[16][16];
+    std::array<int32_t, 16 * 16> data;
 
-    int32_t get(int32_t x, int32_t z) {
-        return data[x][z];
+    Heightmap() {
+        data.fill(-1);
+    }
+
+    int32_t& operator[](size_t i) {
+        return data[i];
+    }
+
+    const int32_t& operator[](size_t i) const {
+        return data[i];
     }
 };
 
@@ -347,18 +350,16 @@ struct Chunk {
     std::array<std::unique_ptr<LightSection>, 16> skyLightSections{};
     std::array<std::unique_ptr<LightSection>, 16> blockLightSections{};
 
-    std::array<int32, 16 * 16> heightmap;
+    Heightmap heightmap{};
 
 	RenderBuffer rb{};
 	ChunkLayer layers[3]{};
     std::unique_ptr<Mesh> mesh{nullptr};
 
     std::vector<std::shared_ptr<StructureStart>> structureStarts;
-//    std::vector<std::weak_ptr<StructureStart>> structureReferences;
+    std::vector<std::shared_ptr<StructureStart>> structureReferences;
 
-    explicit Chunk(ChunkPos pos) : pos{pos} {
-        heightmap.fill(-1);
-    }
+    explicit Chunk(ChunkPos pos) : pos{pos} {}
 
     void setSkyLight(int32 x, int32 y, int32 z, int32 new_light) {
         auto& section = skyLightSections[y >> 4];
