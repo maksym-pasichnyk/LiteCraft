@@ -270,7 +270,7 @@ struct App {
     SDL_Window* window;
     SDL_GLContext context;
     ResourceManager resources{};
-    
+
     NetworkManager nm;
     NetworkClient networkClient;
 

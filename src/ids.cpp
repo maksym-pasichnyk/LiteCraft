@@ -1,4 +1,4 @@
-#include "ids.h"
+#include "ids.hpp"
 
 BlockID BlockIDs::acacia_button;
 BlockID BlockIDs::acacia_door;
