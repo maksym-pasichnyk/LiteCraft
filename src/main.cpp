@@ -13,7 +13,6 @@
 #include <set>
 #include <queue>
 #include <span>
-#include <valarray>
 #include <fmt/format.h>
 
 #include "input.hpp"
@@ -29,6 +28,8 @@
 #include "util/math/ChunkPos.hpp"
 #include "world/biome/Biome.hpp"
 #include "world/gen/NoiseChunkGenerator.hpp"
+#include "shader.hpp"
+#include "ClientChunkProvider.h"
 
 #include <SDL2/SDL.h>
 
@@ -36,116 +37,9 @@
 #include <backends/imgui_impl_sdl.h>
 #include <backends/imgui_impl_opengl3.h>
 
+#include <channel>
+
 extern void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks);
-
-std::map<std::string, BlockGraphics> tile_datas;
-
-struct LiquidNode {
-    glm::ivec3 pos;
-    int data;
-};
-
-struct ChunkArray {
-private:
-    int viewDistance = -1;
-    int sideLength = -1;
-    int loaded = 0;
-    std::atomic_int centerX{0};
-    std::atomic_int centerZ{0};
-    std::vector<std::atomic<Chunk*>> chunks;
-
-    static_assert(std::atomic<Chunk*>::is_always_lock_free);
-
-public:
-    void setViewDistance(int viewDistanceIn) {
-        viewDistance = viewDistanceIn;
-        sideLength = viewDistance * 2 + 1;
-        chunks = std::vector<std::atomic<Chunk*>>(sideLength * sideLength);
-    }
-
-    auto getLoaded() const -> int {
-        return loaded;
-    }
-
-    auto get(int32_t i) const -> Chunk* {
-        return chunks.at(i).load();
-    }
-
-    auto set(int32_t i, Chunk* chunk) {
-        auto old_chunk = chunks.at(i).exchange(chunk);
-
-        if (old_chunk) {
-            loaded -= 1;
-        }
-
-        if (chunk) {
-            loaded += 1;
-        }
-    }
-
-    auto getIndex(int32_t x, int32_t z) const -> int32_t {
-        return floorMod(z, sideLength) * sideLength + floorMod(x, sideLength);
-    }
-
-    auto inView(int x, int z) const -> bool {
-        return std::abs(x - centerX) <= viewDistance && std::abs(z - centerZ) <= viewDistance;
-    }
-
-    void setCenter(int32_t x, int32_t z) {
-        centerX = x;
-        centerZ = z;
-    }
-private:
-
-    static auto floorMod(int32_t x, int32_t y) -> int32_t {
-        return ((x % y) + y) % y;
-    }
-};
-
-struct ClientChunkProvider {
-    ChunkArray chunkArray;
-
-    ClientChunkProvider(int viewDistance) {
-        chunkArray.setViewDistance(viewDistance);
-    }
-
-    void loadChunk(int32 x, int32 z, Chunk* chunk) {
-        if (chunkArray.inView(x, z)) {
-            chunkArray.set(chunkArray.getIndex(x, z), chunk);
-        }
-
-        for (int chunk_x = x - 1; chunk_x <= x + 1; ++chunk_x) {
-            for (int chunk_z = z - 1; chunk_z <= z + 1; ++chunk_z) {
-                auto chunk = getChunk(chunk_x, chunk_z);
-                if (chunk) chunk->is_dirty = true;
-            }
-        }
-    }
-
-    void unloadChunk(int32 x, int32 z) {
-        if (chunkArray.inView(x, z)) {
-            const auto i = chunkArray.getIndex(x, z);
-            auto chunk = chunkArray.get(i);
-            if (isValid(chunk, x, z)) {
-                chunkArray.set(i, nullptr);
-            }
-        }
-    }
-
-    auto getChunk(int32 x, int32 z) const -> Chunk* {
-        if (chunkArray.inView(x, z)) {
-            auto chunk = chunkArray.get(chunkArray.getIndex(x, z));
-            if (isValid(chunk, x, z)) {
-                return chunk;
-            }
-        }
-        return nullptr;
-    }
-
-    static auto isValid(Chunk* chunk, int x, int z) -> bool {
-        return chunk != nullptr && chunk->pos.x == x && chunk->pos.z == z;
-    }
-};
 
 struct ClientWorld {
     std::unique_ptr<ClientChunkProvider> provider;
@@ -211,11 +105,12 @@ struct ClientWorld {
 
 ClientWorld client_world{};
 
+cpp::channel<ChunkPos> player_position_channel;
+
 struct World {
     NoiseChunkGenerator generator;
 //    WorldLightManager lightManager;
 
-    std::atomic<ChunkPos> player_position{ChunkPos::from(100, 100)};
     std::vector<std::jthread> workers{};
     std::map<int64, std::unique_ptr<Chunk>> chunks{};
 
@@ -280,11 +175,12 @@ struct World {
         auto last_player_position = ChunkPos::from(-9999,-9999);
 
         while (!token.stop_requested()) {
-            auto player_pos = player_position.load();
+            ChunkPos player_pos = player_position_channel.recv();
             if (last_player_position != player_pos) {
                 updatePlayerPosition(player_pos, last_player_position);
                 last_player_position = player_pos;
             }
+
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }
@@ -398,98 +294,10 @@ struct CameraConstants {
 	glm::vec3 position;
 };
 
-struct Clock {
-
-};
-
-struct Shader {
-    static std::string source(const std::string &path) {
-        std::ifstream file(path, std::ios::in);
-        std::stringstream stream{};
-        stream << file.rdbuf();
-        file.close();
-        return stream.str();
-    }
-
-    static bool validate(const GLuint program) {
-        GLint isLinked = 0;
-        glGetProgramiv(program, GL_LINK_STATUS, (int *)&isLinked);
-        if (isLinked == GL_FALSE) {
-            GLint maxLength = 0;
-            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
-            std::basic_string<GLchar> infoLog{};
-            infoLog.resize(maxLength);
-            glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
-            fmt::print("{}\n", infoLog);
-            return false;
-        }
-        return true;
-    }
-
-    static GLuint compile(const std::string &source, GLenum type) {
-        auto data = source.data();
-        auto size = GLint(source.size());
-
-        GLuint shader = glCreateShader(type);
-        glShaderSource(shader, 1, &data, &size);
-        glCompileShader(shader);
-
-        GLint length = 0;
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
-        if (length > 0) {
-            std::basic_string<GLchar> infoLog{};
-            infoLog.resize(length);
-            glGetShaderInfoLog(shader, length, &length, infoLog.data());
-            fmt::print("{}\n", infoLog);
-        }
-
-	    GLint status = GL_FALSE;
-        glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-        if (status == GL_FALSE) {
-            glDeleteShader(shader);
-            return 0;
-        }
-
-        return shader;
-    }
-
-    static GLuint create(const std::string &vertex_path, const std::string &fragment_path) {
-        auto vertex = compile(source(vertex_path), GL_VERTEX_SHADER);
-        auto fragment = compile(source(fragment_path), GL_FRAGMENT_SHADER);
-
-        GLuint program = glCreateProgram();
-        glAttachShader(program, vertex);
-        glAttachShader(program, fragment);
-
-        glLinkProgram(program);
-
-        glDeleteShader(vertex);
-        glDeleteShader(fragment);
-
-        GLint length = 0;
-        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
-        if (length > 0) {
-            std::basic_string<GLchar> infoLog{};
-            infoLog.resize(length);
-            glGetProgramInfoLog(program, length, &length, &infoLog[0]);
-            fmt::print("{}\n", infoLog);
-        }
-
-        GLint isLinked = 0;
-        glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
-        if (isLinked == GL_FALSE) {
-            glDeleteProgram(program);
-            return 0;
-        }
-        return program;
-    }
-};
-
 struct RenderFrame {
-    GLuint fbo;
-    GLuint render_texture;
-    GLuint depth_texture;
-    GLuint rbo;
+    GLuint framebuffer;
+    GLuint color_attachment;
+    GLuint depth_attachment;
 
     GLuint camera_ubo;
     void* camera_ptr;
@@ -503,13 +311,16 @@ struct App {
     ResourceManager resources{};
 
     Input input{};
-    Clock clock{};
     Camera camera{};
     Transform transform {
         .yaw = 0,
         .pitch = 0,
         .position = {637, 71, 220}
     };
+
+    int32 last_center_x = -9999;
+    int32 last_center_z = -9999;
+
 	glm::vec3 velocity{0, 0, 0};
 	int cooldown = 0;
 
@@ -559,7 +370,7 @@ struct App {
 		texture_atlas.loadMetaFile(resources);
 		texture_atlas.loadTexture();
 
-		loadBlocks();
+		BlockGraphics::loadMetaFile(resources, texture_atlas);
 
         Block::initBlocks();
         Block::registerBlocks(block_pallete);
@@ -577,19 +388,19 @@ struct App {
             glNamedBufferStorage(frames[i].camera_ubo, sizeof(CameraConstants), nullptr, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
             frames[i].camera_ptr = glMapNamedBufferRange(frames[i].camera_ubo, 0, sizeof(CameraConstants), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
 
-            glCreateTextures(GL_TEXTURE_2D, 1, &frames[i].render_texture);
-            glTextureStorage2D(frames[i].render_texture, 1, GL_RGB8, width, height);
-            glTextureParameteri(frames[i].render_texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTextureParameteri(frames[i].render_texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glCreateTextures(GL_TEXTURE_2D, 1, &frames[i].color_attachment);
+            glTextureStorage2D(frames[i].color_attachment, 1, GL_RGB8, width, height);
+            glTextureParameteri(frames[i].color_attachment, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTextureParameteri(frames[i].color_attachment, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-            glCreateRenderbuffers(1, &frames[i].rbo);
-            glNamedRenderbufferStorage(frames[i].rbo, GL_DEPTH24_STENCIL8, width, height);
+            glCreateRenderbuffers(1, &frames[i].depth_attachment);
+            glNamedRenderbufferStorage(frames[i].depth_attachment, GL_DEPTH24_STENCIL8, width, height);
 
-            glCreateFramebuffers(1, &frames[i].fbo);
-            glNamedFramebufferTexture(frames[i].fbo, GL_COLOR_ATTACHMENT0, frames[i].render_texture, 0);
-            glNamedFramebufferRenderbuffer(frames[i].fbo, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, frames[i].rbo);
+            glCreateFramebuffers(1, &frames[i].framebuffer);
+            glNamedFramebufferTexture(frames[i].framebuffer, GL_COLOR_ATTACHMENT0, frames[i].color_attachment, 0);
+            glNamedFramebufferRenderbuffer(frames[i].framebuffer, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, frames[i].depth_attachment);
 
-            if(glCheckNamedFramebufferStatus(frames[i].fbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            if(glCheckNamedFramebufferStatus(frames[i].framebuffer, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
                 fmt::print("ERROR::FRAMEBUFFER:: Framebuffer is not complete!: {}\n", glGetError());
             }
         }
@@ -604,65 +415,6 @@ struct App {
         ImGui_ImplSDL2_InitForOpenGL(window, context);
         ImGui_ImplOpenGL3_Init("#version 150");
     }
-
-	void loadBlocks() {
-		auto blocks = Json::parse(resources.loadFile("blocks.json").value(), nullptr, true, true);
-
-		using namespace std::string_view_literals;
-		for (auto& [name, data] : blocks.items()) {
-			if (name == "format_version"sv) continue;
-
-			BlockGraphics tile_data{};
-
-			if (data.contains("isotropic")) {
-				auto& isotropic = data["isotropic"];
-			}
-
-			if (data.contains("textures")) {
-				auto& textures = data["textures"];
-				if (textures.is_object()) {
-					tile_data.topTexture = texture_atlas.getTextureItem(textures["up"].get<std::string>());
-					tile_data.bottomTexture = texture_atlas.getTextureItem(textures["down"].get<std::string>());
-
-					if (textures.contains("side")) {
-						auto sideTexture = texture_atlas.getTextureItem(textures["side"].get<std::string>());
-						tile_data.southTexture = sideTexture;
-						tile_data.northTexture = sideTexture;
-						tile_data.eastTexture = sideTexture;
-						tile_data.westTexture = sideTexture;
-					} else {
-						tile_data.southTexture = texture_atlas.getTextureItem(textures["south"].get<std::string>());
-						tile_data.northTexture = texture_atlas.getTextureItem(textures["north"].get<std::string>());
-						tile_data.eastTexture = texture_atlas.getTextureItem(textures["east"].get<std::string>());
-						tile_data.westTexture = texture_atlas.getTextureItem(textures["west"].get<std::string>());
-					}
-				} else {
-					auto texture = texture_atlas.getTextureItem(textures.get<std::string>());
-
-					tile_data.topTexture = texture;
-					tile_data.bottomTexture = texture;
-					tile_data.southTexture = texture;
-					tile_data.northTexture = texture;
-					tile_data.eastTexture = texture;
-					tile_data.westTexture = texture;
-				}
-			}
-
-			if (data.contains("carried_textures")) {
-				auto& carried_textures = data["carried_textures"];
-			}
-
-			if (data.contains("sound")) {
-				auto& carried_textures = data["sound"];
-			}
-
-			if (data.contains("brightness_gamma")) {
-				auto& carried_textures = data["brightness_gamma"];
-			}
-
-			tile_datas.emplace(name, tile_data);
-		}
-	}
 
     void handleEvents() {
         SDL_PumpEvents();
@@ -750,7 +502,7 @@ struct App {
 
     void setup_camera() {
         const auto projection_matrix = camera.getProjection();
-        const auto transform_matrix = transform.getViewMatrix();
+        const auto transform_matrix = transform.getTransformMatrix(glm::vec3(0, 1.68, 0));
         const auto camera_matrix = projection_matrix * transform_matrix;
 
         CameraConstants camera_constants{
@@ -781,8 +533,15 @@ struct App {
     void setup_terrain() {
         int32 center_x = (int32) transform.position.x >> 4;
         int32 center_z = (int32) transform.position.z >> 4;
-        client_world.provider->chunkArray.setCenter(center_x, center_z);
-        world->player_position = {center_x, center_z};
+
+        if (last_center_x != center_x || last_center_z != center_z) {
+            last_center_x = center_x;
+            last_center_z = center_z;
+
+            client_world.provider->chunkArray.setCenter(center_x, center_z);
+            player_position_channel.send(ChunkPos::from(center_x, center_z));
+        }
+
 
         chunkToRenders.clear();
 
@@ -827,10 +586,10 @@ struct App {
             fog_offset = glm::vec2{0, 5 };
         }
 
-		glClearNamedFramebufferfv(frames[frameIndex].fbo, GL_COLOR, 0, color.data());
-		glClearNamedFramebufferfi(frames[frameIndex].fbo, GL_DEPTH_STENCIL, 0, 1, 0);
+		glClearNamedFramebufferfv(frames[frameIndex].framebuffer, GL_COLOR, 0, color.data());
+		glClearNamedFramebufferfi(frames[frameIndex].framebuffer, GL_DEPTH_STENCIL, 0, 1, 0);
 
-        glBindFramebuffer(GL_FRAMEBUFFER, frames[frameIndex].fbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, frames[frameIndex].framebuffer);
 
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, frames[frameIndex].camera_ubo);
 
@@ -910,6 +669,7 @@ struct App {
         int32 center_x = (int32) transform.position.x >> 4;
         int32 center_z = (int32) transform.position.z >> 4;
         client_world.provider->chunkArray.setCenter(center_x, center_z);
+        player_position_channel.send(ChunkPos::from(center_x, center_z));
 
         world = std::make_unique<World>();
 
@@ -966,7 +726,7 @@ struct App {
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-            glBlitNamedFramebuffer(frames[frameIndex].fbo, 0, 0, 0, 800, 600, 0, 0, 800, 600, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+            glBlitNamedFramebuffer(frames[frameIndex].framebuffer, 0, 0, 0, 800, 600, 0, 0, 800, 600, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

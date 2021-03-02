@@ -1,5 +1,7 @@
 #pragma once
 
+#include <span>
+#include <memory>
 #include <vector>
 #include <fstream>
 #include <optional>

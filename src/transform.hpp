@@ -16,8 +16,8 @@ struct Transform {
         return glm::translate(getRotationMatrix(), -position);
     }
 
-	auto getViewMatrix() -> glm::mat4 {
-        return glm::translate(getRotationMatrix(), -(position + glm::vec3(0, 1.68, 0)));
+	auto getTransformMatrix(glm::vec3 offset) -> glm::mat4 {
+        return glm::translate(getRotationMatrix(), -(position + offset));
     }
 
     auto forward() -> glm::vec3 {

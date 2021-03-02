@@ -6,7 +6,7 @@
 #include <string>
 #include <nlohmann/json.hpp>
 
-using Json = nlohmann::json;
+#include <GL/glew.h>
 
 struct TextureRect {
 	int x;
@@ -268,7 +268,7 @@ struct TextureAtlas /*: Texture*/ {
 
 	std::map<std::string, TextureAtlasTextureItem> items;
 
-	void _readElement(const Json& data, ParsedAtlasNodeElement& element) {
+	void _readElement(const nlohmann::json& data, ParsedAtlasNodeElement& element) {
 		if (data.is_string()) {
 			element.path = data.get<std::string>();
 		} else {
@@ -282,7 +282,7 @@ struct TextureAtlas /*: Texture*/ {
 		}
 	}
 
-	void _readNode(const Json& data, ParsedAtlasNode& node) {
+	void _readNode(const nlohmann::json& data, ParsedAtlasNode& node) {
 		node.quad = data.value<int>("quad", 0);
 
 		auto elements = data.at("textures");
@@ -295,14 +295,14 @@ struct TextureAtlas /*: Texture*/ {
 		}
 	}
 
-	void _loadAtlasNodes(const Json& data, std::vector<ParsedAtlasNode>& nodes) {
+	void _loadAtlasNodes(const nlohmann::json& data, std::vector<ParsedAtlasNode>& nodes) {
 		for (auto& item : data.items()) {
 			_readNode(item.value(), nodes.emplace_back(item.key()));
 		}
 	}
 
-	void loadMetaFile(ResourceManager& resource_manager) {
-		auto object = Json::parse(resource_manager.loadFile("textures/terrain_texture.json").value(), nullptr, true, true);
+	void loadMetaFile(ResourceManager& resources) {
+		auto object = nlohmann::json::parse(resources.loadFile("textures/terrain_texture.json").value(), nullptr, true, true);
 
 		auto resource_pack_name = object.at("resource_pack_name").get<std::string>();
 		texture_name = object.at("texture_name").get<std::string>();
@@ -329,7 +329,7 @@ struct TextureAtlas /*: Texture*/ {
 
 		TextureAtlasPack textureAtlasPack{};
 		for (const auto &path : requireTextures) {
-			textureAtlasPack.addSprite(path, resource_manager.loadTextureData(path).value());
+			textureAtlasPack.addSprite(path, resources.loadTextureData(path).value());
 		}
 		sheet = textureAtlasPack.build();
 

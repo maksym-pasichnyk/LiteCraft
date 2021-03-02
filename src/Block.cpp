@@ -1,4 +1,8 @@
 #include "Block.hpp"
+#include "resource_manager.hpp"
+#include "TextureAtlas.hpp"
+
+#include <nlohmann/json.hpp>
 
 std::vector<Block*> Block::id_to_block;
 
@@ -342,6 +346,67 @@ Block* Block::wooden_slab = nullptr;
 Block* Block::wool = nullptr;
 Block* Block::yellow_flower = nullptr;
 Block* Block::yellow_glazed_terracotta = nullptr;
+
+std::map<std::string, BlockGraphics> BlockGraphics::mBlocks;
+
+void BlockGraphics::loadMetaFile(ResourceManager& resources, TextureAtlas& atlas) {
+	auto blocks = nlohmann::json::parse(resources.loadFile("blocks.json").value(), nullptr, true, true);
+
+	using namespace std::string_view_literals;
+	for (auto& [name, data] : blocks.items()) {
+		if (name == "format_version"sv) continue;
+
+		BlockGraphics tile_data{};
+
+		if (data.contains("isotropic")) {
+			auto& isotropic = data["isotropic"];
+		}
+
+		if (data.contains("textures")) {
+			auto& textures = data["textures"];
+			if (textures.is_object()) {
+				tile_data.topTexture = atlas.getTextureItem(textures["up"].get<std::string>());
+				tile_data.bottomTexture = atlas.getTextureItem(textures["down"].get<std::string>());
+
+				if (textures.contains("side")) {
+					auto sideTexture = atlas.getTextureItem(textures["side"].get<std::string>());
+					tile_data.southTexture = sideTexture;
+					tile_data.northTexture = sideTexture;
+					tile_data.eastTexture = sideTexture;
+					tile_data.westTexture = sideTexture;
+				} else {
+					tile_data.southTexture = atlas.getTextureItem(textures["south"].get<std::string>());
+					tile_data.northTexture = atlas.getTextureItem(textures["north"].get<std::string>());
+					tile_data.eastTexture = atlas.getTextureItem(textures["east"].get<std::string>());
+					tile_data.westTexture = atlas.getTextureItem(textures["west"].get<std::string>());
+				}
+			} else {
+				auto texture = atlas.getTextureItem(textures.get<std::string>());
+
+				tile_data.topTexture = texture;
+				tile_data.bottomTexture = texture;
+				tile_data.southTexture = texture;
+				tile_data.northTexture = texture;
+				tile_data.eastTexture = texture;
+				tile_data.westTexture = texture;
+			}
+		}
+
+		if (data.contains("carried_textures")) {
+			auto& carried_textures = data["carried_textures"];
+		}
+
+		if (data.contains("sound")) {
+			auto& sound = data["sound"];
+		}
+
+		if (data.contains("brightness_gamma")) {
+			auto& brightness_gamma = data["brightness_gamma"];
+		}
+
+		mBlocks.emplace(name, tile_data);
+	}
+}
 
 void Block::initBlocks() {
 	acacia_button = new Block("acacia_button");

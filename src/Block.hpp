@@ -9,14 +9,20 @@
 #include "BlockTable.hpp"
 
 struct TextureAtlasTextureItem;
+struct ResourceManager;
+struct TextureAtlas;
 
 struct BlockGraphics {
+    static std::map<std::string, BlockGraphics> mBlocks;
+
 	TextureAtlasTextureItem* topTexture;
 	TextureAtlasTextureItem* bottomTexture;
 	TextureAtlasTextureItem* southTexture;
 	TextureAtlasTextureItem* northTexture;
 	TextureAtlasTextureItem* eastTexture;
 	TextureAtlasTextureItem* westTexture;
+
+    static void loadMetaFile(ResourceManager& resources, TextureAtlas& atlas);
 };
 
 enum class Tint {
@@ -39,8 +45,6 @@ enum class RenderLayer {
 	Cutout,
 	Transparent
 };
-
-extern std::map<std::string, BlockGraphics> tile_datas;
 
 struct LiquidBlock;
 struct Block {
@@ -388,7 +392,7 @@ struct Block {
 	[[maybe_unused]] static Block* yellow_glazed_terracotta;
 
 	explicit Block(const std::string& name) {
-        graphics = &tile_datas.at(name);
+        graphics = &BlockGraphics::mBlocks.at(name);
 	}
 
 	auto setRenderType(RenderType renderTypeIn) -> Block* {
@@ -415,11 +419,6 @@ struct Block {
 	RenderLayer renderLayer = RenderLayer::Opaque;
     BlockGraphics* graphics{nullptr};
 };
-
-//struct BlockState {
-//    Block* block = Block::air;
-//    int data = 0;
-//};
 
 struct LiquidBlock : Block {
     using Block::Block;
