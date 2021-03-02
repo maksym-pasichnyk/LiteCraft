@@ -29,7 +29,8 @@
 #include "world/biome/Biome.hpp"
 #include "world/gen/NoiseChunkGenerator.hpp"
 #include "shader.hpp"
-#include "ClientChunkProvider.h"
+#include "NetworkManager.hpp"
+#include "ClientWorld.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -37,90 +38,35 @@
 #include <backends/imgui_impl_sdl.h>
 #include <backends/imgui_impl_opengl3.h>
 
-#include <channel>
-
 extern void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks);
 
-struct ClientWorld {
-    std::unique_ptr<ClientChunkProvider> provider;
-
-    ClientWorld() {
-        provider = std::make_unique<ClientChunkProvider>(8);
-    }
-
-	void loadChunk(int32 x, int32 z, Chunk* chunk) {
-        provider->loadChunk(x, z, chunk);
-	}
-
-	void unloadChunk(int32 x, int32 z) {
-        provider->unloadChunk(x, z);
-	}
-
-	auto getChunk(int32 x, int32 z) const -> Chunk* {
-        return provider->getChunk(x, z);
-	}
-
-    auto getData(glm::ivec3 pos) const -> BlockData {
-        return getData(pos.x, pos.y, pos.z);
-    }
-
-	auto getData(int32 x, int32 y, int32 z) const -> BlockData {
-		if (y >= 0 && y < 256) {
-			if (auto chunk = getChunk(x >> 4, z >> 4)) {
-				return chunk->getData(x, y, z);
-			}
-		}
-		return {};
-	}
-
-    void setData(glm::ivec3 pos, BlockData blockData) {
-        setData(pos.x, pos.y, pos.z, blockData);
-    }
-
-	void setData(int32 x, int32 y, int32 z, BlockData blockData) {
-		if (y >= 0 && y < 256) {
-			if (auto chunk = getChunk(x >> 4, z >> 4)) {
-                chunk->setData(x, y, z, blockData);
-			}
-		}
-    }
-
-    auto getBlock(glm::ivec3 pos) const -> Block* {
-        return getBlock(pos.x, pos.y, pos.z);
-    }
-
-    auto getBlock(int32_t x, int32_t y, int32_t z) const -> Block* {
-        return Block::id_to_block[(int) getData(x, y, z).id];
-    }
-
-    auto getSkyLight(int32_t x, int32_t y, int32_t z) const -> int32 {
-        if (y >= 0 && y < 256) {
-            if (auto chunk = getChunk(x >> 4, z >> 4)) {
-                return chunk->getSkyLight(x, y, z);
-            }
-        }
-        return 0;
-	}
+enum class ClientPacketType {
+    UnloadChunk,
+    LoadChunk,
 };
 
-ClientWorld client_world{};
+struct ClientPacket {
+    ClientPacketType type;
+    int chunk_x;
+    int chunk_z;
+    Chunk* chunk;
+};
 
-cpp::channel<ChunkPos> player_position_channel;
-
-struct World {
+struct ServerWorld {
+    NetworkServer networkServer;
     NoiseChunkGenerator generator;
 //    WorldLightManager lightManager;
 
     std::vector<std::jthread> workers{};
     std::map<int64, std::unique_ptr<Chunk>> chunks{};
 
-    int64_t seed;
+    int64_t seed = 0;
 
-    World() {
-        workers.emplace_back(std::bind_front(&World::runWorker, this));
+    ServerWorld(NetworkServer networkServer) : networkServer{networkServer} {
+        workers.emplace_back(std::bind_front(&ServerWorld::runWorker, this));
     }
 
-    ~World() {
+    ~ServerWorld() {
     	workers.clear();
     }
 
@@ -130,13 +76,25 @@ struct World {
 
     void setChunkLoadedAtClient(int chunk_x, int chunk_z, bool wasLoaded, bool needLoad) {
         if (wasLoaded && !needLoad) {
-            client_world.unloadChunk(chunk_x, chunk_z);
+            ClientPacket packet {
+                .type = ClientPacketType::UnloadChunk,
+                .chunk_x = chunk_x,
+                .chunk_z = chunk_z
+            };
 
+            write(networkServer.fd, &packet, sizeof(ClientPacket));
             chunks.erase(ChunkPos::asLong(chunk_x, chunk_z));
         } else if (needLoad && !wasLoaded) {
             auto chunk = provideChunk(chunk_x, chunk_z, ChunkState::Full);
             if (chunk != nullptr) {
-                client_world.loadChunk(chunk_x, chunk_z, chunk);
+                ClientPacket packet {
+                        .type = ClientPacketType::LoadChunk,
+                        .chunk_x = chunk_x,
+                        .chunk_z = chunk_z,
+                        .chunk = chunk
+                };
+
+                write(networkServer.fd, &packet, sizeof(ClientPacket));
             }
         }
     }
@@ -174,11 +132,14 @@ struct World {
     void runWorker(std::stop_token&& token) {
         auto last_player_position = ChunkPos::from(-9999,-9999);
 
+        ChunkPos player_pos{};
         while (!token.stop_requested()) {
-            ChunkPos player_pos = player_position_channel.recv();
-            if (last_player_position != player_pos) {
-                updatePlayerPosition(player_pos, last_player_position);
-                last_player_position = player_pos;
+            int ret = read(networkServer.fd, &player_pos, sizeof(ChunkPos));
+            if (ret > 0) {
+                if (last_player_position != player_pos) {
+                    updatePlayerPosition(player_pos, last_player_position);
+                    last_player_position = player_pos;
+                }
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -309,6 +270,9 @@ struct App {
     SDL_Window* window;
     SDL_GLContext context;
     ResourceManager resources{};
+    
+    NetworkManager nm;
+    NetworkClient networkClient;
 
     Input input{};
     Camera camera{};
@@ -318,8 +282,8 @@ struct App {
         .position = {637, 71, 220}
     };
 
-    int32 last_center_x = -9999;
-    int32 last_center_z = -9999;
+    int32_t last_center_x = -9999;
+    int32_t last_center_z = -9999;
 
 	glm::vec3 velocity{0, 0, 0};
 	int cooldown = 0;
@@ -334,8 +298,9 @@ struct App {
 
     std::vector<Chunk*> chunkToRenders;
 
-    std::unique_ptr<Mesh> selection_mesh;
-    std::unique_ptr<World> world;
+    std::unique_ptr<Mesh> selection_mesh{nullptr};
+    std::unique_ptr<ServerWorld> serverWorld{nullptr};
+    std::unique_ptr<ClientWorld> clientWorld{nullptr};
 
     std::optional<RayTraceResult> rayTraceResult{std::nullopt};
 
@@ -343,7 +308,7 @@ struct App {
 
     std::array<RenderFrame, 2> frames;
 
-    App(const char* title, uint32 width, uint32 height) {
+    App(const char* title, uint32_t width, uint32_t height) {
 		stbi_set_flip_vertically_on_load(true);
 
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -377,10 +342,11 @@ struct App {
 
         Biome::registerBiomes();
 
-		world = std::make_unique<World>();
+        nm = NetworkManager::create().value();
+        networkClient = nm.client();
     }
 
-    void create_frames(uint32 width, uint32 height) {
+    void create_frames(uint32_t width, uint32_t height) {
         selection_mesh = std::make_unique<Mesh>();
 
         for (int i = 0; i < 2; i++) {
@@ -453,7 +419,7 @@ struct App {
 
 		rotate_camera(transform, mouse_delta, dt);
 
-        const auto topBlock = client_world.getBlock(transform.position.x, transform.position.y + 1, transform.position.z);
+        const auto topBlock = clientWorld->getBlock(transform.position.x, transform.position.y + 1, transform.position.z);
 
 		transform.position += calc_free_camera_velocity(input, transform, dt);
 
@@ -462,7 +428,7 @@ struct App {
 			.direction = transform.forward()
 		};
 
-		rayTraceResult = rayTraceBlocks(client_world, ray_trace_context);
+		rayTraceResult = rayTraceBlocks(*clientWorld, ray_trace_context);
 //        if (cooldown == 0 && rayTraceResult.has_value()) {
 //            std::set<int64> positions{};
 //            if (input.IsMouseButtonPressed(Input::MouseButton::Left)) {
@@ -470,7 +436,7 @@ struct App {
 //
 //                const auto pos = rayTraceResult->pos;
 //
-//                client_world.setData(pos, BlockData{BlockID::AIR, 0});
+//                clientWorld.setData(pos, BlockData{BlockID::AIR, 0});
 //
 //                for (int x = pos.x - 1; x <= pos.x + 1; x++) {
 //                    for (int z = pos.z - 1; z <= pos.z + 1; z++) {
@@ -482,10 +448,10 @@ struct App {
 //
 //                const auto pos = rayTraceResult->pos + rayTraceResult->dir;
 //
-//                client_world.setData(pos, BlockData{block_pallete.getId("water"), 0});
+//                clientWorld.setData(pos, BlockData{block_pallete.getId("water"), 0});
 //
-////                client_world.setData(pos, {Block::water, 0});
-//                client_world.liquids.emplace(pos);
+////                clientWorld.setData(pos, {Block::water, 0});
+//                clientWorld.liquids.emplace(pos);
 //
 //                for (int x = pos.x - 1; x <= pos.x + 1; x++) {
 //                    for (int z = pos.z - 1; z <= pos.z + 1; z++) {
@@ -495,7 +461,7 @@ struct App {
 //            }
 //
 //            for (auto position : positions) {
-//                client_world.provideChunk(position)->is_dirty = true;
+//                clientWorld.provideChunk(position)->is_dirty = true;
 //            }
 //		}
     }
@@ -519,7 +485,7 @@ struct App {
         usize i = 0;
         for (int32 z = chunk_z - 1; z <= chunk_z + 1; z++) {
             for (int32 x = chunk_x - 1; x <= chunk_x + 1; x++) {
-                auto chunk = client_world.getChunk(x, z);
+                auto chunk = clientWorld->getChunk(x, z);
                 if (chunk == nullptr) {
                     return std::nullopt;
                 }
@@ -531,23 +497,24 @@ struct App {
     }
 
     void setup_terrain() {
-        int32 center_x = (int32) transform.position.x >> 4;
-        int32 center_z = (int32) transform.position.z >> 4;
+        const auto center_x = static_cast<int32_t>(transform.position.x) >> 4;
+        const auto center_z = static_cast<int32_t>(transform.position.z) >> 4;
 
         if (last_center_x != center_x || last_center_z != center_z) {
             last_center_x = center_x;
             last_center_z = center_z;
 
-            client_world.provider->chunkArray.setCenter(center_x, center_z);
-            player_position_channel.send(ChunkPos::from(center_x, center_z));
-        }
+            clientWorld->provider->chunkArray.setCenter(center_x, center_z);
 
+            auto chunkPos = ChunkPos::from(center_x, center_z);
+            write(networkClient.fd, &chunkPos, sizeof(ChunkPos));
+        }
 
         chunkToRenders.clear();
 
         for (int32 chunk_x = center_x - 8; chunk_x <= center_x + 8; chunk_x++) {
             for (int32 chunk_z = center_z - 8; chunk_z <= center_z + 8; chunk_z++) {
-                auto chunk = client_world.getChunk(chunk_x, chunk_z);
+                auto chunk = clientWorld->getChunk(chunk_x, chunk_z);
 
                 if (chunk != nullptr) {
                     if (chunk->is_dirty) {
@@ -575,7 +542,7 @@ struct App {
     }
 
 	void render_terrain() {
-        const auto topBlock = client_world.getBlock(transform.position.x, std::floor(transform.position.y + 1.68), transform.position.z);
+        const auto topBlock = clientWorld->getBlock(transform.position.x, std::floor(transform.position.y + 1.68), transform.position.z);
         const bool is_liquid = topBlock->renderType == RenderType::Liquid;
 
         std::array<float, 4> color{0, 0.68, 1.0, 1};
@@ -666,12 +633,8 @@ struct App {
     void run() {
         using namespace std::chrono_literals;
 
-        int32 center_x = (int32) transform.position.x >> 4;
-        int32 center_z = (int32) transform.position.z >> 4;
-        client_world.provider->chunkArray.setCenter(center_x, center_z);
-        player_position_channel.send(ChunkPos::from(center_x, center_z));
-
-        world = std::make_unique<World>();
+        clientWorld = std::make_unique<ClientWorld>();
+        serverWorld = std::make_unique<ServerWorld>(nm.server());
 
         glm::ivec2 display_size;
         SDL_GetWindowSize(window, &display_size.x, &display_size.y);
@@ -679,7 +642,18 @@ struct App {
 
 		camera.setSize(display_size.x, display_size.y);
 
-        std::this_thread::sleep_for(1000ms);
+        {
+            const auto center_x = static_cast<int32_t>(transform.position.x) >> 4;
+            const auto center_z = static_cast<int32_t>(transform.position.z) >> 4;
+
+            last_center_x = center_x;
+            last_center_z = center_z;
+
+            clientWorld->provider->chunkArray.setCenter(center_x, center_z);
+
+            auto chunkPos = ChunkPos::from(center_x, center_z);
+            write(networkClient.fd, &chunkPos, sizeof(ChunkPos));
+        }
 
         double frameTime = 0;
         int frameCount = 0;
@@ -706,6 +680,23 @@ struct App {
             input.update();
             update_player_input(dt);
 
+            ClientPacket packet{};
+            while (true) {
+                int ret = read(networkClient.fd, &packet, sizeof(ClientPacket));
+                if (ret > 0) {
+                    switch (packet.type) {
+                        case ClientPacketType::LoadChunk:
+                            clientWorld->loadChunk(packet.chunk_x, packet.chunk_z, packet.chunk);
+                            break;
+                        case ClientPacketType::UnloadChunk:
+                            clientWorld->unloadChunk(packet.chunk_x, packet.chunk_z);
+                            break;
+                    }
+                } else {
+                    break;
+                }
+            }
+
             setup_camera();
             setup_terrain();
             render_terrain();
@@ -719,8 +710,8 @@ struct App {
             ImGui::Begin("Debug panel", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoSavedSettings);
             ImGui::Text("FPS: %d", FPS);
             ImGui::Text("Position: %.2f, %.2f, %.2f", transform.position.x, transform.position.y, transform.position.z);
-            ImGui::Text("Server chunks: %d", static_cast<int>(world->chunks.size()));
-            ImGui::Text("Client chunks: %d", client_world.provider->chunkArray.getLoaded());
+            ImGui::Text("Server chunks: %d", static_cast<int>(serverWorld->chunks.size()));
+            ImGui::Text("Client chunks: %d", clientWorld->provider->chunkArray.getLoaded());
             ImGui::End();
 
             ImGui::Render();
