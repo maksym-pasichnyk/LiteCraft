@@ -6,12 +6,26 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-struct NetworkClient {
-    int fd;
-};
+#include "Packet.hpp"
 
-struct NetworkServer {
+struct NetworkConnection {
     int fd;
+
+    template<Packet T>
+    void sendPacket(const T& packet) {
+        PacketHeader header {
+                .id = T::ID,
+                .size = sizeof(T)
+        };
+
+        write(fd, &header, sizeof(PacketHeader));
+        write(fd, &packet, sizeof(T));
+    }
+
+    void readPacket() {
+        PacketHeader header{};
+        read(fd, &header, sizeof(PacketHeader));
+    }
 };
 
 struct NetworkManager {
@@ -35,11 +49,11 @@ struct NetworkManager {
         return NetworkManager{sockets};
     }
 
-    auto client() const -> NetworkClient {
+    auto client() const -> NetworkConnection {
         return {.fd = sockets[0]};
     }
 
-    auto server() const -> NetworkServer {
+    auto server() const -> NetworkConnection {
         return {.fd = sockets[1]};
     }
 };

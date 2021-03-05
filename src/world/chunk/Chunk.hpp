@@ -378,9 +378,7 @@ private:
 struct Chunk {
     ChunkPos pos;
 	ChunkState state = ChunkState::Empty;
-	bool is_dirty = false;
-    bool needRender = false;
-    bool needUpdate = false;
+	bool needRender = false;
 
 	std::array<std::unique_ptr<ChunkSection>, 16> sections{};
     std::array<std::unique_ptr<LightSection>, 16> skyLightSections{};
@@ -402,21 +400,20 @@ struct Chunk {
     void setSkyLight(int32 x, int32 y, int32 z, int32 new_light) {
         auto& section = skyLightSections[y >> 4];
         if (section == nullptr) {
-            if (new_light == 15) {
+            if (new_light == /*15*/0) {
                 return;
             }
             section = std::make_unique<LightSection>();
         }
-        needRender = true;
-        section->setLight(x & 15, y & 15, z & 15, 15 - new_light);
+        section->setLight(x & 15, y & 15, z & 15, /*15 -*/ new_light);
     }
 
     auto getSkyLight(int32 x, int32 y, int32 z) const -> int32 {
         auto& section = skyLightSections[y >> 4];
         if (section == nullptr) {
-            return 15;
+            return /*15*/0;
         }
-        return 15 - section->getLight(x & 15, y & 15, z & 15);
+        return /*15 - */section->getLight(x & 15, y & 15, z & 15);
     }
 
     void setBlockLight(int32 x, int32 y, int32 z, int32 new_light) {
@@ -446,7 +443,6 @@ struct Chunk {
             }
             section = std::make_unique<Lightmap>();
         }
-        needRender = true;
         section->setLightS(x & 15, y & 15, z & 15, 15 - val);
     }
 

@@ -20,23 +20,19 @@ int vertexAO(int side1, int side2, int corner) {
     return side1 && side2 ? 0 : (3 - (side1 + side2 + corner));
 }
 
-void renderBlock(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
-	const auto fx = float(x);// - 0.2f;
-	const auto fy = float(y);// - 0.2f;
-	const auto fz = float(z);// - 0.2f;
+void renderBlockWithAO(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
+	const auto fx = float(x);
+	const auto fy = float(y);
+	const auto fz = float(z);
 
 	auto [r, g, b] = getTintColor(block->tint);
 
 	auto builder = rb.getForLayer(block->renderLayer);
 
-    float lights[4] {
-            0.3,
-            0.6,
-            0.9,
-            1
-    };
+    float aoLights[4] {0.3, 0.6, 0.9, 1 };
 
 	if (blocks.getBlock(x, y, z - 1)->renderType != block->renderType) {
+        const auto skyLight = blocks.getSkyLight(x, y, z - 1);
         const auto coords = block->graphics->southTexture->get(0);
 
         auto uf = blocks.getData(x, y + 1, z - 1).id != BlockID::AIR;
@@ -50,13 +46,14 @@ void renderBlock(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, Chun
         const int ao3 = vertexAO(ub, ur, blocks.getData(x + 1, y - 1, z - 1).id != BlockID::AIR);
 
 		builder.quad();
-		builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, int(0xF * lights[ao0] * 0.7) << 4);
-		builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.maxV, r, g, b, int(0xF * lights[ao1] * 0.7) << 4);
-		builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.maxV, r, g, b, int(0xF * lights[ao2] * 0.7) << 4);
-		builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, int(0xF * lights[ao3] * 0.7) << 4);
+		builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, int(skyLight * aoLights[ao0] * 0.7) << 4);
+		builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.maxV, r, g, b, int(skyLight * aoLights[ao1] * 0.7) << 4);
+		builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.maxV, r, g, b, int(skyLight * aoLights[ao2] * 0.7) << 4);
+		builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, int(skyLight * aoLights[ao3] * 0.7) << 4);
 	}
 
 	if (blocks.getBlock(x + 1, y, z)->renderType != block->renderType) {
+        const auto skyLight = blocks.getSkyLight(x + 1, y, z);
         const auto coords = block->graphics->eastTexture->get(0);
 
         auto uf = blocks.getData(x + 1, y - 1, z).id != BlockID::AIR;
@@ -70,13 +67,14 @@ void renderBlock(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, Chun
         const int ao3 = vertexAO(uf, ul, blocks.getData(x + 1, y - 1, z + 1).id != BlockID::AIR);
 
 		builder.quad();
-		builder.vertex(fx + 1, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, int(0xF * lights[ao0] * 0.8) << 4);
-		builder.vertex(fx + 1, fy + 1, fz + 0, coords.minU, coords.maxV, r, g, b, int(0xF * lights[ao1] * 0.8) << 4);
-		builder.vertex(fx + 1, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, int(0xF * lights[ao2] * 0.8) << 4);
-		builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, int(0xF * lights[ao3] * 0.8) << 4);
+		builder.vertex(fx + 1, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, int(skyLight * aoLights[ao0] * 0.8) << 4);
+		builder.vertex(fx + 1, fy + 1, fz + 0, coords.minU, coords.maxV, r, g, b, int(skyLight * aoLights[ao1] * 0.8) << 4);
+		builder.vertex(fx + 1, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, int(skyLight * aoLights[ao2] * 0.8) << 4);
+		builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, int(skyLight * aoLights[ao3] * 0.8) << 4);
 	}
 
 	if (blocks.getBlock(x, y, z + 1)->renderType != block->renderType) {
+        const auto skyLight = blocks.getSkyLight(x, y, z + 1);
         const auto coords = block->graphics->northTexture->get(0);
 
         auto uf = blocks.getData(x, y - 1, z + 1).id != BlockID::AIR;
@@ -90,13 +88,14 @@ void renderBlock(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, Chun
         const int ao3 = vertexAO(uf, ul, blocks.getData(x - 1, y - 1, z + 1).id != BlockID::AIR);
 
 		builder.quad();
-		builder.vertex(fx + 1, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, int(0xF * lights[ao0] * 0.8) << 4);
-		builder.vertex(fx + 1, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, int(0xF * lights[ao1] * 0.8) << 4);
-		builder.vertex(fx + 0, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, int(0xF * lights[ao2] * 0.8) << 4);
-		builder.vertex(fx + 0, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, int(0xF * lights[ao3] * 0.8) << 4);
+		builder.vertex(fx + 1, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, int(skyLight * aoLights[ao0] * 0.8) << 4);
+		builder.vertex(fx + 1, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, int(skyLight * aoLights[ao1] * 0.8) << 4);
+		builder.vertex(fx + 0, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, int(skyLight * aoLights[ao2] * 0.8) << 4);
+		builder.vertex(fx + 0, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, int(skyLight * aoLights[ao3] * 0.8) << 4);
 	}
 
 	if (blocks.getBlock(x - 1, y, z)->renderType != block->renderType) {
+        const auto skyLight = blocks.getSkyLight(x - 1, y, z);
         const auto coords = block->graphics->westTexture->get(0);
 
         auto uf = blocks.getData(x - 1, y - 1, z).id != BlockID::AIR;
@@ -110,14 +109,14 @@ void renderBlock(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, Chun
         const int ao3 = vertexAO(uf, ul, blocks.getData(x - 1, y - 1, z - 1).id != BlockID::AIR);
 
         builder.quad();
-		builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, int(0xF * lights[ao0] * 0.7) << 4);
-		builder.vertex(fx + 0, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, int(0xF * lights[ao1] * 0.7) << 4);
-		builder.vertex(fx + 0, fy + 1, fz + 0, coords.maxU, coords.maxV, r, g, b, int(0xF * lights[ao2] * 0.7) << 4);
-		builder.vertex(fx + 0, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, int(0xF * lights[ao3] * 0.7) << 4);
+		builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, int(skyLight * aoLights[ao0] * 0.7) << 4);
+		builder.vertex(fx + 0, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, int(skyLight * aoLights[ao1] * 0.7) << 4);
+		builder.vertex(fx + 0, fy + 1, fz + 0, coords.maxU, coords.maxV, r, g, b, int(skyLight * aoLights[ao2] * 0.7) << 4);
+		builder.vertex(fx + 0, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, int(skyLight * aoLights[ao3] * 0.7) << 4);
 	}
 
 	if (blocks.getBlock(x, y + 1, z)->renderType != block->renderType) {
-        const auto light = (blocks.getSkyLight(x, y + 1, z) << 4);
+        const auto skyLight = blocks.getSkyLight(x, y + 1, z);
 		const auto coords = block->graphics->topTexture->get(0);
 
         auto uf = blocks.getData(x, y + 1, z + 1).id != BlockID::AIR;
@@ -131,13 +130,14 @@ void renderBlock(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, Chun
         const int ao3 = vertexAO(ub, ur, blocks.getData(x + 1, y + 1, z - 1).id != BlockID::AIR);
 
 		builder.quad();
-		builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.minV, r, g, b, int(0xF * lights[ao0] * 1.0) << 4);
-		builder.vertex(fx + 0, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, int(0xF * lights[ao1] * 1.0) << 4);
-		builder.vertex(fx + 1, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, int(0xF * lights[ao2] * 1.0) << 4);
-		builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.minV, r, g, b, int(0xF * lights[ao3] * 1.0) << 4);
+		builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.minV, r, g, b, int(skyLight * aoLights[ao0] * 1.0) << 4);
+		builder.vertex(fx + 0, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, int(skyLight * aoLights[ao1] * 1.0) << 4);
+		builder.vertex(fx + 1, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, int(skyLight * aoLights[ao2] * 1.0) << 4);
+		builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.minV, r, g, b, int(skyLight * aoLights[ao3] * 1.0) << 4);
 	}
 
 	if (blocks.getBlock(x, y - 1, z)->renderType != block->renderType) {
+        const auto skyLight = blocks.getSkyLight(x, y - 1, z);
         const auto coords = block->graphics->bottomTexture->get(0);
 
         auto df = blocks.getData(x, y - 1, z + 1).id != BlockID::AIR;
@@ -157,17 +157,103 @@ void renderBlock(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, Chun
         }
 
 		builder.quad();
-		builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, int(0xF * lights[ao0] * 0.7) << 4);
-		builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.maxV, r, g, b, int(0xF * lights[ao1] * 0.7) << 4);
-		builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.maxV, r, g, b, int(0xF * lights[ao2] * 0.7) << 4);
-		builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, int(0xF * lights[ao3] * 0.7) << 4);
+		builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, int(skyLight * aoLights[ao0] * 0.7) << 4);
+		builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.maxV, r, g, b, int(skyLight * aoLights[ao1] * 0.7) << 4);
+		builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.maxV, r, g, b, int(skyLight * aoLights[ao2] * 0.7) << 4);
+		builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, int(skyLight * aoLights[ao3] * 0.7) << 4);
 	}
 }
 
+void renderBlockWithoutAO(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
+    const auto fx = float(x);
+    const auto fy = float(y);
+    const auto fz = float(z);
+
+    auto [r, g, b] = getTintColor(block->tint);
+
+    auto builder = rb.getForLayer(block->renderLayer);
+
+    if (blocks.getBlock(x, y, z - 1)->renderType != block->renderType) {
+        const auto skyLight = blocks.getSkyLight(x, y, z - 1);
+        const auto coords = block->graphics->southTexture->get(0);
+
+        builder.quad();
+        builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, int(skyLight * 0.7) << 4);
+        builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.maxV, r, g, b, int(skyLight * 0.7) << 4);
+        builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.maxV, r, g, b, int(skyLight * 0.7) << 4);
+        builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, int(skyLight * 0.7) << 4);
+    }
+
+    if (blocks.getBlock(x + 1, y, z)->renderType != block->renderType) {
+        const auto skyLight = blocks.getSkyLight(x + 1, y, z);
+        const auto coords = block->graphics->eastTexture->get(0);
+
+        builder.quad();
+        builder.vertex(fx + 1, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, int(skyLight * 0.8) << 4);
+        builder.vertex(fx + 1, fy + 1, fz + 0, coords.minU, coords.maxV, r, g, b, int(skyLight * 0.8) << 4);
+        builder.vertex(fx + 1, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, int(skyLight * 0.8) << 4);
+        builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, int(skyLight * 0.8) << 4);
+    }
+
+    if (blocks.getBlock(x, y, z + 1)->renderType != block->renderType) {
+        const auto skyLight = blocks.getSkyLight(x, y, z + 1);
+        const auto coords = block->graphics->northTexture->get(0);
+
+        builder.quad();
+        builder.vertex(fx + 1, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, int(skyLight * 0.8) << 4);
+        builder.vertex(fx + 1, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, int(skyLight * 0.8) << 4);
+        builder.vertex(fx + 0, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, int(skyLight * 0.8) << 4);
+        builder.vertex(fx + 0, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, int(skyLight * 0.8) << 4);
+    }
+
+    if (blocks.getBlock(x - 1, y, z)->renderType != block->renderType) {
+        const auto skyLight = blocks.getSkyLight(x - 1, y, z);
+        const auto coords = block->graphics->westTexture->get(0);
+
+        builder.quad();
+        builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, int(skyLight * 0.7) << 4);
+        builder.vertex(fx + 0, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, int(skyLight * 0.7) << 4);
+        builder.vertex(fx + 0, fy + 1, fz + 0, coords.maxU, coords.maxV, r, g, b, int(skyLight * 0.7) << 4);
+        builder.vertex(fx + 0, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, int(skyLight * 0.7) << 4);
+    }
+
+    if (blocks.getBlock(x, y + 1, z)->renderType != block->renderType) {
+        const auto skyLight = blocks.getSkyLight(x, y + 1, z);
+        const auto coords = block->graphics->topTexture->get(0);
+
+        builder.quad();
+        builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.minV, r, g, b, int(skyLight * 1.0) << 4);
+        builder.vertex(fx + 0, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, int(skyLight * 1.0) << 4);
+        builder.vertex(fx + 1, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, int(skyLight * 1.0) << 4);
+        builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.minV, r, g, b, int(skyLight * 1.0) << 4);
+    }
+
+    if (blocks.getBlock(x, y - 1, z)->renderType != block->renderType) {
+        const auto skyLight = blocks.getSkyLight(x, y - 1, z);
+        const auto coords = block->graphics->bottomTexture->get(0);
+
+        if (block->tint == Tint::Grass) {
+            r = 0xFF;
+            g = 0xFF;
+            b = 0xFF;
+        }
+
+        builder.quad();
+        builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, int(skyLight * 0.7) << 4);
+        builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.maxV, r, g, b, int(skyLight * 0.7) << 4);
+        builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.maxV, r, g, b, int(skyLight * 0.7) << 4);
+        builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, int(skyLight * 0.7) << 4);
+    }
+}
+
+void renderBlock(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks, bool ao) {
+    (ao ? renderBlockWithAO : renderBlockWithoutAO)(x, y, z, block, rb, blocks);
+}
+
 void renderCross(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
-	const auto fx = float(x);// - 0.2f;
-	const auto fy = float(y);// - 0.2f;
-	const auto fz = float(z);// - 0.2f;
+	const auto fx = float(x);
+	const auto fy = float(y);
+	const auto fz = float(z);
 
 	auto coords = block->graphics->southTexture->get(0);
 
@@ -351,8 +437,10 @@ void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
                 case RenderType::Air:
                 	break;
                 case RenderType::Block:
+                    renderBlock(x, y, z, block, rb, blocks, true);
+                    break;
                 case RenderType::Leaves:
-                	renderBlock(x, y, z, block, rb, blocks);
+                	renderBlock(x, y, z, block, rb, blocks, false);
                 	break;
                 case RenderType::Cross:
                 	renderCross(x, y, z, block, rb, blocks);
@@ -364,22 +452,6 @@ void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
                     renderPane(x, y, z, block, rb, blocks);
 					break;
 				}
-
-//                block = Block::id_to_block[(int) layers.id];
-//                switch (block->renderType) {
-//                case RenderType::Air:
-//                    break;
-//                case RenderType::Block:
-//                case RenderType::Leaves:
-//                    renderBlock(x, y, z, block, rb, blocks);
-//                    break;
-//                case RenderType::Cross:
-//                    renderCross(x, y, z, block, rb, blocks);
-//                    break;
-//                case RenderType::Liquid:
-//                    renderLiquid(x, y, z, block, rb, blocks);
-//                    break;
-//                }
             }
         }
     }

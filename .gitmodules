@@ -16,9 +16,3 @@
 [submodule "imgui"]
 	path = imgui
 	url = https://github.com/ocornut/imgui.git
-[submodule "asyncplusplus"]
-	path = asyncplusplus
-	url = https://github.com/Amanieu/asyncplusplus.git
-[submodule "cpp-channel"]
-	path = cpp-channel
-	url = https://github.com/ahorn/cpp-channel.git

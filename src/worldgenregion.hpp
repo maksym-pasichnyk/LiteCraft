@@ -125,4 +125,12 @@ struct WorldGenRegion {
     auto getSeed() const -> int64_t {
 	    return seed;
 	}
+
+    auto getTopBlockY(/*type, */int32_t x, int32_t z) -> int32_t {
+        return getChunk(x >> 4, z >> 4)->getTopBlockY(x, z);
+    }
+
+    auto getHeight(/*type, */int32_t x, int32_t z) -> int32_t {
+        return getChunk(x >> 4, z >> 4)->getHeight(x, z);
+    }
 };

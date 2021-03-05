@@ -15,7 +15,7 @@ struct ClientChunkProvider {
         for (int chunk_x = x - 1; chunk_x <= x + 1; ++chunk_x) {
             for (int chunk_z = z - 1; chunk_z <= z + 1; ++chunk_z) {
                 auto chunk = getChunk(chunk_x, chunk_z);
-                if (chunk) chunk->is_dirty = true;
+                if (chunk) chunk->needRender = true;
             }
         }
     }

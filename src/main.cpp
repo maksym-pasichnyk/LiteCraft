@@ -4,7 +4,6 @@
 #include <glm/glm.hpp>
 
 #include <map>
-#include <string>
 #include <memory>
 #include <thread>
 #include <atomic>
@@ -40,29 +39,172 @@
 
 extern void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks);
 
-enum class ClientPacketType {
-    UnloadChunk,
-    LoadChunk,
+struct WorldLightManager {
+    std::queue<glm::ivec3> sources;
+    std::queue<std::pair<glm::ivec3, int32_t>> removes;
+
+    void remove(WorldGenRegion& region, int32_t x, int32_t y, int32_t z, int32_t src_light, std::bitset<9>& mask) {
+        const auto light = region.getSkyLight(x, y, z);
+
+        if (light != 0 && light < src_light) {
+            mask.set(region.toIndex(x >> 4, z >> 4), true);
+
+            region.setSkyLight(x, y, z, 0);
+            removes.emplace(glm::ivec3(x, y, z), light);
+        } else if (light >= src_light) {
+            sources.emplace(x, y, z);
+        }
+    }
+
+    void propagate(WorldGenRegion& region, int32_t x, int32_t y, int32_t z, int32_t src_light, std::bitset<9>& mask) {
+        const auto light = region.getSkyLight(x, y, z);
+
+        const auto new_light = src_light - 1;
+
+        if (region.getData(x, y, z).id == BlockID::AIR && light < new_light) {
+            mask.set(region.toIndex(x >> 4, z >> 4), true);
+
+            region.setSkyLight(x, y, z, new_light);
+            sources.emplace(x, y, z);
+        }
+    }
+
+    void proccess(WorldGenRegion& region, std::bitset<9>& mask) {
+        while (!removes.empty()) {
+            const auto [pos, light] = removes.front();
+            const auto [x, y, z] = pos;
+            removes.pop();
+
+            remove(region, x + 1, y, z, light, mask);
+            remove(region, x - 1, y, z, light, mask);
+
+            remove(region, x, y, z - 1, light, mask);
+            remove(region, x, y, z + 1, light, mask);
+
+            remove(region, x, y + 1, z, light, mask);
+            remove(region, x, y - 1, z, light, mask);
+        }
+
+        while (!sources.empty()) {
+            const auto [x, y, z] = sources.front();
+            sources.pop();
+
+            const auto light = region.getSkyLight(x, y, z);
+            if (light <= 1) continue;
+
+            propagate(region, x + 1, y, z, light, mask);
+            propagate(region, x - 1, y, z, light, mask);
+
+            propagate(region, x, y, z - 1, light, mask);
+            propagate(region, x, y, z + 1, light, mask);
+
+            propagate(region, x, y + 1, z, light, mask);
+            propagate(region, x, y - 1, z, light, mask);
+        }
+
+        for (int i = 0; i < 9; i++) {
+            if (mask.test(i)) {
+                region.chunks[i]->needRender = true;
+            }
+        }
+    }
+
+    void column(WorldGenRegion& region, int32_t x, int32_t z) {
+        int32_t y = 255;
+        for (; y >= 0; --y) {
+            if (region.getData(x, y, z).id != BlockID::AIR) {
+                sources.emplace(x, y + 1, z);
+                break;
+            }
+
+            region.setSkyLight(x, y, z, 15);
+        }
+
+        for (; y >= 0; --y) {
+//            removes.emplace(glm::ivec3(x, y, z), 0);
+
+            sources.emplace(x + 1, y, z);
+            sources.emplace(x - 1, y, z);
+
+            sources.emplace(x, y, z - 1);
+            sources.emplace(x, y, z + 1);
+
+            sources.emplace(x, y + 1, z);
+            sources.emplace(x, y - 1, z);
+
+//            sources.emplace(x, y + 1, z);
+//            sources.emplace(x, y - 1, z);
+
+//            sources.emplace(x + 1, y, z);
+//            sources.emplace(x - 1, y, z);
+
+//            sources.emplace(x, y, z + 1);
+//            sources.emplace(x, y, z - 1);
+
+            region.setSkyLight(x, y, z, 0);
+        }
+    }
+
+    void calculate(WorldGenRegion& region, int32_t xPos, int32_t zPos) {
+        std::bitset<9> mask{};
+
+        for (int32_t x = xPos; x < xPos + 16; x++) {
+            for (int32_t z = zPos; z < zPos + 16; z++) {
+                column(region, x, z);
+            }
+        }
+
+        proccess(region, mask);
+    }
+
+    void update(WorldGenRegion& region, int32_t x, int32_t y, int32_t z, BlockData old, BlockData data) {
+        std::bitset<9> mask{};
+
+        if (data.id != BlockID::AIR) {
+            removes.emplace(glm::ivec3(x, y, z), region.getSkyLight(x, y, z));
+            region.setSkyLight(x, y, z, 0);
+        } else {
+//            removes.emplace(glm::ivec3(x, y, z), 0);
+
+            sources.emplace(x + 1, y, z);
+            sources.emplace(x - 1, y, z);
+
+            sources.emplace(x, y, z - 1);
+            sources.emplace(x, y, z + 1);
+
+            sources.emplace(x, y + 1, z);
+            sources.emplace(x, y - 1, z);
+        }
+
+        y -= 1;
+
+        for (; y >= 0; --y) {
+            removes.emplace(glm::ivec3(x, y, z), region.getSkyLight(x, y, z));
+
+            region.setSkyLight(x, y, z, 0);
+        }
+
+        column(region, x, z);
+
+        proccess(region, mask);
+    }
 };
 
-struct ClientPacket {
-    ClientPacketType type;
-    int chunk_x;
-    int chunk_z;
-    Chunk* chunk;
-};
 
 struct ServerWorld {
-    NetworkServer networkServer;
+    NetworkConnection connection;
     NoiseChunkGenerator generator;
-//    WorldLightManager lightManager;
+    WorldLightManager lightManager;
 
     std::vector<std::jthread> workers{};
     std::map<int64, std::unique_ptr<Chunk>> chunks{};
 
+//    glm::vec3 last_player_position{-99999, -99999, -99999};
+    ChunkPos last_player_position{-99999, -99999};
+
     int64_t seed = 0;
 
-    ServerWorld(NetworkServer networkServer) : networkServer{networkServer} {
+    ServerWorld(NetworkConnection connection) : connection{connection} {
         workers.emplace_back(std::bind_front(&ServerWorld::runWorker, this));
     }
 
@@ -76,25 +218,20 @@ struct ServerWorld {
 
     void setChunkLoadedAtClient(int chunk_x, int chunk_z, bool wasLoaded, bool needLoad) {
         if (wasLoaded && !needLoad) {
-            ClientPacket packet {
-                .type = ClientPacketType::UnloadChunk,
-                .chunk_x = chunk_x,
-                .chunk_z = chunk_z
-            };
+            connection.sendPacket(SUnloadChunkPacket{
+                .x = chunk_x,
+                .z = chunk_z
+            });
 
-            write(networkServer.fd, &packet, sizeof(ClientPacket));
             chunks.erase(ChunkPos::asLong(chunk_x, chunk_z));
         } else if (needLoad && !wasLoaded) {
             auto chunk = provideChunk(chunk_x, chunk_z, ChunkState::Full);
             if (chunk != nullptr) {
-                ClientPacket packet {
-                        .type = ClientPacketType::LoadChunk,
-                        .chunk_x = chunk_x,
-                        .chunk_z = chunk_z,
-                        .chunk = chunk
-                };
-
-                write(networkServer.fd, &packet, sizeof(ClientPacket));
+                connection.sendPacket(SLoadChunkPacket{
+                    .chunk = chunk,
+                    .x = chunk_x,
+                    .z = chunk_z
+                });
             }
         }
     }
@@ -129,19 +266,65 @@ struct ServerWorld {
         }
     }
 
-    void runWorker(std::stop_token&& token) {
-        auto last_player_position = ChunkPos::from(-9999,-9999);
-
-        ChunkPos player_pos{};
-        while (!token.stop_requested()) {
-            int ret = read(networkServer.fd, &player_pos, sizeof(ChunkPos));
-            if (ret > 0) {
-                if (last_player_position != player_pos) {
-                    updatePlayerPosition(player_pos, last_player_position);
-                    last_player_position = player_pos;
-                }
+    void executor_execute() {
+        while (true) {
+            PacketHeader header{};
+            if (read(connection.fd, &header, sizeof(PacketHeader)) <= 0) {
+                break;
             }
 
+            switch (header.id) {
+                case 2: {
+                    PositionPacket packet{};
+                    while (read(connection.fd, &packet, header.size) < 0) {
+                    }
+
+                    const auto player_pos = ChunkPos::from(
+                        static_cast<int32_t>(packet.pos.x) >> 4,
+                        static_cast<int32_t>(packet.pos.z) >> 4
+                    );
+
+                    if (last_player_position != player_pos) {
+                        updatePlayerPosition(player_pos, last_player_position);
+                        last_player_position = player_pos;
+                    }
+                    break;
+                }
+                case 3: {
+                    SChangeBlockPacket packet{};
+                    while (read(connection.fd, &packet, header.size) < 0) {
+                    }
+
+                    const auto pos = packet.pos;
+
+                    auto chunksInRadius = getChunksInRadius(1, pos.x >> 4, pos.z >> 4, ChunkState::Full);
+
+                    WorldGenRegion region{*chunksInRadius, 1, pos.x >> 4, pos.z >> 4, seed};
+
+                    auto old = region.getData(packet.pos);
+                    region.setData(packet.pos, packet.data);
+
+                    lightManager.update(region, pos.x, pos.y, pos.z, old, packet.data);
+
+                    std::set<ChunkPos> positions;
+                    for (int x = pos.x - 1; x <= pos.x + 1; x++) {
+                        for (int z = pos.z - 1; z <= pos.z + 1; z++) {
+                            positions.emplace(ChunkPos::from(x >> 4, z >> 4));
+                        }
+                    }
+
+                    for (auto [x, z] : positions) {
+                        region.getChunk(x, z)->needRender = true;
+                    }
+                }
+            }
+        }
+    }
+
+    void runWorker(std::stop_token&& token) {
+        ChunkPos player_pos{};
+        while (!token.stop_requested()) {
+            executor_execute();
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }
@@ -238,7 +421,7 @@ struct ServerWorld {
                     generator.generateFeatures(region, *chunk);
                     break;
                 case ChunkState::Light:
-//                    lightManager.calculateLight(region, chunk_x * 16, chunk_z * 16);
+                    lightManager.calculate(region, chunk_x * 16, chunk_z * 16);
                     break;
                 case ChunkState::Full:
                     break;
@@ -272,7 +455,7 @@ struct App {
     ResourceManager resources{};
 
     NetworkManager nm;
-    NetworkClient networkClient;
+    NetworkConnection connection;
 
     Input input{};
     Camera camera{};
@@ -343,7 +526,7 @@ struct App {
         Biome::registerBiomes();
 
         nm = NetworkManager::create().value();
-        networkClient = nm.client();
+        connection = nm.client();
     }
 
     void create_frames(uint32_t width, uint32_t height) {
@@ -429,41 +612,23 @@ struct App {
 		};
 
 		rayTraceResult = rayTraceBlocks(*clientWorld, ray_trace_context);
-//        if (cooldown == 0 && rayTraceResult.has_value()) {
-//            std::set<int64> positions{};
-//            if (input.IsMouseButtonPressed(Input::MouseButton::Left)) {
-//                cooldown = 10;
-//
-//                const auto pos = rayTraceResult->pos;
-//
-//                clientWorld.setData(pos, BlockData{BlockID::AIR, 0});
-//
-//                for (int x = pos.x - 1; x <= pos.x + 1; x++) {
-//                    for (int z = pos.z - 1; z <= pos.z + 1; z++) {
-//                        positions.emplace(ChunkPos::asLong(x >> 4, z >> 4));
-//                    }
-//                }
-//            } else if (input.IsMouseButtonPressed(Input::MouseButton::Right)) {
-//                cooldown = 10;
-//
-//                const auto pos = rayTraceResult->pos + rayTraceResult->dir;
-//
-//                clientWorld.setData(pos, BlockData{block_pallete.getId("water"), 0});
-//
-////                clientWorld.setData(pos, {Block::water, 0});
-//                clientWorld.liquids.emplace(pos);
-//
-//                for (int x = pos.x - 1; x <= pos.x + 1; x++) {
-//                    for (int z = pos.z - 1; z <= pos.z + 1; z++) {
-//                        positions.emplace(ChunkPos::asLong(x >> 4, z >> 4));
-//                    }
-//                }
-//            }
-//
-//            for (auto position : positions) {
-//                clientWorld.provideChunk(position)->is_dirty = true;
-//            }
-//		}
+        if (cooldown == 0 && rayTraceResult.has_value()) {
+            if (input.IsMouseButtonPressed(Input::MouseButton::Left)) {
+                cooldown = 10;
+
+                connection.sendPacket(SChangeBlockPacket{
+                    .pos = rayTraceResult->pos,
+                    .data = BlockData{BlockID::AIR, 0}
+                });
+            } else if (input.IsMouseButtonPressed(Input::MouseButton::Right)) {
+                cooldown = 10;
+
+                connection.sendPacket(SChangeBlockPacket{
+                    .pos = rayTraceResult->pos + rayTraceResult->dir,
+                    .data = BlockData{BlockIDs::stone, 0}
+                });
+            }
+		}
     }
 
     void setup_camera() {
@@ -496,6 +661,32 @@ struct App {
         return cache;
     }
 
+    void executor_execute() {
+        while (true) {
+            PacketHeader header{};
+            if (read(connection.fd, &header, sizeof(PacketHeader)) <= 0) {
+                break;
+            }
+
+            switch (header.id) {
+                case 1: {
+                    SUnloadChunkPacket packet{};
+                    while (read(connection.fd, &packet, header.size) < 0) {
+                    }
+                    clientWorld->unloadChunk(packet.x, packet.z);
+                    break;
+                }
+                case 2: {
+                    SLoadChunkPacket packet{};
+                    while (read(connection.fd, &packet, header.size) < 0) {
+                    }
+                    clientWorld->loadChunk(packet.x, packet.z, packet.chunk);
+                    break;
+                }
+            }
+        }
+    }
+
     void setup_terrain() {
         const auto center_x = static_cast<int32_t>(transform.position.x) >> 4;
         const auto center_z = static_cast<int32_t>(transform.position.z) >> 4;
@@ -506,8 +697,9 @@ struct App {
 
             clientWorld->provider->chunkArray.setCenter(center_x, center_z);
 
-            auto chunkPos = ChunkPos::from(center_x, center_z);
-            write(networkClient.fd, &chunkPos, sizeof(ChunkPos));
+            connection.sendPacket(PositionPacket{
+                .pos = transform.position
+            });
         }
 
         chunkToRenders.clear();
@@ -517,21 +709,18 @@ struct App {
                 auto chunk = clientWorld->getChunk(chunk_x, chunk_z);
 
                 if (chunk != nullptr) {
-                    if (chunk->is_dirty) {
-                        chunk->is_dirty = false;
+                    if (chunk->needRender) {
+                        chunk->needRender = false;
 
                         auto renderCache = create_render_cache(chunk_x, chunk_z);
                         if (renderCache.has_value()) {
                             renderBlocks(chunk->rb, *renderCache);
-                            chunk->needUpdate = true;
+
+                            chunk->updateMesh();
                         }
                     }
 
 //                    fmt::print("render chunk at {}, {}\n", chunk_x, chunk_z);
-                    if (chunk->needUpdate) {
-                        chunk->needUpdate = false;
-                        chunk->updateMesh();
-                    }
 
                     if (chunk->mesh) {
                         chunkToRenders.emplace_back(chunk);
@@ -651,8 +840,13 @@ struct App {
 
             clientWorld->provider->chunkArray.setCenter(center_x, center_z);
 
-            auto chunkPos = ChunkPos::from(center_x, center_z);
-            write(networkClient.fd, &chunkPos, sizeof(ChunkPos));
+            connection.sendPacket(PositionPacket{
+                .pos = transform.position
+            });
+        }
+
+        while (clientWorld->provider->chunkArray.getLoaded() != 289) {
+            executor_execute();
         }
 
         double frameTime = 0;
@@ -680,22 +874,7 @@ struct App {
             input.update();
             update_player_input(dt);
 
-            ClientPacket packet{};
-            while (true) {
-                int ret = read(networkClient.fd, &packet, sizeof(ClientPacket));
-                if (ret > 0) {
-                    switch (packet.type) {
-                        case ClientPacketType::LoadChunk:
-                            clientWorld->loadChunk(packet.chunk_x, packet.chunk_z, packet.chunk);
-                            break;
-                        case ClientPacketType::UnloadChunk:
-                            clientWorld->unloadChunk(packet.chunk_x, packet.chunk_z);
-                            break;
-                    }
-                } else {
-                    break;
-                }
-            }
+            executor_execute();
 
             setup_camera();
             setup_terrain();
@@ -757,7 +936,7 @@ private:
         auto forward = transform.forward();
         auto right = transform.right();
 
-        float moveSpeed = 100.f;
+        float moveSpeed = 10.f;
         if (input.IsKeyPressed(Input::Key::Up)) {
             velocity += forward * dt * moveSpeed;
         }
