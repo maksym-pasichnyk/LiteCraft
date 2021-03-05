@@ -1,11 +1,9 @@
 #include <GL/glew.h>
-#include <stdint.hpp>
 
+#include <stdint.hpp>
 #include <glm/glm.hpp>
 
-#include <map>
 #include <memory>
-#include <thread>
 #include <atomic>
 #include <mutex>
 #include <random>
@@ -22,14 +20,12 @@
 #include "BlockReader.hpp"
 #include "TextureAtlas.hpp"
 #include "raytrace.hpp"
-#include "worldgenregion.hpp"
 #include "ChunkRenderCache.h"
-#include "util/math/ChunkPos.hpp"
 #include "world/biome/Biome.hpp"
-#include "world/gen/NoiseChunkGenerator.hpp"
 #include "shader.hpp"
 #include "NetworkManager.hpp"
 #include "ClientWorld.hpp"
+#include "ServerWorld.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -38,400 +34,6 @@
 #include <backends/imgui_impl_opengl3.h>
 
 extern void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks);
-
-struct WorldLightManager {
-    std::queue<glm::ivec3> sources;
-    std::queue<std::pair<glm::ivec3, int32_t>> removes;
-
-    void remove(WorldGenRegion& region, int32_t x, int32_t y, int32_t z, int32_t src_light, std::bitset<9>& mask) {
-        const auto light = region.getSkyLight(x, y, z);
-
-        if (light != 0 && light < src_light) {
-            mask.set(region.toIndex(x >> 4, z >> 4), true);
-
-            region.setSkyLight(x, y, z, 0);
-            removes.emplace(glm::ivec3(x, y, z), light);
-        } else if (light >= src_light) {
-            sources.emplace(x, y, z);
-        }
-    }
-
-    void propagate(WorldGenRegion& region, int32_t x, int32_t y, int32_t z, int32_t src_light, std::bitset<9>& mask) {
-        const auto light = region.getSkyLight(x, y, z);
-
-        const auto new_light = src_light - 1;
-
-        if (region.getData(x, y, z).id == BlockID::AIR && light < new_light) {
-            mask.set(region.toIndex(x >> 4, z >> 4), true);
-
-            region.setSkyLight(x, y, z, new_light);
-            sources.emplace(x, y, z);
-        }
-    }
-
-    void proccess(WorldGenRegion& region, std::bitset<9>& mask) {
-        while (!removes.empty()) {
-            const auto [pos, light] = removes.front();
-            const auto [x, y, z] = pos;
-            removes.pop();
-
-            remove(region, x + 1, y, z, light, mask);
-            remove(region, x - 1, y, z, light, mask);
-
-            remove(region, x, y, z - 1, light, mask);
-            remove(region, x, y, z + 1, light, mask);
-
-            remove(region, x, y + 1, z, light, mask);
-            remove(region, x, y - 1, z, light, mask);
-        }
-
-        while (!sources.empty()) {
-            const auto [x, y, z] = sources.front();
-            sources.pop();
-
-            const auto light = region.getSkyLight(x, y, z);
-            if (light <= 1) continue;
-
-            propagate(region, x + 1, y, z, light, mask);
-            propagate(region, x - 1, y, z, light, mask);
-
-            propagate(region, x, y, z - 1, light, mask);
-            propagate(region, x, y, z + 1, light, mask);
-
-            propagate(region, x, y + 1, z, light, mask);
-            propagate(region, x, y - 1, z, light, mask);
-        }
-
-        for (int i = 0; i < 9; i++) {
-            if (mask.test(i)) {
-                region.chunks[i]->needRender = true;
-            }
-        }
-    }
-
-    void column(WorldGenRegion& region, int32_t x, int32_t z) {
-        int32_t y = 255;
-        for (; y >= 0; --y) {
-            if (region.getData(x, y, z).id != BlockID::AIR) {
-                sources.emplace(x, y + 1, z);
-                break;
-            }
-
-            region.setSkyLight(x, y, z, 15);
-        }
-
-        for (; y >= 0; --y) {
-//            removes.emplace(glm::ivec3(x, y, z), 0);
-
-            sources.emplace(x + 1, y, z);
-            sources.emplace(x - 1, y, z);
-
-            sources.emplace(x, y, z - 1);
-            sources.emplace(x, y, z + 1);
-
-            sources.emplace(x, y + 1, z);
-            sources.emplace(x, y - 1, z);
-
-//            sources.emplace(x, y + 1, z);
-//            sources.emplace(x, y - 1, z);
-
-//            sources.emplace(x + 1, y, z);
-//            sources.emplace(x - 1, y, z);
-
-//            sources.emplace(x, y, z + 1);
-//            sources.emplace(x, y, z - 1);
-
-            region.setSkyLight(x, y, z, 0);
-        }
-    }
-
-    void calculate(WorldGenRegion& region, int32_t xPos, int32_t zPos) {
-        std::bitset<9> mask{};
-
-        for (int32_t x = xPos; x < xPos + 16; x++) {
-            for (int32_t z = zPos; z < zPos + 16; z++) {
-                column(region, x, z);
-            }
-        }
-
-        proccess(region, mask);
-    }
-
-    void update(WorldGenRegion& region, int32_t x, int32_t y, int32_t z, BlockData old, BlockData data) {
-        std::bitset<9> mask{};
-
-        if (data.id != BlockID::AIR) {
-            removes.emplace(glm::ivec3(x, y, z), region.getSkyLight(x, y, z));
-            region.setSkyLight(x, y, z, 0);
-        } else {
-//            removes.emplace(glm::ivec3(x, y, z), 0);
-
-            sources.emplace(x + 1, y, z);
-            sources.emplace(x - 1, y, z);
-
-            sources.emplace(x, y, z - 1);
-            sources.emplace(x, y, z + 1);
-
-            sources.emplace(x, y + 1, z);
-            sources.emplace(x, y - 1, z);
-        }
-
-        y -= 1;
-
-        for (; y >= 0; --y) {
-            removes.emplace(glm::ivec3(x, y, z), region.getSkyLight(x, y, z));
-
-            region.setSkyLight(x, y, z, 0);
-        }
-
-        column(region, x, z);
-
-        proccess(region, mask);
-    }
-};
-
-
-struct ServerWorld {
-    NetworkConnection connection;
-    NoiseChunkGenerator generator;
-    WorldLightManager lightManager;
-
-    std::vector<std::jthread> workers{};
-    std::map<int64, std::unique_ptr<Chunk>> chunks{};
-
-//    glm::vec3 last_player_position{-99999, -99999, -99999};
-    ChunkPos last_player_position{-99999, -99999};
-
-    int64_t seed = 0;
-
-    ServerWorld(NetworkConnection connection) : connection{connection} {
-        workers.emplace_back(std::bind_front(&ServerWorld::runWorker, this));
-    }
-
-    ~ServerWorld() {
-    	workers.clear();
-    }
-
-    static auto getChunkDistance(ChunkPos chunkPos, int chunk_x, int chunk_z) -> int {
-        return std::max(std::abs(chunkPos.x - chunk_x), std::abs(chunkPos.z - chunk_z));
-    }
-
-    void setChunkLoadedAtClient(int chunk_x, int chunk_z, bool wasLoaded, bool needLoad) {
-        if (wasLoaded && !needLoad) {
-            connection.sendPacket(SUnloadChunkPacket{
-                .x = chunk_x,
-                .z = chunk_z
-            });
-
-            chunks.erase(ChunkPos::asLong(chunk_x, chunk_z));
-        } else if (needLoad && !wasLoaded) {
-            auto chunk = provideChunk(chunk_x, chunk_z, ChunkState::Full);
-            if (chunk != nullptr) {
-                connection.sendPacket(SLoadChunkPacket{
-                    .chunk = chunk,
-                    .x = chunk_x,
-                    .z = chunk_z
-                });
-            }
-        }
-    }
-
-    void updatePlayerPosition(ChunkPos newChunkPos, ChunkPos oldChunkPos) {
-        if (std::abs(newChunkPos.x - oldChunkPos.x) <= 2 * 8 && std::abs(newChunkPos.z - oldChunkPos.z) <= 2 * 8) {
-            const int xStart = std::min(newChunkPos.x, oldChunkPos.x) - 8;
-            const int zStart = std::min(newChunkPos.z, oldChunkPos.z) - 8;
-            const int xEnd = std::max(newChunkPos.x, oldChunkPos.x) + 8;
-            const int zEnd = std::max(newChunkPos.z, oldChunkPos.z) + 8;
-
-            for (int chunk_x = xStart; chunk_x <= xEnd; chunk_x++) {
-                for (int chunk_z = zStart; chunk_z <= zEnd; chunk_z++) {
-                    const bool wasLoaded = getChunkDistance(oldChunkPos, chunk_x, chunk_z) <= 8;
-                    const bool needLoad = getChunkDistance(newChunkPos, chunk_x, chunk_z) <= 8;
-
-                    setChunkLoadedAtClient(chunk_x, chunk_z, wasLoaded, needLoad);
-                }
-            }
-        } else {
-            for (int32 chunk_x = oldChunkPos.x - 8; chunk_x <= oldChunkPos.x + 8; chunk_x++) {
-                for (int32 chunk_z = oldChunkPos.z - 8; chunk_z <= oldChunkPos.z + 8; chunk_z++) {
-                    setChunkLoadedAtClient(chunk_x, chunk_z, true, false);
-                }
-            }
-
-            for (int32 chunk_x = newChunkPos.x - 8; chunk_x <= newChunkPos.x + 8; chunk_x++) {
-                for (int32 chunk_z = newChunkPos.z - 8; chunk_z <= newChunkPos.z + 8; chunk_z++) {
-                    setChunkLoadedAtClient(chunk_x, chunk_z, false, true);
-                }
-            }
-        }
-    }
-
-    void executor_execute() {
-        while (true) {
-            PacketHeader header{};
-            if (read(connection.fd, &header, sizeof(PacketHeader)) <= 0) {
-                break;
-            }
-
-            switch (header.id) {
-                case 2: {
-                    PositionPacket packet{};
-                    while (read(connection.fd, &packet, header.size) < 0) {
-                    }
-
-                    const auto player_pos = ChunkPos::from(
-                        static_cast<int32_t>(packet.pos.x) >> 4,
-                        static_cast<int32_t>(packet.pos.z) >> 4
-                    );
-
-                    if (last_player_position != player_pos) {
-                        updatePlayerPosition(player_pos, last_player_position);
-                        last_player_position = player_pos;
-                    }
-                    break;
-                }
-                case 3: {
-                    SChangeBlockPacket packet{};
-                    while (read(connection.fd, &packet, header.size) < 0) {
-                    }
-
-                    const auto pos = packet.pos;
-
-                    auto chunksInRadius = getChunksInRadius(1, pos.x >> 4, pos.z >> 4, ChunkState::Full);
-
-                    WorldGenRegion region{*chunksInRadius, 1, pos.x >> 4, pos.z >> 4, seed};
-
-                    auto old = region.getData(packet.pos);
-                    region.setData(packet.pos, packet.data);
-
-                    lightManager.update(region, pos.x, pos.y, pos.z, old, packet.data);
-
-                    std::set<ChunkPos> positions;
-                    for (int x = pos.x - 1; x <= pos.x + 1; x++) {
-                        for (int z = pos.z - 1; z <= pos.z + 1; z++) {
-                            positions.emplace(ChunkPos::from(x >> 4, z >> 4));
-                        }
-                    }
-
-                    for (auto [x, z] : positions) {
-                        region.getChunk(x, z)->needRender = true;
-                    }
-                }
-            }
-        }
-    }
-
-    void runWorker(std::stop_token&& token) {
-        ChunkPos player_pos{};
-        while (!token.stop_requested()) {
-            executor_execute();
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        }
-    }
-
-    auto getChunk(int32 chunk_x, int32 chunk_z, ChunkState state) -> Chunk* {
-        const auto pos = ChunkPos::from(chunk_x, chunk_z);
-        auto it = chunks.find(pos.asLong());
-        if (it != chunks.end()) {
-            auto chunk = it->second.get();
-            if (chunk->state >= state) {
-                return chunk;
-            }
-        }
-        return nullptr;
-    }
-
-    auto getChunksInRadius(int32 radius, int32 chunk_x, int32 chunk_z, ChunkState state) -> std::optional<std::vector<Chunk*>> {
-        if (radius == -1) return {};
-
-        const usize count = radius * 2 + 1;
-        std::vector<Chunk*> ret{count * count};
-
-        usize i = 0;
-        for (int32 z = chunk_z - radius; z <= chunk_z + radius; z++) {
-            for (int32 x = chunk_x - radius; x <= chunk_x + radius; x++) {
-                auto chunk = provideChunk(x, z, state);
-                if (chunk == nullptr) {
-                    return std::nullopt;
-                }
-                ret.at(i++) = chunk;
-            }
-        }
-
-        return std::move(ret);
-    }
-
-    auto getTaskRange(ChunkState state) {
-        switch (state) {
-            case ChunkState::Empty:
-                return -1;
-            case ChunkState::StructureStart:
-                return 0;
-            case ChunkState::StructureReferences:
-                return 0;
-            case ChunkState::Noise:
-                return 0;
-            case ChunkState::Surface:
-                return 0;
-            case ChunkState::Features:
-                return 0;
-            case ChunkState::Light:
-                return 1;
-            case ChunkState::Full:
-                return 0;
-        }
-        return -1;
-    }
-
-    auto chunkLoad(int32 chunk_x, int32 chunk_z) -> Chunk* {
-        const auto pos = ChunkPos::from(chunk_x, chunk_z);
-        auto it = chunks.find(pos.asLong());
-        if (it == chunks.end()) {
-            it = chunks.emplace(pos.asLong(), std::make_unique<Chunk>(pos)).first;
-        }
-        return it->second.get();
-    }
-
-    auto provideChunk(int32 chunk_x, int32 chunk_z, ChunkState state = ChunkState::Full) -> Chunk* {
-        auto chunk = chunkLoad(chunk_x, chunk_z);
-
-        for (int i = (int) chunk->state + 1; i <= (int) state; i++) {
-            const auto parent_state = (ChunkState) ((int) i - 1);
-            const auto range = getTaskRange((ChunkState) i);
-            auto chunksInRadius = getChunksInRadius(range, chunk_x, chunk_z, parent_state);
-
-            WorldGenRegion region{*chunksInRadius, range, chunk_x, chunk_z, seed};
-
-            switch ((ChunkState) i) {
-                case ChunkState::Empty:
-                    break;
-                case ChunkState::StructureStart:
-                    generator.generateStructures(region, *chunk);
-                    break;
-            case ChunkState::StructureReferences:
-//                    generator.getStructureReferences(region, *chunk);
-                    break;
-                case ChunkState::Noise:
-                    generator.generateTerrain(*chunk);
-                    break;
-                case ChunkState::Surface:
-                    generator.generateSurface(region, *chunk);
-                    break;
-                case ChunkState::Features:
-                    generator.generateFeatures(region, *chunk);
-                    break;
-                case ChunkState::Light:
-                    lightManager.calculate(region, chunk_x * 16, chunk_z * 16);
-                    break;
-                case ChunkState::Full:
-                    break;
-            }
-
-            chunk->state = (ChunkState) i;
-        }
-		return chunk;
-    }
-};
 
 struct CameraConstants {
 	glm::mat4 transform;
@@ -498,6 +100,7 @@ struct App {
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
+
         window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
         context = SDL_GL_CreateContext(window);
 
@@ -508,7 +111,9 @@ struct App {
         create_frames(width, height);
         create_imgui();
 
-		resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla"));
+//        SDL_GL_SetSwapInterval(0);
+
+        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla"));
 
         simple_pipeline = Shader::create("../resources/simple.vert", "../resources/simple.frag");
         opaque_pipeline = Shader::create("../resources/default.vert", "../resources/default.frag");
@@ -524,6 +129,9 @@ struct App {
         Block::registerBlocks(block_pallete);
 
         Biome::registerBiomes();
+
+        BiomeDefinition::loadMetaFile();
+        BiomeDefinition::registerBiomes();
 
         nm = NetworkManager::create().value();
         connection = nm.client();
@@ -840,7 +448,7 @@ struct App {
 
             clientWorld->provider->chunkArray.setCenter(center_x, center_z);
 
-            connection.sendPacket(PositionPacket{
+            connection.sendPacket(SpawnPlayerPacket{
                 .pos = transform.position
             });
         }
@@ -936,7 +544,7 @@ private:
         auto forward = transform.forward();
         auto right = transform.right();
 
-        float moveSpeed = 10.f;
+        float moveSpeed = 100.f;
         if (input.IsKeyPressed(Input::Key::Up)) {
             velocity += forward * dt * moveSpeed;
         }

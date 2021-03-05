@@ -7,12 +7,6 @@
 #include <string_view>
 #include <unordered_map>
 
-struct BlockData {
-    BlockID id = BlockID::AIR;
-    uint16_t val = 0;
-};
-
-
 struct BlockTable {
     BlockTable(const BlockTable&) = delete;
     BlockTable& operator=(const BlockTable&) = delete;

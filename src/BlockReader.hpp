@@ -4,8 +4,7 @@
 #include <concepts>
 #include <glm/vec3.hpp>
 
-#include "Block.hpp"
-#include "BlockTable.hpp"
+#include "BlockData.hpp"
 
 template <typename T>
 concept IBlockReader = requires(T& self, BlockData blockData, int32 x, int32 y, int32 z, glm::ivec3 pos) {

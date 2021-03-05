@@ -6,11 +6,12 @@
 #include <vector>
 #include <string>
 
-#include "BlockTable.hpp"
-
 struct TextureAtlasTextureItem;
 struct ResourceManager;
 struct TextureAtlas;
+struct BlockTable;
+
+enum class BlockID : unsigned short;
 
 struct BlockGraphics {
     static std::map<std::string, BlockGraphics> mBlocks;

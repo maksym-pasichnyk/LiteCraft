@@ -134,8 +134,6 @@ NoiseChunkGenerator::NoiseChunkGenerator() {
     noiseSizeY = dimensionHeight / verticalNoiseGranularity;
     noiseSizeZ = 16 / horizontalNoiseGranularity;
 
-
-
     auto randomSeed = Random::from(seed);
     minLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, -15, 0);
     maxLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, -15, 0);
@@ -395,28 +393,4 @@ void NoiseChunkGenerator::generateTerrain(Chunk& chunk) {
 
         std::swap(noises[0], noises[1]);
     }
-
-
-//    const auto xStart = chunk.pos.getStartX();
-//    const auto zStart = chunk.pos.getStartZ();
-//
-//    Random random{};
-//    random.setBaseChunkSeed(chunk.pos.x, chunk.pos.z);
-//
-//    for (auto x = xStart; x < xStart + 16; x++) {
-//        for (auto z = zStart; z < zStart + 16; z++) {
-//            const auto noise = getNoiseValue(x, z);
-//            const auto height = static_cast<int32_t>(noise * 60 + 40);
-//
-//            chunk.heightmap[x & 15][z & 15] = height;
-//
-//            for (auto y = 0; y < height; y++) {
-//                chunk.setData(x, y, z, BlockData{pallete.getId("grass"), 0});
-//            }
-//
-//            for (auto y = height; y < 68; y++) {
-//                chunk.setData(x, y, z, BlockData{pallete.getId("water"), 0});
-//            }
-//        }
-//    }
 }

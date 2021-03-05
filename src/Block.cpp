@@ -1,4 +1,5 @@
 #include "Block.hpp"
+#include "BlockTable.hpp"
 #include "resource_manager.hpp"
 #include "TextureAtlas.hpp"
 

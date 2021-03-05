@@ -1,5 +1,8 @@
 #include "Biome.hpp"
 #include "../chunk/Chunk.hpp"
+#include "../../resource_manager.hpp"
+
+#include <nlohmann/json.hpp>
 
 struct ISurfaceBuilder {
     virtual void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) = 0;
@@ -21,7 +24,7 @@ struct DefaultSurface {
 
         for(int yPos = startHeight; yPos >= 0; --yPos) {
             BlockData blockstate2 = chunk.getData(xPos, yPos, zPos);
-            if (/*blockstate2.isAir()*/blockstate2.id == BlockID::AIR) {
+            if (blockstate2.isAir()) {
                 i = -1;
             } else if (/*blockstate2.isIn(defaultBlock.getData())*/ blockstate2.id == defaultBlock.id) {
                 if (i == -1) {
@@ -33,7 +36,7 @@ struct DefaultSurface {
                         blockstate1 = filler;
                     }
 
-                    if (yPos < sealevel && /*(blockstate == null || blockstate.isAir())*/ blockstate.id == BlockID::AIR) {
+                    if (yPos < sealevel && blockstate.isAir()) {
 //                    if (biome->getTemperature(xStart, yPos, zStart) < 0.15F) {
 //                        blockstate = Blocks.ICE.getDefaultState();
 //                    } else {
@@ -54,12 +57,15 @@ struct DefaultSurface {
                 } else if (i > 0) {
                     --i;
                     chunk.setData(xPos, yPos, zPos, blockstate1/*, false*/);
-//                if (i == 0 && blockstate1.isIn(Blocks.SAND) && j > 1) {
-//                    i = random.nextInt(4) + Math.max(0, yPos - 63);
-//                    blockstate1 = blockstate1.isIn(Blocks.RED_SAND)
-//                                  ? Blocks.RED_SANDSTONE.getDefaultState()
-//                                  : Blocks.SANDSTONE.getDefaultState();
-//                }
+                    if (i == 0 && /*blockstate1.isIn(Block::sand)*/ (blockstate1.id == BlockIDs::sand && blockstate1.val == 0) && j > 1) {
+                        i = rand.nextInt(4) + std::max(0, yPos - 63);
+//                        blockstate1 = blockstate1.isIn(Blocks.RED_SAND)
+//                                      ? Blocks.RED_SANDSTONE.getDefaultState()
+//                                      : Blocks.SANDSTONE.getDefaultState();
+//                        blockstate1 = blockstate1.isIn(Blocks.RED_SAND)
+//                                      ? Blocks.RED_SANDSTONE.getDefaultState()
+//                                      : Blocks.SANDSTONE.getDefaultState();
+                    }
                 }
             }
         }
@@ -69,9 +75,16 @@ struct DefaultSurface {
 struct MountainSurface {
     static void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) {
         if (noise > 1.0) {
-            DefaultSurface::buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top/*stone*/, filler/*stone*/, underWater/*gravel*/, sealevel);
+            const BlockData stone{BlockIDs::stone, 0};
+            const BlockData gravel{BlockIDs::gravel, 0};
+
+            DefaultSurface::buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, stone, stone, gravel, sealevel);
         } else {
-            DefaultSurface::buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top/*grass*/, filler/*dirt*/, underWater/*gravel*/, sealevel);
+            const BlockData grass{BlockIDs::grass, 0};
+            const BlockData dirt{BlockIDs::dirt, 0};
+            const BlockData gravel{BlockIDs::gravel, 0};
+
+            DefaultSurface::buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, grass, dirt, gravel, sealevel);
         }
     }
 };
@@ -113,8 +126,6 @@ struct GiantTreeTaigaSurface {
 };
 
 struct SwampSurface {
-//    {pallete.getId("grass")}, {pallete.getId("dirt")}, {pallete.getId("gravel")}
-
     static void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) {
         double d0 = Biome::INFO_NOISE.noiseAt((double)xStart * 0.25, (double)zStart * 0.25, false);
         if (d0 > 0.0) {
@@ -122,7 +133,7 @@ struct SwampSurface {
             const int j = zStart & 15;
 
             for(int k = startHeight; k >= 0; --k) {
-                if (/*!chunk.getData(i, k, j).isAir()*/chunk.getData(i, k, j).id != BlockID::AIR) {
+                if (!chunk.getData(i, k, j).isAir()) {
 //                    if (k == 62 && !chunkIn.getBlockState(i, k, j).isIn(defaultFluid.getData())) {
                     if (k == 62 && chunk.getData(i, k, j).id != defaultFluid.id) {
                         chunk.setData(i, k, j, defaultFluid/*, false*/);
@@ -182,15 +193,140 @@ void Biome::registerBiome(int id, Biome* biome) {
     biomes[id] = std::unique_ptr<Biome>(biome);
 }
 
+Biome* makeOceanBiome() {
+    auto biome = new Biome(-1.0, 0.1, DefaultSurface::buildSurface);
+    biome->top = BlockData{BlockIDs::grass, 0};
+    biome->filler = BlockData{BlockIDs::dirt, 0};
+    biome->underWater = BlockData{BlockIDs::gravel, 0};
+    return biome;
+}
+
+Biome* makePlainsBiome() {
+    auto biome = new Biome(0.125, 0.05, DefaultSurface::buildSurface);
+    biome->top = BlockData{BlockIDs::grass, 0};
+    biome->filler = BlockData{BlockIDs::dirt, 0};
+    biome->underWater = BlockData{BlockIDs::gravel, 0};
+    return biome;
+}
+
+Biome* makeDesertBiome(float depth, float scale) {
+    auto biome = new Biome(depth, scale, DefaultSurface::buildSurface);
+    biome->top = BlockData{BlockIDs::sand, 0};
+    biome->filler = BlockData{BlockIDs::sand, 0};
+    biome->underWater = BlockData{BlockIDs::gravel, 0};
+    return biome;
+}
+
+Biome* makeMountainBiome(float depth, float scale) {
+    auto biome = new Biome(depth, scale, MountainSurface::buildSurface);
+    biome->top = BlockData{BlockIDs::grass, 0};
+    biome->filler = BlockData{BlockIDs::dirt, 0};
+    biome->underWater = BlockData{BlockIDs::gravel, 0};
+    return biome;
+}
+
+Biome* makeForestBiome(float depth, float scale) {
+    auto biome = new Biome(depth, scale, DefaultSurface::buildSurface);
+    biome->top = BlockData{BlockIDs::grass, 0};
+    biome->filler = BlockData{BlockIDs::dirt, 0};
+    biome->underWater = BlockData{BlockIDs::gravel, 0};
+    return biome;
+}
+
+Biome* makeTaigaBiome(float depth, float scale) {
+    auto biome = new Biome(depth, scale, DefaultSurface::buildSurface);
+    biome->top = BlockData{BlockIDs::grass, 0};
+    biome->filler = BlockData{BlockIDs::dirt, 0};
+    biome->underWater = BlockData{BlockIDs::gravel, 0};
+    return biome;
+}
+
+Biome* makeSwampBiome(float depth, float scale) {
+    auto biome = new Biome(depth, scale, SwampSurface::buildSurface);
+    biome->top = BlockData{BlockIDs::grass, 0};
+    biome->filler = BlockData{BlockIDs::dirt, 0};
+    biome->underWater = BlockData{BlockIDs::gravel, 0};
+    return biome;
+}
+
+Biome* makeRiverBiome(float depth, float scale, float temperature) {
+    auto biome = new Biome(depth, scale, DefaultSurface::buildSurface);
+
+    biome->temperature = temperature;
+
+    biome->top = BlockData{BlockIDs::grass, 0};
+    biome->filler = BlockData{BlockIDs::dirt, 0};
+    biome->underWater = BlockData{BlockIDs::gravel, 0};
+    return biome;
+}
+
+void BiomeDefinition::loadMetaFile() {
+    using namespace std::string_view_literals;
+
+    for (const auto& e : std::filesystem::directory_iterator("../assets/definitions/biomes")) {
+        if (e.is_regular_file()) {
+            std::vector<char> bytes(std::filesystem::file_size(e.path()));
+            std::ifstream stream{e.path(), std::ios::binary};
+            stream.read(bytes.data(), bytes.size());
+            stream.close();
+
+            auto obj = nlohmann::json::parse(bytes, nullptr, true, true);
+            auto format = obj.erase(obj.find("format_version")).value();
+            auto& biome = obj.find("minecraft:biome").value();
+            auto& components = biome.find("components").value();
+
+            for (auto& [k, v] : components.items()) {
+                const auto split_pos = k.find_first_of(':');
+                if (split_pos != std::string::npos) {
+                    auto ns = std::string_view(k).substr(0, split_pos);
+                    auto component = std::string_view(k).substr(split_pos + 1);
+
+                    if (component == "climate"sv) {
+
+                    } else if (component == "overworld_height"sv) {
+
+                    } else if (component == "surface_parameters"sv) {
+
+                    } else if (component == "surface_material_adjustments"sv) {
+
+                    } else if (component == "swamp_surface"sv) {
+
+                    } else if (component == "frozen_ocean_surface"sv) {
+
+                    } else if (component == "mesa_surface"sv) {
+
+                    } else if (component == "nether_surface"sv) {
+
+                    } else if (component == "the_end_surface"sv) {
+
+                    } else if (component == "overworld_generation_rules"sv) {
+
+                    } else if (component == "nether_generation_rules"sv) {
+
+                    }
+                } else {
+                    // this is biome tag
+                }
+            }
+//            fmt::print("{}\n", obj.dump(4));
+        }
+    }
+}
+
+void BiomeDefinition::registerBiomes() {
+
+}
+
+
 void Biome::registerBiomes() {
-    registerBiome(0, new Biome(-1.0, 0.1, DefaultSurface::buildSurface));
-    registerBiome(1, new Biome(0.125, 0.05, DefaultSurface::buildSurface));
-    registerBiome(2, new Biome(0.125, 0.05, DefaultSurface::buildSurface));
-    registerBiome(3, new Biome(1.0, 0.5, MountainSurface::buildSurface));
-    registerBiome(4, new Biome(0.1, 0.2, DefaultSurface::buildSurface));
-    registerBiome(5, new Biome(0.2, 0.2, DefaultSurface::buildSurface));
-    registerBiome(6, new Biome(-0.2, 0.1, SwampSurface::buildSurface));
-    registerBiome(7, new Biome(-0.5, 0.0, DefaultSurface::buildSurface));
+    registerBiome(0, makeOceanBiome());
+    registerBiome(1, makePlainsBiome());
+    registerBiome(2, makeDesertBiome(0.125, 0.05));
+    registerBiome(3, makeMountainBiome(1.0, 0.5));
+    registerBiome(4, makeForestBiome(0.1, 0.2));
+    registerBiome(5, makeTaigaBiome(0.2, 0.2));
+    registerBiome(6, makeSwampBiome(-0.2, 0.1));
+    registerBiome(7, makeRiverBiome(-0.5, 0.0, 0.5));
     registerBiome(8, new Biome(0.1, 0.2, NetherSurface::buildSurface));
     registerBiome(9, new Biome(0.1, 0.2, DefaultSurface::buildSurface));
     registerBiome(10, new Biome(-1.0, 0.1, FrozenOceanSurface::buildSurface));

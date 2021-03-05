@@ -2,7 +2,9 @@
 
 #include "../../SurfaceBuilder.h"
 #include "../../BlockTable.hpp"
+#include "../../BlockData.hpp"
 #include "../../util/Random.hpp"
+#include "../../resource_manager.hpp"
 #include "../gen/PerlinNoiseGenerator.hpp"
 
 #include <glm/vec3.hpp>
@@ -12,8 +14,16 @@
 #include <map>
 
 struct Chunk;
+struct ResourceManager;
 
 using SurfaceBuilder = void (*)(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel);
+
+struct BiomeDefinition {
+    static std::map<std::string, std::unique_ptr<Biome>> biomes;
+
+    static void loadMetaFile();
+    static void registerBiomes();
+};
 
 struct Biome {
     static std::map<int, std::unique_ptr<Biome>> biomes;
@@ -108,14 +118,18 @@ struct Biome {
 //        float downfall;
 //    };
 
-    Biome(float depth, float scale, SurfaceBuilder builder) : depth(depth), scale(scale), builder(builder) {}
+    Biome(float depth, float scale, SurfaceBuilder builder) : depth(depth), scale(scale), builder(builder) {
+        top = {BlockIDs::grass, 0};
+        filler = {BlockIDs::stone, 0};
+        underWater = {BlockIDs::gravel, 0};
+    }
 
     float getDepth() const {
-        return depth;
+        return depth.value();
     }
 
     float getScale() const {
-        return scale;
+        return scale.value();
     }
 //    auto getSkyColor() const -> int32_t {
 //        return 0xFFFFFFFF;
@@ -132,26 +146,24 @@ struct Biome {
 //    }
 
     void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int sealevel) {
-        top = {BlockIDs::grass, 0};
-        filler = {BlockIDs::stone, 0};
-        underWater = {BlockIDs::gravel, 0};
-        builder(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top, filler, underWater, sealevel);
+        builder.value()(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top.value(), filler.value(), underWater.value(), sealevel);
     }
 
     static void registerBiome(int id, Biome* biome);
     static void registerBiomes();
 
-private:
-    SurfaceBuilder builder;
+//private:
+    std::optional<SurfaceBuilder> builder;
 
-    BlockData top;
-    BlockData filler;
-    BlockData underWater;
+    std::optional<BlockData> top;
+    std::optional<BlockData> filler;
+    std::optional<BlockData> underWater;
     //    SurfaceBuilder surfaceBuilder;
 //    Climate climate;
 //    BiomeGenerationSettings generationSettings;
-    float depth;
-    float scale;
+    std::optional<float> depth;
+    std::optional<float> scale;
+    std::optional<float> temperature;
 //    Category category;
 //    BiomeAmbience effects;
 };
