@@ -27,6 +27,9 @@
 #include "ClientWorld.hpp"
 #include "ServerWorld.hpp"
 
+#include "client/render/EntityModel.hpp"
+#include "client/render/model/ModelFormat.hpp"
+
 #include <SDL2/SDL.h>
 
 #include <imgui.h>
@@ -48,6 +51,27 @@ struct RenderFrame {
     GLuint camera_ubo;
     void* camera_ptr;
 };
+
+namespace nlohmann {
+    void to_json(json &value, const glm::vec2 &v) {
+        value = {v.x, v.y};
+    }
+
+    void from_json(const json &value, glm::vec2 &v) {
+        value.at(0).get_to(v.x);
+        value.at(1).get_to(v.y);
+    }
+
+    void to_json(json &value, const glm::vec3 &v) {
+        value = {v.x, v.y, v.z};
+    }
+
+    void from_json(const json &value, glm::vec3 &v) {
+        value.at(0).get_to(v.x);
+        value.at(1).get_to(v.y);
+        value.at(2).get_to(v.z);
+    }
+}
 
 struct App {
     bool running = true;
@@ -73,6 +97,7 @@ struct App {
 	glm::vec3 velocity{0, 0, 0};
 	int cooldown = 0;
 
+    GLuint entity_pipeline;
     GLuint simple_pipeline;
     GLuint opaque_pipeline;
     GLuint cutout_pipeline;
@@ -94,12 +119,9 @@ struct App {
     std::array<RenderFrame, 2> frames;
 
     App(const char* title, uint32_t width, uint32_t height) {
-		stbi_set_flip_vertically_on_load(true);
-
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-
 
         window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
         context = SDL_GL_CreateContext(window);
@@ -115,6 +137,7 @@ struct App {
 
         resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla"));
 
+        entity_pipeline = Shader::create("../resources/entity.vert", "../resources/entity.frag");
         simple_pipeline = Shader::create("../resources/simple.vert", "../resources/simple.frag");
         opaque_pipeline = Shader::create("../resources/default.vert", "../resources/default.frag");
 		cutout_pipeline = Shader::create("../resources/default.vert", "../resources/cutout.frag");
@@ -133,8 +156,78 @@ struct App {
         BiomeDefinition::loadMetaFile();
         BiomeDefinition::registerBiomes();
 
+        loadModels();
+
         nm = NetworkManager::create().value();
         connection = nm.client();
+    }
+
+    std::map<std::string, std::unique_ptr<ModelFormat>> models;
+
+    void parseModels(const nlohmann::json& geometries) {
+        using namespace std::string_view_literals;
+
+        auto format_version = geometries.at("format_version").get<std::string>();
+
+        if (format_version == "1.8.0"sv || format_version == "1.10.0"sv) {
+            for (auto& [name, geometry] : geometries.items()) {
+                if (!name.starts_with("geometry.")) continue;
+
+                auto model_format = new ModelFormat();
+
+                if (const auto delim = name.find_first_of(':'); delim != std::string::npos) {
+                    model_format->name = name.substr(0, delim);
+                    model_format->parent = name.substr(delim + 1);
+                } else {
+                    model_format->name = name.substr(0);
+                }
+
+                model_format->visible_bounds_width = geometry.value("visible_bounds_width", 0);
+                model_format->visible_bounds_height = geometry.value("visible_bounds_height", 0);
+                model_format->texture_width = geometry.value<int>("texturewidth", 64);
+                model_format->texture_height = geometry.value<int>("textureheight", 64);
+
+                auto bones = geometry.find("bones");
+                if (bones != geometry.end()) {
+                    for (auto &bone : *bones) {
+                        auto bone_format = new ModelBoneFormat();
+                        bone_format->name = bone.at("name").get<std::string>();
+                        bone_format->neverRender = bone.value<bool>("neverRender", false);
+                        bone_format->mirror = bone.value<bool>("mirror", false);
+                        bone_format->reset = bone.value<bool>("reset", false);
+                        bone_format->pivot = bone.value<glm::vec3>("pivot", glm::vec3{});
+
+                        auto cubes = bone.find("cubes");
+                        if (cubes != bone.end()) {
+                            bone_format->cubes.reserve(cubes->size());
+
+                            for (auto &cube : *cubes) {
+                                auto &cube_format = bone_format->cubes.emplace_back();
+
+                                cube_format.origin = cube.at("origin").get<glm::vec3>();
+                                cube_format.size = cube.at("size").get<glm::vec3>();
+                                cube_format.uv = cube.value<glm::vec2>("uv", glm::vec2{});
+                            }
+
+                            model_format->bones.emplace(bone_format->name, bone_format);
+                        }
+                    }
+                }
+
+                models.emplace(model_format->name, model_format);
+            }
+        }
+    }
+
+    std::unique_ptr<EntityModel> agentModel{nullptr};
+    GLuint agentTexture;
+
+    void loadModels() {
+        resources.loadResources("models", [this](std::span<char> bytes) {
+            parseModels(nlohmann::json::parse(bytes, nullptr, true, true));
+        });
+
+        agentModel = std::make_unique<EntityModel>(*models.at("geometry.agent"));
     }
 
     void create_frames(uint32_t width, uint32_t height) {
@@ -384,6 +477,22 @@ struct App {
         glUniform2f(4, fog_offset.x, fog_offset.y);
 		renderLayers(RenderLayer::Transparent);
 
+		glm::mat4 model_transform = glm::translate(glm::mat4(1.0f), glm::vec3(636, 72, 221));
+
+        glUseProgram(entity_pipeline);
+        glUniform3fv(0, 1, color.data());
+        glUniform2f(4, fog_offset.x, fog_offset.y);
+        glUniformMatrix4fv(8, 1, GL_FALSE, glm::value_ptr(model_transform));
+
+        glBindTexture(GL_TEXTURE_2D, agentTexture);
+
+        glDisable(GL_BLEND);
+//        glDepthRange(0, 1.0);
+        glBindVertexArray(agentModel->mesh.vao);
+        glDrawElements(GL_TRIANGLES, agentModel->mesh.index_count, GL_UNSIGNED_INT, nullptr);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
 		if (rayTraceResult.has_value()) {
 			const auto pos = rayTraceResult->pos;
 
@@ -417,13 +526,12 @@ struct App {
 
 			glUseProgram(simple_pipeline);
 
-			glDisable(GL_BLEND);
+//            glDisable(GL_BLEND);
 			glDepthRange(0, 1.0);
 			glBindVertexArray(selection_mesh->vao);
 			glDrawElements(GL_LINES, selection_mesh->index_count, GL_UNSIGNED_INT, nullptr);
 		}
 
-        glBindTexture(GL_TEXTURE_2D, 0);
         glUseProgram(0);
 	}
 
@@ -460,6 +568,22 @@ struct App {
         double frameTime = 0;
         int frameCount = 0;
         int FPS = 0;
+
+        glGenTextures(1, &agentTexture);
+        glBindTexture(GL_TEXTURE_2D, agentTexture);
+
+        auto agentTextureData = resources.loadTextureData("textures/entity/agent", false).value();
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 4);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, agentTextureData.width, agentTextureData.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, agentTextureData.pixels.get());
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
 
         // todo: game loop
 
@@ -544,7 +668,7 @@ private:
         auto forward = transform.forward();
         auto right = transform.right();
 
-        float moveSpeed = 100.f;
+        float moveSpeed = 10.f;
         if (input.IsKeyPressed(Input::Key::Up)) {
             velocity += forward * dt * moveSpeed;
         }

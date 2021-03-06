@@ -329,7 +329,7 @@ struct TextureAtlas /*: Texture*/ {
 
 		TextureAtlasPack textureAtlasPack{};
 		for (const auto &path : requireTextures) {
-			textureAtlasPack.addSprite(path, resources.loadTextureData(path).value());
+			textureAtlasPack.addSprite(path, resources.loadTextureData(path, true).value());
 		}
 		sheet = textureAtlasPack.build();
 

@@ -6,7 +6,7 @@
 struct Transform {
     float yaw = 0;
     float pitch = 0;
-    glm::vec3 position{0, 0, -5};
+    glm::vec3 position{};
 
     auto getRotationMatrix() -> glm::mat4 {
         return getRotationMatrix(yaw, pitch);
@@ -18,6 +18,10 @@ struct Transform {
 
 	auto getTransformMatrix(glm::vec3 offset) -> glm::mat4 {
         return glm::translate(getRotationMatrix(), -(position + offset));
+    }
+
+    auto up() -> glm::vec3 {
+        return glm::vec3(0, 1, 0) * glm::mat3(getRotationMatrix());
     }
 
     auto forward() -> glm::vec3 {
