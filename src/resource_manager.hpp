@@ -7,6 +7,8 @@
 #include <optional>
 #include <filesystem>
 
+#include <fmt/format.h>
+
 #include "stb_image.hpp"
 
 #include <ranges>
@@ -97,6 +99,8 @@ struct ResourcePack {
     void loadResources(const std::filesystem::path& path, Fn&& fn) {
         for (const auto& e : std::filesystem::recursive_directory_iterator(getFullPath(path))) {
             if (e.is_regular_file()) {
+//                fmt::print("{}\n", e.path().filename().string());
+
                 std::vector<char> bytes(std::filesystem::file_size(e.path()));
                 std::ifstream stream(e.path(), std::ios::binary);
                 stream.read(bytes.data(), bytes.size());

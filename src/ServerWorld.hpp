@@ -15,7 +15,7 @@ struct ServerWorld {
     WorldLightManager lightManager;
 
     std::vector<std::jthread> workers{};
-    std::map<int64, std::unique_ptr<Chunk>> chunks{};
+    std::map<int64_t, std::unique_ptr<Chunk>> chunks{};
 
     ChunkPos last_player_position{};
 
@@ -69,14 +69,14 @@ struct ServerWorld {
                 }
             }
         } else {
-            for (int32 chunk_x = oldChunkPos.x - 8; chunk_x <= oldChunkPos.x + 8; chunk_x++) {
-                for (int32 chunk_z = oldChunkPos.z - 8; chunk_z <= oldChunkPos.z + 8; chunk_z++) {
+            for (int32_t chunk_x = oldChunkPos.x - 8; chunk_x <= oldChunkPos.x + 8; chunk_x++) {
+                for (int32_t chunk_z = oldChunkPos.z - 8; chunk_z <= oldChunkPos.z + 8; chunk_z++) {
                     setChunkLoadedAtClient(chunk_x, chunk_z, true, false);
                 }
             }
 
-            for (int32 chunk_x = newChunkPos.x - 8; chunk_x <= newChunkPos.x + 8; chunk_x++) {
-                for (int32 chunk_z = newChunkPos.z - 8; chunk_z <= newChunkPos.z + 8; chunk_z++) {
+            for (int32_t chunk_x = newChunkPos.x - 8; chunk_x <= newChunkPos.x + 8; chunk_x++) {
+                for (int32_t chunk_z = newChunkPos.z - 8; chunk_z <= newChunkPos.z + 8; chunk_z++) {
                     setChunkLoadedAtClient(chunk_x, chunk_z, false, true);
                 }
             }
@@ -101,8 +101,8 @@ struct ServerWorld {
                         static_cast<int32_t>(packet.pos.z) >> 4
                     );
 
-                    for (int32 chunk_x = last_player_position.x - 8; chunk_x <= last_player_position.x + 8; chunk_x++) {
-                        for (int32 chunk_z = last_player_position.z - 8; chunk_z <= last_player_position.z + 8; chunk_z++) {
+                    for (int32_t chunk_x = last_player_position.x - 8; chunk_x <= last_player_position.x + 8; chunk_x++) {
+                        for (int32_t chunk_z = last_player_position.z - 8; chunk_z <= last_player_position.z + 8; chunk_z++) {
                             setChunkLoadedAtClient(chunk_x, chunk_z, false, true);
                         }
                     }
@@ -163,7 +163,7 @@ struct ServerWorld {
         }
     }
 
-    auto getChunk(int32 chunk_x, int32 chunk_z, ChunkState state) -> Chunk* {
+    auto getChunk(int32_t chunk_x, int32_t chunk_z, ChunkState state) -> Chunk* {
         const auto pos = ChunkPos::from(chunk_x, chunk_z);
         auto it = chunks.find(pos.asLong());
         if (it != chunks.end()) {
@@ -175,15 +175,15 @@ struct ServerWorld {
         return nullptr;
     }
 
-    auto getChunksInRadius(int32 radius, int32 chunk_x, int32 chunk_z, ChunkState state) -> std::optional<std::vector<Chunk*>> {
+    auto getChunksInRadius(int32_t radius, int32_t chunk_x, int32_t chunk_z, ChunkState state) -> std::optional<std::vector<Chunk*>> {
         if (radius == -1) return {};
 
-        const usize count = radius * 2 + 1;
+        const size_t count = radius * 2 + 1;
         std::vector<Chunk*> ret{count * count};
 
-        usize i = 0;
-        for (int32 z = chunk_z - radius; z <= chunk_z + radius; z++) {
-            for (int32 x = chunk_x - radius; x <= chunk_x + radius; x++) {
+        size_t i = 0;
+        for (int32_t z = chunk_z - radius; z <= chunk_z + radius; z++) {
+            for (int32_t x = chunk_x - radius; x <= chunk_x + radius; x++) {
                 auto chunk = provideChunk(x, z, state);
                 if (chunk == nullptr) {
                     return std::nullopt;
@@ -217,7 +217,7 @@ struct ServerWorld {
         return -1;
     }
 
-    auto chunkLoad(int32 chunk_x, int32 chunk_z) -> Chunk* {
+    auto chunkLoad(int32_t chunk_x, int32_t chunk_z) -> Chunk* {
         const auto pos = ChunkPos::from(chunk_x, chunk_z);
         auto it = chunks.find(pos.asLong());
         if (it == chunks.end()) {
@@ -226,7 +226,7 @@ struct ServerWorld {
         return it->second.get();
     }
 
-    auto provideChunk(int32 chunk_x, int32 chunk_z, ChunkState state = ChunkState::Full) -> Chunk* {
+    auto provideChunk(int32_t chunk_x, int32_t chunk_z, ChunkState state = ChunkState::Full) -> Chunk* {
         auto chunk = chunkLoad(chunk_x, chunk_z);
 
         for (int i = (int) chunk->state + 1; i <= (int) state; i++) {

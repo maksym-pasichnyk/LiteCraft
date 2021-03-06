@@ -8,7 +8,7 @@ public:
         return _projection;
     }
 
-    void setSize(uint32 width, uint32 height) {
+    void setSize(uint32_t width, uint32_t height) {
         const float aspect_ratio = float(width) / float(height);
         const float tanHalfFovy = glm::tan(glm::radians(field_of_view) * 0.5f);
 

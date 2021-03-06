@@ -3,7 +3,6 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 
-#include <stdint.hpp>
 #include <array>
 
 #include "src/world/chunk/Chunk.hpp"
@@ -36,7 +35,7 @@ struct WorldGenRegion {
 		bounds_max.y = chunk_z + radius;
 	}
 
-	auto toIndex(int32_t x, int32_t z) const -> usize {
+	auto toIndex(int32_t x, int32_t z) const -> size_t {
 		return (x - bounds_min.x) + (z - bounds_min.y) * size;
 	}
 

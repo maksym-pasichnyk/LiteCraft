@@ -1,6 +1,5 @@
 #include <GL/glew.h>
 
-#include <stdint.hpp>
 #include <glm/glm.hpp>
 
 #include <memory>
@@ -27,7 +26,7 @@
 #include "ClientWorld.hpp"
 #include "ServerWorld.hpp"
 
-#include "client/render/EntityModel.hpp"
+#include "client/render/ModelRendered.hpp"
 #include "client/render/model/ModelFormat.hpp"
 
 #include <SDL2/SDL.h>
@@ -134,8 +133,9 @@ struct App {
         create_imgui();
 
 //        SDL_GL_SetSwapInterval(0);
-
         resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla"));
+        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/experimental_caves_and_cliffs"));
+//        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/chemistry"));
 
         entity_pipeline = Shader::create("../resources/entity.vert", "../resources/entity.frag");
         simple_pipeline = Shader::create("../resources/simple.vert", "../resources/simple.frag");
@@ -216,18 +216,74 @@ struct App {
 
                 models.emplace(model_format->name, model_format);
             }
+        }  else if (format_version == "1.12.0"sv || format_version == "1.16.0"sv) {
+            for (auto& geometry : geometries["minecraft:geometry"]) {
+                auto& description = geometry.at("description");
+
+                auto model_format = new ModelFormat();
+
+                model_format->name = description.at("identifier").get<std::string>();
+                model_format->visible_bounds_width = description.value("visible_bounds_width", 0);
+                model_format->visible_bounds_height = description.value("visible_bounds_height", 0);
+                model_format->texture_width = description.value<int>("texture_width", 64);
+                model_format->texture_height = description.value<int>("texture_height", 64);
+
+                if (auto bones = geometry.find("bones"); bones != geometry.end()) {
+                    for (auto &bone : *bones) {
+                        auto bone_format = new ModelBoneFormat();
+                        bone_format->name = bone.at("name").get<std::string>();
+                        bone_format->neverRender = bone.value<bool>("neverRender", false);
+                        bone_format->mirror = bone.value<bool>("mirror", false);
+                        bone_format->reset = bone.value<bool>("reset", false);
+                        bone_format->pivot = bone.value<glm::vec3>("pivot", glm::vec3{});
+
+                        if (auto cubes = bone.find("cubes"); cubes != bone.end()) {
+                            bone_format->cubes.reserve(cubes->size());
+
+                            for (auto &cube : *cubes) {
+                                auto &cube_format = bone_format->cubes.emplace_back();
+
+                                cube_format.origin = cube.at("origin").get<glm::vec3>();
+                                cube_format.rotation = cube.value("rotation", glm::vec3{});
+                                cube_format.size = cube.at("size").get<glm::vec3>();
+
+                                if (auto uv = cube.find("uv"); uv != cube.end()) {
+                                    if (uv->is_array()) {
+                                        cube_format.uv = uv->get<glm::vec2>();
+                                    } else {
+                                        cube_format.uv_box = false;
+
+                                        for (auto& item : uv->items()) {
+                                            auto& face = cube_format.faces[item.key()];
+                                            face.uv = item.value().at("uv").get<glm::vec2>();
+                                        }
+                                    }
+                                }
+                            }
+
+                            model_format->bones.emplace(bone_format->name, bone_format);
+                        }
+                    }
+                }
+                models.emplace(model_format->name, model_format);
+            }
+        } else {
+            fmt::print("unsupported geometry format: {}\n", format_version);
         }
     }
 
-    std::unique_ptr<EntityModel> agentModel{nullptr};
+    std::unique_ptr<ModelRendered> agentModel{nullptr};
+    std::unique_ptr<ModelRendered> goatModel{nullptr};
     GLuint agentTexture;
+    GLuint goatTexture;
 
     void loadModels() {
         resources.loadResources("models", [this](std::span<char> bytes) {
             parseModels(nlohmann::json::parse(bytes, nullptr, true, true));
         });
 
-        agentModel = std::make_unique<EntityModel>(*models.at("geometry.agent"));
+        agentModel = std::make_unique<ModelRendered>(*models.at("geometry.agent"));
+        goatModel = std::make_unique<ModelRendered>(*models.at("geometry.goat"));
     }
 
     void create_frames(uint32_t width, uint32_t height) {
@@ -345,12 +401,12 @@ struct App {
         std::memcpy(frames[frameIndex].camera_ptr, &camera_constants, sizeof(CameraConstants));
     }
 
-    auto create_render_cache(int32 chunk_x, int32 chunk_z) -> std::optional<ChunkRenderCache> {
+    auto create_render_cache(int32_t chunk_x, int32_t chunk_z) -> std::optional<ChunkRenderCache> {
         ChunkRenderCache cache{chunk_x, chunk_z};
 
-        usize i = 0;
-        for (int32 z = chunk_z - 1; z <= chunk_z + 1; z++) {
-            for (int32 x = chunk_x - 1; x <= chunk_x + 1; x++) {
+        size_t i = 0;
+        for (int32_t z = chunk_z - 1; z <= chunk_z + 1; z++) {
+            for (int32_t x = chunk_x - 1; x <= chunk_x + 1; x++) {
                 auto chunk = clientWorld->getChunk(x, z);
                 if (chunk == nullptr) {
                     return std::nullopt;
@@ -405,8 +461,8 @@ struct App {
 
         chunkToRenders.clear();
 
-        for (int32 chunk_x = center_x - 8; chunk_x <= center_x + 8; chunk_x++) {
-            for (int32 chunk_z = center_z - 8; chunk_z <= center_z + 8; chunk_z++) {
+        for (int32_t chunk_x = center_x - 8; chunk_x <= center_x + 8; chunk_x++) {
+            for (int32_t chunk_z = center_z - 8; chunk_z <= center_z + 8; chunk_z++) {
                 auto chunk = clientWorld->getChunk(chunk_x, chunk_z);
 
                 if (chunk != nullptr) {
@@ -477,19 +533,20 @@ struct App {
         glUniform2f(4, fog_offset.x, fog_offset.y);
 		renderLayers(RenderLayer::Transparent);
 
-		glm::mat4 model_transform = glm::translate(glm::mat4(1.0f), glm::vec3(636, 72, 221));
+//        glDisable(GL_BLEND);
+//        glDepthRange(0, 1.0);
+
+        glBindTexture(GL_TEXTURE_2D, agentTexture);
+        glm::mat4 model_transform = glm::translate(glm::mat4(1.0f), glm::vec3(636, 72, 221));
 
         glUseProgram(entity_pipeline);
         glUniform3fv(0, 1, color.data());
         glUniform2f(4, fog_offset.x, fog_offset.y);
         glUniformMatrix4fv(8, 1, GL_FALSE, glm::value_ptr(model_transform));
 
-        glBindTexture(GL_TEXTURE_2D, agentTexture);
-
-        glDisable(GL_BLEND);
-//        glDepthRange(0, 1.0);
-        glBindVertexArray(agentModel->mesh.vao);
-        glDrawElements(GL_TRIANGLES, agentModel->mesh.index_count, GL_UNSIGNED_INT, nullptr);
+        glBindTexture(GL_TEXTURE_2D, goatTexture);
+        glBindVertexArray(goatModel->mesh.vao);
+        glDrawElements(GL_TRIANGLES, goatModel->mesh.index_count, GL_UNSIGNED_INT, nullptr);
 
         glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -524,10 +581,10 @@ struct App {
 			selection_mesh->SetIndices(buf.indices);
 			selection_mesh->SetVertices(buf.vertices);
 
-			glUseProgram(simple_pipeline);
+            glDisable(GL_BLEND);
+            glDepthRange(0, 1.0);
 
-//            glDisable(GL_BLEND);
-			glDepthRange(0, 1.0);
+            glUseProgram(simple_pipeline);
 			glBindVertexArray(selection_mesh->vao);
 			glDrawElements(GL_LINES, selection_mesh->index_count, GL_UNSIGNED_INT, nullptr);
 		}
@@ -581,6 +638,22 @@ struct App {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 4);
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, agentTextureData.width, agentTextureData.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, agentTextureData.pixels.get());
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        glGenTextures(1, &goatTexture);
+        glBindTexture(GL_TEXTURE_2D, goatTexture);
+
+        auto goatTextureData = resources.loadTextureData("textures/entity/goat/goat", false).value();
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 4);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, goatTextureData.width, goatTextureData.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, goatTextureData.pixels.get());
         glGenerateMipmap(GL_TEXTURE_2D);
 
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -646,7 +719,7 @@ struct App {
 			auto [index_offset, index_count] = chunk->layers[(int) layer];
 
 			if (index_count != 0) {
-				glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, (void*) (index_offset * sizeof(int32)));
+				glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, (void*) (index_offset * sizeof(int32_t)));
 			}
 		}
 	}
@@ -685,7 +758,7 @@ private:
     }
 };
 
-auto main() -> int32 {
+auto main() -> int32_t {
     App app{"Minecraft", 800, 600};
     app.run();
     return 0;

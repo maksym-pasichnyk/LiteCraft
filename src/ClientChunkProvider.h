@@ -7,7 +7,7 @@ struct ClientChunkProvider {
 
     explicit ClientChunkProvider(int viewDistance) : chunkArray{viewDistance} {}
 
-    void loadChunk(int32 x, int32 z, Chunk* chunk) {
+    void loadChunk(int32_t x, int32_t z, Chunk* chunk) {
         if (chunkArray.inView(x, z)) {
             chunkArray.set(chunkArray.getIndex(x, z), chunk);
         }
@@ -20,7 +20,7 @@ struct ClientChunkProvider {
         }
     }
 
-    void unloadChunk(int32 x, int32 z) {
+    void unloadChunk(int32_t x, int32_t z) {
         if (chunkArray.inView(x, z)) {
             const auto i = chunkArray.getIndex(x, z);
             auto chunk = chunkArray.get(i);
@@ -30,7 +30,7 @@ struct ClientChunkProvider {
         }
     }
 
-    auto getChunk(int32 x, int32 z) const -> Chunk* {
+    auto getChunk(int32_t x, int32_t z) const -> Chunk* {
         if (chunkArray.inView(x, z)) {
             auto chunk = chunkArray.get(chunkArray.getIndex(x, z));
             if (isValid(chunk, x, z)) {
@@ -40,7 +40,7 @@ struct ClientChunkProvider {
         return nullptr;
     }
 
-    static auto isValid(Chunk* chunk, int x, int z) -> bool {
+    static auto isValid(Chunk* chunk, int32_t x, int32_t z) -> bool {
         return chunk != nullptr && chunk->pos.x == x && chunk->pos.z == z;
     }
 };

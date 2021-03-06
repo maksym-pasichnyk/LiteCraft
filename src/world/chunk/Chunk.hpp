@@ -39,7 +39,7 @@ struct RenderLayerBuilder {
         indices.push_back(i + 3);
     }
 
-    void vertex(f32 x, f32 y, f32 z, f32 u, f32 v, uint8 r, uint8 g, uint8 b, uint8_t light) {
+    void vertex(float x, float y, float z, float u, float v, uint8_t r, uint8_t g, uint8_t b, uint8_t light) {
         vertices.push_back(Vertex{
                 .point{x, y, z},
                 .tex{u, v},
@@ -52,7 +52,7 @@ enum class RenderLayer;
 
 struct SimpleVBuffer {
     std::vector<Vertex> vertices;
-    std::vector<int32> indices;
+    std::vector<int32_t> indices;
 
 	void quad(int a1, int b1, int c1, int a2, int b2, int c2) {
         auto i = vertices.size();
@@ -85,7 +85,7 @@ struct SimpleVBuffer {
 		quad(0, 1, 2, 0, 2, 3);
     }
 
-    void vertex(f32 x, f32 y, f32 z, f32 u, f32 v, uint8 r, uint8 g, uint8 b, uint8 a) {
+    void vertex(float x, float y, float z, float u, float v, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
         vertices.push_back(Vertex{
 			.point{x, y, z},
 			.tex{u, v},
@@ -96,12 +96,12 @@ struct SimpleVBuffer {
 
 struct RenderBuffer {
     std::vector<Vertex> vertices;
-    std::vector<int32> indices[3]{};
+    std::vector<int32_t> indices[3]{};
 
 	auto getForLayer(RenderLayer layer) -> RenderLayerBuilder {
 		return RenderLayerBuilder {
 			.vertices = vertices,
-			.indices = indices[(usize) layer]
+			.indices = indices[static_cast<size_t>(layer)]
 		};
 	}
 
@@ -114,8 +114,8 @@ struct RenderBuffer {
 };
 
 struct ChunkLayer {
-	int32 index_offset = 0;
-	int32 index_count = 0;
+    int32_t index_offset = 0;
+    int32_t index_count = 0;
 };
 
 enum class ChunkState {
@@ -306,8 +306,8 @@ struct Heightmap {
 };
 
 struct Light {
-    uint8 block : 4;
-    uint8 sky : 4;
+    uint8_t block : 4;
+    uint8_t sky : 4;
 };
 
 struct LightSection {
@@ -322,14 +322,14 @@ struct LightSection {
                 : ((light & 0xF0) | val);
     }
 
-    auto getLight(int32_t x, int32_t y, int32_t z) const -> int32 {
+    auto getLight(int32_t x, int32_t y, int32_t z) const -> int32_t {
         const auto idx = toIndex(x, y, z);
         const auto light = lights[idx >> 1];
         return (((idx & 1) == 1) ? (light >> 4) : light) & 0xF;
     }
 
 private:
-    static constexpr auto toIndex(int32 x, int32 y, int32 z) noexcept -> usize {
+    static constexpr auto toIndex(int32_t x, int32_t y, int32_t z) noexcept -> size_t {
         return (y << 8) | (z << 4) | x;
     }
 };
@@ -370,7 +370,7 @@ struct Lightmap {
     }
 
 private:
-    static constexpr auto toIndex(int32 x, int32 y, int32 z) noexcept -> usize {
+    static constexpr auto toIndex(int32_t x, int32_t y, int32_t z) noexcept -> size_t {
         return (y << 8) | (z << 4) | x;
     }
 };
@@ -397,7 +397,7 @@ struct Chunk {
 
     explicit Chunk(ChunkPos pos) : pos{pos} {}
 
-    void setSkyLight(int32 x, int32 y, int32 z, int32 new_light) {
+    void setSkyLight(int32_t x, int32_t y, int32_t z, int32_t new_light) {
         auto& section = skyLightSections[y >> 4];
         if (section == nullptr) {
             if (new_light == /*15*/0) {
@@ -408,7 +408,7 @@ struct Chunk {
         section->setLight(x & 15, y & 15, z & 15, /*15 -*/ new_light);
     }
 
-    auto getSkyLight(int32 x, int32 y, int32 z) const -> int32 {
+    auto getSkyLight(int32_t x, int32_t y, int32_t z) const -> int32_t {
         auto& section = skyLightSections[y >> 4];
         if (section == nullptr) {
             return /*15*/0;
@@ -416,7 +416,7 @@ struct Chunk {
         return /*15 - */section->getLight(x & 15, y & 15, z & 15);
     }
 
-    void setBlockLight(int32 x, int32 y, int32 z, int32 new_light) {
+    void setBlockLight(int32_t x, int32_t y, int32_t z, int32_t new_light) {
         auto& section = blockLightSections[y >> 4];
         if (section == nullptr) {
             if (new_light == 0) {
@@ -427,7 +427,7 @@ struct Chunk {
         section->setLight(x & 15, y & 15, z & 15, new_light);
     }
 
-    auto getBlockLight(int32 x, int32 y, int32 z) const -> int32 {
+    auto getBlockLight(int32_t x, int32_t y, int32_t z) const -> int32_t {
         auto& section = blockLightSections[y >> 4];
         if (section == nullptr) {
             return 0;
@@ -465,7 +465,7 @@ struct Chunk {
         section->setLightR(x & 15, y & 15, z & 15, val);
     }
 
-    auto getLightR(int32_t x, int32_t y, int32_t z) const -> int32 {
+    auto getLightR(int32_t x, int32_t y, int32_t z) const -> int32_t {
         auto& section = lightSections[y >> 4];
         if (section == nullptr) {
             return 0;
@@ -484,7 +484,7 @@ struct Chunk {
         section->setLightG(x & 15, y & 15, z & 15, val);
     }
 
-    auto getLightG(int32_t x, int32_t y, int32_t z) const -> int32 {
+    auto getLightG(int32_t x, int32_t y, int32_t z) const -> int32_t {
         auto& section = lightSections[y >> 4];
         if (section == nullptr) {
             return 0;
@@ -503,7 +503,7 @@ struct Chunk {
         section->setLightB(x & 15, y & 15, z & 15, val);
     }
 
-    auto getLightB(int32_t x, int32_t y, int32_t z) const -> int32 {
+    auto getLightB(int32_t x, int32_t y, int32_t z) const -> int32_t {
         auto& section = lightSections[y >> 4];
         if (section == nullptr) {
             return 0;
@@ -511,7 +511,7 @@ struct Chunk {
         return section->getLightB(x & 15, y & 15, z & 15);
     }
 
-    void setData(int32 x, int32 y, int32 z, BlockData blockData) {
+    void setData(int32_t x, int32_t y, int32_t z, BlockData blockData) {
     	auto& section = sections[y >> 4];
     	if (section == nullptr) {
     		section = std::make_unique<ChunkSection>();
@@ -520,7 +520,7 @@ struct Chunk {
     	section->blocks[toIndex(x, y, z)] = blockData;
     }
 
-    auto getData(int32 x, int32 y, int32 z) const -> BlockData {
+    auto getData(int32_t x, int32_t y, int32_t z) const -> BlockData {
     	auto& section = sections[y >> 4];
     	if (section == nullptr) {
 			return {};
@@ -537,7 +537,7 @@ struct Chunk {
             mesh = std::make_unique<Mesh>();
         }
 
-		int32 index_count = 0;
+		int32_t index_count = 0;
 		for (auto& subindices : rb.indices) {
 			index_count += subindices.size();
 		}
@@ -545,8 +545,8 @@ struct Chunk {
         mesh->SetVertices(rb.vertices);
         mesh->SetIndicesCount(index_count);
 
-		int32 submesh_index = 0;
-        int32 index_offset = 0;
+		int32_t submesh_index = 0;
+        int32_t index_offset = 0;
 
         for (auto& submesh : rb.indices) {
         	layers[submesh_index].index_offset = index_offset;

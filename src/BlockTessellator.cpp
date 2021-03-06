@@ -20,10 +20,10 @@ int vertexAO(int side1, int side2, int corner) {
     return side1 && side2 ? 0 : (3 - (side1 + side2 + corner));
 }
 
-void renderBlockWithAO(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
-	const auto fx = float(x);
-	const auto fy = float(y);
-	const auto fz = float(z);
+void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
+	const auto fx = static_cast<float>(x);
+	const auto fy = static_cast<float>(y);
+	const auto fz = static_cast<float>(z);
 
 	auto [r, g, b] = getTintColor(block->tint);
 
@@ -164,7 +164,7 @@ void renderBlockWithAO(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb
 	}
 }
 
-void renderBlockWithoutAO(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
+void renderBlockWithoutAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
     const auto fx = float(x);
     const auto fy = float(y);
     const auto fz = float(z);
@@ -246,11 +246,11 @@ void renderBlockWithoutAO(int32 x, int32 y, int32 z, Block* block, RenderBuffer&
     }
 }
 
-void renderBlock(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks, bool ao) {
+void renderBlock(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks, bool ao) {
     (ao ? renderBlockWithAO : renderBlockWithoutAO)(x, y, z, block, rb, blocks);
 }
 
-void renderCross(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
+void renderCross(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
 	const auto fx = float(x);
 	const auto fy = float(y);
 	const auto fz = float(z);
@@ -276,14 +276,14 @@ void renderCross(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, Chun
 	builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, 0xFF);
 }
 
-void renderLiquid(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
-	const auto fx = float(x);// - 0.2f;
-	const auto fy = float(y);// - 0.2f;
-	const auto fz = float(z);// - 0.2f;
+void renderLiquid(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
+	const auto fx = static_cast<float>(x);// - 0.2f;
+	const auto fy = static_cast<float>(y);// - 0.2f;
+	const auto fz = static_cast<float>(z);// - 0.2f;
 
-	uint8 r = 0x44;
-	uint8 g = 0xAF;
-	uint8 b = 0xF5;
+	uint8_t r = 0x44;
+	uint8_t g = 0xAF;
+	uint8_t b = 0xF5;
 
 	auto builder = rb.getForLayer(block->renderLayer);
 
@@ -363,10 +363,10 @@ void renderLiquid(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, Chu
 	}
 }
 
-void renderBox(RenderLayerBuilder& builder, int32 x, int32 y, int32 z, Block* block, glm::vec3 min, glm::vec3 max) {
-    const auto fx = float(x);// - 0.2f;
-    const auto fy = float(y);// - 0.2f;
-    const auto fz = float(z);// - 0.2f;
+void renderBox(RenderLayerBuilder& builder, int32_t x, int32_t y, int32_t z, Block* block, glm::vec3 min, glm::vec3 max) {
+    const auto fx = static_cast<float>(x);
+    const auto fy = static_cast<float>(y);
+    const auto fz = static_cast<float>(z);
 
     auto coords = block->graphics->southTexture->get(0);
 
@@ -401,7 +401,7 @@ void renderBox(RenderLayerBuilder& builder, int32 x, int32 y, int32 z, Block* bl
     builder.vertex(fx + max.x, fy + max.y, fz + min.z, coords.maxU, coords.minV, 0xFF, 0xFF, 0xFF, 0xFF);
 }
 
-void renderPane(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
+void renderPane(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
     auto builder = rb.getForLayer(block->renderLayer);
 
     auto val = blocks.getData(x, y, z).val;
@@ -425,12 +425,12 @@ void renderPane(int32 x, int32 y, int32 z, Block* block, RenderBuffer& rb, Chunk
 void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
 	rb.clear();
 
-	int32 start_x = blocks.chunk_x << 4;
-	int32 start_z = blocks.chunk_z << 4;
+	int32_t start_x = blocks.chunk_x << 4;
+	int32_t start_z = blocks.chunk_z << 4;
 
-    for (int32 x = start_x; x < start_x + 16; x++) {
-        for (int32 z = start_z; z < start_z + 16; z++) {
-            for (int32 y = 0; y < 256; y++) {
+    for (int32_t x = start_x; x < start_x + 16; x++) {
+        for (int32_t z = start_z; z < start_z + 16; z++) {
+            for (int32_t y = 0; y < 256; y++) {
                 auto block = blocks.getBlock(x, y, z);
 
 				switch (block->renderType) {

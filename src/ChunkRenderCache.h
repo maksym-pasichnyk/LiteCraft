@@ -17,7 +17,7 @@ struct ChunkRenderCache {
         bounds_max{chunk_x + 1, chunk_z + 1}
     {}
 
-    auto toIndex(int32_t x, int32_t z) const -> usize {
+    auto toIndex(int32_t x, int32_t z) const -> size_t {
         return (x - bounds_min.x) + (z - bounds_min.y) * 3;
     }
 

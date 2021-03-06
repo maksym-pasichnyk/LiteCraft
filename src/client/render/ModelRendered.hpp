@@ -3,12 +3,126 @@
 #include "TexturedQuad.hpp"
 #include "model/ModelFormat.hpp"
 
-struct EntityModel {
-    explicit EntityModel(const ModelFormat& model_format) /*: material(material)*/ {
+struct ModelVertex {
+    glm::vec3 vertex;
+    glm::vec3 normal;
+    glm::vec2 coords;
+};
+
+struct ModelVertexBuilder {
+    std::vector<ModelVertex> vertices;
+    std::vector<int> indices;
+
+    void clear() {
+        vertices.clear();
+        indices.clear();
+    }
+
+    void quad() {
+        auto i = vertices.size();
+        indices.push_back(i + 0);
+        indices.push_back(i + 2);
+        indices.push_back(i + 1);
+        indices.push_back(i + 0);
+        indices.push_back(i + 3);
+        indices.push_back(i + 2);
+    }
+    void quadInv() {
+        auto i = vertices.size();
+        indices.push_back(i + 0);
+        indices.push_back(i + 1);
+        indices.push_back(i + 2);
+        indices.push_back(i + 0);
+        indices.push_back(i + 2);
+        indices.push_back(i + 3);
+    }
+
+    void vertex(float x, float y, float z, float u, float v, float r, float g, float b) {
+        vertices.push_back(ModelVertex{
+            .vertex{x, y, z},
+            .normal{r, g, b},
+            .coords{u, v}
+        });
+    }
+};
+
+struct ModelMesh {
+    GLuint vao = GL_NONE;
+    GLuint vbo = GL_NONE;
+    GLuint ibo = GL_NONE;
+    GLsizeiptr vbo_size{0};
+    GLsizeiptr ibo_size{0};
+    int index_count{0};
+    int vertex_count{0};
+
+    ModelMesh() {
+        glCreateVertexArrays(1, &vao);
+        glCreateBuffers(1, &vbo);
+        glCreateBuffers(1, &ibo);
+
+        glVertexArrayElementBuffer(vao, ibo);
+        glVertexArrayVertexBuffer(vao, 0, vbo, 0, sizeof(ModelVertex));
+
+        glEnableVertexArrayAttrib(vao, 0);
+        glEnableVertexArrayAttrib(vao, 1);
+        glEnableVertexArrayAttrib(vao, 2);
+
+        glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, GL_FALSE, offsetof(ModelVertex, vertex));
+        glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, GL_FALSE, offsetof(ModelVertex, normal));
+        glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, GL_FALSE, offsetof(ModelVertex, coords));
+
+        glVertexArrayAttribBinding(vao, 0, 0);
+        glVertexArrayAttribBinding(vao, 1, 0);
+        glVertexArrayAttribBinding(vao, 2, 0);
+    }
+
+    ~ModelMesh() {
+        glDeleteBuffers(1, &ibo);
+        glDeleteBuffers(1, &vbo);
+        glDeleteVertexArrays(1, &vao);
+    }
+
+    void SetVertices(std::span<const ModelVertex> vertices) {
+        vertex_count = vertices.size();
+        if (vertices.size_bytes() > vbo_size) {
+            vbo_size = vertices.size_bytes();
+            glNamedBufferData(vbo, vertices.size_bytes(), vertices.data(), GL_DYNAMIC_DRAW);
+        } else {
+            glNamedBufferSubData(vbo, 0, vertices.size_bytes(), vertices.data());
+        }
+    }
+
+    void SetIndicesCount(int32_t count) {
+        GLsizeiptr buf_size = sizeof(int32_t) * count;
+
+        index_count = count;
+        if (buf_size > ibo_size) {
+            ibo_size = buf_size;
+            glNamedBufferData(ibo, buf_size, nullptr, GL_DYNAMIC_DRAW);
+        }
+    }
+
+    void SetIndicesData(std::span<const int32_t> indices, int32_t offset) {
+        glNamedBufferSubData(ibo, offset * sizeof(int32_t), indices.size_bytes(), indices.data());
+    }
+
+    void SetIndices(std::span<const int32_t> indices) {
+        index_count = indices.size();
+        if (indices.size_bytes() > ibo_size) {
+            ibo_size = indices.size_bytes();
+            glNamedBufferData(ibo, indices.size_bytes(), indices.data(), GL_DYNAMIC_DRAW);
+        } else {
+            glNamedBufferSubData(ibo, 0, indices.size_bytes(), indices.data());
+        }
+    }
+};
+
+struct ModelRendered {
+    explicit ModelRendered(const ModelFormat& model_format) /*: material(material)*/ {
         const auto tex_width = model_format.texture_width;
         const auto tex_height = model_format.texture_height;
 
-        VertexBuilder buf{};
+        ModelVertexBuilder buf{};
 
         for (auto& [name, bone] : model_format.bones) {
             if (bone->neverRender) continue;
@@ -149,30 +263,21 @@ struct EntityModel {
     }
 
 //private:
-    Mesh mesh{};
+    ModelMesh mesh{};
 
-    static void buildFace(VertexBuilder& builder, const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec3& p4, float u0, float v0, float u1, float v1, int texWidth, int texHeight, const glm::vec3& normal) {
+    static void buildFace(ModelVertexBuilder& builder, const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec3& p4, float u0, float v0, float u1, float v1, int texWidth, int texHeight, const glm::vec3& normal) {
         builder.quad();
 
-        builder.vertex(p1.x, p1.y, p1.z, u0 / static_cast<float>(texWidth), v0 / static_cast<float>(texHeight), normal.x, normal.y, normal.z, 0xFF);
-        builder.vertex(p2.x, p2.y, p2.z, u0 / static_cast<float>(texWidth), v1 / static_cast<float>(texHeight), normal.x, normal.y, normal.z, 0xFF);
-        builder.vertex(p3.x, p3.y, p3.z, u1 / static_cast<float>(texWidth), v1 / static_cast<float>(texHeight), normal.x, normal.y, normal.z, 0xFF);
-        builder.vertex(p4.x, p4.y, p4.z, u1 / static_cast<float>(texWidth), v0 / static_cast<float>(texHeight), normal.x, normal.y, normal.z, 0xFF);
+        builder.vertex(p1.x, p1.y, p1.z, u0 / static_cast<float>(texWidth), v0 / static_cast<float>(texHeight), normal.x, normal.y, normal.z);
+        builder.vertex(p2.x, p2.y, p2.z, u0 / static_cast<float>(texWidth), v1 / static_cast<float>(texHeight), normal.x, normal.y, normal.z);
+        builder.vertex(p3.x, p3.y, p3.z, u1 / static_cast<float>(texWidth), v1 / static_cast<float>(texHeight), normal.x, normal.y, normal.z);
+        builder.vertex(p4.x, p4.y, p4.z, u1 / static_cast<float>(texWidth), v0 / static_cast<float>(texHeight), normal.x, normal.y, normal.z);
     }
 
-    static void buildQuad(VertexBuilder& builder, const glm::vec3& normal, const std::array<PositionTextureVertex, 4>& vertices) {
+    static void buildQuad(ModelVertexBuilder& builder, const glm::vec3& normal, const std::array<PositionTextureVertex, 4>& vertices) {
         builder.quad();
         for (const auto& vertex : vertices) {
-            builder.vertex(vertex.x, vertex.y, vertex.z, vertex.u, vertex.v, normal.x, normal.y, normal.z, 0xFF);
+            builder.vertex(vertex.x, vertex.y, vertex.z, vertex.u, vertex.v, normal.x, normal.y, normal.z);
         }
     }
-
-/*    static void buildQuad(VertexBuilder& builder, const TexturedQuad& quad) {
-        auto normal = quad.normal;
-
-        builder.quad();
-        for (auto &&vertex : quad.vertices) {
-            builder.vertex(vertex.x, vertex.y, vertex.z, vertex.u, vertex.v, normal.x, normal.y, normal.z, 0xFF);
-        }
-    }*/
 };

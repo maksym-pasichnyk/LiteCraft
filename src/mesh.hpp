@@ -7,8 +7,6 @@
 #include <span>
 #include <vector>
 
-#include <stdint.hpp>
-
 struct Vertex {
     glm::vec3 point;
     glm::vec2 tex;
@@ -47,7 +45,7 @@ struct VertexBuilder {
         indices.push_back(i + 3);
     }
 
-    void vertex(f32 x, f32 y, f32 z, f32 u, f32 v, uint8 r, uint8 g, uint8 b, uint8 light) {
+    void vertex(float x, float y, float z, float u, float v, uint8_t r, uint8_t g, uint8_t b, uint8_t light) {
         vertices.push_back(Vertex{
                 .point{x, y, z},
                 .tex{u, v},
@@ -102,8 +100,8 @@ struct Mesh {
         }
     }
 
-    void SetIndicesCount(int32 count) {
-    	GLsizeiptr buf_size = sizeof(int32) * count;
+    void SetIndicesCount(int32_t count) {
+    	const GLsizeiptr buf_size = sizeof(int32_t) * count;
 
         index_count = count;
     	if (buf_size > ibo_size) {
@@ -112,11 +110,11 @@ struct Mesh {
         }
     }
 
-    void SetIndicesData(std::span<const int32> indices, int32 offset) {
-		glNamedBufferSubData(ibo, offset * sizeof(int32), indices.size_bytes(), indices.data());
+    void SetIndicesData(std::span<const int32_t> indices, int32_t offset) {
+		glNamedBufferSubData(ibo, offset * sizeof(int32_t), indices.size_bytes(), indices.data());
     }
 
-    void SetIndices(std::span<const int32> indices) {
+    void SetIndices(std::span<const int32_t> indices) {
         index_count = indices.size();
         if (indices.size_bytes() > ibo_size) {
             ibo_size = indices.size_bytes();

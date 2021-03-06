@@ -15,12 +15,12 @@ layout(location = 7) uniform float RENDER_DISTANCE = 8.0f;
 layout(location = 8) uniform mat4 model_transform;
 
 layout (location = 0) in vec3 in_point;
-layout (location = 1) in vec2 in_tex;
-layout (location = 2) in vec4 in_normal;
+layout (location = 1) in vec3 in_normal;
+layout (location = 2) in vec2 in_coords;
 
 layout (location = 0) out struct {
-	vec4 normal;
-	vec2 tex;
+	vec3 normal;
+	vec2 coords;
 	vec4 fogColor;
 } v_out;
 
@@ -28,7 +28,7 @@ void main() {
 	gl_Position = camera.transform * model_transform * vec4(in_point, 1.0);
 
 	v_out.normal = in_normal;
-	v_out.tex = in_tex;
+	v_out.coords = in_coords;
 
 	vec3 relPos = camera.position - in_point.xyz;
 	float cameraDepth = length(relPos);
