@@ -77,36 +77,28 @@ struct WorldGenRegion {
         setData(pos.x, pos.y, pos.z, blockData);
     }
 
-    void setSkyLight(int32_t x, int32_t y, int32_t z, int32_t new_light) {
-        getChunk(x >> 4, z >> 4)->setSkyLight(x, y, z, new_light);
+    void setLight(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val) {
+        getChunk(x >> 4, z >> 4)->setLight(x, y, z, channel, val);
     }
 
-    void setSkyLight(glm::ivec3 pos, int32_t new_light) {
-        setSkyLight(pos.x, pos.y, pos.z, new_light);
+    void setLight(glm::ivec3 pos, int32_t channel, int32_t val) {
+        setLight(pos.x, pos.y, pos.z, channel, val);
     }
 
-    void setBlockLight(int32_t x, int32_t y, int32_t z, int32_t new_light) {
-        getChunk(x >> 4, z >> 4)->setBlockLight(x, y, z, new_light);
+    auto getLight(int32_t x, int32_t y, int32_t z, int32_t channel) const -> int32_t {
+        return getChunk(x >> 4, z >> 4)->getLight(x, y, z, channel);
     }
 
-    void setBlockLight(glm::ivec3 pos, int32_t new_light) {
-        setBlockLight(pos.x, pos.y, pos.z, new_light);
+    auto getLight(glm::ivec3 pos, int32_t channel) const -> int32_t {
+        return getLight(pos.x, pos.y, pos.z, channel);
     }
 
-    auto getSkyLight(int32_t x, int32_t y, int32_t z) -> int32_t {
-        return getChunk(x >> 4, z >> 4)->getSkyLight(x, y, z);
+    auto getLightPacked(int32_t x, int32_t y, int32_t z) const -> int32_t {
+        return getChunk(x >> 4, z >> 4)->getLightPacked(x, y, z);
     }
 
-    auto getSkyLight(glm::ivec3 pos) -> int32_t {
-        return getSkyLight(pos.x, pos.y, pos.z);
-    }
-
-    auto getBlockLight(int32_t x, int32_t y, int32_t z) -> int32_t {
-        return getChunk(x >> 4, z >> 4)->getBlockLight(x, y, z);
-    }
-
-    auto getBlockLight(glm::ivec3 pos) -> int32_t {
-        return getBlockLight(pos.x, pos.y, pos.z);
+    auto getLightPacked(glm::ivec3 pos) const -> int32_t {
+        return getLightPacked(pos.x, pos.y, pos.z);
     }
 
     auto getMainChunk() const -> Chunk* {

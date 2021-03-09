@@ -11,47 +11,7 @@ struct Vertex {
     glm::vec3 point;
     glm::vec2 tex;
     glm::u8vec4 color;
-
-    static auto from(glm::vec3 point, glm::vec2 tex, glm::u8vec4 color) -> Vertex {
-        return {point, tex, color};
-    }
-};
-
-struct VertexBuilder {
-    std::vector<Vertex> vertices;
-    std::vector<int> indices;
-
-    void clear() {
-        vertices.clear();
-        indices.clear();
-    }
-
-    void quad() {
-        auto i = vertices.size();
-        indices.push_back(i + 0);
-        indices.push_back(i + 2);
-        indices.push_back(i + 1);
-        indices.push_back(i + 0);
-        indices.push_back(i + 3);
-        indices.push_back(i + 2);
-    }
-    void quadInv() {
-        auto i = vertices.size();
-        indices.push_back(i + 0);
-        indices.push_back(i + 1);
-        indices.push_back(i + 2);
-        indices.push_back(i + 0);
-        indices.push_back(i + 2);
-        indices.push_back(i + 3);
-    }
-
-    void vertex(float x, float y, float z, float u, float v, uint8_t r, uint8_t g, uint8_t b, uint8_t light) {
-        vertices.push_back(Vertex{
-                .point{x, y, z},
-                .tex{u, v},
-                .color{r, g, b, light}
-        });
-    }
+    glm::u8vec4 light;
 };
 
 struct Mesh {
@@ -74,14 +34,17 @@ struct Mesh {
         glEnableVertexArrayAttrib(vao, 0);
         glEnableVertexArrayAttrib(vao, 1);
         glEnableVertexArrayAttrib(vao, 2);
+        glEnableVertexArrayAttrib(vao, 3);
 
         glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, point));
         glVertexArrayAttribFormat(vao, 1, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, tex));
         glVertexArrayAttribFormat(vao, 2, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, color));
+        glVertexArrayAttribFormat(vao, 3, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, light));
 
         glVertexArrayAttribBinding(vao, 0, 0);
         glVertexArrayAttribBinding(vao, 1, 0);
         glVertexArrayAttribBinding(vao, 2, 0);
+        glVertexArrayAttribBinding(vao, 3, 0);
     }
 
     ~Mesh() {

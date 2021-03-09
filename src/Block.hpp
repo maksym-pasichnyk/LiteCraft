@@ -38,7 +38,8 @@ enum class RenderType {
 	Block,
 	Leaves,
 	Cross,
-	Pane
+	Pane,
+	Torch
 };
 
 enum class RenderLayer {

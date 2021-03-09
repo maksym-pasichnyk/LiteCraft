@@ -39,11 +39,17 @@ struct RenderLayerBuilder {
         indices.push_back(i + 3);
     }
 
-    void vertex(float x, float y, float z, float u, float v, uint8_t r, uint8_t g, uint8_t b, uint8_t light) {
+    void vertex(float x, float y, float z, float u, float v, uint8_t r, uint8_t g, uint8_t b, int32_t packedLight, float ao) {
         vertices.push_back(Vertex{
-                .point{x, y, z},
-                .tex{u, v},
-                .color{r, g, b, light}
+            .point{x, y, z},
+            .tex{u, v},
+            .color{r, g, b, ao * 255},
+            .light{
+                ((packedLight >> 0) & 0xF) * 17,
+                ((packedLight >> 4) & 0xF) * 17,
+                ((packedLight >> 8) & 0xF) * 17,
+                ((packedLight >> 12) & 0xF) * 17
+            }
         });
     }
 };
@@ -369,6 +375,29 @@ struct Lightmap {
         lights[toIndex(x, y, z)] = (lights[toIndex(x, y, z)] & 0x0FFF) | ((val & 0xF) << 12);
     }
 
+    void setLight(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val) {
+        switch (channel) {
+            case 0: setLightR(x, y, z, val); break;
+            case 1: setLightG(x, y, z, val); break;
+            case 2: setLightB(x, y, z, val); break;
+            case 3: setLightS(x, y, z, val); break;
+        }
+    }
+
+    auto getLight(int32_t x, int32_t y, int32_t z, int32_t channel) -> int32_t {
+        switch (channel) {
+            case 0: return getLightR(x, y, z);
+            case 1: return getLightG(x, y, z);
+            case 2: return getLightB(x, y, z);
+            case 3: return getLightS(x, y, z);
+        }
+        return 0;
+    }
+
+    auto getLightPacked(int32_t x, int32_t y, int32_t z) -> int32_t {
+        return lights[toIndex(x, y, z)];
+    }
+
 private:
     static constexpr auto toIndex(int32_t x, int32_t y, int32_t z) noexcept -> size_t {
         return (y << 8) | (z << 4) | x;
@@ -397,64 +426,45 @@ struct Chunk {
 
     explicit Chunk(ChunkPos pos) : pos{pos} {}
 
-    void setSkyLight(int32_t x, int32_t y, int32_t z, int32_t new_light) {
-        auto& section = skyLightSections[y >> 4];
-        if (section == nullptr) {
-            if (new_light == /*15*/0) {
-                return;
-            }
-            section = std::make_unique<LightSection>();
-        }
-        section->setLight(x & 15, y & 15, z & 15, /*15 -*/ new_light);
-    }
+//    void setSkyLight(int32_t x, int32_t y, int32_t z, int32_t new_light) {
+//        auto& section = skyLightSections[y >> 4];
+//        if (section == nullptr) {
+//            if (new_light == /*15*/0) {
+//                return;
+//            }
+//            section = std::make_unique<LightSection>();
+//        }
+//        section->setLight(x & 15, y & 15, z & 15, /*15 -*/ new_light);
+//    }
+//
+//    auto getSkyLight(int32_t x, int32_t y, int32_t z) const -> int32_t {
+//        auto& section = skyLightSections[y >> 4];
+//        if (section == nullptr) {
+//            return /*15*/0;
+//        }
+//        return /*15 - */section->getLight(x & 15, y & 15, z & 15);
+//    }
+//
+//    void setBlockLight(int32_t x, int32_t y, int32_t z, int32_t new_light) {
+//        auto& section = blockLightSections[y >> 4];
+//        if (section == nullptr) {
+//            if (new_light == 0) {
+//                return;
+//            }
+//            section = std::make_unique<LightSection>();
+//        }
+//        section->setLight(x & 15, y & 15, z & 15, new_light);
+//    }
+//
+//    auto getBlockLight(int32_t x, int32_t y, int32_t z) const -> int32_t {
+//        auto& section = blockLightSections[y >> 4];
+//        if (section == nullptr) {
+//            return 0;
+//        }
+//        return section->getLight(x & 15, y & 15, z & 15);
+//    }
 
-    auto getSkyLight(int32_t x, int32_t y, int32_t z) const -> int32_t {
-        auto& section = skyLightSections[y >> 4];
-        if (section == nullptr) {
-            return /*15*/0;
-        }
-        return /*15 - */section->getLight(x & 15, y & 15, z & 15);
-    }
-
-    void setBlockLight(int32_t x, int32_t y, int32_t z, int32_t new_light) {
-        auto& section = blockLightSections[y >> 4];
-        if (section == nullptr) {
-            if (new_light == 0) {
-                return;
-            }
-            section = std::make_unique<LightSection>();
-        }
-        section->setLight(x & 15, y & 15, z & 15, new_light);
-    }
-
-    auto getBlockLight(int32_t x, int32_t y, int32_t z) const -> int32_t {
-        auto& section = blockLightSections[y >> 4];
-        if (section == nullptr) {
-            return 0;
-        }
-        return section->getLight(x & 15, y & 15, z & 15);
-    }
-
-    void setLightS(int32_t x, int32_t y, int32_t z, int32_t val) {
-        auto& section = lightSections[y >> 4];
-        if (section == nullptr) {
-            if (val == 15) {
-                return;
-            }
-            section = std::make_unique<Lightmap>();
-        }
-        section->setLightS(x & 15, y & 15, z & 15, 15 - val);
-    }
-
-    auto getLightS(int32_t x, int32_t y, int32_t z) const -> int32_t {
-        auto& section = lightSections[y >> 4];
-        if (section == nullptr) {
-            return 15;
-        }
-        return 15 - section->getLightS(x & 15, y & 15, z & 15);
-    }
-
-    void setLightR(int32_t x, int32_t y, int32_t z, int32_t val) {
+    void setLight(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val) {
         auto& section = lightSections[y >> 4];
         if (section == nullptr) {
             if (val == 0) {
@@ -462,53 +472,23 @@ struct Chunk {
             }
             section = std::make_unique<Lightmap>();
         }
-        section->setLightR(x & 15, y & 15, z & 15, val);
+        section->setLight(x & 15, y & 15, z & 15, channel, val);
     }
 
-    auto getLightR(int32_t x, int32_t y, int32_t z) const -> int32_t {
+    auto getLight(int32_t x, int32_t y, int32_t z, int32_t channel) const -> int32_t {
         auto& section = lightSections[y >> 4];
         if (section == nullptr) {
             return 0;
         }
-        return section->getLightR(x & 15, y & 15, z & 15);
+        return section->getLight(x & 15, y & 15, z & 15, channel);
     }
 
-    void setLightG(int32_t x, int32_t y, int32_t z, int32_t val) {
-        auto& section = lightSections[y >> 4];
-        if (section == nullptr) {
-            if (val == 0) {
-                return;
-            }
-            section = std::make_unique<Lightmap>();
-        }
-        section->setLightG(x & 15, y & 15, z & 15, val);
-    }
-
-    auto getLightG(int32_t x, int32_t y, int32_t z) const -> int32_t {
+    auto getLightPacked(int32_t x, int32_t y, int32_t z) const -> int32_t {
         auto& section = lightSections[y >> 4];
         if (section == nullptr) {
             return 0;
         }
-        return section->getLightG(x & 15, y & 15, z & 15);
-    }
-
-    void setLightB(int32_t x, int32_t y, int32_t z, int32_t val) {
-        auto& section = lightSections[y >> 4];
-        if (section == nullptr) {
-            if (val == 0) {
-                return;
-            }
-            section = std::make_unique<Lightmap>();
-        }
-        section->setLightB(x & 15, y & 15, z & 15, val);
-    }
-
-    auto getLightB(int32_t x, int32_t y, int32_t z) const -> int32_t {
-        auto& section = lightSections[y >> 4];
-        if (section == nullptr) {
-            return 0;
-        }
-        return section->getLightB(x & 15, y & 15, z & 15);
+        return section->getLightPacked(x & 15, y & 15, z & 15);
     }
 
     void setData(int32_t x, int32_t y, int32_t z, BlockData blockData) {

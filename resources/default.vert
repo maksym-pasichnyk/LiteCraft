@@ -16,6 +16,7 @@ layout(location = 7) uniform float RENDER_DISTANCE = 8.0f;
 layout (location = 0) in vec3 in_point;
 layout (location = 1) in vec2 in_tex;
 layout (location = 2) in vec4 in_color;
+layout (location = 3) in vec4 in_light;
 
 layout (location = 0) out struct {
 	vec4 color;
@@ -26,11 +27,7 @@ layout (location = 0) out struct {
 void main() {
 	gl_Position = camera.transform * vec4(in_point, 1.0);
 
-	int light = int(in_color.a * 255);
-	float block_light = float(light & 15);
-	float sky_light = float((light >> 4) & 15);
-
-	v_out.color = vec4(in_color.rgb, max(block_light, sky_light) / 15.0f);
+	v_out.color = vec4(in_color.rgb, max(in_light.x, in_light.w) * in_color.a);
 	v_out.tex = in_tex;
 
 	vec3 relPos = camera.position - in_point.xyz;

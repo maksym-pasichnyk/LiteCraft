@@ -32,123 +32,123 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
     float aoLights[4] {0.3, 0.6, 0.9, 1 };
 
 	if (blocks.getBlock(x, y, z - 1)->renderType != block->renderType) {
-        const auto skyLight = blocks.getSkyLight(x, y, z - 1);
+        const auto packedLight = blocks.getLightPacked(x, y, z - 1);
         const auto coords = block->graphics->southTexture->get(0);
 
-        auto uf = blocks.getData(x, y + 1, z - 1).id != BlockID::AIR;
-        auto ub = blocks.getData(x, y - 1, z - 1).id != BlockID::AIR;
-        auto ul = blocks.getData(x - 1, y, z - 1).id != BlockID::AIR;
-        auto ur = blocks.getData(x + 1, y, z - 1).id != BlockID::AIR;
+        const auto uf = isOpaque(blocks.getData(x, y + 1, z - 1));
+        const auto ub = isOpaque(blocks.getData(x, y - 1, z - 1));
+        const auto ul = isOpaque(blocks.getData(x - 1, y, z - 1));
+        const auto ur = isOpaque(blocks.getData(x + 1, y, z - 1));
 
-        const int ao0 = vertexAO(ub, ul, blocks.getData(x - 1, y - 1, z - 1).id != BlockID::AIR);
-        const int ao1 = vertexAO(uf, ul, blocks.getData(x - 1, y + 1, z - 1).id != BlockID::AIR);
-        const int ao2 = vertexAO(uf, ur, blocks.getData(x + 1, y + 1, z - 1).id != BlockID::AIR);
-        const int ao3 = vertexAO(ub, ur, blocks.getData(x + 1, y - 1, z - 1).id != BlockID::AIR);
+        const int ao0 = vertexAO(ub, ul, isOpaque(blocks.getData(x - 1, y - 1, z - 1)));
+        const int ao1 = vertexAO(uf, ul, isOpaque(blocks.getData(x - 1, y + 1, z - 1)));
+        const int ao2 = vertexAO(uf, ur, isOpaque(blocks.getData(x + 1, y + 1, z - 1)));
+        const int ao3 = vertexAO(ub, ur, isOpaque(blocks.getData(x + 1, y - 1, z - 1)));
 
 		builder.quad();
-		builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, int(skyLight * aoLights[ao0] * 0.7) << 4);
-		builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.maxV, r, g, b, int(skyLight * aoLights[ao1] * 0.7) << 4);
-		builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.maxV, r, g, b, int(skyLight * aoLights[ao2] * 0.7) << 4);
-		builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, int(skyLight * aoLights[ao3] * 0.7) << 4);
+		builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 0.7f);
+		builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.maxV, r, g, b, packedLight, aoLights[ao1] * 0.7f);
+		builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.maxV, r, g, b, packedLight, aoLights[ao2] * 0.7f);
+		builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, packedLight, aoLights[ao3] * 0.7f);
 	}
 
 	if (blocks.getBlock(x + 1, y, z)->renderType != block->renderType) {
-        const auto skyLight = blocks.getSkyLight(x + 1, y, z);
+        const auto packedLight = blocks.getLightPacked(x + 1, y, z);
         const auto coords = block->graphics->eastTexture->get(0);
 
-        auto uf = blocks.getData(x + 1, y - 1, z).id != BlockID::AIR;
-        auto ub = blocks.getData(x + 1, y + 1, z).id != BlockID::AIR;
-        auto ul = blocks.getData(x + 1, y, z + 1).id != BlockID::AIR;
-        auto ur = blocks.getData(x + 1, y, z - 1).id != BlockID::AIR;
+        const auto uf = isOpaque(blocks.getData(x + 1, y - 1, z));
+        const auto ub = isOpaque(blocks.getData(x + 1, y + 1, z));
+        const auto ul = isOpaque(blocks.getData(x + 1, y, z + 1));
+        const auto ur = isOpaque(blocks.getData(x + 1, y, z - 1));
 
-        const int ao0 = vertexAO(uf, ur, blocks.getData(x + 1, y - 1, z - 1).id != BlockID::AIR);
-        const int ao1 = vertexAO(ub, ur, blocks.getData(x + 1, y + 1, z - 1).id != BlockID::AIR);
-        const int ao2 = vertexAO(ub, ul, blocks.getData(x + 1, y + 1, z + 1).id != BlockID::AIR);
-        const int ao3 = vertexAO(uf, ul, blocks.getData(x + 1, y - 1, z + 1).id != BlockID::AIR);
+        const int ao0 = vertexAO(uf, ur, isOpaque(blocks.getData(x + 1, y - 1, z - 1)));
+        const int ao1 = vertexAO(ub, ur, isOpaque(blocks.getData(x + 1, y + 1, z - 1)));
+        const int ao2 = vertexAO(ub, ul, isOpaque(blocks.getData(x + 1, y + 1, z + 1)));
+        const int ao3 = vertexAO(uf, ul, isOpaque(blocks.getData(x + 1, y - 1, z + 1)));
 
 		builder.quad();
-		builder.vertex(fx + 1, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, int(skyLight * aoLights[ao0] * 0.8) << 4);
-		builder.vertex(fx + 1, fy + 1, fz + 0, coords.minU, coords.maxV, r, g, b, int(skyLight * aoLights[ao1] * 0.8) << 4);
-		builder.vertex(fx + 1, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, int(skyLight * aoLights[ao2] * 0.8) << 4);
-		builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, int(skyLight * aoLights[ao3] * 0.8) << 4);
+		builder.vertex(fx + 1, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 0.8f);
+		builder.vertex(fx + 1, fy + 1, fz + 0, coords.minU, coords.maxV, r, g, b, packedLight, aoLights[ao1] * 0.8f);
+		builder.vertex(fx + 1, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, packedLight, aoLights[ao2] * 0.8f);
+		builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, packedLight, aoLights[ao3] * 0.8f);
 	}
 
 	if (blocks.getBlock(x, y, z + 1)->renderType != block->renderType) {
-        const auto skyLight = blocks.getSkyLight(x, y, z + 1);
+        const auto packedLight = blocks.getLightPacked(x, y, z + 1);
         const auto coords = block->graphics->northTexture->get(0);
 
-        auto uf = blocks.getData(x, y - 1, z + 1).id != BlockID::AIR;
-        auto ub = blocks.getData(x, y + 1, z + 1).id != BlockID::AIR;
-        auto ul = blocks.getData(x - 1, y, z + 1).id != BlockID::AIR;
-        auto ur = blocks.getData(x + 1, y, z + 1).id != BlockID::AIR;
+        const auto uf = isOpaque(blocks.getData(x, y - 1, z + 1));
+        const auto ub = isOpaque(blocks.getData(x, y + 1, z + 1));
+        const auto ul = isOpaque(blocks.getData(x - 1, y, z + 1));
+        const auto ur = isOpaque(blocks.getData(x + 1, y, z + 1));
 
-        const int ao0 = vertexAO(uf, ur, blocks.getData(x + 1, y - 1, z + 1).id != BlockID::AIR);
-        const int ao1 = vertexAO(ub, ur, blocks.getData(x + 1, y + 1, z + 1).id != BlockID::AIR);
-        const int ao2 = vertexAO(ub, ul, blocks.getData(x - 1, y + 1, z + 1).id != BlockID::AIR);
-        const int ao3 = vertexAO(uf, ul, blocks.getData(x - 1, y - 1, z + 1).id != BlockID::AIR);
+        const int ao0 = vertexAO(uf, ur, isOpaque(blocks.getData(x + 1, y - 1, z + 1)));
+        const int ao1 = vertexAO(ub, ur, isOpaque(blocks.getData(x + 1, y + 1, z + 1)));
+        const int ao2 = vertexAO(ub, ul, isOpaque(blocks.getData(x - 1, y + 1, z + 1)));
+        const int ao3 = vertexAO(uf, ul, isOpaque(blocks.getData(x - 1, y - 1, z + 1)));
 
 		builder.quad();
-		builder.vertex(fx + 1, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, int(skyLight * aoLights[ao0] * 0.8) << 4);
-		builder.vertex(fx + 1, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, int(skyLight * aoLights[ao1] * 0.8) << 4);
-		builder.vertex(fx + 0, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, int(skyLight * aoLights[ao2] * 0.8) << 4);
-		builder.vertex(fx + 0, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, int(skyLight * aoLights[ao3] * 0.8) << 4);
+		builder.vertex(fx + 1, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 0.8f);
+		builder.vertex(fx + 1, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, packedLight, aoLights[ao1] * 0.8f);
+		builder.vertex(fx + 0, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, packedLight, aoLights[ao2] * 0.8f);
+		builder.vertex(fx + 0, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, packedLight, aoLights[ao3] * 0.8f);
 	}
 
 	if (blocks.getBlock(x - 1, y, z)->renderType != block->renderType) {
-        const auto skyLight = blocks.getSkyLight(x - 1, y, z);
+        const auto packedLight = blocks.getLightPacked(x - 1, y, z);
         const auto coords = block->graphics->westTexture->get(0);
 
-        auto uf = blocks.getData(x - 1, y - 1, z).id != BlockID::AIR;
-        auto ub = blocks.getData(x - 1, y + 1, z).id != BlockID::AIR;
-        auto ul = blocks.getData(x - 1, y, z - 1).id != BlockID::AIR;
-        auto ur = blocks.getData(x - 1, y, z + 1).id != BlockID::AIR;
+        const auto uf = isOpaque(blocks.getData(x - 1, y - 1, z));
+        const auto ub = isOpaque(blocks.getData(x - 1, y + 1, z));
+        const auto ul = isOpaque(blocks.getData(x - 1, y, z - 1));
+        const auto ur = isOpaque(blocks.getData(x - 1, y, z + 1));
 
-        const int ao0 = vertexAO(uf, ur, blocks.getData(x - 1, y - 1, z + 1).id != BlockID::AIR);
-        const int ao1 = vertexAO(ub, ur, blocks.getData(x - 1, y + 1, z + 1).id != BlockID::AIR);
-        const int ao2 = vertexAO(ub, ul, blocks.getData(x - 1, y + 1, z - 1).id != BlockID::AIR);
-        const int ao3 = vertexAO(uf, ul, blocks.getData(x - 1, y - 1, z - 1).id != BlockID::AIR);
+        const int ao0 = vertexAO(uf, ur, isOpaque(blocks.getData(x - 1, y - 1, z + 1)));
+        const int ao1 = vertexAO(ub, ur, isOpaque(blocks.getData(x - 1, y + 1, z + 1)));
+        const int ao2 = vertexAO(ub, ul, isOpaque(blocks.getData(x - 1, y + 1, z - 1)));
+        const int ao3 = vertexAO(uf, ul, isOpaque(blocks.getData(x - 1, y - 1, z - 1)));
 
         builder.quad();
-		builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, int(skyLight * aoLights[ao0] * 0.7) << 4);
-		builder.vertex(fx + 0, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, int(skyLight * aoLights[ao1] * 0.7) << 4);
-		builder.vertex(fx + 0, fy + 1, fz + 0, coords.maxU, coords.maxV, r, g, b, int(skyLight * aoLights[ao2] * 0.7) << 4);
-		builder.vertex(fx + 0, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, int(skyLight * aoLights[ao3] * 0.7) << 4);
+		builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 0.7f);
+		builder.vertex(fx + 0, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, packedLight, aoLights[ao1] * 0.7f);
+		builder.vertex(fx + 0, fy + 1, fz + 0, coords.maxU, coords.maxV, r, g, b, packedLight, aoLights[ao2] * 0.7f);
+		builder.vertex(fx + 0, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, packedLight, aoLights[ao3] * 0.7f);
 	}
 
 	if (blocks.getBlock(x, y + 1, z)->renderType != block->renderType) {
-        const auto skyLight = blocks.getSkyLight(x, y + 1, z);
+        const auto packedLight = blocks.getLightPacked(x, y + 1, z);
 		const auto coords = block->graphics->topTexture->get(0);
 
-        auto uf = blocks.getData(x, y + 1, z + 1).id != BlockID::AIR;
-        auto ub = blocks.getData(x, y + 1, z - 1).id != BlockID::AIR;
-        auto ul = blocks.getData(x - 1, y + 1, z).id != BlockID::AIR;
-        auto ur = blocks.getData(x + 1, y + 1, z).id != BlockID::AIR;
+        const auto uf = isOpaque(blocks.getData(x, y + 1, z + 1));
+        const auto ub = isOpaque(blocks.getData(x, y + 1, z - 1));
+        const auto ul = isOpaque(blocks.getData(x - 1, y + 1, z));
+        const auto ur = isOpaque(blocks.getData(x + 1, y + 1, z));
 
-        const int ao0 = vertexAO(ub, ul, blocks.getData(x - 1, y + 1, z - 1).id != BlockID::AIR);
-        const int ao1 = vertexAO(uf, ul, blocks.getData(x - 1, y + 1, z + 1).id != BlockID::AIR);
-        const int ao2 = vertexAO(uf, ur, blocks.getData(x + 1, y + 1, z + 1).id != BlockID::AIR);
-        const int ao3 = vertexAO(ub, ur, blocks.getData(x + 1, y + 1, z - 1).id != BlockID::AIR);
+        const int ao0 = vertexAO(ub, ul, isOpaque(blocks.getData(x - 1, y + 1, z - 1)));
+        const int ao1 = vertexAO(uf, ul, isOpaque(blocks.getData(x - 1, y + 1, z + 1)));
+        const int ao2 = vertexAO(uf, ur, isOpaque(blocks.getData(x + 1, y + 1, z + 1)));
+        const int ao3 = vertexAO(ub, ur, isOpaque(blocks.getData(x + 1, y + 1, z - 1)));
 
 		builder.quad();
-		builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.minV, r, g, b, int(skyLight * aoLights[ao0] * 1.0) << 4);
-		builder.vertex(fx + 0, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, int(skyLight * aoLights[ao1] * 1.0) << 4);
-		builder.vertex(fx + 1, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, int(skyLight * aoLights[ao2] * 1.0) << 4);
-		builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.minV, r, g, b, int(skyLight * aoLights[ao3] * 1.0) << 4);
+		builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 1.0f);
+		builder.vertex(fx + 0, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, packedLight, aoLights[ao1] * 1.0f);
+		builder.vertex(fx + 1, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, packedLight, aoLights[ao2] * 1.0f);
+		builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.minV, r, g, b, packedLight, aoLights[ao3] * 1.0f);
 	}
 
 	if (blocks.getBlock(x, y - 1, z)->renderType != block->renderType) {
-        const auto skyLight = blocks.getSkyLight(x, y - 1, z);
+        const auto packedLight = blocks.getLightPacked(x, y - 1, z);
         const auto coords = block->graphics->bottomTexture->get(0);
 
-        auto df = blocks.getData(x, y - 1, z + 1).id != BlockID::AIR;
-        auto db = blocks.getData(x, y - 1, z - 1).id != BlockID::AIR;
-        auto dl = blocks.getData(x - 1, y - 1, z).id != BlockID::AIR;
-        auto dr = blocks.getData(x + 1, y - 1, z).id != BlockID::AIR;
+        const auto df = isOpaque(blocks.getData(x, y - 1, z + 1));
+        const auto db = isOpaque(blocks.getData(x, y - 1, z - 1));
+        const auto dl = isOpaque(blocks.getData(x - 1, y - 1, z));
+        const auto dr = isOpaque(blocks.getData(x + 1, y - 1, z));
 
-        const int ao0 = vertexAO(df, dl, blocks.getData(x - 1, y - 1, z + 1).id != BlockID::AIR);
-        const int ao1 = vertexAO(db, dl, blocks.getData(x - 1, y - 1, z - 1).id != BlockID::AIR);
-        const int ao2 = vertexAO(db, dr, blocks.getData(x + 1, y - 1, z - 1).id != BlockID::AIR);
-        const int ao3 = vertexAO(df, dr, blocks.getData(x + 1, y - 1, z + 1).id != BlockID::AIR);
+        const int ao0 = vertexAO(df, dl, isOpaque(blocks.getData(x - 1, y - 1, z + 1)));
+        const int ao1 = vertexAO(db, dl, isOpaque(blocks.getData(x - 1, y - 1, z - 1)));
+        const int ao2 = vertexAO(db, dr, isOpaque(blocks.getData(x + 1, y - 1, z - 1)));
+        const int ao3 = vertexAO(df, dr, isOpaque(blocks.getData(x + 1, y - 1, z + 1)));
 
         if (block->tint == Tint::Grass) {
             r = 0xFF;
@@ -157,10 +157,10 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
         }
 
 		builder.quad();
-		builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, int(skyLight * aoLights[ao0] * 0.7) << 4);
-		builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.maxV, r, g, b, int(skyLight * aoLights[ao1] * 0.7) << 4);
-		builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.maxV, r, g, b, int(skyLight * aoLights[ao2] * 0.7) << 4);
-		builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, int(skyLight * aoLights[ao3] * 0.7) << 4);
+		builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 0.7f);
+		builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.maxV, r, g, b, packedLight, aoLights[ao1] * 0.7f);
+		builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.maxV, r, g, b, packedLight, aoLights[ao2] * 0.7f);
+		builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, packedLight, aoLights[ao3] * 0.7f);
 	}
 }
 
@@ -174,62 +174,62 @@ void renderBlockWithoutAO(int32_t x, int32_t y, int32_t z, Block* block, RenderB
     auto builder = rb.getForLayer(block->renderLayer);
 
     if (blocks.getBlock(x, y, z - 1)->renderType != block->renderType) {
-        const auto skyLight = blocks.getSkyLight(x, y, z - 1);
+        const auto packedLight = blocks.getLightPacked(x, y, z - 1);
         const auto coords = block->graphics->southTexture->get(0);
 
         builder.quad();
-        builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, int(skyLight * 0.7) << 4);
-        builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.maxV, r, g, b, int(skyLight * 0.7) << 4);
-        builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.maxV, r, g, b, int(skyLight * 0.7) << 4);
-        builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, int(skyLight * 0.7) << 4);
+        builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, packedLight, 0.7f);
+        builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.maxV, r, g, b, packedLight, 0.7f);
+        builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.maxV, r, g, b, packedLight, 0.7f);
+        builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, packedLight, 0.7f);
     }
 
     if (blocks.getBlock(x + 1, y, z)->renderType != block->renderType) {
-        const auto skyLight = blocks.getSkyLight(x + 1, y, z);
+        const auto packedLight = blocks.getLightPacked(x + 1, y, z);
         const auto coords = block->graphics->eastTexture->get(0);
 
         builder.quad();
-        builder.vertex(fx + 1, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, int(skyLight * 0.8) << 4);
-        builder.vertex(fx + 1, fy + 1, fz + 0, coords.minU, coords.maxV, r, g, b, int(skyLight * 0.8) << 4);
-        builder.vertex(fx + 1, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, int(skyLight * 0.8) << 4);
-        builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, int(skyLight * 0.8) << 4);
+        builder.vertex(fx + 1, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, packedLight, 0.8f);
+        builder.vertex(fx + 1, fy + 1, fz + 0, coords.minU, coords.maxV, r, g, b, packedLight, 0.8f);
+        builder.vertex(fx + 1, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, packedLight, 0.8f);
+        builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, packedLight, 0.8f);
     }
 
     if (blocks.getBlock(x, y, z + 1)->renderType != block->renderType) {
-        const auto skyLight = blocks.getSkyLight(x, y, z + 1);
+        const auto packedLight = blocks.getLightPacked(x, y, z + 1);
         const auto coords = block->graphics->northTexture->get(0);
 
         builder.quad();
-        builder.vertex(fx + 1, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, int(skyLight * 0.8) << 4);
-        builder.vertex(fx + 1, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, int(skyLight * 0.8) << 4);
-        builder.vertex(fx + 0, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, int(skyLight * 0.8) << 4);
-        builder.vertex(fx + 0, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, int(skyLight * 0.8) << 4);
+        builder.vertex(fx + 1, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, packedLight, 0.8f);
+        builder.vertex(fx + 1, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, packedLight, 0.8f);
+        builder.vertex(fx + 0, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, packedLight, 0.8f);
+        builder.vertex(fx + 0, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, packedLight, 0.8f);
     }
 
     if (blocks.getBlock(x - 1, y, z)->renderType != block->renderType) {
-        const auto skyLight = blocks.getSkyLight(x - 1, y, z);
+        const auto packedLight = blocks.getLightPacked(x - 1, y, z);
         const auto coords = block->graphics->westTexture->get(0);
 
         builder.quad();
-        builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, int(skyLight * 0.7) << 4);
-        builder.vertex(fx + 0, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, int(skyLight * 0.7) << 4);
-        builder.vertex(fx + 0, fy + 1, fz + 0, coords.maxU, coords.maxV, r, g, b, int(skyLight * 0.7) << 4);
-        builder.vertex(fx + 0, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, int(skyLight * 0.7) << 4);
+        builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, packedLight, 0.7f);
+        builder.vertex(fx + 0, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, packedLight, 0.7f);
+        builder.vertex(fx + 0, fy + 1, fz + 0, coords.maxU, coords.maxV, r, g, b, packedLight, 0.7f);
+        builder.vertex(fx + 0, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, packedLight, 0.7f);
     }
 
     if (blocks.getBlock(x, y + 1, z)->renderType != block->renderType) {
-        const auto skyLight = blocks.getSkyLight(x, y + 1, z);
+        const auto packedLight = blocks.getLightPacked(x, y + 1, z);
         const auto coords = block->graphics->topTexture->get(0);
 
         builder.quad();
-        builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.minV, r, g, b, int(skyLight * 1.0) << 4);
-        builder.vertex(fx + 0, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, int(skyLight * 1.0) << 4);
-        builder.vertex(fx + 1, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, int(skyLight * 1.0) << 4);
-        builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.minV, r, g, b, int(skyLight * 1.0) << 4);
+        builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.minV, r, g, b, packedLight, 1.0f);
+        builder.vertex(fx + 0, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, packedLight, 1.0f);
+        builder.vertex(fx + 1, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, packedLight, 1.0f);
+        builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.minV, r, g, b, packedLight, 1.0f);
     }
 
     if (blocks.getBlock(x, y - 1, z)->renderType != block->renderType) {
-        const auto skyLight = blocks.getSkyLight(x, y - 1, z);
+        const auto packedLight = blocks.getLightPacked(x, y - 1, z);
         const auto coords = block->graphics->bottomTexture->get(0);
 
         if (block->tint == Tint::Grass) {
@@ -239,10 +239,10 @@ void renderBlockWithoutAO(int32_t x, int32_t y, int32_t z, Block* block, RenderB
         }
 
         builder.quad();
-        builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, int(skyLight * 0.7) << 4);
-        builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.maxV, r, g, b, int(skyLight * 0.7) << 4);
-        builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.maxV, r, g, b, int(skyLight * 0.7) << 4);
-        builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, int(skyLight * 0.7) << 4);
+        builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, packedLight, 0.7f);
+        builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.maxV, r, g, b, packedLight, 0.7f);
+        builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.maxV, r, g, b, packedLight, 0.7f);
+        builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, packedLight, 0.7f);
     }
 }
 
@@ -263,17 +263,17 @@ void renderCross(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& rb
 
 	builder.quad();
 	builder.quadInv();
-	builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, 0xFF);
-	builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.maxV, r, g, b, 0xFF);
-	builder.vertex(fx + 1, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, 0xFF);
-	builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, 0xFF);
+	builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, 0xFFFF, 1.0f);
+	builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+	builder.vertex(fx + 1, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+	builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, 0xFFFF, 1.0f);
 
 	builder.quad();
 	builder.quadInv();
-	builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, 0xFF);
-	builder.vertex(fx + 0, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, 0xFF);
-	builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.maxV, r, g, b, 0xFF);
-	builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, 0xFF);
+	builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, 0xFFFF, 1.0f);
+	builder.vertex(fx + 0, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+	builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+	builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, 0xFFFF, 1.0f);
 }
 
 void renderLiquid(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
@@ -295,10 +295,10 @@ void renderLiquid(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& r
 
 		builder.quad();
 		builder.quadInv();
-		builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, 0xFF);
-		builder.vertex(fx + 0, fy + (up_is_liquid ? 1 : 0.9375f), fz + 0, coords.minU, coords.maxV, r, g, b, 0xFF);
-		builder.vertex(fx + 1, fy + (up_is_liquid ? 1 : 0.9375f), fz + 0, coords.maxU, coords.maxV, r, g, b, 0xFF);
-		builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, 0xFF);
+		builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, 0xFFFF, 1.0f);
+		builder.vertex(fx + 0, fy + (up_is_liquid ? 1 : 0.9375f), fz + 0, coords.minU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+		builder.vertex(fx + 1, fy + (up_is_liquid ? 1 : 0.9375f), fz + 0, coords.maxU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+		builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, 0xFFFF, 1.0f);
 	}
 
 	if (blocks.getBlock(x + 1, y, z)->renderType == RenderType::Air) {
@@ -307,10 +307,10 @@ void renderLiquid(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& r
 
 		builder.quad();
 		builder.quadInv();
-		builder.vertex(fx + 1, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, 0xFF);
-		builder.vertex(fx + 1, fy + (up_is_liquid ? 1 : 0.9375f), fz + 0, coords.minU, coords.maxV, r, g, b, 0xFF);
-		builder.vertex(fx + 1, fy + (up_is_liquid ? 1 : 0.9375f), fz + 1, coords.maxU, coords.maxV, r, g, b, 0xFF);
-		builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, 0xFF);
+		builder.vertex(fx + 1, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, 0xFFFF, 1.0f);
+		builder.vertex(fx + 1, fy + (up_is_liquid ? 1 : 0.9375f), fz + 0, coords.minU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+		builder.vertex(fx + 1, fy + (up_is_liquid ? 1 : 0.9375f), fz + 1, coords.maxU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+		builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, 0xFFFF, 1.0f);
 	}
 
 	if (blocks.getBlock(x, y, z + 1)->renderType == RenderType::Air) {
@@ -319,10 +319,10 @@ void renderLiquid(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& r
 
 		builder.quad();
 		builder.quadInv();
-		builder.vertex(fx + 1, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, 0xFF);
-		builder.vertex(fx + 1, fy + (up_is_liquid ? 1 : 0.9375f), fz + 1, coords.minU, coords.maxV, r, g, b, 0xFF);
-		builder.vertex(fx + 0, fy + (up_is_liquid ? 1 : 0.9375f), fz + 1, coords.maxU, coords.maxV, r, g, b, 0xFF);
-		builder.vertex(fx + 0, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, 0xFF);
+		builder.vertex(fx + 1, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, 0xFFFF, 1.0f);
+		builder.vertex(fx + 1, fy + (up_is_liquid ? 1 : 0.9375f), fz + 1, coords.minU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+		builder.vertex(fx + 0, fy + (up_is_liquid ? 1 : 0.9375f), fz + 1, coords.maxU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+		builder.vertex(fx + 0, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, 0xFFFF, 1.0f);
 	}
 
 	if (blocks.getBlock(x - 1, y, z)->renderType == RenderType::Air) {
@@ -331,10 +331,10 @@ void renderLiquid(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& r
 
 		builder.quad();
 		builder.quadInv();
-		builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, 0xFF);
-		builder.vertex(fx + 0, fy + (up_is_liquid ? 1 : 0.9375f), fz + 1, coords.minU, coords.maxV, r, g, b, 0xFF);
-		builder.vertex(fx + 0, fy + (up_is_liquid ? 1 : 0.9375f), fz + 0, coords.maxU, coords.maxV, r, g, b, 0xFF);
-		builder.vertex(fx + 0, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, 0xFF);
+		builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, 0xFFFF, 1.0f);
+		builder.vertex(fx + 0, fy + (up_is_liquid ? 1 : 0.9375f), fz + 1, coords.minU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+		builder.vertex(fx + 0, fy + (up_is_liquid ? 1 : 0.9375f), fz + 0, coords.maxU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+		builder.vertex(fx + 0, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, 0xFFFF, 1.0f);
 	}
 
 	if (y == 255 || blocks.getBlock(x, y + 1, z)->renderType == RenderType::Air) {
@@ -344,10 +344,10 @@ void renderLiquid(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& r
 
 		builder.quad();
 		builder.quadInv();
-		builder.vertex(fx + 0, fy + (up_is_liquid ? 1 : 0.9375f), fz + 0, coords.minU, coords.minV, r, g, b, 0xFF);
-		builder.vertex(fx + 0, fy + (up_is_liquid ? 1 : 0.9375f), fz + 1, coords.minU, coords.maxV, r, g, b, 0xFF);
-		builder.vertex(fx + 1, fy + (up_is_liquid ? 1 : 0.9375f), fz + 1, coords.maxU, coords.maxV, r, g, b, 0xFF);
-		builder.vertex(fx + 1, fy + (up_is_liquid ? 1 : 0.9375f), fz + 0, coords.maxU, coords.minV, r, g, b, 0xFF);
+		builder.vertex(fx + 0, fy + (up_is_liquid ? 1 : 0.9375f), fz + 0, coords.minU, coords.minV, r, g, b, 0xFFFF, 1.0f);
+		builder.vertex(fx + 0, fy + (up_is_liquid ? 1 : 0.9375f), fz + 1, coords.minU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+		builder.vertex(fx + 1, fy + (up_is_liquid ? 1 : 0.9375f), fz + 1, coords.maxU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+		builder.vertex(fx + 1, fy + (up_is_liquid ? 1 : 0.9375f), fz + 0, coords.maxU, coords.minV, r, g, b, 0xFFFF, 1.0f);
 	}
 
 	if (y == 0 || blocks.getBlock(x, y - 1, z)->renderType == RenderType::Air) {
@@ -356,10 +356,10 @@ void renderLiquid(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& r
 
 		builder.quad();
 		builder.quadInv();
-		builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, 0xFF);
-		builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.maxV, r, g, b, 0xFF);
-		builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.maxV, r, g, b, 0xFF);
-		builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, 0xFF);
+		builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, 0xFFFF, 1.0f);
+		builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+		builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+		builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, 0xFFFF, 1.0f);
 	}
 }
 
@@ -368,37 +368,48 @@ void renderBox(RenderLayerBuilder& builder, int32_t x, int32_t y, int32_t z, Blo
     const auto fy = static_cast<float>(y);
     const auto fz = static_cast<float>(z);
 
-    auto coords = block->graphics->southTexture->get(0);
+    auto tex0 = block->graphics->southTexture->get(0);
+    auto tex1 = block->graphics->eastTexture->get(0);
+    auto tex2 = block->graphics->northTexture->get(0);
+    auto tex3 = block->graphics->westTexture->get(0);
+    auto tex4 = block->graphics->topTexture->get(0);
+    auto tex5 = block->graphics->bottomTexture->get(0);
 
     builder.quad();
-    builder.vertex(fx + min.x, fy + min.y, fz + min.z, coords.minU, coords.minV, 0xFF, 0xFF, 0xFF, 0xFF);
-    builder.vertex(fx + min.x, fy + max.y, fz + min.z, coords.minU, coords.maxV, 0xFF, 0xFF, 0xFF, 0xFF);
-    builder.vertex(fx + max.x, fy + max.y, fz + min.z, coords.maxU, coords.maxV, 0xFF, 0xFF, 0xFF, 0xFF);
-    builder.vertex(fx + max.x, fy + min.y, fz + min.z, coords.maxU, coords.minV, 0xFF, 0xFF, 0xFF, 0xFF);
+    builder.vertex(fx + min.x, fy + min.y, fz + min.z, tex0.getInterpolatedU(min.x), tex0.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + max.y, fz + min.z, tex0.getInterpolatedU(min.x), tex0.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + min.z, tex0.getInterpolatedU(max.x), tex0.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + min.y, fz + min.z, tex0.getInterpolatedU(max.x), tex0.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
 
     builder.quad();
-    builder.vertex(fx + max.x, fy + min.y, fz + min.z, coords.minU, coords.minV, 0xFF, 0xFF, 0xFF, 0xFF);
-    builder.vertex(fx + max.x, fy + max.y, fz + min.z, coords.minU, coords.maxV, 0xFF, 0xFF, 0xFF, 0xFF);
-    builder.vertex(fx + max.x, fy + max.y, fz + max.z, coords.maxU, coords.maxV, 0xFF, 0xFF, 0xFF, 0xFF);
-    builder.vertex(fx + max.x, fy + min.y, fz + max.z, coords.maxU, coords.minV, 0xFF, 0xFF, 0xFF, 0xFF);
+    builder.vertex(fx + max.x, fy + min.y, fz + min.z, tex1.getInterpolatedU(min.z), tex1.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + min.z, tex1.getInterpolatedU(min.z), tex1.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + max.z, tex1.getInterpolatedU(max.z), tex1.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + min.y, fz + max.z, tex1.getInterpolatedU(max.z), tex1.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
 
     builder.quad();
-    builder.vertex(fx + max.x, fy + min.y, fz + max.z, coords.minU, coords.minV, 0xFF, 0xFF, 0xFF, 0xFF);
-    builder.vertex(fx + max.x, fy + max.y, fz + max.z, coords.minU, coords.maxV, 0xFF, 0xFF, 0xFF, 0xFF);
-    builder.vertex(fx + min.x, fy + max.y, fz + max.z, coords.maxU, coords.maxV, 0xFF, 0xFF, 0xFF, 0xFF);
-    builder.vertex(fx + min.x, fy + min.y, fz + max.z, coords.maxU, coords.minV, 0xFF, 0xFF, 0xFF, 0xFF);
+    builder.vertex(fx + max.x, fy + min.y, fz + max.z, tex2.getInterpolatedU(max.x), tex2.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + max.z, tex2.getInterpolatedU(max.x), tex2.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + max.y, fz + max.z, tex2.getInterpolatedU(min.x), tex2.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + min.y, fz + max.z, tex2.getInterpolatedU(min.x), tex2.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
 
     builder.quad();
-    builder.vertex(fx + min.x, fy + min.y, fz + max.z, coords.minU, coords.minV, 0xFF, 0xFF, 0xFF, 0xFF);
-    builder.vertex(fx + min.x, fy + max.y, fz + max.z, coords.minU, coords.maxV, 0xFF, 0xFF, 0xFF, 0xFF);
-    builder.vertex(fx + min.x, fy + max.y, fz + min.z, coords.maxU, coords.maxV, 0xFF, 0xFF, 0xFF, 0xFF);
-    builder.vertex(fx + min.x, fy + min.y, fz + min.z, coords.maxU, coords.minV, 0xFF, 0xFF, 0xFF, 0xFF);
+    builder.vertex(fx + min.x, fy + min.y, fz + max.z, tex3.getInterpolatedU(max.z), tex3.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + max.y, fz + max.z, tex3.getInterpolatedU(max.z), tex3.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + max.y, fz + min.z, tex3.getInterpolatedU(min.z), tex3.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + min.y, fz + min.z, tex3.getInterpolatedU(min.z), tex3.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
 
     builder.quad();
-    builder.vertex(fx + min.x, fy + max.y, fz + min.z, coords.minU, coords.minV, 0xFF, 0xFF, 0xFF, 0xFF);
-    builder.vertex(fx + min.x, fy + max.y, fz + max.z, coords.minU, coords.maxV, 0xFF, 0xFF, 0xFF, 0xFF);
-    builder.vertex(fx + max.x, fy + max.y, fz + max.z, coords.maxU, coords.maxV, 0xFF, 0xFF, 0xFF, 0xFF);
-    builder.vertex(fx + max.x, fy + max.y, fz + min.z, coords.maxU, coords.minV, 0xFF, 0xFF, 0xFF, 0xFF);
+    builder.vertex(fx + min.x, fy + max.y, fz + min.z, tex4.getInterpolatedU(min.x), tex4.getInterpolatedV(min.z), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + max.y, fz + max.z, tex4.getInterpolatedU(min.x), tex4.getInterpolatedV(max.z), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + max.z, tex4.getInterpolatedU(max.x), tex4.getInterpolatedV(max.z), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + min.z, tex4.getInterpolatedU(max.x), tex4.getInterpolatedV(min.z), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+
+    builder.quad();
+    builder.vertex(fx + min.x, fy + min.y, fz + max.z, tex5.getInterpolatedU(min.x), tex5.getInterpolatedV(max.z), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + min.y, fz + min.z, tex5.getInterpolatedU(min.x), tex5.getInterpolatedV(min.z), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + min.y, fz + min.z, tex5.getInterpolatedU(max.x), tex5.getInterpolatedV(min.z), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + min.y, fz + max.z, tex5.getInterpolatedU(max.x), tex5.getInterpolatedV(max.z), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
 }
 
 void renderPane(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
@@ -420,6 +431,60 @@ void renderPane(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& rb,
     if (val & 8) {
         renderBox(builder, x, y, z, block, glm::vec3(0.45f, 0.0f, 0.0f), glm::vec3(0.55f, 1.0f, 0.45f));
     }
+}
+
+void renderTorch(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
+    auto builder = rb.getForLayer(block->renderLayer);
+
+    const auto fx = static_cast<float>(x);
+    const auto fy = static_cast<float>(y);
+    const auto fz = static_cast<float>(z);
+
+    const glm::vec3 min{0.4375f, 0.0f, 0.4375f};
+    const glm::vec3 max{0.5625f, 0.625f, 0.5625f};
+
+    auto tex0 = block->graphics->southTexture->get(0);
+    auto tex1 = block->graphics->eastTexture->get(0);
+    auto tex2 = block->graphics->northTexture->get(0);
+    auto tex3 = block->graphics->westTexture->get(0);
+    auto tex4 = block->graphics->topTexture->get(0);
+    auto tex5 = block->graphics->bottomTexture->get(0);
+
+    builder.quad();
+    builder.vertex(fx + min.x, fy + min.y, fz + min.z, tex0.getInterpolatedU(min.x), tex0.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + max.y, fz + min.z, tex0.getInterpolatedU(min.x), tex0.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + min.z, tex0.getInterpolatedU(max.x), tex0.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + min.y, fz + min.z, tex0.getInterpolatedU(max.x), tex0.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+
+    builder.quad();
+    builder.vertex(fx + max.x, fy + min.y, fz + min.z, tex1.getInterpolatedU(min.z), tex1.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + min.z, tex1.getInterpolatedU(min.z), tex1.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + max.z, tex1.getInterpolatedU(max.z), tex1.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + min.y, fz + max.z, tex1.getInterpolatedU(max.z), tex1.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+
+    builder.quad();
+    builder.vertex(fx + max.x, fy + min.y, fz + max.z, tex2.getInterpolatedU(max.x), tex2.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + max.z, tex2.getInterpolatedU(max.x), tex2.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + max.y, fz + max.z, tex2.getInterpolatedU(min.x), tex2.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + min.y, fz + max.z, tex2.getInterpolatedU(min.x), tex2.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+
+    builder.quad();
+    builder.vertex(fx + min.x, fy + min.y, fz + max.z, tex3.getInterpolatedU(max.z), tex3.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + max.y, fz + max.z, tex3.getInterpolatedU(max.z), tex3.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + max.y, fz + min.z, tex3.getInterpolatedU(min.z), tex3.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + min.y, fz + min.z, tex3.getInterpolatedU(min.z), tex3.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+
+    builder.quad();
+    builder.vertex(fx + min.x, fy + max.y, fz + min.z, tex4.getInterpolatedU(min.x), tex4.getInterpolatedV(0.5f), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + max.y, fz + max.z, tex4.getInterpolatedU(min.x), tex4.getInterpolatedV(0.625f), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + max.z, tex4.getInterpolatedU(max.x), tex4.getInterpolatedV(0.625f), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + min.z, tex4.getInterpolatedU(max.x), tex4.getInterpolatedV(0.5f), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+
+    builder.quad();
+    builder.vertex(fx + min.x, fy + min.y, fz + max.z, tex5.getInterpolatedU(min.x), tex5.getInterpolatedV(0.125f), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + min.y, fz + min.z, tex5.getInterpolatedU(min.x), tex5.getInterpolatedV(0.0f), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + min.y, fz + min.z, tex5.getInterpolatedU(max.x), tex5.getInterpolatedV(0.0f), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + min.y, fz + max.z, tex5.getInterpolatedU(max.x), tex5.getInterpolatedV(0.125f), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
 }
 
 void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
@@ -451,6 +516,9 @@ void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
                 case RenderType::Pane:
                     renderPane(x, y, z, block, rb, blocks);
 					break;
+                case RenderType::Torch:
+                    renderTorch(x, y, z, block, rb, blocks);
+                    break;
 				}
             }
         }

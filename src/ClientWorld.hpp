@@ -56,13 +56,4 @@ struct ClientWorld {
     auto getBlock(int32_t x, int32_t y, int32_t z) const -> Block* {
         return Block::id_to_block[(int) getData(x, y, z).id];
     }
-
-    auto getSkyLight(int32_t x, int32_t y, int32_t z) const -> int32_t {
-        if (y >= 0 && y < 256) {
-            if (auto chunk = getChunk(x >> 4, z >> 4)) {
-                return chunk->getSkyLight(x, y, z);
-            }
-        }
-        return 0;
-    }
 };

@@ -12,6 +12,7 @@ layout (binding = 0) uniform CameraConstants {
 layout (location = 0) in vec3 in_point;
 layout (location = 1) in vec2 in_tex;
 layout (location = 2) in vec4 in_color;
+layout (location = 3) in vec4 in_light;
 
 layout (location = 0) out vec4 out_color;
 

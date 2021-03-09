@@ -723,7 +723,7 @@ void Block::initBlocks() {
 	sweet_berry_bush = new Block("sweet_berry_bush");
 	tallgrass = (new Block("tallgrass"))->setRenderType(RenderType::Cross)->setTint(Tint::Grass)->setRenderLayer(RenderLayer::Cutout);
 	tnt = new Block("tnt");
-	torch = new Block("torch");
+	torch = (new Block("torch"))->setRenderType(RenderType::Torch);
 	trapdoor = new Block("trapdoor");
 	trapped_chest = new Block("trapped_chest");
 	tripWire = new Block("tripWire");

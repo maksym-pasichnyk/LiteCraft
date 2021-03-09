@@ -382,7 +382,7 @@ struct App {
 
                 connection.sendPacket(SChangeBlockPacket{
                     .pos = rayTraceResult->pos + rayTraceResult->dir,
-                    .data = BlockData{BlockIDs::stone, 0}
+                    .data = BlockData{BlockIDs::torch, 0}
                 });
             }
 		}

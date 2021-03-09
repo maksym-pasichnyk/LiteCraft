@@ -12,3 +12,19 @@ struct BlockData {
         return id == BlockID::AIR;
     }
 };
+
+static bool isOpaque(BlockData data) {
+    if (data.id == BlockID::AIR ||
+        data.id == BlockIDs::torch) {
+        return false;
+    }
+
+    return true;
+}
+
+static int32_t getLightFor(BlockData data) {
+    if (data.id == BlockIDs::torch) {
+        return 14;
+    }
+    return 0;
+}
