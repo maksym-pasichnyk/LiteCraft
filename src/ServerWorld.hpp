@@ -9,6 +9,8 @@
 #include "world/gen/NoiseChunkGenerator.hpp"
 #include "util/math/ChunkPos.hpp"
 
+#include "ChunkStatus.hpp"
+
 struct ServerWorld {
     NetworkConnection connection;
     NoiseChunkGenerator generator;
@@ -156,7 +158,6 @@ struct ServerWorld {
     }
 
     void runWorker(std::stop_token&& token) {
-        ChunkPos player_pos{};
         while (!token.stop_requested()) {
             executor_execute();
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -195,28 +196,6 @@ struct ServerWorld {
         return std::move(ret);
     }
 
-    auto getTaskRange(ChunkState state) {
-        switch (state) {
-            case ChunkState::Empty:
-                return -1;
-            case ChunkState::StructureStart:
-                return 0;
-            case ChunkState::StructureReferences:
-                return 0;
-            case ChunkState::Noise:
-                return 0;
-            case ChunkState::Surface:
-                return 0;
-            case ChunkState::Features:
-                return 0;
-            case ChunkState::Light:
-                return 1;
-            case ChunkState::Full:
-                return 0;
-        }
-        return -1;
-    }
-
     auto chunkLoad(int32_t chunk_x, int32_t chunk_z) -> Chunk* {
         const auto pos = ChunkPos::from(chunk_x, chunk_z);
         auto it = chunks.find(pos.asLong());
@@ -229,39 +208,12 @@ struct ServerWorld {
     auto provideChunk(int32_t chunk_x, int32_t chunk_z, ChunkState state = ChunkState::Full) -> Chunk* {
         auto chunk = chunkLoad(chunk_x, chunk_z);
 
-        for (int i = (int) chunk->state + 1; i <= (int) state; i++) {
-            const auto parent_state = (ChunkState) ((int) i - 1);
-            const auto range = getTaskRange((ChunkState) i);
-            auto chunksInRadius = getChunksInRadius(range, chunk_x, chunk_z, parent_state);
+        for (int i = static_cast<int>(chunk->state) + 1; i <= static_cast<int>(state); i++) {
+            auto status = ChunkStatus::getById(i);
 
-            WorldGenRegion region{*chunksInRadius, range, chunk_x, chunk_z, seed};
-
-            switch ((ChunkState) i) {
-                case ChunkState::Empty:
-                    break;
-                case ChunkState::StructureStart:
-                    generator.generateStructures(region, *chunk);
-                    break;
-            case ChunkState::StructureReferences:
-//                    generator.getStructureReferences(region, *chunk);
-                    break;
-                case ChunkState::Noise:
-                    generator.generateTerrain(*chunk);
-                    break;
-                case ChunkState::Surface:
-                    generator.generateSurface(region, *chunk);
-                    break;
-                case ChunkState::Features:
-                    generator.generateFeatures(region, *chunk);
-                    break;
-                case ChunkState::Light:
-                    lightManager.calculate(region, chunk_x * 16, chunk_z * 16);
-                    break;
-                case ChunkState::Full:
-                    break;
-            }
-
-            chunk->state = (ChunkState) i;
+            auto chunksInRadius = getChunksInRadius(status->range, chunk_x, chunk_z, static_cast<ChunkState>(i - 1));
+            status->generate(lightManager, generator, chunk_x, chunk_z, chunk, *chunksInRadius, seed);
+            chunk->state = static_cast<ChunkState>(i);
         }
 		return chunk;
     }
