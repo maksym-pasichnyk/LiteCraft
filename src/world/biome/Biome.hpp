@@ -118,11 +118,7 @@ struct Biome {
 //        float downfall;
 //    };
 
-    Biome(float depth, float scale, SurfaceBuilder* builder) : depth(depth), scale(scale), builder(builder) {
-        top = {Block::grass->id, 0};
-        filler = {Block::stone->id, 0};
-        underWater = {Block::gravel->id, 0};
-    }
+    Biome(float depth, float scale, ConfiguredSurfaceBuilder builder) : depth(depth), scale(scale), builder(builder) {}
 
     float getDepth() const {
         return depth.value();
@@ -146,19 +142,19 @@ struct Biome {
 //    }
 
     void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int sealevel) {
-        builder->setSeed(0);
-        builder->buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top.value(), filler.value(), underWater.value(), sealevel);
+        builder.setSeed(0);
+        builder.buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, sealevel);
     }
 
     static void registerBiome(int id, Biome* biome);
     static void registerBiomes();
 
 //private:
-    SurfaceBuilder* builder;
+    ConfiguredSurfaceBuilder builder;
 
-    std::optional<BlockData> top;
-    std::optional<BlockData> filler;
-    std::optional<BlockData> underWater;
+//    std::optional<BlockData> top;
+//    std::optional<BlockData> filler;
+//    std::optional<BlockData> underWater;
     //    SurfaceBuilder surfaceBuilder;
 //    Climate climate;
 //    BiomeGenerationSettings generationSettings;

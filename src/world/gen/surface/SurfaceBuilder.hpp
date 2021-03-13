@@ -1,7 +1,9 @@
 #pragma once
 
-#include <memory>
+#include "ConfiguredSurfaceBuilder.hpp"
 #include "../../../block/BlockData.hpp"
+
+#include <memory>
 
 struct Random;
 struct Chunk;
@@ -19,14 +21,18 @@ struct SurfaceBuilder {
     static std::unique_ptr<SurfaceBuilder> ErodedBadlands;
     static std::unique_ptr<SurfaceBuilder> FrozenOcean;
     static std::unique_ptr<SurfaceBuilder> Nether;
-    static std::unique_ptr<SurfaceBuilder> NetherForests;
+    static std::unique_ptr<SurfaceBuilder> NetherForest;
     static std::unique_ptr<SurfaceBuilder> SoulSandValley;
     static std::unique_ptr<SurfaceBuilder> BasaltDeltas;
 
-    static void registerSurfaceBuilders();
+    static void registerBuilders();
 
     virtual ~SurfaceBuilder() = default;
 
+    ConfiguredSurfaceBuilder withConfig(SurfaceBuilderConfig config) {
+        return { this, config };
+    }
+
     virtual void setSeed(int64_t seed) {}
-    virtual void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) = 0;
+    virtual void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int sealevel, SurfaceBuilderConfig config) = 0;
 };

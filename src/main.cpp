@@ -24,6 +24,7 @@
 #include "world/ServerWorld.hpp"
 #include "world/biome/Biome.hpp"
 #include "world/gen/surface/SurfaceBuilder.hpp"
+#include "world/gen/surface/ConfiguredSurfaceBuilders.hpp"
 
 #include "client/world/ClientWorld.hpp"
 #include "client/render/ChunkRenderCache.h"
@@ -159,7 +160,9 @@ struct App {
 
         Block::registerBlocks(block_pallete);
 
-        SurfaceBuilder::registerSurfaceBuilders();
+        SurfaceBuilder::registerBuilders();
+        SurfaceBuilderConfig::registerConfigs();
+        ConfiguredSurfaceBuilders::resolveSurfaceBuilders();
 
         Biome::registerBiomes();
 

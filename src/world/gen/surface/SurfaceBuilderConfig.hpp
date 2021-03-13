@@ -10,6 +10,7 @@ struct SurfaceBuilderConfig {
     static SurfaceBuilderConfig CORASE_DIRT_DIRT_GRAVEL_CONFIG;
     static SurfaceBuilderConfig SAND_SAND_GRAVEL_CONFIG;
     static SurfaceBuilderConfig GRASS_DIRT_SAND_CONFIG;
+    static SurfaceBuilderConfig SNOW_DIRT_GRAVEL_CONFIG;
     static SurfaceBuilderConfig SAND_CONFIG;
     static SurfaceBuilderConfig RED_SAND_WHITE_TERRACOTTA_GRAVEL_CONFIG;
     static SurfaceBuilderConfig MYCELIUM_DIRT_GRAVEL_CONFIG;
