@@ -1,11 +1,11 @@
 #pragma once
 
-#include "src/BlockTable.hpp"
-#include "src/BlockReader.hpp"
+#include "../../block/BlockTable.hpp"
+#include "../../BlockReader.hpp"
 
-#include "src/mesh.hpp"
-#include "src/Block.hpp"
-#include "src/util/math/ChunkPos.hpp"
+#include "../../mesh.hpp"
+#include "../../block/Block.hpp"
+#include "../../util/math/ChunkPos.hpp"
 
 #include <glm/vec3.hpp>
 
@@ -543,7 +543,7 @@ struct Chunk {
         const auto i = (x & 15) + (z & 15) * 16;
         if (heightmap[i] == -1) {
             for (int y = 255; y >= 0; y--) {
-                if (getData(x, y, z).id != BlockID::AIR) {
+                if (!getData(x, y, z).isAir()) {
                     heightmap[i] = y + 1;
                     break;
                 }

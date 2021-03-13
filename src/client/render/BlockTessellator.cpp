@@ -1,7 +1,8 @@
-#include "Block.hpp"
-#include "world/chunk/Chunk.hpp"
-#include "BlockReader.hpp"
-#include "TextureAtlas.hpp"
+#include "../../block/Block.hpp"
+#include "../../block/BlockGraphics.hpp"
+#include "../../world/chunk/Chunk.hpp"
+#include "../../BlockReader.hpp"
+#include "../../TextureAtlas.hpp"
 #include "ChunkRenderCache.h"
 
 #include <glm/vec3.hpp>

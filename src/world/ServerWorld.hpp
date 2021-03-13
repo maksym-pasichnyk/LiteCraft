@@ -5,11 +5,11 @@
 #include <vector>
 #include <map>
 
-#include "WorldLightManager.hpp"
-#include "world/gen/NoiseChunkGenerator.hpp"
-#include "util/math/ChunkPos.hpp"
+#include "light/WorldLightManager.hpp"
+#include "gen/NoiseChunkGenerator.hpp"
+#include "../util/math/ChunkPos.hpp"
 
-#include "ChunkStatus.hpp"
+#include "chunk/ChunkStatus.hpp"
 
 struct ServerWorld {
     NetworkConnection connection;
@@ -23,12 +23,8 @@ struct ServerWorld {
 
     int64_t seed = 0;
 
-    ServerWorld(NetworkConnection connection) : connection{connection} {
+    explicit ServerWorld(NetworkConnection connection) : connection{connection} {
         workers.emplace_back(std::bind_front(&ServerWorld::runWorker, this));
-    }
-
-    ~ServerWorld() {
-    	workers.clear();
     }
 
     static auto getChunkDistance(ChunkPos chunkPos, int chunk_x, int chunk_z) -> int {

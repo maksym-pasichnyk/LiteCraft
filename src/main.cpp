@@ -14,20 +14,22 @@
 #include "input.hpp"
 #include "camera.hpp"
 #include "transform.hpp"
-#include "Block.hpp"
+#include "block/Block.hpp"
 #include "world/chunk/Chunk.hpp"
 #include "BlockReader.hpp"
 #include "TextureAtlas.hpp"
 #include "raytrace.hpp"
-#include "ChunkRenderCache.h"
-#include "world/biome/Biome.hpp"
 #include "shader.hpp"
 #include "NetworkManager.hpp"
-#include "ClientWorld.hpp"
-#include "ServerWorld.hpp"
+#include "world/ServerWorld.hpp"
+#include "world/biome/Biome.hpp"
+#include "world/gen/surface/SurfaceBuilder.hpp"
 
+#include "client/world/ClientWorld.hpp"
+#include "client/render/ChunkRenderCache.h"
 #include "client/render/ModelRendered.hpp"
 #include "client/render/model/ModelFormat.hpp"
+#include "block/BlockGraphics.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -77,7 +79,7 @@ struct App {
 
     SDL_Window* window;
     SDL_GLContext context;
-    ResourceManager resources{};
+    ResourcePackManager resources{};
 
     NetworkManager nm;
     NetworkConnection connection;
@@ -134,6 +136,12 @@ struct App {
 
 //        SDL_GL_SetSwapInterval(0);
         resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla"));
+        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.14"));
+        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.15"));
+        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.16"));
+        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.16.100"));
+        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.16.200"));
+        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.16.210"));
         resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/experimental_caves_and_cliffs"));
 //        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/chemistry"));
 
@@ -146,15 +154,17 @@ struct App {
 		texture_atlas.loadMetaFile(resources);
 		texture_atlas.loadTexture();
 
-		BlockGraphics::loadMetaFile(resources, texture_atlas);
+		BlockGraphics::mTerrainTextureAtlas = &texture_atlas;
+		BlockGraphics::initBlocks(resources);
 
-        Block::initBlocks();
         Block::registerBlocks(block_pallete);
+
+        SurfaceBuilder::registerSurfaceBuilders();
 
         Biome::registerBiomes();
 
-        BiomeDefinition::loadMetaFile();
-        BiomeDefinition::registerBiomes();
+//        BiomeDefinition::loadMetaFile();
+//        BiomeDefinition::registerBiomes();
 
         loadModels();
 
@@ -375,14 +385,14 @@ struct App {
 
                 connection.sendPacket(SChangeBlockPacket{
                     .pos = rayTraceResult->pos,
-                    .data = BlockData{BlockID::AIR, 0}
+                    .data = BlockData{Block::air->id, 0}
                 });
             } else if (input.IsMouseButtonPressed(Input::MouseButton::Right)) {
                 cooldown = 10;
 
                 connection.sendPacket(SChangeBlockPacket{
                     .pos = rayTraceResult->pos + rayTraceResult->dir,
-                    .data = BlockData{BlockIDs::torch, 0}
+                    .data = BlockData{Block::torch->id, 0}
                 });
             }
 		}
@@ -536,47 +546,47 @@ struct App {
 //        glDisable(GL_BLEND);
 //        glDepthRange(0, 1.0);
 
-        glBindTexture(GL_TEXTURE_2D, agentTexture);
-        glm::mat4 model_transform = glm::translate(glm::mat4(1.0f), glm::vec3(636, 72, 221));
+//        glBindTexture(GL_TEXTURE_2D, agentTexture);
+//        glm::mat4 model_transform = glm::translate(glm::mat4(1.0f), glm::vec3(636, 72, 221));
 
-        glUseProgram(entity_pipeline);
-        glUniform3fv(0, 1, color.data());
-        glUniform2f(4, fog_offset.x, fog_offset.y);
-        glUniformMatrix4fv(8, 1, GL_FALSE, glm::value_ptr(model_transform));
+//        glUseProgram(entity_pipeline);
+//        glUniform3fv(0, 1, color.data());
+//        glUniform2f(4, fog_offset.x, fog_offset.y);
+//        glUniformMatrix4fv(8, 1, GL_FALSE, glm::value_ptr(model_transform));
 
-        glBindTexture(GL_TEXTURE_2D, goatTexture);
-        glBindVertexArray(goatModel->mesh.vao);
-        glDrawElements(GL_TRIANGLES, goatModel->mesh.index_count, GL_UNSIGNED_INT, nullptr);
+//        glBindTexture(GL_TEXTURE_2D, goatTexture);
+//        glBindVertexArray(goatModel->mesh.vao);
+//        glDrawElements(GL_TRIANGLES, goatModel->mesh.index_count, GL_UNSIGNED_INT, nullptr);
 
         glBindTexture(GL_TEXTURE_2D, 0);
 
 		if (rayTraceResult.has_value()) {
-			const auto pos = rayTraceResult->pos;
+			const auto [x, y, z] = rayTraceResult->pos;
 
 			SimpleVBuffer buf{};
 			buf.quad(0, 1, 1, 2, 2, 3, 3, 0);
-			buf.vertex(pos.x + 0, pos.y + 0, pos.z + 0, 0, 0, 0, 0, 0, 0xFF);
-			buf.vertex(pos.x + 0, pos.y + 1, pos.z + 0, 0, 1, 0, 0, 0, 0xFF);
-			buf.vertex(pos.x + 1, pos.y + 1, pos.z + 0, 1, 1, 0, 0, 0, 0xFF);
-			buf.vertex(pos.x + 1, pos.y + 0, pos.z + 0, 1, 0, 0, 0, 0, 0xFF);
+			buf.vertex(x + 0, y + 0, z + 0, 0, 0, 0, 0, 0, 0xFF);
+			buf.vertex(x + 0, y + 1, z + 0, 0, 1, 0, 0, 0, 0xFF);
+			buf.vertex(x + 1, y + 1, z + 0, 1, 1, 0, 0, 0, 0xFF);
+			buf.vertex(x + 1, y + 0, z + 0, 1, 0, 0, 0, 0, 0xFF);
 
 			buf.quad(0, 1, 1, 2, 2, 3, 3, 0);
-			buf.vertex(pos.x + 1, pos.y + 0, pos.z + 0, 0, 0, 0, 0, 0, 0xFF);
-			buf.vertex(pos.x + 1, pos.y + 1, pos.z + 0, 0, 1, 0, 0, 0, 0xFF);
-			buf.vertex(pos.x + 1, pos.y + 1, pos.z + 1, 1, 1, 0, 0, 0, 0xFF);
-			buf.vertex(pos.x + 1, pos.y + 0, pos.z + 1, 1, 0, 0, 0, 0, 0xFF);
+			buf.vertex(x + 1, y + 0, z + 0, 0, 0, 0, 0, 0, 0xFF);
+			buf.vertex(x + 1, y + 1, z + 0, 0, 1, 0, 0, 0, 0xFF);
+			buf.vertex(x + 1, y + 1, z + 1, 1, 1, 0, 0, 0, 0xFF);
+			buf.vertex(x + 1, y + 0, z + 1, 1, 0, 0, 0, 0, 0xFF);
 
 			buf.quad(0, 1, 1, 2, 2, 3, 3, 0);
-			buf.vertex(pos.x + 1, pos.y + 0, pos.z + 1, 0, 0, 0, 0, 0, 0xFF);
-			buf.vertex(pos.x + 1, pos.y + 1, pos.z + 1, 0, 1, 0, 0, 0, 0xFF);
-			buf.vertex(pos.x + 0, pos.y + 1, pos.z + 1, 1, 1, 0, 0, 0, 0xFF);
-			buf.vertex(pos.x + 0, pos.y + 0, pos.z + 1, 1, 0, 0, 0, 0, 0xFF);
+			buf.vertex(x + 1, y + 0, z + 1, 0, 0, 0, 0, 0, 0xFF);
+			buf.vertex(x + 1, y + 1, z + 1, 0, 1, 0, 0, 0, 0xFF);
+			buf.vertex(x + 0, y + 1, z + 1, 1, 1, 0, 0, 0, 0xFF);
+			buf.vertex(x + 0, y + 0, z + 1, 1, 0, 0, 0, 0, 0xFF);
 
 			buf.quad(0, 1, 1, 2, 2, 3, 3, 0);
-			buf.vertex(pos.x + 0, pos.y + 0, pos.z + 1, 0, 0, 0, 0, 0, 0xFF);
-			buf.vertex(pos.x + 0, pos.y + 1, pos.z + 1, 0, 1, 0, 0, 0, 0xFF);
-			buf.vertex(pos.x + 0, pos.y + 1, pos.z + 0, 1, 1, 0, 0, 0, 0xFF);
-			buf.vertex(pos.x + 0, pos.y + 0, pos.z + 0, 1, 0, 0, 0, 0, 0xFF);
+			buf.vertex(x + 0, y + 0, z + 1, 0, 0, 0, 0, 0, 0xFF);
+			buf.vertex(x + 0, y + 1, z + 1, 0, 1, 0, 0, 0, 0xFF);
+			buf.vertex(x + 0, y + 1, z + 0, 1, 1, 0, 0, 0, 0xFF);
+			buf.vertex(x + 0, y + 0, z + 0, 1, 0, 0, 0, 0, 0xFF);
 
 			selection_mesh->SetIndices(buf.indices);
 			selection_mesh->SetVertices(buf.vertices);

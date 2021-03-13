@@ -1,7 +1,7 @@
 //module;
 
 #include "BlockReader.hpp"
-#include "Block.hpp"
+#include "block/Block.hpp"
 
 #include <glm/glm.hpp>
 #include <optional>

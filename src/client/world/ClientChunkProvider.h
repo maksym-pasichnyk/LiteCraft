@@ -1,6 +1,6 @@
 #pragma once
 
-#include "chunk_array.h"
+#include "chunk/ChunkArray.hpp"
 
 struct ClientChunkProvider {
     ChunkArray chunkArray;

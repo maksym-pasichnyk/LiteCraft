@@ -301,25 +301,27 @@ struct TextureAtlas /*: Texture*/ {
 		}
 	}
 
-	void loadMetaFile(ResourceManager& resources) {
-		auto object = nlohmann::json::parse(resources.loadFile("textures/terrain_texture.json").value(), nullptr, true, true);
+	void loadMetaFile(ResourcePackManager& resources) {
+        TextureAtlasPack textureAtlasPack{};
+        std::vector<ParsedAtlasNode> nodes{};
 
-		auto resource_pack_name = object.at("resource_pack_name").get<std::string>();
-		texture_name = object.at("texture_name").get<std::string>();
-		padding = object.at("padding").get<int>();
-		num_mip_levels = object.at("num_mip_levels").get<int>();
+        resources.loadAllVersionsOf("textures/terrain_texture.json",
+                                    [this, &nodes, &textureAtlasPack, &resources](std::span<const char> bytes) {
+                                        auto terrain_texture = nlohmann::json::parse(bytes, nullptr, true, true);
 
-		const auto& texture_data = object.at("texture_data");
+//            auto resource_pack_name = terrain_texture.at("resource_pack_name").get<std::string>();
+//            texture_name = terrain_texture.at("texture_name").get<std::string>();
+//            padding = terrain_texture.at("padding").get<int>();
+//            num_mip_levels = terrain_texture.at("num_mip_levels").get<int>();
+//
+                                        _loadAtlasNodes(terrain_texture.at("texture_data"), nodes);
 
-		std::vector<ParsedAtlasNode> nodes;
-		_loadAtlasNodes(texture_data, nodes);
-
-		std::set<std::string> requireTextures;
-		for (const auto& node : nodes) {
-			for (const auto& element : node.elements) {
-				requireTextures.emplace(element.path);
-			}
-		}
+                                        std::set<std::string> requireTextures;
+                                        for (const auto &node : nodes) {
+                                            for (const auto &element : node.elements) {
+                                                requireTextures.emplace(element.path);
+                                            }
+                                        }
 
 //		auto requireTextures = nodes
 //			| ranges::views::transform(&ParsedAtlasNode::elements)
@@ -327,10 +329,12 @@ struct TextureAtlas /*: Texture*/ {
 //			| ranges::views::transform(&ParsedAtlasNodeElement::path)
 //			| ranges::views::unique;
 
-		TextureAtlasPack textureAtlasPack{};
-		for (const auto &path : requireTextures) {
-			textureAtlasPack.addSprite(path, resources.loadTextureData(path, true).value());
-		}
+                                        for (const auto &path : requireTextures) {
+                                            textureAtlasPack.addSprite(path,
+                                                                       resources.loadTextureData(path, true).value());
+                                        }
+                                    });
+
 		sheet = textureAtlasPack.build();
 
 		std::map<std::string, std::reference_wrapper<const TextureAtlasSprite>> sprites;

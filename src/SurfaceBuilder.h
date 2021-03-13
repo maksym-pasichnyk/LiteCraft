@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/BlockTable.hpp>
+#include <src/block/BlockTable.hpp>
 #include <cstdint>
 
 struct Random;

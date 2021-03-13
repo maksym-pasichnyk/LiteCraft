@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/BlockTable.hpp"
+#include "../../block/BlockTable.hpp"
 
 struct Chunk;
 struct BlockTable;

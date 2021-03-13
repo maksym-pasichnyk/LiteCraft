@@ -5,8 +5,8 @@
 
 #include <array>
 
-#include "src/world/chunk/Chunk.hpp"
-#include "Block.hpp"
+#include "world/chunk/Chunk.hpp"
+#include "block/Block.hpp"
 
 struct Biome;
 

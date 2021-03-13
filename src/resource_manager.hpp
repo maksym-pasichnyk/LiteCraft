@@ -74,7 +74,7 @@ private:
 struct ResourcePack {
 	explicit ResourcePack(std::filesystem::path path) : basePath(std::move(path)) {}
 
-	std::filesystem::path getFullPath(const std::filesystem::path& path) {
+    inline std::filesystem::path getFullPath(const std::filesystem::path& path) {
 		return basePath / path;
 	}
 
@@ -96,8 +96,13 @@ struct ResourcePack {
 	}
 
     template <typename Fn>
-    void loadResources(const std::filesystem::path& path, Fn&& fn) {
-        for (const auto& e : std::filesystem::recursive_directory_iterator(getFullPath(path))) {
+    inline void loadResources(const std::filesystem::path& path, Fn&& fn) {
+	    const auto full_path = getFullPath(path);
+	    if (!std::filesystem::exists(full_path)) {
+            return;
+	    }
+
+        for (const auto& e : std::filesystem::recursive_directory_iterator(full_path)) {
             if (e.is_regular_file()) {
 //                fmt::print("{}\n", e.path().filename().string());
 
@@ -111,11 +116,25 @@ struct ResourcePack {
         }
     }
 
+    template <typename Fn>
+    inline auto loadResource(const std::filesystem::path& path, Fn&& fn) -> std::optional<std::vector<char>> {
+        const auto filePath = getFullPath(path);
+        if (std::filesystem::exists(filePath)) {
+            std::vector<char> bytes(std::filesystem::file_size(filePath));
+            std::ifstream stream(filePath, std::ios::binary);
+            stream.read(bytes.data(), bytes.size());
+            stream.close();
+
+            fn(bytes);
+        }
+        return std::nullopt;
+    }
+
 private:
 	std::filesystem::path basePath;
 };
 
-struct ResourceManager {
+struct ResourcePackManager {
 	void addResourcePack(std::unique_ptr<ResourcePack>&& resourcePack) {
 		packs.emplace_back(std::move(resourcePack));
 	}
@@ -133,6 +152,13 @@ struct ResourceManager {
     void loadResources(const std::filesystem::path& path, Fn&& fn) {
         for (auto& pack : packs) {
             pack->loadResources(path, std::forward<Fn>(fn));
+        }
+    }
+
+    template <typename Fn>
+    void loadAllVersionsOf(const std::filesystem::path& path, Fn&& fn) {
+        for (auto& pack : packs) {
+            pack->loadResource(path, std::forward<Fn>(fn));
         }
     }
 

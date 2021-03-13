@@ -4,7 +4,7 @@
 #include <queue>
 #include <bitset>
 
-#include "worldgenregion.hpp"
+#include "../../WorldGenRegion.hpp"
 
 struct WorldLightManager {
     std::queue<std::tuple<int32_t, int32_t, int32_t, int32_t>> sources;

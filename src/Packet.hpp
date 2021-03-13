@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BlockTable.hpp"
+#include "block/BlockTable.hpp"
 
 #include <glm/vec3.hpp>
 

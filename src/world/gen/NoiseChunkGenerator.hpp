@@ -3,7 +3,7 @@
 #include "ChunkGenerator.hpp"
 #include "OctavesNoiseGenerator.hpp"
 #include "PerlinNoiseGenerator.hpp"
-#include "../../BlockData.hpp"
+#include "../../block/BlockData.hpp"
 
 #include <memory>
 

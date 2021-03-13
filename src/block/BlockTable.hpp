@@ -1,7 +1,5 @@
 #pragma once
 
-#include "ids.hpp"
-
 #include <string>
 #include <vector>
 #include <string_view>
@@ -12,20 +10,20 @@ struct BlockTable {
     BlockTable& operator=(const BlockTable&) = delete;
 
     std::vector<std::string> id_to_name{};
-    std::unordered_map<std::string, BlockID> name_to_id{};
+    std::unordered_map<std::string, int32_t> name_to_id{};
 
     BlockTable() {
         id_to_name.emplace_back("air");
-        name_to_id.emplace("air", BlockID::AIR);
+        name_to_id.emplace("air", 0);
     }
 
-    BlockID getId(std::string name) {
+    int32_t getId(std::string name) {
         auto it = name_to_id.find(name);
         if (it != name_to_id.end()) {
             return it->second;
         }
 
-        auto id = static_cast<BlockID>(id_to_name.size() + 1);
+        auto id = static_cast<int32_t>(id_to_name.size());
 
         id_to_name.emplace_back(name);
         name_to_id.emplace(std::move(name), id);
@@ -33,8 +31,8 @@ struct BlockTable {
         return id;
     }
 
-    std::string_view getName(BlockID id) {
-        return id_to_name.at(static_cast<size_t>(id) - 1);
+    std::string_view getName(int32_t id) {
+        return id_to_name.at(static_cast<size_t>(id));
     }
 };
 

@@ -1,7 +1,7 @@
 #include "ChunkGenerator.hpp"
 
 #include "../chunk/Chunk.hpp"
-#include "../../worldgenregion.hpp"
+#include "../../WorldGenRegion.hpp"
 #include "../../util/Random.hpp"
 
 struct ExampleStructurePiece : StructurePiece {
@@ -12,22 +12,18 @@ struct ExampleStructurePiece : StructurePiece {
 
     void place(WorldGenRegion& region, StructureBoundingBox sbb) override {
         for (auto y = 0; y < 10; y++) {
-            setBlock(region, sbb, 0, y, 0, {BlockIDs::iron_bars, 2 | 4});
-            setBlock(region, sbb, 0, y, 1, {BlockIDs::wood, 0});
-            setBlock(region, sbb, 0, y, 2, {BlockIDs::iron_bars, 8 | 4});
+            setBlock(region, sbb, 0, y, 0, {Block::iron_bars->id, 2 | 4});
+            setBlock(region, sbb, 0, y, 1, {Block::wood->id, 0});
+            setBlock(region, sbb, 0, y, 2, {Block::iron_bars->id, 8 | 4});
 
-            setBlock(region, sbb, 1, y, 0, {BlockIDs::wood, 0});
-            setBlock(region, sbb, 1, y, 1, {BlockIDs::wood, 0});
-            setBlock(region, sbb, 1, y, 2, {BlockIDs::wood, 0});
+            setBlock(region, sbb, 1, y, 0, {Block::wood->id, 0});
+            setBlock(region, sbb, 1, y, 1, {Block::wood->id, 0});
+            setBlock(region, sbb, 1, y, 2, {Block::wood->id, 0});
 
-            setBlock(region, sbb, 2, y, 0, {BlockIDs::iron_bars, 2 | 1});
-            setBlock(region, sbb, 2, y, 1, {BlockIDs::wood, 0});
-            setBlock(region, sbb, 2, y, 2, {BlockIDs::iron_bars, 8 | 1});
+            setBlock(region, sbb, 2, y, 0, {Block::iron_bars->id, 2 | 1});
+            setBlock(region, sbb, 2, y, 1, {Block::wood->id, 0});
+            setBlock(region, sbb, 2, y, 2, {Block::iron_bars->id, 8 | 1});
         }
-    }
-
-    static BlockData get(BlockTable& pallete, const std::string& name, uint16_t data) {
-        return {pallete.getId(name), data};
     }
 };
 

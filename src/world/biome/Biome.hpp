@@ -1,11 +1,12 @@
 #pragma once
 
 #include "../../SurfaceBuilder.h"
-#include "../../BlockTable.hpp"
-#include "../../BlockData.hpp"
+#include "../../block/BlockTable.hpp"
+#include "../../block/BlockData.hpp"
 #include "../../util/Random.hpp"
 #include "../../resource_manager.hpp"
 #include "../gen/PerlinNoiseGenerator.hpp"
+#include "../gen/surface/SurfaceBuilder.hpp"
 
 #include <glm/vec3.hpp>
 #include <functional>
@@ -14,16 +15,15 @@
 #include <map>
 
 struct Chunk;
-struct ResourceManager;
+struct ResourcePackManager;
 
-using SurfaceBuilder = void (*)(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel);
-
-struct BiomeDefinition {
-    static std::map<std::string, std::unique_ptr<Biome>> biomes;
-
-    static void loadMetaFile();
-    static void registerBiomes();
-};
+//struct BiomeDefinition {
+//    static std::map<std::string, std::unique_ptr<Biome>> biomes;
+//    static std::map<std::string, int> biomeIds;
+//
+//    static void loadMetaFile();
+//    static void registerBiomes();
+//};
 
 struct Biome {
     static std::map<int, std::unique_ptr<Biome>> biomes;
@@ -118,10 +118,10 @@ struct Biome {
 //        float downfall;
 //    };
 
-    Biome(float depth, float scale, SurfaceBuilder builder) : depth(depth), scale(scale), builder(builder) {
-        top = {BlockIDs::grass, 0};
-        filler = {BlockIDs::stone, 0};
-        underWater = {BlockIDs::gravel, 0};
+    Biome(float depth, float scale, SurfaceBuilder* builder) : depth(depth), scale(scale), builder(builder) {
+        top = {Block::grass->id, 0};
+        filler = {Block::stone->id, 0};
+        underWater = {Block::gravel->id, 0};
     }
 
     float getDepth() const {
@@ -146,14 +146,15 @@ struct Biome {
 //    }
 
     void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int sealevel) {
-        builder.value()(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top.value(), filler.value(), underWater.value(), sealevel);
+        builder->setSeed(0);
+        builder->buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, top.value(), filler.value(), underWater.value(), sealevel);
     }
 
     static void registerBiome(int id, Biome* biome);
     static void registerBiomes();
 
 //private:
-    std::optional<SurfaceBuilder> builder;
+    SurfaceBuilder* builder;
 
     std::optional<BlockData> top;
     std::optional<BlockData> filler;

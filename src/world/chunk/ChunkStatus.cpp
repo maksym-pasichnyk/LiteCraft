@@ -1,7 +1,7 @@
 #include "ChunkStatus.hpp"
-#include "world/gen/ChunkGenerator.hpp"
-#include "WorldLightManager.hpp"
-#include "worldgenregion.hpp"
+#include "../gen/ChunkGenerator.hpp"
+#include "../light/WorldLightManager.hpp"
+#include "../../WorldGenRegion.hpp"
 
 constexpr std::array ALL {
     &ChunkStatus::Empty,

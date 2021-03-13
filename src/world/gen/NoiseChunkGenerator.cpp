@@ -1,7 +1,7 @@
 #include "NoiseChunkGenerator.hpp"
 
-#include "src/world/chunk/Chunk.hpp"
-#include "../../worldgenregion.hpp"
+#include "../chunk/Chunk.hpp"
+#include "../../WorldGenRegion.hpp"
 #include "layer/LayerUtil.hpp"
 
 #include <glm/ext.hpp>
@@ -98,7 +98,7 @@ void generateTree(Chunk& chunk, int32_t x, int32_t z, WorldGenRegion& blocks, Ra
 	const auto height = chunk.getTopBlockY(x, z) + 1;
     const auto treeHeight = 4 + rand.nextInt(0, 2);
 
-    const auto leaves = BlockData{BlockIDs::leaves, 0};
+    const auto leaves = BlockData{Block::leaves->id, 0};
 
 	for (auto y = treeHeight - 2; y <= treeHeight + 1; y++) {
         blocks.setData(x - 1, y + height, z - 1, leaves);
@@ -115,13 +115,13 @@ void generateTree(Chunk& chunk, int32_t x, int32_t z, WorldGenRegion& blocks, Ra
 	}
 
 	for (auto y = height; y < height + treeHeight; y++) {
-        blocks.setData(x, y, z, BlockData{BlockIDs::log, 0});
+        blocks.setData(x, y, z, BlockData{Block::log->id, 0});
 	}
 }
 
 NoiseChunkGenerator::NoiseChunkGenerator() {
-    defaultBlock = BlockData{BlockIDs::stone, 0};
-    defaultFluid = BlockData{BlockIDs::water, 0};
+    defaultBlock = BlockData{Block::stone->id, 0};
+    defaultFluid = BlockData{Block::water->id, 0};
 
     dimensionHeight = settings.height;
     bedrockFloorPosition = 0;
@@ -165,7 +165,7 @@ void NoiseChunkGenerator::makeBedrock(Chunk& chunk, Random &rand) const {
                 if (makeRoofBedrock) {
                     for (auto y = 0; y < 5; y++) {
                         if (y <= rand.nextInt(5)) {
-                            chunk.setData(x, maxAvailableHeight - y, z, BlockData{BlockIDs::bedrock, 0});
+                            chunk.setData(x, maxAvailableHeight - y, z, BlockData{Block::bedrock->id, 0});
                         }
                     }
                 }
@@ -173,7 +173,7 @@ void NoiseChunkGenerator::makeBedrock(Chunk& chunk, Random &rand) const {
                 if (makeFloorBedrock) {
                     for (auto y = 4; y >= 0; y--) {
                         if (y <= rand.nextInt(5)) {
-                            chunk.setData(x, bedrockFloorPosition + y, z, BlockData{BlockIDs::bedrock, 0});
+                            chunk.setData(x, bedrockFloorPosition + y, z, BlockData{Block::bedrock->id, 0});
                         }
                     }
                 }
