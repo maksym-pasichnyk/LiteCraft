@@ -8,16 +8,9 @@
 #include <memory>
 
 struct Random;
-struct Biome;
-
-struct BiomeProvider {
-    virtual ~BiomeProvider() = default;
-    virtual Biome* getNoiseBiome(int x, int y, int z) = 0;
-};
+struct BiomeProvider;
 
 class NoiseChunkGenerator : public ChunkGenerator {
-    std::unique_ptr<BiomeProvider> biomeProvider;
-
     std::array<float, 25> biomeWeights;
     int dimensionHeight;
     int noiseSizeX;
@@ -44,7 +37,7 @@ class NoiseChunkGenerator : public ChunkGenerator {
     BlockData defaultFluid;
 
 public:
-    NoiseChunkGenerator();
+    NoiseChunkGenerator(std::unique_ptr<BiomeProvider>&& biomeProvider);
 
     double getRandomDensity(int x, int z);
     double sampleAndClampNoise(int x, int y, int z, double xzScale, double yScale, double xzFactor, double yFactor);

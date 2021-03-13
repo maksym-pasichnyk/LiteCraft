@@ -77,13 +77,21 @@ struct Biome {
 //        float(*_getTemperatureAtPosition)(glm::ivec3, float);
 //    };
 
-//    struct Attributes {
-//        float temperature;
-//        float humidity;
-//        float altitude;
-//        float weirdness;
-//        float offset;
-//    };
+    struct Attributes {
+        float temperature;
+        float humidity;
+        float altitude;
+        float weirdness;
+        float offset;
+
+        float getAttributeDifference(const Attributes& attributes) const {
+            return (temperature - attributes.temperature) * (temperature - attributes.temperature)
+                + (humidity - attributes.humidity) * (humidity - attributes.humidity)
+                + (altitude - attributes.altitude) * (altitude - attributes.altitude)
+                + (weirdness - attributes.weirdness) * (weirdness - attributes.weirdness)
+                + (offset - attributes.offset) * (offset - attributes.offset);
+        }
+    };
 //
 //    enum class RainType {
 //        none,

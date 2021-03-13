@@ -2,11 +2,17 @@
 
 #include "../../block/BlockTable.hpp"
 
+#include <memory>
+
 struct Chunk;
 struct BlockTable;
+struct BiomeProvider;
 struct WorldGenRegion;
 
 struct ChunkGenerator {
+    std::unique_ptr<BiomeProvider> biomeProvider;
+
+    explicit ChunkGenerator(std::unique_ptr<BiomeProvider>&& biomeProvider);
     virtual ~ChunkGenerator() = default;
 
     virtual void generateStructures(WorldGenRegion& region, Chunk& chunk);

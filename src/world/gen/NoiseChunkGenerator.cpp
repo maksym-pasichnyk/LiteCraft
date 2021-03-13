@@ -1,8 +1,10 @@
 #include "NoiseChunkGenerator.hpp"
 
 #include "../chunk/Chunk.hpp"
+#include "../biome/Biome.hpp"
+#include "../biome/provider/BiomeProvider.hpp"
+#include "../biome/provider/EndBiomeProvider.hpp"
 #include "../../WorldGenRegion.hpp"
-#include "layer/LayerUtil.hpp"
 
 #include <glm/ext.hpp>
 
@@ -82,17 +84,7 @@ NoiseSettings settings{
 //};
 
 
-struct OverworldBiomeProvider : BiomeProvider {
-    std::unique_ptr<Layer> genBiomes{};
 
-    OverworldBiomeProvider(int64_t seed, bool legacyBiomes, bool largeBiomes) {
-        genBiomes = LayerUtil::createOverworldBiomes(seed, legacyBiomes, largeBiomes ? 6 : 4, 4);
-    }
-
-    Biome* getNoiseBiome(int x, int y, int z) override {
-        return genBiomes->getBiome(Biome::biomes, x, z);
-    }
-};
 
 void generateTree(Chunk& chunk, int32_t x, int32_t z, WorldGenRegion& blocks, Random& rand) {
 	const auto height = chunk.getTopBlockY(x, z) + 1;
@@ -119,7 +111,9 @@ void generateTree(Chunk& chunk, int32_t x, int32_t z, WorldGenRegion& blocks, Ra
 	}
 }
 
-NoiseChunkGenerator::NoiseChunkGenerator() {
+NoiseChunkGenerator::NoiseChunkGenerator(std::unique_ptr<BiomeProvider>&& biomeProvider)
+    : ChunkGenerator(std::move(biomeProvider))
+{
     defaultBlock = BlockData{Block::stone->id, 0};
     defaultFluid = BlockData{Block::water->id, 0};
 
@@ -135,17 +129,15 @@ NoiseChunkGenerator::NoiseChunkGenerator() {
     noiseSizeZ = 16 / horizontalNoiseGranularity;
 
     auto randomSeed = Random::from(seed);
-    minLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, -15, 0);
-    maxLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, -15, 0);
-    mainLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, -7, 0);
+    minLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-15, 0));
+    maxLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-15, 0));
+    mainLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-7, 0));
 
     surfaceNoise = std::make_unique<PerlinNoiseGenerator>(randomSeed, -3, 0);
 
     randomSeed.skip(2620);
-    depthNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, -15, 0);
+    depthNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-15, 0));
     endNoise = nullptr;
-
-    biomeProvider = std::make_unique<OverworldBiomeProvider>(seed, false, false);
 
     for (int i = -2; i <= 2; ++i) {
         for (int j = -2; j <= 2; ++j) {
@@ -160,12 +152,14 @@ void NoiseChunkGenerator::makeBedrock(Chunk& chunk, Random &rand) const {
     const bool makeFloorBedrock = bedrockFloorPosition + 4 >= 0 && bedrockFloorPosition < dimensionHeight;
 
     if (makeRoofBedrock || makeFloorBedrock) {
+        const auto bedrock = BlockData{Block::bedrock->id, 0};
+
         for (auto x = 0; x <= 15; x++) {
             for (auto z = 0; z <= 15; z++) {
                 if (makeRoofBedrock) {
                     for (auto y = 0; y < 5; y++) {
                         if (y <= rand.nextInt(5)) {
-                            chunk.setData(x, maxAvailableHeight - y, z, BlockData{Block::bedrock->id, 0});
+                            chunk.setData(x, maxAvailableHeight - y, z, bedrock);
                         }
                     }
                 }
@@ -173,7 +167,7 @@ void NoiseChunkGenerator::makeBedrock(Chunk& chunk, Random &rand) const {
                 if (makeFloorBedrock) {
                     for (auto y = 4; y >= 0; y--) {
                         if (y <= rand.nextInt(5)) {
-                            chunk.setData(x, bedrockFloorPosition + y, z, BlockData{Block::bedrock->id, 0});
+                            chunk.setData(x, bedrockFloorPosition + y, z, bedrock);
                         }
                     }
                 }
@@ -227,53 +221,51 @@ double NoiseChunkGenerator::getRandomDensity(int x, int z) {
 }
 
 void NoiseChunkGenerator::fillNoiseColumn(double column[33], int xpos, int zpos) {
-//    const auto biomeProvider = region.world->getBiomeProvider();
-
     double biomeDepth;
     double biomeScale;
-//      if (this.endNoise != null) {
-//         biomeDepth = EndBiomeProvider.getRandomNoise(this.endNoise, xpos, zpos) - 8.0F;
-//         if (biomeDepth > 0.0D) {
-//            biomeScale = 0.25D;
-//         } else {
-//            biomeScale = 1.0D;
-//         }
-//      } else {
-    float f = 0.0F;
-    float f1 = 0.0F;
-    float f2 = 0.0F;
-    const int seaLevel = 63;//settings->seaLevel;
-    const float mainBiomeDepth = biomeProvider->getNoiseBiome(xpos, seaLevel, zpos)->getDepth();
+    if (endNoise != nullptr) {
+         biomeDepth = EndBiomeProvider::getRandomNoise(*endNoise, xpos, zpos) - 8.0F;
+         if (biomeDepth > 0.0) {
+            biomeScale = 0.25;
+         } else {
+            biomeScale = 1.0;
+         }
+      } else {
+        float f = 0.0F;
+        float f1 = 0.0F;
+        float f2 = 0.0F;
+        const int seaLevel = 63;//settings->seaLevel;
+        const float mainBiomeDepth = biomeProvider->getNoiseBiome(xpos, seaLevel, zpos)->getDepth();
 
-    for (int xPos = -2; xPos <= 2; ++xPos) {
-        for (int zPos = -2; zPos <= 2; ++zPos) {
-            const auto biome = biomeProvider->getNoiseBiome(xpos + xPos, seaLevel, zpos + zPos);
-            const float secondBiomeDepth = biome->getDepth();
-            const float scale = biome->getScale();
-            float f6;
-            float f7;
-            /*if (noisesettings.amplified() && secondBiomeDepth > 0.0F) {
-                f6 = 1.0F + secondBiomeDepth * 2.0F;
-                f7 = 1.0F + scale * 4.0F;
+        for (int xPos = -2; xPos <= 2; ++xPos) {
+            for (int zPos = -2; zPos <= 2; ++zPos) {
+                const auto biome = biomeProvider->getNoiseBiome(xpos + xPos, seaLevel, zpos + zPos);
+                const float secondBiomeDepth = biome->getDepth();
+                const float scale = biome->getScale();
+                float f6;
+                float f7;
+                /*if (noisesettings.amplified() && secondBiomeDepth > 0.0F) {
+                    f6 = 1.0F + secondBiomeDepth * 2.0F;
+                    f7 = 1.0F + scale * 4.0F;
+                }
+                else {*/
+                f6 = secondBiomeDepth;
+                f7 = scale;
+                //}
+
+                const float f8 = secondBiomeDepth > mainBiomeDepth ? 0.5F : 1.0F;
+                const float f9 = f8 * biomeWeights[xPos + 2 + (zPos + 2) * 5] / (f6 + 2.0F);
+                f += f7 * f9;
+                f1 += f6 * f9;
+                f2 += f9;
             }
-            else {*/
-            f6 = secondBiomeDepth;
-            f7 = scale;
-            //}
-
-            const float f8 = secondBiomeDepth > mainBiomeDepth ? 0.5F : 1.0F;
-            const float f9 = f8 * biomeWeights[xPos + 2 + (zPos + 2) * 5] / (f6 + 2.0F);
-            f += f7 * f9;
-            f1 += f6 * f9;
-            f2 += f9;
         }
-    }
 
-    const float f10 = f1 / f2;
-    const float scale = f / f2;
-    biomeDepth = (f10 * 0.5F - 0.125F) * 0.265625;
-    biomeScale = 96.0 / (scale * 0.9F + 0.1F);
-//      }
+        const float f10 = f1 / f2;
+        const float scale = f / f2;
+        biomeDepth = (f10 * 0.5F - 0.125F) * 0.265625;
+        biomeScale = 96.0 / (scale * 0.9F + 0.1F);
+    }
     const double xzScale = 684.412 * settings.sampling.xz_scale;
     const double yScale = 684.412 * settings.sampling.y_scale;
     const double xzFactor = xzScale / settings.sampling.xz_factor;

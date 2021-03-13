@@ -1,11 +1,9 @@
 #pragma once
 
-struct Dimension {
-    static const Dimension OVERWORLD;
-    static const Dimension NETHER;
-    static const Dimension THE_END;
+#include <memory>
 
-    int id;
-    int skyLight;
-    void(*createBiomeSource)();
+struct ChunkGenerator;
+
+struct Dimension {
+    std::unique_ptr<ChunkGenerator> generator;
 };

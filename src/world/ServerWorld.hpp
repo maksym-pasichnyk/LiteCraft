@@ -7,13 +7,14 @@
 
 #include "light/WorldLightManager.hpp"
 #include "gen/NoiseChunkGenerator.hpp"
+#include "biome/provider/OverworldBiomeProvider.hpp"
 #include "../util/math/ChunkPos.hpp"
 
 #include "chunk/ChunkStatus.hpp"
 
 struct ServerWorld {
     NetworkConnection connection;
-    NoiseChunkGenerator generator;
+    std::unique_ptr<NoiseChunkGenerator> generator;
     WorldLightManager lightManager;
 
     std::vector<std::jthread> workers{};
@@ -24,6 +25,8 @@ struct ServerWorld {
     int64_t seed = 0;
 
     explicit ServerWorld(NetworkConnection connection) : connection{connection} {
+        generator = std::make_unique<NoiseChunkGenerator>(std::make_unique<OverworldBiomeProvider>(seed, false, false));
+
         workers.emplace_back(std::bind_front(&ServerWorld::runWorker, this));
     }
 
@@ -208,7 +211,7 @@ struct ServerWorld {
             auto status = ChunkStatus::getById(i);
 
             auto chunksInRadius = getChunksInRadius(status->range, chunk_x, chunk_z, static_cast<ChunkState>(i - 1));
-            status->generate(lightManager, generator, chunk_x, chunk_z, chunk, *chunksInRadius, seed);
+            status->generate(lightManager, *generator, chunk_x, chunk_z, chunk, *chunksInRadius, seed);
             chunk->state = static_cast<ChunkState>(i);
         }
 		return chunk;

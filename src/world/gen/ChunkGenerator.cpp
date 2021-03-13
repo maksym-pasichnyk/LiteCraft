@@ -1,6 +1,7 @@
 #include "ChunkGenerator.hpp"
 
 #include "../chunk/Chunk.hpp"
+#include "../biome/provider/BiomeProvider.hpp"
 #include "../../WorldGenRegion.hpp"
 #include "../../util/Random.hpp"
 
@@ -41,6 +42,8 @@ void ChunkGenerator::generateStructures(WorldGenRegion &region, Chunk& chunk) {
         chunk.structureStarts.emplace_back(std::move(start));
     }
 }
+
+ChunkGenerator::ChunkGenerator(std::unique_ptr<BiomeProvider>&& biomeProvider) : biomeProvider(std::move(biomeProvider)) {}
 
 void ChunkGenerator::getStructureReferences(WorldGenRegion &region, Chunk& chunk) {
     const auto sbb = StructureBoundingBox::fromChunkPos(chunk.pos.x, chunk.pos.z);
