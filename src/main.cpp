@@ -631,9 +631,9 @@ struct App {
             });
         }
 
-        while (clientWorld->provider->chunkArray.getLoaded() != 289) {
-            executor_execute();
-        }
+       while (clientWorld->provider->chunkArray.getLoaded() != 289) {
+           executor_execute();
+       }
 
         double frameTime = 0;
         int frameCount = 0;
@@ -725,17 +725,17 @@ struct App {
     }
 
 	void renderLayers(RenderLayer layer) {
-		for (auto chunk : chunkToRenders) {
-		    // todo: sometimes crash here
-			glBindVertexArray(chunk->mesh->vao);
+        for (auto chunk : chunkToRenders) {
+            // todo: sometimes crash here
+            glBindVertexArray(chunk->mesh->vao);
 
-			auto [index_offset, index_count] = chunk->layers[(int) layer];
+            auto [index_offset, index_count] = chunk->layers[(int) layer];
 
-			if (index_count != 0) {
-				glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, (void*) (index_offset * sizeof(int32_t)));
-			}
-		}
-	}
+            if (index_count != 0) {
+                glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT,(void *) (index_offset * sizeof(int32_t)));
+            }
+        }
+    }
 
 private:
     static void rotate_camera(Transform& transform, glm::ivec2 mouse_delta, float dt) {

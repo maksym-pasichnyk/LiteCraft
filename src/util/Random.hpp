@@ -110,6 +110,6 @@ struct Random {
 		setSeed(i);
 		return i;
 	}
-private:
+//private:
 	uint64_t seed = 0;
 };

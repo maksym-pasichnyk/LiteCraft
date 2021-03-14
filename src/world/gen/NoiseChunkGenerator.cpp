@@ -83,9 +83,6 @@ NoiseSettings settings{
 //    .randomDensityOffset = false
 //};
 
-
-
-
 void generateTree(Chunk& chunk, int32_t x, int32_t z, WorldGenRegion& blocks, Random& rand) {
 	const auto height = chunk.getTopBlockY(x, z) + 1;
     const auto treeHeight = 4 + rand.nextInt(0, 2);
@@ -111,7 +108,7 @@ void generateTree(Chunk& chunk, int32_t x, int32_t z, WorldGenRegion& blocks, Ra
 	}
 }
 
-NoiseChunkGenerator::NoiseChunkGenerator(std::unique_ptr<BiomeProvider>&& biomeProvider)
+NoiseChunkGenerator::NoiseChunkGenerator(int64_t seed, std::unique_ptr<BiomeProvider>&& biomeProvider)
     : ChunkGenerator(std::move(biomeProvider))
 {
     defaultBlock = BlockData{Block::stone->id, 0};
@@ -129,14 +126,14 @@ NoiseChunkGenerator::NoiseChunkGenerator(std::unique_ptr<BiomeProvider>&& biomeP
     noiseSizeZ = 16 / horizontalNoiseGranularity;
 
     auto randomSeed = Random::from(seed);
-    minLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-15, 0));
-    maxLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-15, 0));
-    mainLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-7, 0));
+    minLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-15, 1));
+    maxLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-15, 1));
+    mainLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-7, 1));
 
-    surfaceNoise = std::make_unique<PerlinNoiseGenerator>(randomSeed, -3, 0);
+    surfaceNoise = std::make_unique<PerlinNoiseGenerator>(randomSeed, std::views::iota(-3, 1));
 
     randomSeed.skip(2620);
-    depthNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-15, 0));
+    depthNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-15, 1));
     endNoise = nullptr;
 
     for (int i = -2; i <= 2; ++i) {
@@ -212,7 +209,7 @@ double NoiseChunkGenerator::sampleAndClampNoise(int x, int y, int z, double xzSc
 
         d /= 2.0;
     }
-
+    
     return Math::clampedLerp(a / 512.0, b / 512.0, (c / 10.0 + 1.0) / 2.0);
 }
 
@@ -223,7 +220,7 @@ double NoiseChunkGenerator::getRandomDensity(int x, int z) {
     return b < 0.0 ? b * 0.009486607142857142 : std::min(b, 1.0) * 0.006640625;
 }
 
-void NoiseChunkGenerator::fillNoiseColumn(double column[33], int xpos, int zpos) {
+void NoiseChunkGenerator::fillNoiseColumn(std::array<double, 33>& column, int xpos, int zpos) {
     double biomeDepth;
     double biomeScale;
     if (endNoise != nullptr) {

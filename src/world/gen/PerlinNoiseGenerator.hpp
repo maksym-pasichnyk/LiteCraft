@@ -4,49 +4,54 @@
 
 #include <optional>
 #include <vector>
+#include <algorithm>
+#include <fmt/format.h>
 
 struct PerlinNoiseGenerator : public INoiseGenerator {
     std::vector<std::optional<SimplexNoiseGenerator>> noiseLevels;
     double field_227460_b_;
     double field_227461_c_;
 
-    PerlinNoiseGenerator(Random&& rand, int min, int max) : PerlinNoiseGenerator(rand, min, max) {}
-    PerlinNoiseGenerator(Random& rand, int min, int max) {
-        const int i = -min;
-        const int j = max;
-        const int octavesCount = i + j + 1;
-        {
-            SimplexNoiseGenerator simplexNoiseGenerator{rand};
+    template <typename IntStream>
+    PerlinNoiseGenerator(Random&& rand, IntStream&& octaves)
+        : PerlinNoiseGenerator(rand, std::forward<IntStream>(octaves)) {}
 
-            noiseLevels.resize(octavesCount);
-            if (j >= 0 && j < octavesCount && (min <= 0 && 0 <= max)) {
-                noiseLevels[j] = simplexNoiseGenerator;
-            }
+    template <typename IntStream>
+    PerlinNoiseGenerator(Random& rand, IntStream&& octaves) {
+        const int first = -octaves.front();
+        const int last = octaves.back();
 
-            for(int i1 = j + 1; i1 < octavesCount; ++i1) {
-                if (i1 >= 0 && (min <= (j - i1) && (j - i1) <= max)) {
-                    noiseLevels[i1] = SimplexNoiseGenerator(rand);
-                } else {
-                    rand.skip(262);
-                }
-            }
+        const int octavesCount = first + last + 1;
+        SimplexNoiseGenerator simplexNoiseGenerator{rand};
 
-            if (j > 0) {
-                auto k1 = static_cast<int64_t>(simplexNoiseGenerator.getValue3D(simplexNoiseGenerator.xo, simplexNoiseGenerator.yo, simplexNoiseGenerator.zo) * 9.223372E18);
-                auto sharedseedrandom = Random::from(k1);
-
-                for (int j1 = j - 1; j1 >= 0; --j1) {
-                    if (j1 < octavesCount && (min <= (j - j1) && (j - j1) <= max)) {
-                        noiseLevels[j1] = SimplexNoiseGenerator(sharedseedrandom);
-                    } else {
-                        sharedseedrandom.skip(262);
-                    }
-                }
-            }
-
-            field_227461_c_ = std::pow(2.0, j);
-            field_227460_b_ = 1.0 / (std::pow(2.0, octavesCount) - 1.0);
+        noiseLevels.resize(octavesCount);
+        if (last >= 0 && last < octavesCount && std::ranges::find(octaves, 0) != octaves.end()) {
+            noiseLevels[last] = simplexNoiseGenerator;
         }
+
+        for(int i1 = last + 1; i1 < octavesCount; ++i1) {
+            if (i1 >= 0 && std::ranges::find(octaves, last - i1) != octaves.end()) {
+                noiseLevels[i1] = SimplexNoiseGenerator(rand);
+            } else {
+                rand.skip(262);
+            }
+        }
+
+        if (last > 0) {
+            auto k1 = static_cast<int64_t>(simplexNoiseGenerator.getValue3D(simplexNoiseGenerator.xo, simplexNoiseGenerator.yo, simplexNoiseGenerator.zo) * 9.223372E18);
+            auto sharedseedrandom = Random::from(k1);
+
+            for (int j1 = last - 1; j1 >= 0; --j1) {
+                if (j1 < octavesCount && std::ranges::find(octaves, last - j1) != octaves.end()) {
+                    noiseLevels[j1] = SimplexNoiseGenerator(sharedseedrandom);
+                } else {
+                    sharedseedrandom.skip(262);
+                }
+            }
+        }
+
+        field_227461_c_ = std::pow(2.0, last);
+        field_227460_b_ = 1.0 / (std::pow(2.0, octavesCount) - 1.0);
     }
 
     auto noiseAt(double x, double y, bool useOffsets) const -> double {
@@ -54,11 +59,11 @@ struct PerlinNoiseGenerator : public INoiseGenerator {
         double d1 = field_227461_c_;
         double d2 = field_227460_b_;
 
-        for (auto& simplexnoisegenerator : noiseLevels) {
-            if (simplexnoisegenerator.has_value()) {
-                d0 += d2 * simplexnoisegenerator->getValue2D(
-                        x * d1 + (useOffsets ? simplexnoisegenerator->xo : 0),
-                        y * d1 + (useOffsets ? simplexnoisegenerator->yo : 0)
+        for (auto& noiseLevel : noiseLevels) {
+            if (noiseLevel.has_value()) {
+                d0 += d2 * noiseLevel->getValue2D(
+                        x * d1 + (useOffsets ? noiseLevel->xo : 0),
+                        y * d1 + (useOffsets ? noiseLevel->yo : 0)
                 );
             }
 

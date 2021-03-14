@@ -23,8 +23,11 @@ struct WorldGenRegion : WorldReader {
 	int32_t chunk_x;
 	int32_t chunk_z;
 
-	glm::ivec2 bounds_min{};
-	glm::ivec2 bounds_max{};
+	glm::ivec2 chunks_min{};
+	glm::ivec2 chunks_max{};
+
+    glm::ivec2 bounds_min{};
+    glm::ivec2 bounds_max{};
     std::span<Chunk*> chunks;
 
     BiomeMagnifier magnifier;
@@ -38,20 +41,25 @@ struct WorldGenRegion : WorldReader {
 	    , chunk_z(chunk_z)
 	    , chunks(chunks)
     {
-		bounds_min.x = chunk_x - radius;
-		bounds_min.y = chunk_z - radius;
-		bounds_max.x = chunk_x + radius;
-		bounds_max.y = chunk_z + radius;
+        chunks_min.x = chunk_x - radius;
+        chunks_min.y = chunk_z - radius;
+        chunks_max.x = chunk_x + radius;
+        chunks_max.y = chunk_z + radius;
+
+        bounds_min.x = chunks_min.x << 4;
+        bounds_min.y = chunks_min.y << 4;
+        bounds_max.x = (chunks_max.x << 4) + 15;
+        bounds_max.y = (chunks_max.y << 4) + 15;
 
         magnifier = FuzzedBiomeMagnifier::getBiome;
 	}
 
 	auto toIndex(int32_t x, int32_t z) const -> size_t {
-		return (x - bounds_min.x) + (z - bounds_min.y) * size;
+		return (x - chunks_min.x) + (z - chunks_min.y) * size;
 	}
 
 	auto chunkExists(int32_t x, int32_t z) const -> bool {
-		return bounds_min.x <= x && x <= bounds_max.x && bounds_min.y <= z && z <= bounds_max.y;
+		return chunks_min.x <= x && x <= chunks_max.x && chunks_min.y <= z && z <= chunks_max.y;
 	}
 
     auto getMainChunkPos() const -> ChunkPos {

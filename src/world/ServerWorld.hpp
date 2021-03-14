@@ -24,10 +24,11 @@ struct ServerWorld {
 
     ChunkPos last_player_position{};
 
+    int viewDistance = 8;
     int64_t seed = 0;
 
     explicit ServerWorld(NetworkConnection connection) : connection{connection} {
-        generator = std::make_unique<NoiseChunkGenerator>(std::make_unique<OverworldBiomeProvider>(seed, false, false));
+        generator = std::make_unique<NoiseChunkGenerator>(seed, std::make_unique<OverworldBiomeProvider>(seed, false, false));
 
         workers.emplace_back(std::bind_front(&ServerWorld::runWorker, this));
     }
@@ -42,7 +43,6 @@ struct ServerWorld {
                 .x = chunk_x,
                 .z = chunk_z
             });
-
             chunks.erase(ChunkPos::asLong(chunk_x, chunk_z));
         } else if (needLoad && !wasLoaded) {
             auto chunk = provideChunk(chunk_x, chunk_z, ChunkState::Full);
@@ -57,29 +57,29 @@ struct ServerWorld {
     }
 
     void updatePlayerPosition(ChunkPos newChunkPos, ChunkPos oldChunkPos) {
-        if (std::abs(newChunkPos.x - oldChunkPos.x) <= 2 * 8 && std::abs(newChunkPos.z - oldChunkPos.z) <= 2 * 8) {
-            const int xStart = std::min(newChunkPos.x, oldChunkPos.x) - 8;
-            const int zStart = std::min(newChunkPos.z, oldChunkPos.z) - 8;
-            const int xEnd = std::max(newChunkPos.x, oldChunkPos.x) + 8;
-            const int zEnd = std::max(newChunkPos.z, oldChunkPos.z) + 8;
+        if (std::abs(newChunkPos.x - oldChunkPos.x) <= 2 * viewDistance && std::abs(newChunkPos.z - oldChunkPos.z) <= 2 * viewDistance) {
+            const int xStart = std::min(newChunkPos.x, oldChunkPos.x) - viewDistance;
+            const int zStart = std::min(newChunkPos.z, oldChunkPos.z) - viewDistance;
+            const int xEnd = std::max(newChunkPos.x, oldChunkPos.x) + viewDistance;
+            const int zEnd = std::max(newChunkPos.z, oldChunkPos.z) + viewDistance;
 
             for (int chunk_x = xStart; chunk_x <= xEnd; chunk_x++) {
                 for (int chunk_z = zStart; chunk_z <= zEnd; chunk_z++) {
-                    const bool wasLoaded = getChunkDistance(oldChunkPos, chunk_x, chunk_z) <= 8;
-                    const bool needLoad = getChunkDistance(newChunkPos, chunk_x, chunk_z) <= 8;
+                    const bool wasLoaded = getChunkDistance(oldChunkPos, chunk_x, chunk_z) <= viewDistance;
+                    const bool needLoad = getChunkDistance(newChunkPos, chunk_x, chunk_z) <= viewDistance;
 
                     setChunkLoadedAtClient(chunk_x, chunk_z, wasLoaded, needLoad);
                 }
             }
         } else {
-            for (int32_t chunk_x = oldChunkPos.x - 8; chunk_x <= oldChunkPos.x + 8; chunk_x++) {
-                for (int32_t chunk_z = oldChunkPos.z - 8; chunk_z <= oldChunkPos.z + 8; chunk_z++) {
+            for (int32_t chunk_x = oldChunkPos.x - viewDistance; chunk_x <= oldChunkPos.x + viewDistance; chunk_x++) {
+                for (int32_t chunk_z = oldChunkPos.z - viewDistance; chunk_z <= oldChunkPos.z + viewDistance; chunk_z++) {
                     setChunkLoadedAtClient(chunk_x, chunk_z, true, false);
                 }
             }
 
-            for (int32_t chunk_x = newChunkPos.x - 8; chunk_x <= newChunkPos.x + 8; chunk_x++) {
-                for (int32_t chunk_z = newChunkPos.z - 8; chunk_z <= newChunkPos.z + 8; chunk_z++) {
+            for (int32_t chunk_x = newChunkPos.x - viewDistance; chunk_x <= newChunkPos.x + viewDistance; chunk_x++) {
+                for (int32_t chunk_z = newChunkPos.z - viewDistance; chunk_z <= newChunkPos.z + viewDistance; chunk_z++) {
                     setChunkLoadedAtClient(chunk_x, chunk_z, false, true);
                 }
             }
@@ -104,8 +104,8 @@ struct ServerWorld {
                         static_cast<int32_t>(packet.pos.z) >> 4
                     );
 
-                    for (int32_t chunk_x = last_player_position.x - 8; chunk_x <= last_player_position.x + 8; chunk_x++) {
-                        for (int32_t chunk_z = last_player_position.z - 8; chunk_z <= last_player_position.z + 8; chunk_z++) {
+                    for (int32_t chunk_x = last_player_position.x - viewDistance; chunk_x <= last_player_position.x + viewDistance; chunk_x++) {
+                        for (int32_t chunk_z = last_player_position.z - viewDistance; chunk_z <= last_player_position.z + viewDistance; chunk_z++) {
                             setChunkLoadedAtClient(chunk_x, chunk_z, false, true);
                         }
                     }
@@ -138,8 +138,8 @@ struct ServerWorld {
 
                     WorldGenRegion region{this, *chunksInRadius, 1, pos.x >> 4, pos.z >> 4, seed};
 
-                    auto old = region.getData(packet.pos);
-                    region.setData(packet.pos, packet.data);
+                    auto old = region.getData(pos);
+                    region.setData(pos, packet.data);
 
                     lightManager.update(region, pos.x, pos.y, pos.z, old, packet.data);
 
@@ -211,7 +211,6 @@ struct ServerWorld {
 
         for (int i = static_cast<int>(chunk->state) + 1; i <= static_cast<int>(state); i++) {
             auto status = ChunkStatus::getById(i);
-
             auto chunksInRadius = getChunksInRadius(status->range, chunk_x, chunk_z, static_cast<ChunkState>(i - 1));
             status->generate(this, lightManager, *generator, chunk_x, chunk_z, chunk, *chunksInRadius, seed);
             chunk->state = static_cast<ChunkState>(i);

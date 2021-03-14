@@ -15,18 +15,32 @@ auto WorldGenRegion::getData(int32_t x, int32_t y, int32_t z) const -> BlockData
 }
 
 void WorldGenRegion::setData(int32_t x, int32_t y, int32_t z, BlockData blockData) {
+    if (y < 0 || y > 255) {
+        return;
+    }
+
     getChunk(x >> 4, z >> 4)->setData(x, y, z, blockData);
 }
 
 void WorldGenRegion::setLight(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val) {
+    if (y < 0 || y > 255) {
+        return;
+    }
+
     getChunk(x >> 4, z >> 4)->setLight(x, y, z, channel, val);
 }
 
 auto WorldGenRegion::getLight(int32_t x, int32_t y, int32_t z, int32_t channel) const -> int32_t {
+    if (y < 0 || y > 255) {
+        return 0;
+    }
     return getChunk(x >> 4, z >> 4)->getLight(x, y, z, channel);
 }
 
 auto WorldGenRegion::getLightPacked(int32_t x, int32_t y, int32_t z) const -> int32_t {
+    if (y < 0 || y > 255) {
+        return 0;
+    }
     return getChunk(x >> 4, z >> 4)->getLightPacked(x, y, z);
 }
 

@@ -1,12 +1,13 @@
 #pragma once
 
+#include "../gen/PerlinNoiseGenerator.hpp"
+#include "../gen/surface/SurfaceBuilder.hpp"
 #include "../../SurfaceBuilder.h"
 #include "../../block/BlockTable.hpp"
 #include "../../block/BlockData.hpp"
 #include "../../util/Random.hpp"
-#include "../../resource_manager.hpp"
-#include "../gen/PerlinNoiseGenerator.hpp"
-#include "../gen/surface/SurfaceBuilder.hpp"
+#include "../../util/math/BlockPos.hpp"
+#include "../../util/linked_unordered_map.hpp"
 
 #include <glm/vec3.hpp>
 #include <functional>
@@ -15,7 +16,6 @@
 #include <map>
 
 struct Chunk;
-struct ResourcePackManager;
 
 //struct BiomeDefinition {
 //    static std::map<std::string, std::unique_ptr<Biome>> biomes;
@@ -26,6 +26,10 @@ struct ResourcePackManager;
 //};
 
 struct Biome {
+    static const PerlinNoiseGenerator TEMPERATURE_NOISE;
+    static const PerlinNoiseGenerator FROZEN_TEMPERATURE_NOISE;
+    static const PerlinNoiseGenerator INFO_NOISE;
+
     static std::map<int, std::unique_ptr<Biome>> biomes;
 
     static Biome* OCEAN;
@@ -108,54 +112,36 @@ struct Biome {
     static Biome* WARPED_FOREST;
     static Biome* BASALT_DELTAS;
 
-//    static PerlinNoiseGenerator TEMPERATURE_NOISE;
-//    static PerlinNoiseGenerator FROZEN_TEMPERATURE_NOISE;
-    inline static const PerlinNoiseGenerator INFO_NOISE = PerlinNoiseGenerator(Random::from(2345), 0, 0);
+    using TemperatureModifier = float(*)(glm::ivec3, float);
+    struct TemperatureModifiers {
+        static float none(glm::ivec3 pos, float temperature) {
+            return temperature;
+        }
 
+        static float frozen(glm::ivec3 pos, float temperature) {
+            const double frozen = Biome::FROZEN_TEMPERATURE_NOISE.noiseAt(
+                    static_cast<double>(pos.x) * 0.05,
+                    static_cast<double>(pos.z) * 0.05,
+                    false) * 7.0;
 
-//    struct TemperatureModifier {
-//        TemperatureModifier() : TemperatureModifier(none()) {}
-//
-//        static constexpr auto none() -> TemperatureModifier {
-//            return TemperatureModifier{[](glm::ivec3 pos, float temperature) -> float {
-//                    return temperature;
-//            }};
-//        }
-//
-//        static constexpr auto frozen() -> TemperatureModifier {
-//            return TemperatureModifier{[](glm::ivec3 pos, float temperature) -> float {
-//                const double frozen = Biome::FROZEN_TEMPERATURE_NOISE.noiseAt(
-//                        static_cast<double>(pos.x) * 0.05,
-//                        static_cast<double>(pos.z) * 0.05,
-//                        false) * 7.0;
-//
-//                const double noise = Biome::INFO_NOISE.noiseAt(
-//                        static_cast<double>(pos.x) * 0.2,
-//                        static_cast<double>(pos.z) * 0.2,
-//                        false);
-//
-//                if ((frozen + noise) < 0.3) {
-//                    const double d3 = Biome::INFO_NOISE.noiseAt(
-//                            static_cast<double>(pos.x) * 0.09,
-//                            static_cast<double>(pos.z) * 0.09,
-//                            false);
-//
-//                    if (d3 < 0.8) {
-//                        return 0.2F;
-//                    }
-//                }
-//                return temperature;
-//            }};
-//        }
-//
-//        float getTemperatureAtPosition(glm::ivec3 pos, float temperature) const {
-//            return _getTemperatureAtPosition(pos, temperature);
-//        }
-//    private:
-//        constexpr TemperatureModifier(float(*_getTemperatureAtPosition)(glm::ivec3, float)) : _getTemperatureAtPosition(_getTemperatureAtPosition) {}
-//
-//        float(*_getTemperatureAtPosition)(glm::ivec3, float);
-//    };
+            const double noise = Biome::INFO_NOISE.noiseAt(
+                    static_cast<double>(pos.x) * 0.2,
+                    static_cast<double>(pos.z) * 0.2,
+                    false);
+
+            if ((frozen + noise) < 0.3) {
+                const double d3 = Biome::INFO_NOISE.noiseAt(
+                        static_cast<double>(pos.x) * 0.09,
+                        static_cast<double>(pos.z) * 0.09,
+                        false);
+
+                if (d3 < 0.8) {
+                    return 0.2F;
+                }
+            }
+            return temperature;
+        }
+    };
 
     struct Attributes {
         float temperature;
@@ -202,7 +188,7 @@ struct Biome {
 //    struct Climate {
 //        RainType precipitation;
 //        float temperature;
-//        TemperatureModifier temperatureModifier;
+//        TemperatureModifiers temperatureModifier;
 //        float downfall;
 //    };
 
@@ -224,10 +210,32 @@ struct Biome {
 //    }
 
 //    float getTemperatureAtPosition(glm::ivec3 pos) const {
-//        const auto temp = climate.temperatureModifier.getTemperatureAtPosition(pos, getTemperature());
-//
-////        return temperatureModifier.getTemperatureAtPosition(pos, temperature);
+//        const float f = temperatureModifier(pos, temperature.value_or(0.5f));
+//        if (pos.y > 64) {
+//            const auto f1 = static_cast<float>(TEMPERATURE_NOISE.noiseAt(
+//                    static_cast<float>(pos.x) / 8.0F,
+//                    static_cast<float>(pos.z) / 8.0F,
+//                    false) * 4.0);
+//            return f - (f1 + static_cast<float>(pos.y) - 64.0F) * 0.05F / 30.0F;
+//        }
+//        return f;
 //    }
+
+    float getTemperature(glm::ivec3 pos) /*const*/ {
+//        const auto i = BlockPos::pack(pos.x, pos.y, pos.z);
+//        if (temperatureCache.contains(i)) {
+//            return temperatureCache.at(i);
+//        }
+//
+//        const auto f = getTemperatureAtPosition(pos);
+//        if (temperatureCache.size() >= 1024) {
+//            temperatureCache.pop_front();
+//        }
+//
+//        temperatureCache.insert({i, f});
+//        return f;
+        return 0.5f;
+    }
 
     void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int sealevel) {
         builder.setSeed(0);
@@ -239,16 +247,14 @@ struct Biome {
 
 //private:
     ConfiguredSurfaceBuilder builder;
-
-//    std::optional<BlockData> top;
-//    std::optional<BlockData> filler;
-//    std::optional<BlockData> underWater;
-    //    SurfaceBuilder surfaceBuilder;
 //    Climate climate;
 //    BiomeGenerationSettings generationSettings;
-    std::optional<float> depth;
-    std::optional<float> scale;
-    std::optional<float> temperature;
+    std::optional<float> depth{0};
+    std::optional<float> scale{0};
+    std::optional<float> temperature{0};
+    TemperatureModifier temperatureModifier = TemperatureModifiers::none;
+
+    linked_unordered_map<uint64_t, float> temperatureCache{};
 //    Category category;
 //    BiomeAmbience effects;
 };

@@ -42,14 +42,24 @@ struct WorldLightManager {
             const auto [x, y, z, channel, light] = removes.front();
             removes.pop();
 
-            remove(region, x + 1, y, z, channel, light, mask);
-            remove(region, x - 1, y, z, channel, light, mask);
-
-            remove(region, x, y, z - 1, channel, light, mask);
-            remove(region, x, y, z + 1, channel, light, mask);
-
-            remove(region, x, y + 1, z, channel, light, mask);
-            remove(region, x, y - 1, z, channel, light, mask);
+            if (x < region.bounds_max.x) {
+                remove(region, x + 1, y, z, channel, light, mask);
+            }
+            if (x > region.bounds_min.x) {
+                remove(region, x - 1, y, z, channel, light, mask);
+            }
+            if (z > region.bounds_min.y) {
+                remove(region, x, y, z - 1, channel, light, mask);
+            }
+            if (z < region.bounds_max.y) {
+                remove(region, x, y, z + 1, channel, light, mask);
+            }
+            if (y < 255) {
+                remove(region, x, y + 1, z, channel, light, mask);
+            }
+            if (y > 0) {
+                remove(region, x, y - 1, z, channel, light, mask);
+            }
         }
 
         while (!sources.empty()) {
@@ -59,14 +69,24 @@ struct WorldLightManager {
             const auto light = region.getLight(x, y, z, channel);
             if (light <= 1) continue;
 
-            propagate(region, x + 1, y, z, channel, light, mask);
-            propagate(region, x - 1, y, z, channel, light, mask);
-
-            propagate(region, x, y, z - 1, channel, light, mask);
-            propagate(region, x, y, z + 1, channel, light, mask);
-
-            propagate(region, x, y + 1, z, channel, light, mask);
-            propagate(region, x, y - 1, z, channel, light, mask);
+            if (x < region.bounds_max.x) {
+                propagate(region, x + 1, y, z, channel, light, mask);
+            }
+            if (x > region.bounds_min.x) {
+                propagate(region, x - 1, y, z, channel, light, mask);
+            }
+            if (z > region.bounds_min.y) {
+                propagate(region, x, y, z - 1, channel, light, mask);
+            }
+            if (z < region.bounds_max.y) {
+                propagate(region, x, y, z + 1, channel, light, mask);
+            }
+            if (y < 255) {
+                propagate(region, x, y + 1, z, channel, light, mask);
+            }
+            if (y > 0) {
+                propagate(region, x, y - 1, z, channel, light, mask);
+            }
         }
 
         for (int i = 0; i < 9; i++) {
@@ -88,16 +108,16 @@ struct WorldLightManager {
         }
 
         for (; y >= 0; --y) {
-//            removes.emplace(x, y, z, 0);
+            removes.emplace(x, y, z, 3, 0);
 
-            sources.emplace(x + 1, y, z, 3);
-            sources.emplace(x - 1, y, z, 3);
+//            sources.emplace(x + 1, y, z, 3);
+//            sources.emplace(x - 1, y, z, 3);
 
-            sources.emplace(x, y, z - 1, 3);
-            sources.emplace(x, y, z + 1, 3);
+//            sources.emplace(x, y, z - 1, 3);
+//            sources.emplace(x, y, z + 1, 3);
 
-            sources.emplace(x, y + 1, z, 3);
-            sources.emplace(x, y - 1, z, 3);
+//            sources.emplace(x, y + 1, z, 3);
+//            sources.emplace(x, y - 1, z, 3);
 
             region.setLight(x, y, z, 3, 0);
         }
@@ -132,14 +152,16 @@ struct WorldLightManager {
 //            removes.emplace(x, y, z, 0);
 
             for (int i = 0; i < 4; i++) {
-                sources.emplace(x + 1, y, z, i);
-                sources.emplace(x - 1, y, z, i);
+                removes.emplace(x, y, z, i, 0);
 
-                sources.emplace(x, y, z - 1, i);
-                sources.emplace(x, y, z + 1, i);
+//                sources.emplace(x + 1, y, z, i);
+//                sources.emplace(x - 1, y, z, i);
 
-                sources.emplace(x, y + 1, z, i);
-                sources.emplace(x, y - 1, z, i);
+//                sources.emplace(x, y, z - 1, i);
+//                sources.emplace(x, y, z + 1, i);
+
+//                sources.emplace(x, y + 1, z, i);
+//                sources.emplace(x, y - 1, z, i);
             }
         }
 

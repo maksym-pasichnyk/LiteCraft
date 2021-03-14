@@ -466,7 +466,7 @@ struct Chunk {
 //    }
 
     void setLight(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val) {
-        auto& section = lightSections[y >> 4];
+        auto& section = lightSections.at(y >> 4);
         if (section == nullptr) {
             if (val == 0) {
                 return;
@@ -477,7 +477,7 @@ struct Chunk {
     }
 
     auto getLight(int32_t x, int32_t y, int32_t z, int32_t channel) const -> int32_t {
-        auto& section = lightSections[y >> 4];
+        auto& section = lightSections.at(y >> 4);
         if (section == nullptr) {
             return 0;
         }
@@ -485,7 +485,7 @@ struct Chunk {
     }
 
     auto getLightPacked(int32_t x, int32_t y, int32_t z) const -> int32_t {
-        auto& section = lightSections[y >> 4];
+        auto& section = lightSections.at(y >> 4);
         if (section == nullptr) {
             return 0;
         }
@@ -493,7 +493,7 @@ struct Chunk {
     }
 
     void setData(int32_t x, int32_t y, int32_t z, BlockData blockData) {
-    	auto& section = sections[y >> 4];
+    	auto& section = sections.at(y >> 4);
     	if (section == nullptr) {
     		section = std::make_unique<ChunkSection>();
     	}
@@ -502,7 +502,7 @@ struct Chunk {
     }
 
     auto getData(int32_t x, int32_t y, int32_t z) const -> BlockData {
-    	auto& section = sections[y >> 4];
+    	auto& section = sections.at(y >> 4);
     	if (section == nullptr) {
 			return {};
     	}
@@ -510,7 +510,7 @@ struct Chunk {
     }
 
     auto getBlock(int32_t x, int32_t y, int32_t z) const -> Block* {
-        return Block::id_to_block[(int) getData(x, y, z).id];
+        return Block::id_to_block.at((int) getData(x, y, z).id);
     }
 
     void updateMesh() {

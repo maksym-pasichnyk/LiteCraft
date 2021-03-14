@@ -52,6 +52,10 @@ struct ChunkRenderCache {
     }
 
     auto getLight(int32_t x, int32_t y, int32_t z, int32_t channel) const -> int32_t {
+        if (y < 0 || y > 255) {
+            return 0;
+        }
+
         return getChunk(x >> 4, z >> 4)->getLight(x, y, z, channel);
     }
 
@@ -60,6 +64,10 @@ struct ChunkRenderCache {
     }
 
     auto getLightPacked(int32_t x, int32_t y, int32_t z) const -> int32_t {
+        if (y < 0 || y > 255) {
+            return 0;
+        }
+
         return getChunk(x >> 4, z >> 4)->getLightPacked(x, y, z);
     }
 

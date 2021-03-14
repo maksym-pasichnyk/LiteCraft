@@ -21,7 +21,7 @@ class NoiseChunkGenerator : public ChunkGenerator {
     int bedrockFloorPosition;
     int bedrockRoofPosition;
 
-    double noises[2][5][33];
+    std::array<std::array<std::array<double, 33>, 5>, 2> noises{};
 
     std::unique_ptr<OctavesNoiseGenerator> minLimitPerlinNoise;
     std::unique_ptr<OctavesNoiseGenerator> maxLimitPerlinNoise;
@@ -31,17 +31,15 @@ class NoiseChunkGenerator : public ChunkGenerator {
     std::unique_ptr<OctavesNoiseGenerator> depthNoise;
     std::unique_ptr<SimplexNoiseGenerator> endNoise;
 
-    int64_t seed = 1;
-
     BlockData defaultBlock;
     BlockData defaultFluid;
 
 public:
-    NoiseChunkGenerator(std::unique_ptr<BiomeProvider>&& biomeProvider);
+    NoiseChunkGenerator(int64_t seed, std::unique_ptr<BiomeProvider>&& biomeProvider);
 
     double getRandomDensity(int x, int z);
     double sampleAndClampNoise(int x, int y, int z, double xzScale, double yScale, double xzFactor, double yFactor);
-    void fillNoiseColumn(double column[33], int xpos, int zpos);
+    void fillNoiseColumn(std::array<double, 33>& column, int xpos, int zpos);
 
     void makeBedrock(Chunk& chunk, Random& rand) const;
     void generateSurface(WorldGenRegion& region, Chunk& chunk) override;
