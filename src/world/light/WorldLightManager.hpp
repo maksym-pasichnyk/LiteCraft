@@ -5,6 +5,7 @@
 #include <bitset>
 
 #include "../../WorldGenRegion.hpp"
+#include "../chunk/Chunk.hpp"
 
 struct WorldLightManager {
     std::queue<std::tuple<int32_t, int32_t, int32_t, int32_t>> sources;

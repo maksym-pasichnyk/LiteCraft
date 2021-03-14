@@ -9,8 +9,6 @@
 struct BlockTable;
 struct BlockGraphics;
 
-enum class BlockID : unsigned short;
-
 enum class Tint {
 	None,
 	Grass,

@@ -40,46 +40,35 @@ struct OctavesNoiseGenerator : public INoiseGenerator {
         : OctavesNoiseGenerator(rand, createOctaves(std::forward<IntStream>(ints))) {}
 
     OctavesNoiseGenerator(Random& rand, std::pair<int, std::vector<double>> in) : amplitudes(std::move(in.second)) {
-        const int i = in.first;
+        const int first = in.first;
         const int j = amplitudes.size();
-        const int k = -i;
+        const int k = -first;
 
         octaves.resize(j);
 
         ImprovedNoiseGenerator improvedNoiseGenerator{rand};
 
         if (k >= 0 && k < j) {
-            double d0 = amplitudes[k];
-            if (d0 != 0.0) {
+            if (amplitudes[k] != 0.0) {
                 octaves[k] = improvedNoiseGenerator;
             }
         }
 
         for (int i1 = k - 1; i1 >= 0; --i1) {
-            if (i1 < j) {
-                double d1 = amplitudes[i1];
-                if (d1 != 0.0) {
-                    octaves[i1] = ImprovedNoiseGenerator(rand);
-                } else {
-                    rand.skip(262);
-                }
+            if (i1 < j && amplitudes[i1] != 0.0) {
+                octaves[i1] = ImprovedNoiseGenerator(rand);
             } else {
                 rand.skip(262);
             }
         }
 
         if (k < j - 1) {
-            auto j1 = (int64_t) (improvedNoiseGenerator.getNoiseValue(0.0, 0.0, 0.0, 0.0, 0.0) * 9.223372E18);
+            auto j1 = static_cast<int64_t>(improvedNoiseGenerator.getNoiseValue(0.0, 0.0, 0.0, 0.0, 0.0) * 9.223372E18);
             auto sharedseedrandom = Random::from(j1);
 
             for (int l = k + 1; l < j; ++l) {
-                if (l >= 0) {
-                    double d2 = amplitudes[l];
-                    if (d2 != 0.0) {
-                        octaves[l] = ImprovedNoiseGenerator(sharedseedrandom);
-                    } else {
-                        sharedseedrandom.skip(262);
-                    }
+                if (l >= 0 && amplitudes[l] != 0.0) {
+                    octaves[l] = ImprovedNoiseGenerator(sharedseedrandom);
                 } else {
                     sharedseedrandom.skip(262);
                 }
@@ -117,7 +106,9 @@ struct OctavesNoiseGenerator : public INoiseGenerator {
                 noise += amplitudes[i] * octave->getNoiseValue(
                         maintainPrecision(x * d1),
                         useHeightOffset ? -octave->yCoord : maintainPrecision(y * d1),
-                        maintainPrecision(z * d1), p_215462_7_ * d1, p_215462_9_ * d1) * d2;
+                        maintainPrecision(z * d1),
+                        p_215462_7_ * d1,
+                        p_215462_9_ * d1) * d2;
             }
 
             d1 *= 2.0;

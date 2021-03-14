@@ -1,16 +1,22 @@
 #pragma once
 
+#include "world/biome/BiomeMagnifier.hpp"
+#include "world/biome/FuzzedBiomeMagnifier.hpp"
+#include "world/WorldReader.hpp"
+#include "block/BlockData.hpp"
+#include "util/math/ChunkPos.hpp"
+
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 
 #include <array>
+#include <span>
 
-#include "world/chunk/Chunk.hpp"
-#include "block/Block.hpp"
+struct Block;
+struct ServerWorld;
 
-struct Biome;
-
-struct WorldGenRegion {
+struct WorldGenRegion : WorldReader {
+    ServerWorld* world;
     int64_t seed;
     int32_t radius;
 	int32_t size;
@@ -21,8 +27,11 @@ struct WorldGenRegion {
 	glm::ivec2 bounds_max{};
     std::span<Chunk*> chunks;
 
-	WorldGenRegion(std::span<Chunk*> chunks, int32_t radius, int32_t chunk_x, int32_t chunk_z, int64_t seed)
-	    : seed(seed)
+    BiomeMagnifier magnifier;
+
+	WorldGenRegion(ServerWorld* world, std::span<Chunk*> chunks, int32_t radius, int32_t chunk_x, int32_t chunk_z, int64_t seed)
+	    : world(world)
+	    , seed(seed)
         , radius(radius)
 	    , size(radius * 2 + 1)
 	    , chunk_x(chunk_x)
@@ -33,6 +42,8 @@ struct WorldGenRegion {
 		bounds_min.y = chunk_z - radius;
 		bounds_max.x = chunk_x + radius;
 		bounds_max.y = chunk_z + radius;
+
+        magnifier = FuzzedBiomeMagnifier::getBiome;
 	}
 
 	auto toIndex(int32_t x, int32_t z) const -> size_t {
@@ -54,48 +65,33 @@ struct WorldGenRegion {
 		return nullptr;
 	}
 
-	auto getBlock(int32_t x, int32_t y, int32_t z) const -> Block* {
-        return Block::id_to_block[(int) getData(x, y, z).id];
-	}
+	auto getBlock(int32_t x, int32_t y, int32_t z) const -> Block*;
 
-    auto getData(int32_t x, int32_t y, int32_t z) const -> BlockData {
-	    if (y < 0 || y > 255) {
-	        return {};
-	    }
-        return getChunk(x >> 4, z >> 4)->getData(x, y, z);
-    }
+    auto getData(int32_t x, int32_t y, int32_t z) const -> BlockData;
 
     auto getData(glm::ivec3 pos) const -> BlockData {
         return getData(pos.x, pos.y, pos.z);
     }
 
-    void setData(int32_t x, int32_t y, int32_t z, BlockData blockData) {
-        getChunk(x >> 4, z >> 4)->setData(x, y, z, blockData);
-    }
+    void setData(int32_t x, int32_t y, int32_t z, BlockData blockData);
 
     void setData(glm::ivec3 pos, BlockData blockData) {
         setData(pos.x, pos.y, pos.z, blockData);
     }
 
-    void setLight(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val) {
-        getChunk(x >> 4, z >> 4)->setLight(x, y, z, channel, val);
-    }
+    void setLight(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val);
 
     void setLight(glm::ivec3 pos, int32_t channel, int32_t val) {
         setLight(pos.x, pos.y, pos.z, channel, val);
     }
 
-    auto getLight(int32_t x, int32_t y, int32_t z, int32_t channel) const -> int32_t {
-        return getChunk(x >> 4, z >> 4)->getLight(x, y, z, channel);
-    }
+    auto getLight(int32_t x, int32_t y, int32_t z, int32_t channel) const -> int32_t;
 
     auto getLight(glm::ivec3 pos, int32_t channel) const -> int32_t {
         return getLight(pos.x, pos.y, pos.z, channel);
     }
 
-    auto getLightPacked(int32_t x, int32_t y, int32_t z) const -> int32_t {
-        return getChunk(x >> 4, z >> 4)->getLightPacked(x, y, z);
-    }
+    auto getLightPacked(int32_t x, int32_t y, int32_t z) const -> int32_t;
 
     auto getLightPacked(glm::ivec3 pos) const -> int32_t {
         return getLightPacked(pos.x, pos.y, pos.z);
@@ -106,22 +102,24 @@ struct WorldGenRegion {
     }
 
     auto getBiome(glm::ivec3 pos) -> Biome* {
-        return nullptr;
+        return getBiome(pos.x, pos.y, pos.z);
     }
 
     auto getBiome(int32_t x, int32_t y, int32_t z) -> Biome* {
-        return nullptr;
+        return magnifier(seed, x, y, z, *this);
     }
 
     auto getSeed() const -> int64_t {
 	    return seed;
 	}
 
-    auto getTopBlockY(/*type, */int32_t x, int32_t z) -> int32_t {
-        return getChunk(x >> 4, z >> 4)->getTopBlockY(x, z);
+    auto getTopBlockY(/*type, */int32_t x, int32_t z) -> int32_t;
+
+    auto getHeight(/*type, */int32_t x, int32_t z) -> int32_t;
+
+    Chunk *getChunk(int x, int z, ChunkState requiredStatus, bool nonnull) override {
+        return nullptr;
     }
 
-    auto getHeight(/*type, */int32_t x, int32_t z) -> int32_t {
-        return getChunk(x >> 4, z >> 4)->getHeight(x, z);
-    }
+    Biome *getNoiseBiomeRaw(int x, int y, int z) override;
 };

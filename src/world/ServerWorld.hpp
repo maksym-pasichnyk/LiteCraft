@@ -4,7 +4,9 @@
 #include <thread>
 #include <vector>
 #include <map>
+#include <set>
 
+#include "../NetworkManager.hpp"
 #include "light/WorldLightManager.hpp"
 #include "gen/NoiseChunkGenerator.hpp"
 #include "biome/provider/OverworldBiomeProvider.hpp"
@@ -134,7 +136,7 @@ struct ServerWorld {
 
                     auto chunksInRadius = getChunksInRadius(1, pos.x >> 4, pos.z >> 4, ChunkState::Full);
 
-                    WorldGenRegion region{*chunksInRadius, 1, pos.x >> 4, pos.z >> 4, seed};
+                    WorldGenRegion region{this, *chunksInRadius, 1, pos.x >> 4, pos.z >> 4, seed};
 
                     auto old = region.getData(packet.pos);
                     region.setData(packet.pos, packet.data);
@@ -211,9 +213,13 @@ struct ServerWorld {
             auto status = ChunkStatus::getById(i);
 
             auto chunksInRadius = getChunksInRadius(status->range, chunk_x, chunk_z, static_cast<ChunkState>(i - 1));
-            status->generate(lightManager, *generator, chunk_x, chunk_z, chunk, *chunksInRadius, seed);
+            status->generate(this, lightManager, *generator, chunk_x, chunk_z, chunk, *chunksInRadius, seed);
             chunk->state = static_cast<ChunkState>(i);
         }
 		return chunk;
+    }
+
+    Biome* getNoiseBiomeRaw(int x, int y, int z) {
+        return generator->biomeProvider->getNoiseBiome(x, y, z);
     }
 };

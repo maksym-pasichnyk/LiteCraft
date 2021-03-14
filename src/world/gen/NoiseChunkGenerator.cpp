@@ -203,7 +203,10 @@ double NoiseChunkGenerator::sampleAndClampNoise(int x, int y, int z, double xzSc
                 c += mainNoise->getNoiseValue(
                         OctavesNoiseGenerator::maintainPrecision((double)x * xzFactor * d),
                         OctavesNoiseGenerator::maintainPrecision((double)y * yFactor * d),
-                        OctavesNoiseGenerator::maintainPrecision((double)z * xzFactor * d), yFactor * d, (double)y * yFactor * d) / d;
+                        OctavesNoiseGenerator::maintainPrecision((double)z * xzFactor * d),
+                        yFactor * d,
+                        (double)y * yFactor * d
+                ) / d;
             }
         }
 
@@ -315,8 +318,7 @@ void NoiseChunkGenerator::generateSurface(WorldGenRegion &region, Chunk& chunk) 
                     0.0625,
                     (double) x * 0.0625
             );
-            auto biome = biomeProvider->getNoiseBiome(xPos, yPos, zPos);
-//            auto biome = region.getBiome(xPos, yPos, zPos);
+            auto biome = region.getBiome(xPos, yPos, zPos);
             biome->buildSurface(rand, chunk, xPos, zPos, yPos, noise, defaultBlock, defaultFluid, 63);
         }
     }

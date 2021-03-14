@@ -754,7 +754,7 @@ private:
         auto forward = transform.forward();
         auto right = transform.right();
 
-        float moveSpeed = 10.f;
+        float moveSpeed = input.IsKeyPressed(Input::Key::Shift) ? 100.0f : 10.0f;
         if (input.IsKeyPressed(Input::Key::Up)) {
             velocity += forward * dt * moveSpeed;
         }

@@ -128,6 +128,7 @@ enum class ChunkState {
 	Empty,
 	StructureStart,
 	StructureReferences,
+	Biomes,
 	Noise,
 	Surface,
 	Features,

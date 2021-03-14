@@ -5,6 +5,7 @@
 #include <vector>
 
 struct Chunk;
+struct ServerWorld;
 struct ChunkGenerator;
 struct WorldLightManager;
 
@@ -12,13 +13,14 @@ struct ChunkStatus {
     static const ChunkStatus Empty;
     static const ChunkStatus StructureStart;
     static const ChunkStatus StructureReferences;
+    static const ChunkStatus Biome;
     static const ChunkStatus Noise;
     static const ChunkStatus Surface;
     static const ChunkStatus Features;
     static const ChunkStatus Light;
     static const ChunkStatus Full;
 
-    using Fn = void(*)(WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk* chunk, std::span<Chunk*> chunks, int64_t seed);
+    using Fn = void(*)(ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk* chunk, std::span<Chunk*> chunks, int64_t seed);
 
     int range;
     Fn generate;
