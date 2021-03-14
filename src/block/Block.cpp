@@ -633,6 +633,9 @@ void Block::registerBlocks(BlockTable& pallete) {
     lapis_ore = &registerBlock<Block>(pallete, "lapis_ore");
     lava_cauldron = &registerBlock<Block>(pallete, "lava_cauldron");
     leaves = &registerBlock<Block>(pallete, "leaves");
+    leaves->setRenderType(RenderType::Leaves);
+    leaves->setRenderLayer(RenderLayer::Cutout);
+    leaves->setTint(Tint::Foliage);
     leaves2 = &registerBlock<Block>(pallete, "leaves2");
     lectern = &registerBlock<Block>(pallete, "lectern");
     lever = &registerBlock<Block>(pallete, "lever");
@@ -698,6 +701,8 @@ void Block::registerBlocks(BlockTable& pallete) {
     quartz_stairs = &registerBlock<Block>(pallete, "quartz_stairs");
     rail = &registerBlock<Block>(pallete, "rail");
     red_flower = &registerBlock<Block>(pallete, "red_flower");
+    red_flower->setRenderType(RenderType::Cross);
+    red_flower->setRenderLayer(RenderLayer::Cutout);
     red_glazed_terracotta = &registerBlock<Block>(pallete, "red_glazed_terracotta");
     red_mushroom = &registerBlock<Block>(pallete, "red_mushroom");
     red_mushroom_block = &registerBlock<Block>(pallete, "red_mushroom_block");
@@ -803,6 +808,8 @@ void Block::registerBlocks(BlockTable& pallete) {
     wooden_slab = &registerBlock<Block>(pallete, "wooden_slab");
     wool = &registerBlock<Block>(pallete, "wool");
     yellow_flower = &registerBlock<Block>(pallete, "yellow_flower");
+    yellow_flower->setRenderType(RenderType::Cross);
+    yellow_flower->setRenderLayer(RenderLayer::Cutout);
     yellow_glazed_terracotta = &registerBlock<Block>(pallete, "yellow_glazed_terracotta");
     bee_nest = &registerBlock<Block>(pallete, "bee_nest");
     beehive = &registerBlock<Block>(pallete, "beehive");

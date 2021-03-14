@@ -14,8 +14,17 @@ struct BlockData {
 };
 
 static bool isOpaque(BlockData data) {
-    if (data.id == Block::air->id ||
-        data.id == Block::torch->id) {
+    if (data.isAir()) {
+        return false;
+    }
+
+    auto block = Block::id_to_block.at(data.id);
+
+    if (block->renderLayer == RenderLayer::Transparent) {
+        return false;
+    }
+
+    if (block->renderType != RenderType::Block) {
         return false;
     }
 

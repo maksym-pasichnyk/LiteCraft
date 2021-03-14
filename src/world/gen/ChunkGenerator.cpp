@@ -59,11 +59,44 @@ void ChunkGenerator::getStructureReferences(WorldGenRegion &region, Chunk& chunk
     }
 }
 
+void placeBlock(IBlockWriter auto& blocks, int32_t x, int32_t y, int32_t z, const BlockData& data, const StructureBoundingBox& sbb) {
+    if (sbb.contains(x, y, z)) {
+        blocks.setData(x, y, z, data);
+    }
+}
+
+void generateTree(IBlockWriter auto& blocks, int32_t x, int32_t height, int32_t z, Random& rand, const StructureBoundingBox& sbb) {
+    const auto treeHeight = 4 + rand.nextInt(0, 2);
+
+    const BlockData leaves{Block::leaves->id, 0};
+    const BlockData log{Block::log->id, 0};
+
+    for (auto y = treeHeight - 2; y <= treeHeight + 1; y++) {
+        placeBlock(blocks, x - 1, y + height, z - 1, leaves, sbb);
+        placeBlock(blocks, x + 0, y + height, z - 1, leaves, sbb);
+        placeBlock(blocks, x + 1, y + height, z - 1, leaves, sbb);
+
+        placeBlock(blocks, x - 1, y + height, z, leaves, sbb);
+        placeBlock(blocks, x + 0, y + height, z, leaves, sbb);
+        placeBlock(blocks, x + 1, y + height, z, leaves, sbb);
+
+        placeBlock(blocks, x - 1, y + height, z + 1, leaves, sbb);
+        placeBlock(blocks, x + 0, y + height, z + 1, leaves, sbb);
+        placeBlock(blocks, x + 1, y + height, z + 1, leaves, sbb);
+    }
+
+    for (auto y = height; y < height + treeHeight; y++) {
+        placeBlock(blocks, x, y, z, log, sbb);
+    }
+}
+
 void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
     Random random{};
 
     const auto chunkPos = region.getMainChunkPos();
-    const auto seed = random.setDecorationSeed(region.getSeed(), chunkPos.getStartX(), chunkPos.getStartZ());
+    const auto xStart = chunkPos.getStartX();
+    const auto zStart = chunkPos.getStartZ();
+    const auto seed = random.setDecorationSeed(region.getSeed(), xStart, zStart);
     const auto sbb = StructureBoundingBox::fromChunkPos(chunkPos.x, chunkPos.z);
 
     for (auto& structure : chunk.structureReferences) {
@@ -72,34 +105,35 @@ void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
         }
     }
 
-//    for (int32_t x = 0; x < 16; x++) {
-//        for (int32_t z = 0; z < 16; z++) {
-//			random.setFeatureSeed(seed, x + (chunk_x << 4), z + (chunk_z << 4));
-//
-//            int32_t height = chunk.heightmap[x][z];
-//
-////            if (height > 68) {
-//				int32_t n = random.nextInt(0, 3000);
-//
-//				if (n < 15) {
-//					generateTree(chunk, pallete, (chunk_x << 4) + x, (chunk_z << 4) + z, region, random);
-//				} else if (n < 40) {
-//                    region.setData((chunk_x << 4) + x, height, (chunk_z << 4) + z, {
-//                            BlockData{pallete.getId("red_flower"), 0},
-//                            BlockData{BlockID::AIR, 0}
-//                    });
-//				} else if (n < 80) {
-//                    region.setData((chunk_x << 4) + x, height, (chunk_z << 4) + z, {
-//                            BlockData{pallete.getId("yellow_flower"), 0},
-//                            BlockData{BlockID::AIR, 0}
-//                    });
-//				} else if (n < 200) {
-//                    region.setData((chunk_x << 4) + x, height, (chunk_z << 4) + z, {
+    const BlockData red_flower{Block::red_flower->id, 0};
+    const BlockData yellow_flower{Block::yellow_flower->id, 0};
+
+    for (int32_t x = 0; x < 16; x++) {
+        const auto xpos = x + xStart;
+
+        for (int32_t z = 0; z < 16; z++) {
+            const auto zpos = z + zStart;
+
+			random.setFeatureSeed(seed, xpos, zpos);
+
+            const int32_t ypos = region.getHeight(xpos, zpos);
+
+            if (region.getData(xpos, ypos - 1, zpos).id != Block::water->id) {
+                int32_t n = random.nextInt(0, 3000);
+
+                if (n < 15) {
+                    generateTree(region, xpos, ypos, zpos, random, sbb);
+                } else if (n < 40) {
+                    placeBlock(region, xpos, ypos, zpos, red_flower, sbb);
+                } else if (n < 80) {
+                    placeBlock(region, xpos, ypos, zpos, yellow_flower, sbb);
+                } else if (n < 200) {
+//                    region.setData(xpos, ypos, zpos, {
 //                            BlockData{pallete.getId("tallgrass"), 0},
 //                            BlockData{BlockID::AIR, 0}
 //                    });
-//				}
-////			}
-//        }
-//    }
+                }
+            }
+        }
+    }
 }

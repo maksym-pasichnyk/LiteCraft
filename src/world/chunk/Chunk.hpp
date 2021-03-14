@@ -492,13 +492,17 @@ struct Chunk {
         return section->getLightPacked(x & 15, y & 15, z & 15);
     }
 
-    void setData(int32_t x, int32_t y, int32_t z, BlockData blockData) {
+    void setData(const glm::ivec3& pos, BlockData data) {
+        setData(pos.x, pos.y, pos.z, data);
+    }
+
+    void setData(int32_t x, int32_t y, int32_t z, BlockData data) {
     	auto& section = sections.at(y >> 4);
     	if (section == nullptr) {
     		section = std::make_unique<ChunkSection>();
     	}
         heightmap[(x & 15) + (z & 15) * 16] = -1;
-    	section->blocks[toIndex(x, y, z)] = blockData;
+    	section->blocks[toIndex(x, y, z)] = data;
     }
 
     auto getData(int32_t x, int32_t y, int32_t z) const -> BlockData {

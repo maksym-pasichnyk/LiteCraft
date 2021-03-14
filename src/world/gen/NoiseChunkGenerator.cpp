@@ -83,31 +83,6 @@ NoiseSettings settings{
 //    .randomDensityOffset = false
 //};
 
-void generateTree(Chunk& chunk, int32_t x, int32_t z, WorldGenRegion& blocks, Random& rand) {
-	const auto height = chunk.getTopBlockY(x, z) + 1;
-    const auto treeHeight = 4 + rand.nextInt(0, 2);
-
-    const auto leaves = BlockData{Block::leaves->id, 0};
-
-	for (auto y = treeHeight - 2; y <= treeHeight + 1; y++) {
-        blocks.setData(x - 1, y + height, z - 1, leaves);
-        blocks.setData(x + 0, y + height, z - 1, leaves);
-        blocks.setData(x + 1, y + height, z - 1, leaves);
-
-        blocks.setData(x - 1, y + height, z, leaves);
-        blocks.setData(x + 0, y + height, z, leaves);
-        blocks.setData(x + 1, y + height, z, leaves);
-
-        blocks.setData(x - 1, y + height, z + 1, leaves);
-        blocks.setData(x + 0, y + height, z + 1, leaves);
-        blocks.setData(x + 1, y + height, z + 1, leaves);
-	}
-
-	for (auto y = height; y < height + treeHeight; y++) {
-        blocks.setData(x, y, z, BlockData{Block::log->id, 0});
-	}
-}
-
 NoiseChunkGenerator::NoiseChunkGenerator(int64_t seed, std::unique_ptr<BiomeProvider>&& biomeProvider)
     : ChunkGenerator(std::move(biomeProvider))
 {

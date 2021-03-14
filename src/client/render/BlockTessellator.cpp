@@ -21,6 +21,14 @@ int vertexAO(int side1, int side2, int corner) {
     return side1 && side2 ? 0 : (3 - (side1 + side2 + corner));
 }
 
+bool shouldRenderFace(Block* block_a, Block* block_b) {
+    if (block_a->renderType != block_b->renderType) {
+        return true;
+    }
+
+    return block_b->renderType == RenderType::Leaves;
+}
+
 void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
 	const auto fx = static_cast<float>(x);
 	const auto fy = static_cast<float>(y);
@@ -32,7 +40,7 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
 
     float aoLights[4] {0.3, 0.6, 0.9, 1 };
 
-	if (blocks.getBlock(x, y, z - 1)->renderType != block->renderType) {
+	if (shouldRenderFace(blocks.getBlock(x, y, z - 1), block)) {
         const auto packedLight = blocks.getLightPacked(x, y, z - 1);
         const auto coords = block->graphics->southTexture->get(0);
 
@@ -53,7 +61,7 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
 		builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, packedLight, aoLights[ao3] * 0.7f);
 	}
 
-	if (blocks.getBlock(x + 1, y, z)->renderType != block->renderType) {
+	if (shouldRenderFace(blocks.getBlock(x + 1, y, z), block)) {
         const auto packedLight = blocks.getLightPacked(x + 1, y, z);
         const auto coords = block->graphics->eastTexture->get(0);
 
@@ -74,7 +82,7 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
 		builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, packedLight, aoLights[ao3] * 0.8f);
 	}
 
-	if (blocks.getBlock(x, y, z + 1)->renderType != block->renderType) {
+	if (shouldRenderFace(blocks.getBlock(x, y, z + 1), block)) {
         const auto packedLight = blocks.getLightPacked(x, y, z + 1);
         const auto coords = block->graphics->northTexture->get(0);
 
@@ -95,7 +103,7 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
 		builder.vertex(fx + 0, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, packedLight, aoLights[ao3] * 0.8f);
 	}
 
-	if (blocks.getBlock(x - 1, y, z)->renderType != block->renderType) {
+	if (shouldRenderFace(blocks.getBlock(x - 1, y, z), block)) {
         const auto packedLight = blocks.getLightPacked(x - 1, y, z);
         const auto coords = block->graphics->westTexture->get(0);
 
@@ -116,7 +124,7 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
 		builder.vertex(fx + 0, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, packedLight, aoLights[ao3] * 0.7f);
 	}
 
-	if (blocks.getBlock(x, y + 1, z)->renderType != block->renderType) {
+	if (shouldRenderFace(blocks.getBlock(x, y + 1, z), block)) {
         const auto packedLight = blocks.getLightPacked(x, y + 1, z);
 		const auto coords = block->graphics->topTexture->get(0);
 
@@ -137,7 +145,7 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
 		builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.minV, r, g, b, packedLight, aoLights[ao3] * 1.0f);
 	}
 
-	if (blocks.getBlock(x, y - 1, z)->renderType != block->renderType) {
+	if (shouldRenderFace(blocks.getBlock(x, y - 1, z), block)) {
         const auto packedLight = blocks.getLightPacked(x, y - 1, z);
         const auto coords = block->graphics->bottomTexture->get(0);
 
@@ -166,15 +174,15 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
 }
 
 void renderBlockWithoutAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
-    const auto fx = float(x);
-    const auto fy = float(y);
-    const auto fz = float(z);
+    const auto fx = static_cast<float>(x);
+    const auto fy = static_cast<float>(y);
+    const auto fz = static_cast<float>(z);
 
     auto [r, g, b] = getTintColor(block->tint);
 
     auto builder = rb.getForLayer(block->renderLayer);
 
-    if (blocks.getBlock(x, y, z - 1)->renderType != block->renderType) {
+    if (shouldRenderFace(blocks.getBlock(x, y, z - 1), block)) {
         const auto packedLight = blocks.getLightPacked(x, y, z - 1);
         const auto coords = block->graphics->southTexture->get(0);
 
@@ -185,7 +193,7 @@ void renderBlockWithoutAO(int32_t x, int32_t y, int32_t z, Block* block, RenderB
         builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, packedLight, 0.7f);
     }
 
-    if (blocks.getBlock(x + 1, y, z)->renderType != block->renderType) {
+    if (shouldRenderFace(blocks.getBlock(x + 1, y, z), block)) {
         const auto packedLight = blocks.getLightPacked(x + 1, y, z);
         const auto coords = block->graphics->eastTexture->get(0);
 
@@ -196,7 +204,7 @@ void renderBlockWithoutAO(int32_t x, int32_t y, int32_t z, Block* block, RenderB
         builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, packedLight, 0.8f);
     }
 
-    if (blocks.getBlock(x, y, z + 1)->renderType != block->renderType) {
+    if (shouldRenderFace(blocks.getBlock(x, y, z + 1), block)) {
         const auto packedLight = blocks.getLightPacked(x, y, z + 1);
         const auto coords = block->graphics->northTexture->get(0);
 
@@ -207,7 +215,7 @@ void renderBlockWithoutAO(int32_t x, int32_t y, int32_t z, Block* block, RenderB
         builder.vertex(fx + 0, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, packedLight, 0.8f);
     }
 
-    if (blocks.getBlock(x - 1, y, z)->renderType != block->renderType) {
+    if (shouldRenderFace(blocks.getBlock(x - 1, y, z), block)) {
         const auto packedLight = blocks.getLightPacked(x - 1, y, z);
         const auto coords = block->graphics->westTexture->get(0);
 
@@ -218,7 +226,7 @@ void renderBlockWithoutAO(int32_t x, int32_t y, int32_t z, Block* block, RenderB
         builder.vertex(fx + 0, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, packedLight, 0.7f);
     }
 
-    if (blocks.getBlock(x, y + 1, z)->renderType != block->renderType) {
+    if (shouldRenderFace(blocks.getBlock(x, y + 1, z), block)) {
         const auto packedLight = blocks.getLightPacked(x, y + 1, z);
         const auto coords = block->graphics->topTexture->get(0);
 
@@ -229,7 +237,7 @@ void renderBlockWithoutAO(int32_t x, int32_t y, int32_t z, Block* block, RenderB
         builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.minV, r, g, b, packedLight, 1.0f);
     }
 
-    if (blocks.getBlock(x, y - 1, z)->renderType != block->renderType) {
+    if (shouldRenderFace(blocks.getBlock(x, y - 1, z), block)) {
         const auto packedLight = blocks.getLightPacked(x, y - 1, z);
         const auto coords = block->graphics->bottomTexture->get(0);
 
@@ -252,9 +260,9 @@ void renderBlock(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& rb
 }
 
 void renderCross(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
-	const auto fx = float(x);
-	const auto fy = float(y);
-	const auto fz = float(z);
+    const auto fx = static_cast<float>(x);
+    const auto fy = static_cast<float>(y);
+    const auto fz = static_cast<float>(z);
 
 	auto coords = block->graphics->southTexture->get(0);
 
@@ -278,9 +286,9 @@ void renderCross(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& rb
 }
 
 void renderLiquid(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
-	const auto fx = static_cast<float>(x);// - 0.2f;
-	const auto fy = static_cast<float>(y);// - 0.2f;
-	const auto fz = static_cast<float>(z);// - 0.2f;
+	const auto fx = static_cast<float>(x);
+	const auto fy = static_cast<float>(y);
+	const auto fz = static_cast<float>(z);
 
 	uint8_t r = 0x44;
 	uint8_t g = 0xAF;
@@ -338,7 +346,7 @@ void renderLiquid(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& r
 		builder.vertex(fx + 0, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, 0xFFFF, 1.0f);
 	}
 
-	if (y == 255 || blocks.getBlock(x, y + 1, z)->renderType == RenderType::Air) {
+	if (blocks.getBlock(x, y + 1, z)->renderType == RenderType::Air) {
 		auto coords = block->graphics->topTexture->get(0);
 		coords.maxV = coords.minV + (coords.maxV - coords.minV) / 32.0f;
 
@@ -351,7 +359,7 @@ void renderLiquid(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& r
 		builder.vertex(fx + 1, fy + (up_is_liquid ? 1 : 0.9375f), fz + 0, coords.maxU, coords.minV, r, g, b, 0xFFFF, 1.0f);
 	}
 
-	if (y == 0 || blocks.getBlock(x, y - 1, z)->renderType == RenderType::Air) {
+	if (blocks.getBlock(x, y - 1, z)->renderType == RenderType::Air) {
 		auto coords = block->graphics->bottomTexture->get(0);
 		coords.maxV = coords.minV + (coords.maxV - coords.minV) / 32.0f;
 
