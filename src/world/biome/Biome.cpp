@@ -176,91 +176,81 @@ Biome* Biome::registerBiome(int id, Biome* biome) {
     return biome;
 }
 
+void withCavesAndCanyons(Biome* biome) {
+    biome->carvers[0].emplace_back(ConfiguredCarver{
+        .config = ProbabilityConfig {
+            .probability = 0.14285715F
+        },
+        .carver = WorldCarver::CAVE.get()
+    });
+    biome->carvers[0].emplace_back(ConfiguredCarver{
+        .config = ProbabilityConfig {
+                .probability = 0.02F
+        },
+        .carver = WorldCarver::CAVE.get()
+    });
+}
+
+void withOceanCavesAndCanyons(Biome* biome) {
+    biome->carvers[0].emplace_back(ConfiguredCarver{
+        .config = ProbabilityConfig {
+            .probability = 0.06666667F
+        },
+        .carver = WorldCarver::CAVE.get()
+    });
+    biome->carvers[0].emplace_back(ConfiguredCarver{
+        .config = ProbabilityConfig {
+                .probability = 0.02F
+        },
+        .carver = WorldCarver::CAVE.get()
+    });
+}
+
 Biome* makeOceanBiome() {
     auto biome = new Biome(-1.0, 0.1, ConfiguredSurfaceBuilders::OCEAN_SAND);
-    biome->carvers[0].emplace_back(ConfiguredCarver{
-            .config = ProbabilityConfig {
-                    .probability = 0.5f
-            },
-            .carver = WorldCarver::CAVE.get()
-    });
+    withOceanCavesAndCanyons(biome);
     return biome;
 }
 
 Biome* makePlainsBiome() {
     auto biome = new Biome(0.125, 0.05, ConfiguredSurfaceBuilders::GRASS);
-    biome->carvers[0].emplace_back(ConfiguredCarver{
-        .config = ProbabilityConfig {
-            .probability = 0.5f
-        },
-        .carver = WorldCarver::CAVE.get()
-    });
+    withCavesAndCanyons(biome);
     return biome;
 }
 
 Biome* makeDesertBiome(float depth, float scale) {
     auto biome = new Biome(depth, scale, ConfiguredSurfaceBuilders::FULL_SAND);
-    biome->carvers[0].emplace_back(ConfiguredCarver{
-            .config = ProbabilityConfig {
-                    .probability = 0.5f
-            },
-            .carver = WorldCarver::CAVE.get()
-    });
+    withCavesAndCanyons(biome);
     return biome;
 }
 
 Biome* makeMountainBiome(float depth, float scale) {
     auto biome = new Biome(depth, scale, ConfiguredSurfaceBuilders::MOUNTAIN);
-    biome->carvers[0].emplace_back(ConfiguredCarver{
-            .config = ProbabilityConfig {
-                    .probability = 0.5f
-            },
-            .carver = WorldCarver::CAVE.get()
-    });
+    withCavesAndCanyons(biome);
     return biome;
 }
 
 Biome* makeForestBiome(float depth, float scale) {
     auto biome = new Biome(depth, scale, ConfiguredSurfaceBuilders::GRASS);
-    biome->carvers[0].emplace_back(ConfiguredCarver{
-            .config = ProbabilityConfig {
-                    .probability = 0.5f
-            },
-            .carver = WorldCarver::CAVE.get()
-    });
+    withCavesAndCanyons(biome);
     return biome;
 }
 
 Biome* makeTaigaBiome(float depth, float scale) {
     auto biome = new Biome(depth, scale, ConfiguredSurfaceBuilders::GRASS);
-    biome->carvers[0].emplace_back(ConfiguredCarver{
-            .config = ProbabilityConfig {
-                    .probability = 0.5f
-            },
-            .carver = WorldCarver::CAVE.get()
-    });
+    withCavesAndCanyons(biome);
     return biome;
 }
 
 Biome* makeSwampBiome(float depth, float scale) {
     auto biome = new Biome(depth, scale, ConfiguredSurfaceBuilders::SWAMP);
-    biome->carvers[0].emplace_back(ConfiguredCarver{
-            .config = ProbabilityConfig {
-                    .probability = 0.5f
-            },
-            .carver = WorldCarver::CAVE.get()
-    });
+    withCavesAndCanyons(biome);
     return biome;
 }
 
 Biome* makeRiverBiome(float depth, float scale, float temperature) {
     auto biome = new Biome(depth, scale, ConfiguredSurfaceBuilders::GRASS);
-    biome->carvers[0].emplace_back(ConfiguredCarver{
-            .config = ProbabilityConfig {
-                    .probability = 0.5f
-            },
-            .carver = WorldCarver::CAVE.get()
-    });
+    withCavesAndCanyons(biome);
     biome->temperature = temperature;
     return biome;
 }
