@@ -25,6 +25,7 @@
 #include "world/biome/Biome.hpp"
 #include "world/gen/surface/SurfaceBuilder.hpp"
 #include "world/gen/surface/ConfiguredSurfaceBuilders.hpp"
+#include "world/gen/carver/WorldCarver.hpp"
 
 #include "client/world/ClientWorld.hpp"
 #include "client/render/ChunkRenderCache.h"
@@ -227,6 +228,8 @@ struct App {
         SurfaceBuilder::registerBuilders();
         SurfaceBuilderConfig::registerConfigs();
         ConfiguredSurfaceBuilders::resolveSurfaceBuilders();
+
+        WorldCarver::registerCarvers();
 
         Biome::registerBiomes();
 

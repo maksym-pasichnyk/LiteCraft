@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../gen/GenerationStage.hpp"
+#include "../gen/carver/ConfiguredCarver.hpp"
 #include "../gen/PerlinNoiseGenerator.hpp"
 #include "../gen/surface/SurfaceBuilder.hpp"
 #include "../../SurfaceBuilder.h"
@@ -255,6 +257,8 @@ struct Biome {
     TemperatureModifier temperatureModifier = TemperatureModifiers::none;
 
     linked_unordered_map<uint64_t, float> temperatureCache{};
+
+    std::array<std::vector<ConfiguredCarver>, 2> carvers;
 //    Category category;
 //    BiomeAmbience effects;
 };

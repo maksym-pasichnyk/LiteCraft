@@ -6,10 +6,10 @@
 #include <map>
 #include <set>
 
-#include "../NetworkManager.hpp"
 #include "light/WorldLightManager.hpp"
 #include "gen/NoiseChunkGenerator.hpp"
 #include "biome/provider/OverworldBiomeProvider.hpp"
+#include "../NetworkManager.hpp"
 #include "../util/math/ChunkPos.hpp"
 
 #include "chunk/ChunkStatus.hpp"
@@ -45,7 +45,7 @@ struct ServerWorld {
             });
             chunks.erase(ChunkPos::asLong(chunk_x, chunk_z));
         } else if (needLoad && !wasLoaded) {
-            auto chunk = provideChunk(chunk_x, chunk_z, ChunkState::Full);
+            auto chunk = provideChunk(chunk_x, chunk_z, &ChunkStatus::Full);
             if (chunk != nullptr) {
                 connection.sendPacket(SLoadChunkPacket{
                     .chunk = chunk,
@@ -134,7 +134,7 @@ struct ServerWorld {
 
                     const auto pos = packet.pos;
 
-                    auto chunksInRadius = getChunksInRadius(1, pos.x >> 4, pos.z >> 4, ChunkState::Full);
+                    auto chunksInRadius = getChunksInRadius(1, pos.x >> 4, pos.z >> 4, &ChunkStatus::Full);
 
                     WorldGenRegion region{this, *chunksInRadius, 1, pos.x >> 4, pos.z >> 4, seed};
 
@@ -165,19 +165,19 @@ struct ServerWorld {
         }
     }
 
-    auto getChunk(int32_t chunk_x, int32_t chunk_z, ChunkState state) -> Chunk* {
+    auto getChunk(int32_t chunk_x, int32_t chunk_z, ChunkStatus const* status) -> Chunk* {
         const auto pos = ChunkPos::from(chunk_x, chunk_z);
         auto it = chunks.find(pos.asLong());
         if (it != chunks.end()) {
             auto chunk = it->second.get();
-            if (chunk->state >= state) {
+            if (chunk->status >= status->ordinal) {
                 return chunk;
             }
         }
         return nullptr;
     }
 
-    auto getChunksInRadius(int32_t radius, int32_t chunk_x, int32_t chunk_z, ChunkState state) -> std::optional<std::vector<Chunk*>> {
+    auto getChunksInRadius(int32_t radius, int32_t chunk_x, int32_t chunk_z, ChunkStatus const* status) -> std::optional<std::vector<Chunk*>> {
         if (radius == -1) return {};
 
         const size_t count = radius * 2 + 1;
@@ -186,7 +186,7 @@ struct ServerWorld {
         size_t i = 0;
         for (int32_t z = chunk_z - radius; z <= chunk_z + radius; z++) {
             for (int32_t x = chunk_x - radius; x <= chunk_x + radius; x++) {
-                auto chunk = provideChunk(x, z, state);
+                auto chunk = provideChunk(x, z, status);
                 if (chunk == nullptr) {
                     return std::nullopt;
                 }
@@ -206,14 +206,15 @@ struct ServerWorld {
         return it->second.get();
     }
 
-    auto provideChunk(int32_t chunk_x, int32_t chunk_z, ChunkState state = ChunkState::Full) -> Chunk* {
+    auto provideChunk(int32_t chunk_x, int32_t chunk_z, ChunkStatus const* requiredStatus = &ChunkStatus::Full) -> Chunk* {
         auto chunk = chunkLoad(chunk_x, chunk_z);
 
-        for (int i = static_cast<int>(chunk->state) + 1; i <= static_cast<int>(state); i++) {
+        for (int i = chunk->status + 1; i <= requiredStatus->ordinal; i++) {
             auto status = ChunkStatus::getById(i);
-            auto chunksInRadius = getChunksInRadius(status->range, chunk_x, chunk_z, static_cast<ChunkState>(i - 1));
+            auto parentStatus = ChunkStatus::getById(i - 1);
+            auto chunksInRadius = getChunksInRadius(status->range, chunk_x, chunk_z, parentStatus);
             status->generate(this, lightManager, *generator, chunk_x, chunk_z, chunk, *chunksInRadius, seed);
-            chunk->state = static_cast<ChunkState>(i);
+            chunk->status = i;
         }
 		return chunk;
     }

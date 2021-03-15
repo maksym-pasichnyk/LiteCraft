@@ -2,18 +2,6 @@
 #include "../gen/ChunkGenerator.hpp"
 #include "../light/WorldLightManager.hpp"
 
-constexpr std::array ALL {
-    &ChunkStatus::Empty,
-    &ChunkStatus::StructureStart,
-    &ChunkStatus::StructureReferences,
-    &ChunkStatus::Biome,
-    &ChunkStatus::Noise,
-    &ChunkStatus::Surface,
-    &ChunkStatus::Features,
-    &ChunkStatus::Light,
-    &ChunkStatus::Full
-};
-
 const ChunkStatus ChunkStatus::Empty = create(0, -1, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk* chunk, std::span<Chunk*> chunks, int64_t seed) {
 
 });
@@ -40,27 +28,36 @@ const ChunkStatus ChunkStatus::Surface = create(5, 0, [](ServerWorld* world, Wor
     generator.generateSurface(region, *chunk);
 });
 
-const ChunkStatus ChunkStatus::Features = create(6, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk* chunk, std::span<Chunk*> chunks, int64_t seed) {
+const ChunkStatus ChunkStatus::Carver = create(6, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk* chunk, std::span<Chunk*> chunks, int64_t seed) {
+    generator.generateCarvers(seed, *chunk, GenerationStage::Carving::AIR);
+});
+
+const ChunkStatus ChunkStatus::LiquidCarver = create(7, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk* chunk, std::span<Chunk*> chunks, int64_t seed) {
+    generator.generateCarvers(seed, *chunk, GenerationStage::Carving::LIQUID);
+});
+
+const ChunkStatus ChunkStatus::Features = create(8, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk* chunk, std::span<Chunk*> chunks, int64_t seed) {
     WorldGenRegion region{world, chunks, 0, x, z, seed};
     generator.generateFeatures(region, *chunk);
 });
 
-const ChunkStatus ChunkStatus::Light = create(7, 1, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk* chunk, std::span<Chunk*> chunks, int64_t seed) {
+const ChunkStatus ChunkStatus::Light = create(9, 1, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk* chunk, std::span<Chunk*> chunks, int64_t seed) {
     WorldGenRegion region{world, chunks, 1, x, z, seed};
     lightManager.calculate(region, x << 4, z << 4);
 });
 
-const ChunkStatus ChunkStatus::Full = create(8, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk* chunk, std::span<Chunk*> chunks, int64_t seed) {
+const ChunkStatus ChunkStatus::Full = create(10, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk* chunk, std::span<Chunk*> chunks, int64_t seed) {
 
 });
 
-ChunkStatus ChunkStatus::create(int id, int range, Fn generate) noexcept {
+ChunkStatus ChunkStatus::create(int32_t ordinal, int32_t range, Fn generate) noexcept {
     return {
+        .ordinal = ordinal,
         .range = range,
         .generate = generate
     };
 }
 
-ChunkStatus const* ChunkStatus::getById(int id) {
-    return ALL.at(id);
+ChunkStatus const* ChunkStatus::getById(int32_t ordinal) {
+    return ALL.at(ordinal);
 }

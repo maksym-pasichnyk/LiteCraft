@@ -13,6 +13,7 @@
 #include <memory>
 #include <cassert>
 #include <queue>
+#include <cstdint>
 
 struct WorldGenRegion;
 
@@ -129,7 +130,7 @@ struct ChunkLayer {
     int32_t index_count = 0;
 };
 
-enum class ChunkState {
+/*enum class ChunkState {
 	Empty,
 	StructureStart,
 	StructureReferences,
@@ -139,7 +140,7 @@ enum class ChunkState {
 	Features,
 	Light,
 	Full
-};
+};*/
 
 struct ChunkSection {
     std::array<BlockData, 4096> blocks;
@@ -302,7 +303,7 @@ struct StructureStart {
 };
 
 struct Heightmap {
-    std::array<int32_t, 16 * 16> data;
+    std::array<int32_t, 16 * 16> data{};
 
     Heightmap() {
         data.fill(-1);
@@ -412,7 +413,7 @@ private:
 
 struct Chunk {
     ChunkPos pos;
-	ChunkState state = ChunkState::Empty;
+	int32_t status = 0;
 	bool needRender = false;
 
 	std::array<std::unique_ptr<ChunkSection>, 16> sections{};

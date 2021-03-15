@@ -125,7 +125,7 @@ struct WorldGenRegion : WorldReader {
 
     auto getHeight(/*type, */int32_t x, int32_t z) -> int32_t;
 
-    Chunk *getChunk(int x, int z, ChunkState requiredStatus, bool nonnull) override {
+    Chunk *getChunk(int x, int z, ChunkStatus const* requiredStatus, bool nonnull) override {
         return nullptr;
     }
 

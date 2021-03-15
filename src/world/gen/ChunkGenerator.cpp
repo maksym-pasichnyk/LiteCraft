@@ -1,6 +1,7 @@
 #include "ChunkGenerator.hpp"
 
 #include "../chunk/Chunk.hpp"
+#include "../biome/Biome.hpp"
 #include "../biome/provider/BiomeProvider.hpp"
 #include "../../WorldGenRegion.hpp"
 #include "../../util/Random.hpp"
@@ -53,6 +54,25 @@ void ChunkGenerator::getStructureReferences(WorldGenRegion &region, Chunk& chunk
             for (auto& start : region.getChunk(x, z)->structureStarts) {
                 if (sbb.intersect(start->boundingBox)) {
                     chunk.structureReferences.emplace_back(start);
+                }
+            }
+        }
+    }
+}
+
+void ChunkGenerator::generateCarvers(int64_t seed, Chunk& chunk, GenerationStage::Carving carving) {
+    const auto [xpos, zpos] = chunk.pos;
+
+    auto biome = biomeProvider->getNoiseBiome(xpos << 2, 0, zpos << 2);
+
+    for (int32_t xoffset = xpos - 8; xoffset <= xpos + 8; xoffset++) {
+        for (int32_t zoffset = zpos - 8; zoffset <= zpos + 8; zoffset++) {
+            auto carvers = std::span(biome->carvers[static_cast<size_t>(carving)]);
+
+            for (size_t i = 0; i < carvers.size(); i++) {
+                auto rand = Random::from(seed + i);
+                if (carvers[i].shouldCarve(rand, xoffset, zoffset)) {
+                    carvers[i].carveRegion(chunk, rand, /*seaLevel*/63, xoffset, zoffset, xpos, zpos/*, carvingMask*/);
                 }
             }
         }
