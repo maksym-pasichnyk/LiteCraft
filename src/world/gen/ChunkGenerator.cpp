@@ -60,19 +60,27 @@ void ChunkGenerator::getStructureReferences(WorldGenRegion &region, Chunk& chunk
     }
 }
 
-void ChunkGenerator::generateCarvers(int64_t seed, Chunk& chunk, GenerationStage::Carving carving) {
+void ChunkGenerator::generateCarvers(WorldGenRegion& region, int64_t seed, Chunk& chunk, GenerationStage::Carving carving) {
     const auto [xpos, zpos] = chunk.pos;
+
+    const auto getBiome = std::function{
+        [&region] (glm::ivec3 pos) {
+            return region.getBiome(pos);
+        }
+    };
+
+    Random rand;
 
     auto biome = biomeProvider->getNoiseBiome(xpos << 2, 0, zpos << 2);
 
-    for (int32_t xoffset = xpos - 8; xoffset <= xpos + 8; xoffset++) {
-        for (int32_t zoffset = zpos - 8; zoffset <= zpos + 8; zoffset++) {
+    for (int32_t xoffset = xpos - 8; xoffset <= xpos + 8; ++xoffset) {
+        for (int32_t zoffset = zpos - 8; zoffset <= zpos + 8; ++zoffset) {
             auto carvers = std::span(biome->carvers[static_cast<size_t>(carving)]);
 
-            for (size_t i = 0; i < carvers.size(); i++) {
-                auto rand = Random::from(seed + i);
+            for (size_t i = 0; i < carvers.size(); ++i) {
+                rand.setLargeFeatureSeed(seed + static_cast<int64_t>(i), xoffset, zoffset);
                 if (carvers[i].shouldCarve(rand, xoffset, zoffset)) {
-                    carvers[i].carveRegion(chunk, rand, /*seaLevel*/63, xoffset, zoffset, xpos, zpos/*, carvingMask*/);
+                    carvers[i].carveRegion(chunk, getBiome, rand, /*seaLevel*/63, xoffset, zoffset, xpos, zpos/*, carvingMask*/);
                 }
             }
         }

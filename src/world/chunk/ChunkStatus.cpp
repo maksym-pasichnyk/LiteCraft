@@ -29,11 +29,13 @@ const ChunkStatus ChunkStatus::Surface = create(5, 0, [](ServerWorld* world, Wor
 });
 
 const ChunkStatus ChunkStatus::Carver = create(6, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk* chunk, std::span<Chunk*> chunks, int64_t seed) {
-    generator.generateCarvers(seed, *chunk, GenerationStage::Carving::AIR);
+    WorldGenRegion region{world, chunks, 0, x, z, seed};
+    generator.generateCarvers(region, seed, *chunk, GenerationStage::Carving::AIR);
 });
 
 const ChunkStatus ChunkStatus::LiquidCarver = create(7, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk* chunk, std::span<Chunk*> chunks, int64_t seed) {
-    generator.generateCarvers(seed, *chunk, GenerationStage::Carving::LIQUID);
+    WorldGenRegion region{world, chunks, 0, x, z, seed};
+    generator.generateCarvers(region, seed, *chunk, GenerationStage::Carving::LIQUID);
 });
 
 const ChunkStatus ChunkStatus::Features = create(8, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk* chunk, std::span<Chunk*> chunks, int64_t seed) {

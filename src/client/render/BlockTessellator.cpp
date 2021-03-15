@@ -293,6 +293,12 @@ void renderLiquid(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& r
 	uint8_t r = 0x44;
 	uint8_t g = 0xAF;
 	uint8_t b = 0xF5;
+	
+	if (block == Block::lava || block == Block::flowing_lava) {
+        r = 0xff;
+        g = 0xff;
+        b = 0xff;
+	}
 
 	auto builder = rb.getForLayer(block->renderLayer);
 
@@ -349,7 +355,6 @@ void renderLiquid(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& r
 	if (blocks.getBlock(x, y + 1, z)->renderType == RenderType::Air) {
 		auto coords = block->graphics->topTexture->get(0);
 		coords.maxV = coords.minV + (coords.maxV - coords.minV) / 32.0f;
-
 
 		builder.quad();
 		builder.quadInv();

@@ -520,7 +520,7 @@ struct Chunk {
     }
 
     auto getBlock(int32_t x, int32_t y, int32_t z) const -> Block* {
-        return Block::id_to_block.at((int) getData(x, y, z).id);
+        return getData(x, y, z).getBlock();
     }
 
     void updateMesh() {

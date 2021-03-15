@@ -97,18 +97,25 @@ struct WorldLightManager {
     }
 
     void column(WorldGenRegion& region, int32_t x, int32_t z) {
+        bool sky = true;
+
         int32_t y = 255;
         for (; y >= 0; --y) {
-            if (isOpaque(region.getData(x, y, z))) {
-                sources.emplace(x, y + 1, z, 3);
-                break;
+            auto block_light = getLightFor(region.getData(x, y, z));
+            if (block_light > 0) {
+                sources.emplace(x, y, z, 0);
+                region.setLight(x, y, z, 0, block_light);
             }
 
-            region.setLight(x, y, z, 3, 15);
-        }
-
-        for (; y >= 0; --y) {
-            removes.emplace(x, y, z, 3, 0);
+            if (sky) {
+                if (isOpaque(region.getData(x, y, z))) {
+                    sources.emplace(x, y + 1, z, 3);
+                    sky = false;
+                } else {
+                    region.setLight(x, y, z, 3, 15);
+                }
+            } else {
+                removes.emplace(x, y, z, 3, 0);
 
 //            sources.emplace(x + 1, y, z, 3);
 //            sources.emplace(x - 1, y, z, 3);
@@ -119,7 +126,8 @@ struct WorldLightManager {
 //            sources.emplace(x, y + 1, z, 3);
 //            sources.emplace(x, y - 1, z, 3);
 
-            region.setLight(x, y, z, 3, 0);
+                region.setLight(x, y, z, 3, 0);
+            }
         }
     }
 

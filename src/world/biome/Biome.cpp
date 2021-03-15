@@ -178,41 +178,89 @@ Biome* Biome::registerBiome(int id, Biome* biome) {
 
 Biome* makeOceanBiome() {
     auto biome = new Biome(-1.0, 0.1, ConfiguredSurfaceBuilders::OCEAN_SAND);
+    biome->carvers[0].emplace_back(ConfiguredCarver{
+            .config = ProbabilityConfig {
+                    .probability = 0.5f
+            },
+            .carver = WorldCarver::CAVE.get()
+    });
     return biome;
 }
 
 Biome* makePlainsBiome() {
     auto biome = new Biome(0.125, 0.05, ConfiguredSurfaceBuilders::GRASS);
+    biome->carvers[0].emplace_back(ConfiguredCarver{
+        .config = ProbabilityConfig {
+            .probability = 0.5f
+        },
+        .carver = WorldCarver::CAVE.get()
+    });
     return biome;
 }
 
 Biome* makeDesertBiome(float depth, float scale) {
     auto biome = new Biome(depth, scale, ConfiguredSurfaceBuilders::FULL_SAND);
+    biome->carvers[0].emplace_back(ConfiguredCarver{
+            .config = ProbabilityConfig {
+                    .probability = 0.5f
+            },
+            .carver = WorldCarver::CAVE.get()
+    });
     return biome;
 }
 
 Biome* makeMountainBiome(float depth, float scale) {
     auto biome = new Biome(depth, scale, ConfiguredSurfaceBuilders::MOUNTAIN);
+    biome->carvers[0].emplace_back(ConfiguredCarver{
+            .config = ProbabilityConfig {
+                    .probability = 0.5f
+            },
+            .carver = WorldCarver::CAVE.get()
+    });
     return biome;
 }
 
 Biome* makeForestBiome(float depth, float scale) {
     auto biome = new Biome(depth, scale, ConfiguredSurfaceBuilders::GRASS);
+    biome->carvers[0].emplace_back(ConfiguredCarver{
+            .config = ProbabilityConfig {
+                    .probability = 0.5f
+            },
+            .carver = WorldCarver::CAVE.get()
+    });
     return biome;
 }
 
 Biome* makeTaigaBiome(float depth, float scale) {
     auto biome = new Biome(depth, scale, ConfiguredSurfaceBuilders::GRASS);
+    biome->carvers[0].emplace_back(ConfiguredCarver{
+            .config = ProbabilityConfig {
+                    .probability = 0.5f
+            },
+            .carver = WorldCarver::CAVE.get()
+    });
     return biome;
 }
 
 Biome* makeSwampBiome(float depth, float scale) {
     auto biome = new Biome(depth, scale, ConfiguredSurfaceBuilders::SWAMP);
+    biome->carvers[0].emplace_back(ConfiguredCarver{
+            .config = ProbabilityConfig {
+                    .probability = 0.5f
+            },
+            .carver = WorldCarver::CAVE.get()
+    });
     return biome;
 }
 
 Biome* makeRiverBiome(float depth, float scale, float temperature) {
     auto biome = new Biome(depth, scale, ConfiguredSurfaceBuilders::GRASS);
+    biome->carvers[0].emplace_back(ConfiguredCarver{
+            .config = ProbabilityConfig {
+                    .probability = 0.5f
+            },
+            .carver = WorldCarver::CAVE.get()
+    });
     biome->temperature = temperature;
     return biome;
 }

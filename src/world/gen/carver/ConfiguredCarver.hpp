@@ -17,10 +17,11 @@ struct ConfiguredCarver {
     WorldCarver* carver;
 
     bool shouldCarve(Random& rand, int32_t x, int32_t z) {
-        return rand.nextFloat() <= config.probability;
+        auto v = rand.nextFloat();
+        return v <= config.probability;
     }
 
-    bool carveRegion(Chunk& chunk, Random& rand, int32_t seaLevel, int32_t xoffset, int32_t zoffset, int32_t chunkx, int32_t chunkz/*, BitSet carvingMask*/) {
-        return carver->carveRegion(chunk, rand, seaLevel, xoffset, zoffset, chunkx, chunkz/*, carvingMask*/);
+    bool carveRegion(Chunk& chunk, const BiomeReadFn& getBiome, Random& rand, int32_t seaLevel, int32_t xoffset, int32_t zoffset, int32_t chunkx, int32_t chunkz/*, BitSet carvingMask*/) {
+        return carver->carveRegion(chunk, getBiome, rand, seaLevel, xoffset, zoffset, chunkx, chunkz/*, carvingMask*/);
     }
 };
