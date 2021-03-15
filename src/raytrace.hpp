@@ -42,7 +42,7 @@ auto rayTraceBlocks(IBlockReader /*auto*/& blocks, const RayTraceContext& contex
 		// todo: shape
 
 		auto block = blocks.getBlock(pos);
-		if (block != Block::air) {
+		if (block->renderType != RenderType::Air && block->renderType != RenderType::Liquid) {
 			return RayTraceResult{
 				.pos = pos,
 				.dir = -dir,

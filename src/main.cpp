@@ -849,4 +849,3 @@ auto main() -> int32_t {
     app.run();
     return 0;
 }
-#pragma clang diagnostic pop
