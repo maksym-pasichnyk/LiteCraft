@@ -60,6 +60,11 @@ struct SimpleVBuffer {
     std::vector<Vertex> vertices;
     std::vector<int32_t> indices;
 
+    void clear() {
+        vertices.clear();
+        indices.clear();
+    }
+
 	void quad(int a1, int b1, int c1, int a2, int b2, int c2) {
         auto i = vertices.size();
         indices.reserve(6);

@@ -75,6 +75,68 @@ namespace nlohmann {
     }
 }
 
+struct Plane {
+    glm::vec3 normal;
+    float distance;
+};
+
+void NormalizePlane(Plane & plane) {
+    const float len = glm::length(plane.normal);
+    plane.normal /= len;
+    plane.distance /= len;
+}
+
+void ExtractPlanes(std::array<Plane, 6>& planes, const glm::mat4x4& comboMatrix, bool normalize) {
+    // Left clipping plane
+    planes[0].normal.x = comboMatrix[3][0] + comboMatrix[0][0];
+    planes[0].normal.y = comboMatrix[3][1] + comboMatrix[0][1];
+    planes[0].normal.z = comboMatrix[3][2] + comboMatrix[0][2];
+    planes[0].distance = comboMatrix[3][3] + comboMatrix[0][3];
+    // Right clipping plane
+    planes[1].normal.x = comboMatrix[3][0] - comboMatrix[0][0];
+    planes[1].normal.y = comboMatrix[3][1] - comboMatrix[0][1];
+    planes[1].normal.z = comboMatrix[3][2] - comboMatrix[0][2];
+    planes[1].distance = comboMatrix[3][3] - comboMatrix[0][3];
+    // Top clipping plane
+    planes[2].normal.x = comboMatrix[3][0] - comboMatrix[1][0];
+    planes[2].normal.y = comboMatrix[3][1] - comboMatrix[1][1];
+    planes[2].normal.z = comboMatrix[3][2] - comboMatrix[1][2];
+    planes[2].distance = comboMatrix[3][3] - comboMatrix[1][3];
+    // Bottom clipping plane
+    planes[3].normal.x = comboMatrix[3][0] + comboMatrix[1][0];
+    planes[3].normal.y = comboMatrix[3][1] + comboMatrix[1][1];
+    planes[3].normal.z = comboMatrix[3][2] + comboMatrix[1][2];
+    planes[3].distance = comboMatrix[3][3] + comboMatrix[1][3];
+    // Near clipping plane
+    planes[4].normal.x = comboMatrix[3][0] + comboMatrix[2][0];
+    planes[4].normal.y = comboMatrix[3][1] + comboMatrix[2][1];
+    planes[4].normal.z = comboMatrix[3][2] + comboMatrix[2][2];
+    planes[4].distance = comboMatrix[3][3] + comboMatrix[2][3];
+    // Far clipping plane
+    planes[5].normal.x = comboMatrix[3][0] - comboMatrix[2][0];
+    planes[5].normal.y = comboMatrix[3][1] - comboMatrix[2][1];
+    planes[5].normal.z = comboMatrix[3][2] - comboMatrix[2][2];
+    planes[5].distance = comboMatrix[3][3] - comboMatrix[2][3];
+    // Normalize the plane equations, if requested
+    if (normalize == true) {
+        NormalizePlane(planes[0]);
+        NormalizePlane(planes[1]);
+        NormalizePlane(planes[2]);
+        NormalizePlane(planes[3]);
+        NormalizePlane(planes[4]);
+        NormalizePlane(planes[5]);
+    }
+}
+
+static bool TestPlanesAABBInternalFast (const std::array<Plane, 6>& planes, const glm::vec3& boundsMin, const glm::vec3& boundsMax) {
+    for (const auto& [normal, distance] : planes) {
+        if (glm::dot(normal, glm::mix(boundsMax, boundsMin, glm::lessThan(normal, glm::vec3(0.0f)))) + distance < 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
 struct App {
     bool running = true;
 
@@ -87,6 +149,7 @@ struct App {
 
     Input input{};
     Camera camera{};
+    std::array<Plane, 6> planes{};
     Transform transform {
         .yaw = 0,
         .pitch = 0,
@@ -110,7 +173,8 @@ struct App {
 
     std::vector<Chunk*> chunkToRenders;
 
-    std::unique_ptr<Mesh> selection_mesh{nullptr};
+    SimpleVBuffer selectionCache{};
+    std::unique_ptr<Mesh> selectionMesh{nullptr};
     std::unique_ptr<ServerWorld> serverWorld{nullptr};
     std::unique_ptr<ClientWorld> clientWorld{nullptr};
 
@@ -300,7 +364,7 @@ struct App {
     }
 
     void create_frames(uint32_t width, uint32_t height) {
-        selection_mesh = std::make_unique<Mesh>();
+        selectionMesh = std::make_unique<Mesh>();
 
         for (int i = 0; i < 2; i++) {
             glCreateBuffers(1, &frames[i].camera_ubo);
@@ -356,7 +420,9 @@ struct App {
         }
     }
 
-	void update_player_input(float dt) {
+	void updateInput(float dt) {
+        input.update();
+
         if (cooldown > 0) {
             cooldown -= 1;
         }
@@ -370,7 +436,7 @@ struct App {
 		const auto mouse_delta = mouse_position - mouse_center;
         SDL_WarpMouseInWindow(window, mouse_center.x, mouse_center.y);
 
-		rotate_camera(transform, mouse_delta, dt);
+        rotateCamera(transform, mouse_delta, dt);
 
         const auto topBlock = clientWorld->getBlock(transform.position.x, transform.position.y + 1, transform.position.z);
 
@@ -401,20 +467,22 @@ struct App {
 		}
     }
 
-    void setup_camera() {
+    void setupCamera() {
         const auto projection_matrix = camera.getProjection();
         const auto transform_matrix = transform.getTransformMatrix(glm::vec3(0, 1.68, 0));
         const auto camera_matrix = projection_matrix * transform_matrix;
 
         CameraConstants camera_constants{
-                .transform = camera_matrix,
-                .position = transform.position
+            .transform = camera_matrix,
+            .position = transform.position
         };
 
         std::memcpy(frames[frameIndex].camera_ptr, &camera_constants, sizeof(CameraConstants));
+
+        ExtractPlanes(planes, glm::transpose(camera_matrix), true);
     }
 
-    auto create_render_cache(int32_t chunk_x, int32_t chunk_z) -> std::optional<ChunkRenderCache> {
+    auto createRenderCache(int32_t chunk_x, int32_t chunk_z) -> std::optional<ChunkRenderCache> {
         ChunkRenderCache cache{chunk_x, chunk_z};
 
         size_t i = 0;
@@ -457,7 +525,7 @@ struct App {
         }
     }
 
-    void setup_terrain() {
+    void setupTerrain() {
         const auto center_x = static_cast<int32_t>(transform.position.x) >> 4;
         const auto center_z = static_cast<int32_t>(transform.position.z) >> 4;
 
@@ -477,21 +545,25 @@ struct App {
         for (int32_t chunk_x = center_x - 8; chunk_x <= center_x + 8; chunk_x++) {
             for (int32_t chunk_z = center_z - 8; chunk_z <= center_z + 8; chunk_z++) {
                 auto chunk = clientWorld->getChunk(chunk_x, chunk_z);
+                if (chunk == nullptr) continue;
 
-                if (chunk != nullptr) {
+                const auto xstart = chunk_x << 4;
+                const auto zstart = chunk_z << 4;
+
+                const glm::vec3 bounds_min{xstart, 0, zstart};
+                const glm::vec3 bounds_max{xstart + 16, 256, zstart + 16};
+
+                if (TestPlanesAABBInternalFast(planes, bounds_min, bounds_max)) {
                     if (chunk->needRender) {
-                        chunk->needRender = false;
-
-                        auto renderCache = create_render_cache(chunk_x, chunk_z);
+                        auto renderCache = createRenderCache(chunk_x, chunk_z);
                         if (renderCache.has_value()) {
+                            chunk->needRender = false;
+
                             renderBlocks(chunk->rb, *renderCache);
 
                             chunk->updateMesh();
                         }
                     }
-
-//                    fmt::print("render chunk at {}, {}\n", chunk_x, chunk_z);
-
                     if (chunk->mesh) {
                         chunkToRenders.emplace_back(chunk);
                     }
@@ -500,7 +572,7 @@ struct App {
         }
     }
 
-	void render_terrain() {
+	void renderTerrain() {
         const auto topBlock = clientWorld->getBlock(transform.position.x, std::floor(transform.position.y + 1.68), transform.position.z);
         const bool is_liquid = topBlock->renderType == RenderType::Liquid;
 
@@ -531,12 +603,12 @@ struct App {
         glUseProgram(opaque_pipeline);
         glUniform3fv(0, 1, color.data());
         glUniform2f(4, fog_offset.x, fog_offset.y);
-		renderLayers(RenderLayer::Opaque);
+        renderLayer(RenderLayer::Opaque);
 
         glUseProgram(cutout_pipeline);
         glUniform3fv(0, 1, color.data());
         glUniform2f(4, fog_offset.x, fog_offset.y);
-		renderLayers(RenderLayer::Cutout);
+        renderLayer(RenderLayer::Cutout);
 
 		glEnable(GL_BLEND);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
@@ -544,7 +616,7 @@ struct App {
 		glUseProgram(transparent_pipeline);
         glUniform3fv(0, 1, color.data());
         glUniform2f(4, fog_offset.x, fog_offset.y);
-		renderLayers(RenderLayer::Transparent);
+        renderLayer(RenderLayer::Transparent);
 
 //        glDisable(GL_BLEND);
 //        glDepthRange(0, 1.0);
@@ -564,42 +636,43 @@ struct App {
         glBindTexture(GL_TEXTURE_2D, 0);
 
 		if (rayTraceResult.has_value()) {
-			const auto [x, y, z] = rayTraceResult->pos;
+			const auto [fx, fy, fz] = glm::vec3(rayTraceResult->pos);
 
-			SimpleVBuffer buf{};
-			buf.quad(0, 1, 1, 2, 2, 3, 3, 0);
-			buf.vertex(x + 0, y + 0, z + 0, 0, 0, 0, 0, 0, 0xFF);
-			buf.vertex(x + 0, y + 1, z + 0, 0, 1, 0, 0, 0, 0xFF);
-			buf.vertex(x + 1, y + 1, z + 0, 1, 1, 0, 0, 0, 0xFF);
-			buf.vertex(x + 1, y + 0, z + 0, 1, 0, 0, 0, 0, 0xFF);
+            selectionCache.clear();
 
-			buf.quad(0, 1, 1, 2, 2, 3, 3, 0);
-			buf.vertex(x + 1, y + 0, z + 0, 0, 0, 0, 0, 0, 0xFF);
-			buf.vertex(x + 1, y + 1, z + 0, 0, 1, 0, 0, 0, 0xFF);
-			buf.vertex(x + 1, y + 1, z + 1, 1, 1, 0, 0, 0, 0xFF);
-			buf.vertex(x + 1, y + 0, z + 1, 1, 0, 0, 0, 0, 0xFF);
+			selectionCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
+			selectionCache.vertex(fx + 0, fy + 0, fz + 0, 0, 0, 0, 0, 0, 0xFF);
+			selectionCache.vertex(fx + 0, fy + 1, fz + 0, 0, 1, 0, 0, 0, 0xFF);
+			selectionCache.vertex(fx + 1, fy + 1, fz + 0, 1, 1, 0, 0, 0, 0xFF);
+			selectionCache.vertex(fx + 1, fy + 0, fz + 0, 1, 0, 0, 0, 0, 0xFF);
 
-			buf.quad(0, 1, 1, 2, 2, 3, 3, 0);
-			buf.vertex(x + 1, y + 0, z + 1, 0, 0, 0, 0, 0, 0xFF);
-			buf.vertex(x + 1, y + 1, z + 1, 0, 1, 0, 0, 0, 0xFF);
-			buf.vertex(x + 0, y + 1, z + 1, 1, 1, 0, 0, 0, 0xFF);
-			buf.vertex(x + 0, y + 0, z + 1, 1, 0, 0, 0, 0, 0xFF);
+			selectionCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
+			selectionCache.vertex(fx + 1, fy + 0, fz + 0, 0, 0, 0, 0, 0, 0xFF);
+			selectionCache.vertex(fx + 1, fy + 1, fz + 0, 0, 1, 0, 0, 0, 0xFF);
+			selectionCache.vertex(fx + 1, fy + 1, fz + 1, 1, 1, 0, 0, 0, 0xFF);
+			selectionCache.vertex(fx + 1, fy + 0, fz + 1, 1, 0, 0, 0, 0, 0xFF);
 
-			buf.quad(0, 1, 1, 2, 2, 3, 3, 0);
-			buf.vertex(x + 0, y + 0, z + 1, 0, 0, 0, 0, 0, 0xFF);
-			buf.vertex(x + 0, y + 1, z + 1, 0, 1, 0, 0, 0, 0xFF);
-			buf.vertex(x + 0, y + 1, z + 0, 1, 1, 0, 0, 0, 0xFF);
-			buf.vertex(x + 0, y + 0, z + 0, 1, 0, 0, 0, 0, 0xFF);
+			selectionCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
+			selectionCache.vertex(fx + 1, fy + 0, fz + 1, 0, 0, 0, 0, 0, 0xFF);
+			selectionCache.vertex(fx + 1, fy + 1, fz + 1, 0, 1, 0, 0, 0, 0xFF);
+			selectionCache.vertex(fx + 0, fy + 1, fz + 1, 1, 1, 0, 0, 0, 0xFF);
+			selectionCache.vertex(fx + 0, fy + 0, fz + 1, 1, 0, 0, 0, 0, 0xFF);
 
-			selection_mesh->SetIndices(buf.indices);
-			selection_mesh->SetVertices(buf.vertices);
+			selectionCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
+			selectionCache.vertex(fx + 0, fy + 0, fz + 1, 0, 0, 0, 0, 0, 0xFF);
+			selectionCache.vertex(fx + 0, fy + 1, fz + 1, 0, 1, 0, 0, 0, 0xFF);
+			selectionCache.vertex(fx + 0, fy + 1, fz + 0, 1, 1, 0, 0, 0, 0xFF);
+			selectionCache.vertex(fx + 0, fy + 0, fz + 0, 1, 0, 0, 0, 0, 0xFF);
+
+			selectionMesh->SetIndices(selectionCache.indices);
+			selectionMesh->SetVertices(selectionCache.vertices);
 
             glDisable(GL_BLEND);
             glDepthRange(0, 1.0);
 
             glUseProgram(simple_pipeline);
-			glBindVertexArray(selection_mesh->vao);
-			glDrawElements(GL_LINES, selection_mesh->index_count, GL_UNSIGNED_INT, nullptr);
+			glBindVertexArray(selectionMesh->vao);
+			glDrawElements(GL_LINES, selectionMesh->index_count, GL_UNSIGNED_INT, nullptr);
 		}
 
         glUseProgram(0);
@@ -631,9 +704,9 @@ struct App {
             });
         }
 
-       while (clientWorld->provider->chunkArray.getLoaded() != 289) {
-           executor_execute();
-       }
+        while (clientWorld->provider->chunkArray.getLoaded() != 289) {
+            executor_execute();
+        }
 
         double frameTime = 0;
         int frameCount = 0;
@@ -689,14 +762,13 @@ struct App {
 
             startTime = time;
 
-            input.update();
-            update_player_input(dt);
+            updateInput(dt);
 
             executor_execute();
 
-            setup_camera();
-            setup_terrain();
-            render_terrain();
+            setupCamera();
+            setupTerrain();
+            renderTerrain();
 
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplSDL2_NewFrame(window);
@@ -709,6 +781,7 @@ struct App {
             ImGui::Text("Position: %.2f, %.2f, %.2f", transform.position.x, transform.position.y, transform.position.z);
             ImGui::Text("Server chunks: %d", static_cast<int>(serverWorld->chunks.size()));
             ImGui::Text("Client chunks: %d", clientWorld->provider->chunkArray.getLoaded());
+            ImGui::Text("Render chunks: %zu", chunkToRenders.size());
             ImGui::End();
 
             ImGui::Render();
@@ -724,7 +797,7 @@ struct App {
         }
     }
 
-	void renderLayers(RenderLayer layer) {
+	void renderLayer(RenderLayer layer) {
         for (auto chunk : chunkToRenders) {
             // todo: sometimes crash here
             glBindVertexArray(chunk->mesh->vao);
@@ -738,7 +811,7 @@ struct App {
     }
 
 private:
-    static void rotate_camera(Transform& transform, glm::ivec2 mouse_delta, float dt) {
+    static void rotateCamera(Transform& transform, glm::ivec2 mouse_delta, float dt) {
         if (mouse_delta.x != 0 || mouse_delta.y != 0) {
             float d4 = 0.5f * 0.6F + 0.2F;
             float d5 = d4 * d4 * d4 * 8.0f;
@@ -776,3 +849,4 @@ auto main() -> int32_t {
     app.run();
     return 0;
 }
+#pragma clang diagnostic pop

@@ -121,7 +121,7 @@ struct OctavesNoiseGenerator : public INoiseGenerator {
     }
 
     auto noiseAt(double x, double y, double z) const -> double {
-        return getValue(x, y, 0.0, z, 0.0, false);
+        return getValue(x, y, z, 0.0, 0.0, false);
     }
 
     auto noiseAt(double x, double y, double z, double w) const -> double override {
