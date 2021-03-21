@@ -19,31 +19,31 @@ std::unique_ptr<SurfaceBuilder> SurfaceBuilder::SoulSandValley{nullptr};
 std::unique_ptr<SurfaceBuilder> SurfaceBuilder::BasaltDeltas{nullptr};
 
 struct NoopSurfaceBuilder : public SurfaceBuilder {
-    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
+    void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
     }
 };
 
 struct DefaultSurfaceBuilder : public SurfaceBuilder {
-    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
-        buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, config.top, config.mid, config.underWater, seaLevel);
+    void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
+        buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, config.top, config.mid, config.underWater, seaLevel);
     }
 
-    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) {
-        BlockData blockstate = top;
-        BlockData blockstate1 = filler;
+    void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, BlockData top, BlockData filler, BlockData underWater, int sealevel) {
+        auto blockstate = top;
+        auto blockstate1 = filler;
         int i = -1;
         int j = (int)(noise / 3.0 + 3.0 + rand.nextDouble() * 0.25);
         int xPos = xStart & 15;
         int zPos = zStart & 15;
 
         for(int yPos = startHeight; yPos >= 0; --yPos) {
-            BlockData blockstate2 = chunk.getData(xPos, yPos, zPos);
+            auto blockstate2 = chunk.getData(xPos, yPos, zPos);
             if (blockstate2.isAir()) {
                 i = -1;
-            } else if (/*blockstate2.isIn(defaultBlock.getData())*/ blockstate2.id == defaultBlock.id) {
+            } else if (blockstate2.isIn(defaultBlock.getBlock())) {
                 if (i == -1) {
                     if (j <= 0) {
-                        blockstate = {Block::air->id, 0};// Blocks.AIR.getDefaultState();
+                        blockstate = {Block::air->id, 0};
                         blockstate1 = defaultBlock;
                     } else if (yPos >= sealevel - 4 && yPos <= sealevel + 1) {
                         blockstate = top;
@@ -51,18 +51,18 @@ struct DefaultSurfaceBuilder : public SurfaceBuilder {
                     }
 
                     if (yPos < sealevel && blockstate.isAir()) {
-//                    if (biome->getTemperature(xStart, yPos, zStart) < 0.15F) {
-//                        blockstate = Blocks.ICE.getDefaultState();
-//                    } else {
-                        blockstate = defaultFluid;
-//                    }
+                        if (biome.getTemperature(glm::ivec3{xStart, yPos, zStart}) < 0.15F) {
+                            blockstate = BlockData{Block::ice->id, 0};
+                        } else {
+                            blockstate = defaultFluid;
+                        }
                     }
 
                     i = j;
                     if (yPos >= sealevel - 1) {
                         chunk.setData(xPos, yPos, zPos, blockstate/*, false*/);
                     } else if (yPos < sealevel - 7 - j) {
-                        blockstate = BlockData{Block::air->id, 0};// Blocks.AIR.getDefaultState();
+                        blockstate = BlockData{Block::air->id, 0};
                         blockstate1 = defaultBlock;
                         chunk.setData(xPos, yPos, zPos, underWater/*, false*/);
                     } else {
@@ -76,9 +76,6 @@ struct DefaultSurfaceBuilder : public SurfaceBuilder {
 //                        blockstate1 = blockstate1.isIn(Blocks.RED_SAND)
 //                                      ? Blocks.RED_SANDSTONE.getDefaultState()
 //                                      : Blocks.SANDSTONE.getDefaultState();
-//                        blockstate1 = blockstate1.isIn(Blocks.RED_SAND)
-//                                      ? Blocks.RED_SANDSTONE.getDefaultState()
-//                                      : Blocks.SANDSTONE.getDefaultState();
                     }
                 }
             }
@@ -87,54 +84,54 @@ struct DefaultSurfaceBuilder : public SurfaceBuilder {
 };
 
 struct MountainSurfaceBuilder : public SurfaceBuilder {
-    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
+    void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
         if (noise > 1.0) {
-            SurfaceBuilder::Default->buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::STONE_STONE_GRAVEL_CONFIG);
+            SurfaceBuilder::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::STONE_STONE_GRAVEL_CONFIG);
         } else {
-            SurfaceBuilder::Default->buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::GRASS_DIRT_GRAVEL_CONFIG);
+            SurfaceBuilder::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::GRASS_DIRT_GRAVEL_CONFIG);
         }
     }
 };
 
 struct ShatteredSavannaSurfaceBuilder : public SurfaceBuilder {
-    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
+    void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
         if (noise > 1.75) {
-            SurfaceBuilder::Default->buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::STONE_STONE_GRAVEL_CONFIG);
+            SurfaceBuilder::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::STONE_STONE_GRAVEL_CONFIG);
         } else if (noise > -0.5) {
-            SurfaceBuilder::Default->buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::CORASE_DIRT_DIRT_GRAVEL_CONFIG);
+            SurfaceBuilder::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::CORASE_DIRT_DIRT_GRAVEL_CONFIG);
         } else {
-            SurfaceBuilder::Default->buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::GRASS_DIRT_GRAVEL_CONFIG);
+            SurfaceBuilder::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::GRASS_DIRT_GRAVEL_CONFIG);
         }
     }
 };
 
 struct GravellyMountainSurfaceBuilder : public SurfaceBuilder {
-    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
+    void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
         if (noise < -1.0 || noise > 2.0) {
-            SurfaceBuilder::Default->buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::GRAVEL_CONFIG);
+            SurfaceBuilder::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::GRAVEL_CONFIG);
         } else if (noise > 1.0) {
-            SurfaceBuilder::Default->buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::STONE_STONE_GRAVEL_CONFIG);
+            SurfaceBuilder::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::STONE_STONE_GRAVEL_CONFIG);
         } else {
-            SurfaceBuilder::Default->buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::GRASS_DIRT_GRAVEL_CONFIG);
+            SurfaceBuilder::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::GRASS_DIRT_GRAVEL_CONFIG);
         }
     }
 };
 
 struct GiantTreeTaigaSurfaceBuilder : public SurfaceBuilder {
-    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
+    void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
         if (noise > 1.75) {
-            SurfaceBuilder::Default->buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::CORASE_DIRT_DIRT_GRAVEL_CONFIG);
+            SurfaceBuilder::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::CORASE_DIRT_DIRT_GRAVEL_CONFIG);
         } else if (noise > -0.95) {
-            SurfaceBuilder::Default->buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::PODZOL_DIRT_GRAVEL_CONFIG);
+            SurfaceBuilder::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::PODZOL_DIRT_GRAVEL_CONFIG);
         } else {
-            SurfaceBuilder::Default->buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::GRASS_DIRT_GRAVEL_CONFIG);
+            SurfaceBuilder::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::GRASS_DIRT_GRAVEL_CONFIG);
         }
     }
 };
 
 struct SwampSurfaceBuilder : public SurfaceBuilder {
-    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
-        double d0 = Biome::INFO_NOISE.noiseAt((double)xStart * 0.25, (double)zStart * 0.25, false);
+    void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
+        const double d0 = Biome::INFO_NOISE.noiseAt((double)xStart * 0.25, (double)zStart * 0.25, false);
         if (d0 > 0.0) {
             const int i = xStart & 15;
             const int j = zStart & 15;
@@ -150,47 +147,47 @@ struct SwampSurfaceBuilder : public SurfaceBuilder {
             }
         }
 
-        SurfaceBuilder::Default->buildSurface(rand, chunk, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, config);
+        SurfaceBuilder::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, config);
     }
 };
 
 struct BadlandsSurfaceBuilder : public SurfaceBuilder {
-    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
+    void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
     }
 };
 
 struct WoodedBadlandsSurfaceBuilder : public SurfaceBuilder {
-    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
+    void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
     }
 };
 
 struct ErodedBadlandsSurfaceBuilder : public SurfaceBuilder {
-    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
+    void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
     }
 };
 
 struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
-    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
+    void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
     }
 };
 
 struct NetherSurfaceBuilder : public SurfaceBuilder {
-    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
+    void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
     }
 };
 
 struct NetherForestsSurfaceBuilder : public SurfaceBuilder {
-    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
+    void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
     }
 };
 
 struct SoulSandValleySurfaceBuilder : public SurfaceBuilder {
-    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
+    void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
     }
 };
 
 struct BasaltDeltasSurfaceBuilder : public SurfaceBuilder {
-    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
+    void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
     }
 };
 

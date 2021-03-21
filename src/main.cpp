@@ -23,6 +23,7 @@
 #include "NetworkManager.hpp"
 #include "world/ServerWorld.hpp"
 #include "world/biome/Biome.hpp"
+#include "world/biome/Biomes.hpp"
 #include "world/gen/surface/SurfaceBuilder.hpp"
 #include "world/gen/surface/ConfiguredSurfaceBuilders.hpp"
 #include "world/gen/carver/WorldCarver.hpp"
@@ -38,6 +39,8 @@
 #include <imgui.h>
 #include <backends/imgui_impl_sdl.h>
 #include <backends/imgui_impl_opengl3.h>
+
+#include <future>
 
 extern void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks);
 
@@ -199,47 +202,6 @@ struct App {
 
         create_frames(width, height);
         create_imgui();
-
-//        SDL_GL_SetSwapInterval(0);
-        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla"));
-        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.14"));
-        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.15"));
-        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.16"));
-        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.16.100"));
-        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.16.200"));
-        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.16.210"));
-        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/experimental_caves_and_cliffs"));
-//        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/chemistry"));
-
-        entity_pipeline = Shader::create("../resources/entity.vert", "../resources/entity.frag");
-        simple_pipeline = Shader::create("../resources/simple.vert", "../resources/simple.frag");
-        opaque_pipeline = Shader::create("../resources/default.vert", "../resources/default.frag");
-		cutout_pipeline = Shader::create("../resources/default.vert", "../resources/cutout.frag");
-		transparent_pipeline = Shader::create("../resources/default.vert", "../resources/transparent.frag");
-
-		texture_atlas.loadMetaFile(resources);
-		texture_atlas.loadTexture();
-
-		BlockGraphics::mTerrainTextureAtlas = &texture_atlas;
-		BlockGraphics::initBlocks(resources);
-
-        Block::registerBlocks(block_pallete);
-
-        SurfaceBuilder::registerBuilders();
-        SurfaceBuilderConfig::registerConfigs();
-        ConfiguredSurfaceBuilders::resolveSurfaceBuilders();
-
-        WorldCarver::registerCarvers();
-
-        Biome::registerBiomes();
-
-//        BiomeDefinition::loadMetaFile();
-//        BiomeDefinition::registerBiomes();
-
-        loadModels();
-
-        nm = NetworkManager::create().value();
-        connection = nm.client();
     }
 
     std::map<std::string, std::unique_ptr<ModelFormat>> models;
@@ -591,7 +553,6 @@ struct App {
 		glClearNamedFramebufferfi(frames[frameIndex].framebuffer, GL_DEPTH_STENCIL, 0, 1, 0);
 
         glBindFramebuffer(GL_FRAMEBUFFER, frames[frameIndex].framebuffer);
-
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, frames[frameIndex].camera_ubo);
 
         glBindTexture(GL_TEXTURE_2D, texture_atlas.texture);
@@ -681,40 +642,7 @@ struct App {
         glUseProgram(0);
 	}
 
-    void run() {
-        using namespace std::chrono_literals;
-
-        clientWorld = std::make_unique<ClientWorld>();
-        serverWorld = std::make_unique<ServerWorld>(nm.server());
-
-        glm::ivec2 display_size;
-        SDL_GetWindowSize(window, &display_size.x, &display_size.y);
-        SDL_WarpMouseInWindow(window, display_size.x / 2, display_size.y / 2);
-
-		camera.setSize(display_size.x, display_size.y);
-
-        {
-            const auto center_x = static_cast<int32_t>(transform.position.x) >> 4;
-            const auto center_z = static_cast<int32_t>(transform.position.z) >> 4;
-
-            last_center_x = center_x;
-            last_center_z = center_z;
-
-            clientWorld->provider->chunkArray.setCenter(center_x, center_z);
-
-            connection.sendPacket(SpawnPlayerPacket{
-                .pos = transform.position
-            });
-        }
-
-        while (clientWorld->provider->chunkArray.getLoaded() != 289) {
-            executor_execute();
-        }
-
-        double frameTime = 0;
-        int frameCount = 0;
-        int FPS = 0;
-
+	void _load() {
         glGenTextures(1, &agentTexture);
         glBindTexture(GL_TEXTURE_2D, agentTexture);
 
@@ -746,6 +674,117 @@ struct App {
         glGenerateMipmap(GL_TEXTURE_2D);
 
         glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    std::future<void> loadResources() {
+        using namespace std::string_view_literals;
+
+        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla"));
+        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.14"));
+        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.15"));
+        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.16"));
+        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.16.100"));
+        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.16.200"));
+        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.16.210"));
+        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/experimental_caves_and_cliffs"));
+//        resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/chemistry"));
+
+        entity_pipeline = Shader::create("../resources/entity.vert", "../resources/entity.frag");
+        simple_pipeline = Shader::create("../resources/simple.vert", "../resources/simple.frag");
+        opaque_pipeline = Shader::create("../resources/default.vert", "../resources/default.frag");
+        cutout_pipeline = Shader::create("../resources/default.vert", "../resources/cutout.frag");
+        transparent_pipeline = Shader::create("../resources/default.vert", "../resources/transparent.frag");
+
+        texture_atlas.loadMetaFile(resources);
+        texture_atlas.loadTexture();
+
+        BlockGraphics::mTerrainTextureAtlas = &texture_atlas;
+
+        return std::async(std::launch::async, [this] {
+            BlockGraphics::initBlocks(resources);
+            Block::registerBlocks(block_pallete);
+            SurfaceBuilder::registerBuilders();
+            SurfaceBuilderConfig::registerConfigs();
+            ConfiguredSurfaceBuilders::resolveSurfaceBuilders();
+            WorldCarver::registerCarvers();
+            Biomes::registerBiomes();
+//            loadModels();
+        });
+    }
+
+    void createWorld() {
+        nm = NetworkManager::create().value();
+        connection = nm.client();
+
+        clientWorld = std::make_unique<ClientWorld>();
+        serverWorld = std::make_unique<ServerWorld>(nm.server());
+    }
+
+    void sentSpawnPacket() {
+        const auto center_x = static_cast<int32_t>(transform.position.x) >> 4;
+        const auto center_z = static_cast<int32_t>(transform.position.z) >> 4;
+
+        last_center_x = center_x;
+        last_center_z = center_z;
+
+        clientWorld->provider->chunkArray.setCenter(center_x, center_z);
+
+        connection.sendPacket(SpawnPlayerPacket{
+            .pos = transform.position
+        });
+    }
+
+    void run() {
+        using namespace std::chrono_literals;
+
+        glm::ivec2 display_size;
+        SDL_GetWindowSize(window, &display_size.x, &display_size.y);
+        SDL_WarpMouseInWindow(window, display_size.x / 2, display_size.y / 2);
+
+        camera.setSize(display_size.x, display_size.y);
+
+        auto task = loadResources();
+        while (task.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
+            handleEvents();
+
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplSDL2_NewFrame(window);
+            ImGui::NewFrame();
+
+            ImGui::SetNextWindowPos(ImVec2(0, 0));
+            ImGui::SetNextWindowSize(ImVec2(display_size.x, display_size.y));
+            ImGui::Begin("Loading", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoSavedSettings);
+
+            ImGui::Text("Loading...");
+            ImGui::End();
+            ImGui::Render();
+
+            std::array<float, 4> color{0, 0, 0, 0};
+
+            glClearNamedFramebufferfv(frames[frameIndex].framebuffer, GL_COLOR, 0, color.data());
+            glClearNamedFramebufferfi(frames[frameIndex].framebuffer, GL_DEPTH_STENCIL, 0, 1, 0);
+            glBindFramebuffer(GL_FRAMEBUFFER, frames[frameIndex].framebuffer);
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            glBlitNamedFramebuffer(frames[frameIndex].framebuffer, 0, 0, 0, 800, 600, 0, 0, 800, 600, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+            SDL_GL_SwapWindow(window);
+
+            frameIndex = (frameIndex + 1) % 2;
+        }
+
+        task.wait();
+
+        createWorld();
+        sentSpawnPacket();
+
+        while (clientWorld->provider->chunkArray.getLoaded() != 289) {
+            executor_execute();
+        }
+
+        double frameTime = 0;
+        int frameCount = 0;
+        int FPS = 0;
 
         // todo: game loop
 
@@ -785,13 +824,13 @@ struct App {
             ImGui::Text("Server chunks: %d", static_cast<int>(serverWorld->chunks.size()));
             ImGui::Text("Client chunks: %d", clientWorld->provider->chunkArray.getLoaded());
             ImGui::Text("Render chunks: %zu", chunkToRenders.size());
+//            ImGui::Text("Biome: %", clientWorld->getBiome(transform.position));
             ImGui::End();
 
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
             glBlitNamedFramebuffer(frames[frameIndex].framebuffer, 0, 0, 0, 800, 600, 0, 0, 800, 600, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
             SDL_GL_SwapWindow(window);

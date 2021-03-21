@@ -56,4 +56,12 @@ struct ClientWorld {
     auto getBlock(int32_t x, int32_t y, int32_t z) const -> Block* {
         return Block::id_to_block[(int) getData(x, y, z).id];
     }
+
+    auto getBiome(glm::ivec3 pos) const -> Biome* {
+        return getBiome(pos.x, pos.y, pos.z);
+    }
+
+    auto getBiome(int32_t x, int32_t y, int32_t z) const -> Biome* {
+        return nullptr;
+    }
 };

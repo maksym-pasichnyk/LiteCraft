@@ -7,6 +7,7 @@
 
 struct Random;
 struct Chunk;
+struct Biome;
 
 struct SurfaceBuilder {
     static std::unique_ptr<SurfaceBuilder> Noop;
@@ -34,5 +35,5 @@ struct SurfaceBuilder {
     }
 
     virtual void setSeed(int64_t seed) {}
-    virtual void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int sealevel, SurfaceBuilderConfig config) = 0;
+    virtual void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int sealevel, SurfaceBuilderConfig config) = 0;
 };

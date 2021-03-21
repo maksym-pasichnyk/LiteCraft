@@ -4,6 +4,7 @@
 
 struct Random;
 struct Chunk;
+struct Biome;
 struct SurfaceBuilder;
 
 struct ConfiguredSurfaceBuilder {
@@ -11,5 +12,5 @@ struct ConfiguredSurfaceBuilder {
     SurfaceBuilderConfig config{};
 
     void setSeed(int64_t seed);
-    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int sealevel);
+    void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int sealevel);
 };

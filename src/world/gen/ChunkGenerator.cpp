@@ -75,14 +75,14 @@ void ChunkGenerator::generateCarvers(WorldGenRegion& region, int64_t seed, Chunk
 
     for (int32_t xoffset = xpos - 8; xoffset <= xpos + 8; ++xoffset) {
         for (int32_t zoffset = zpos - 8; zoffset <= zpos + 8; ++zoffset) {
-            auto carvers = std::span(biome->carvers[static_cast<size_t>(carving)]);
-
-            for (size_t i = 0; i < carvers.size(); ++i) {
-                rand.setLargeFeatureSeed(seed + static_cast<int64_t>(i), xoffset, zoffset);
-                if (carvers[i].shouldCarve(rand, xoffset, zoffset)) {
-                    carvers[i].carveRegion(chunk, getBiome, rand, /*seaLevel*/63, xoffset, zoffset, xpos, zpos/*, carvingMask*/);
-                }
-            }
+//            auto carvers = std::span(biome->carvers[static_cast<size_t>(carving)]);
+//
+//            for (size_t i = 0; i < carvers.size(); ++i) {
+//                rand.setLargeFeatureSeed(seed + static_cast<int64_t>(i), xoffset, zoffset);
+//                if (carvers[i].shouldCarve(rand, xoffset, zoffset)) {
+//                    carvers[i].carveRegion(chunk, getBiome, rand, /*seaLevel*/63, xoffset, zoffset, xpos, zpos/*, carvingMask*/);
+//                }
+//            }
         }
     }
 }
