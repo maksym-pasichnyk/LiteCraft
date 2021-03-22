@@ -537,24 +537,10 @@ struct App {
         }
     }
 
+    std::array<float, 4> sky_color;
+    glm::vec2 fog_offset;
+
 	void renderTerrain() {
-        const auto topBlock = clientWorld->getBlock(transform.position.x, std::floor(transform.position.y + 1.68), transform.position.z);
-        const bool is_liquid = topBlock->renderType == RenderType::Liquid;
-
-        std::array<float, 4> color{0, 0.68, 1.0, 1};
-
-        glm::vec2 fog_offset{9, 13};
-        if (is_liquid) {
-            color = {0.27, 0.68, 0.96, 1};
-            fog_offset = glm::vec2{0, 5 };
-        }
-
-		glClearNamedFramebufferfv(frames[frameIndex].framebuffer, GL_COLOR, 0, color.data());
-		glClearNamedFramebufferfi(frames[frameIndex].framebuffer, GL_DEPTH_STENCIL, 0, 1, 0);
-
-        glBindFramebuffer(GL_FRAMEBUFFER, frames[frameIndex].framebuffer);
-        glBindBufferBase(GL_UNIFORM_BUFFER, 0, frames[frameIndex].camera_ubo);
-
         glBindTexture(GL_TEXTURE_2D, texture_atlas.texture);
 		glActiveTexture(GL_TEXTURE0);
 
@@ -565,12 +551,12 @@ struct App {
 		glDepthRange(0.01, 1.0);
 
         glUseProgram(opaque_pipeline);
-        glUniform3fv(0, 1, color.data());
+        glUniform3fv(0, 1, sky_color.data());
         glUniform2f(4, fog_offset.x, fog_offset.y);
         renderLayer(RenderLayer::Opaque);
 
         glUseProgram(cutout_pipeline);
-        glUniform3fv(0, 1, color.data());
+        glUniform3fv(0, 1, sky_color.data());
         glUniform2f(4, fog_offset.x, fog_offset.y);
         renderLayer(RenderLayer::Cutout);
 
@@ -578,7 +564,7 @@ struct App {
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 
 		glUseProgram(transparent_pipeline);
-        glUniform3fv(0, 1, color.data());
+        glUniform3fv(0, 1, sky_color.data());
         glUniform2f(4, fog_offset.x, fog_offset.y);
         renderLayer(RenderLayer::Transparent);
 
@@ -589,7 +575,7 @@ struct App {
 //        glm::mat4 model_transform = glm::translate(glm::mat4(1.0f), glm::vec3(636, 72, 221));
 
 //        glUseProgram(entity_pipeline);
-//        glUniform3fv(0, 1, color.data());
+//        glUniform3fv(0, 1, sky_color.data());
 //        glUniform2f(4, fog_offset.x, fog_offset.y);
 //        glUniformMatrix4fv(8, 1, GL_FALSE, glm::value_ptr(model_transform));
 
@@ -734,6 +720,92 @@ struct App {
         });
     }
 
+    double frameTime = 0;
+    int frameCount = 0;
+    int FPS = 0;
+    std::chrono::high_resolution_clock::time_point startTime = std::chrono::high_resolution_clock::now();
+
+    void tick() {
+
+    }
+
+    void flipFrame() {
+        SDL_GL_SwapWindow(window);
+        handleEvents();
+
+        frameIndex = (frameIndex + 1) % 2;
+    }
+
+    void updateCameraAndRender() {
+        setupCamera();
+        setupTerrain();
+
+        const auto topBlock = clientWorld->getBlock(
+                transform.position.x,
+                std::floor(transform.position.y + 1.68),
+                transform.position.z
+        );
+        const bool is_liquid = topBlock->renderType == RenderType::Liquid;
+
+        if (is_liquid) {
+            sky_color = {0.27, 0.68, 0.96, 1};
+            fog_offset = glm::vec2{0, 5};
+        } else {
+            sky_color = {0, 0.68, 1.0, 1};
+            fog_offset = {9, 13};
+        }
+
+        renderTerrain();
+    }
+
+    void runGameLoop(bool renderWorld) {
+        const auto time = std::chrono::high_resolution_clock::now();
+        const auto dt = std::chrono::duration<double>(time - startTime).count();
+
+        frameTime += dt;
+        frameCount += 1;
+
+        if (frameTime > 1) {
+            FPS = frameCount;
+            frameTime -= 1;
+            frameCount = 0;
+        }
+
+        startTime = time;
+
+        updateInput(dt);
+        executor_execute();
+
+        glClearNamedFramebufferfv(frames[frameIndex].framebuffer, GL_COLOR, 0, sky_color.data());
+        glClearNamedFramebufferfi(frames[frameIndex].framebuffer, GL_DEPTH_STENCIL, 0, 1, 0);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, frames[frameIndex].framebuffer);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, frames[frameIndex].camera_ubo);
+
+        updateCameraAndRender();
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL2_NewFrame(window);
+        ImGui::NewFrame();
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::SetNextWindowSize(ImVec2(300, 150));
+        ImGui::Begin("Debug panel", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoSavedSettings);
+        ImGui::Text("FPS: %d", FPS);
+        ImGui::Text("Position: %.2f, %.2f, %.2f", transform.position.x, transform.position.y, transform.position.z);
+        ImGui::Text("Server chunks: %d", static_cast<int>(serverWorld->chunks.size()));
+        ImGui::Text("Client chunks: %d", clientWorld->provider->chunkArray.getLoaded());
+        ImGui::Text("Render chunks: %zu", chunkToRenders.size());
+        ImGui::End();
+        ImGui::Render();
+
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        glBlitNamedFramebuffer(frames[frameIndex].framebuffer, 0, 0, 0, 800, 600, 0, 0, 800, 600, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        flipFrame();
+    }
+
     void run() {
         using namespace std::chrono_literals;
 
@@ -745,8 +817,6 @@ struct App {
 
         auto task = loadResources();
         while (task.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
-            handleEvents();
-
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplSDL2_NewFrame(window);
             ImGui::NewFrame();
@@ -768,12 +838,8 @@ struct App {
             glBlitNamedFramebuffer(frames[frameIndex].framebuffer, 0, 0, 0, 800, 600, 0, 0, 800, 600, GL_COLOR_BUFFER_BIT, GL_NEAREST);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-            SDL_GL_SwapWindow(window);
-
-            frameIndex = (frameIndex + 1) % 2;
+            flipFrame();
         }
-
-        task.wait();
 
         createWorld();
         sentSpawnPacket();
@@ -782,60 +848,10 @@ struct App {
             executor_execute();
         }
 
-        double frameTime = 0;
-        int frameCount = 0;
-        int FPS = 0;
-
         // todo: game loop
 
-        auto startTime = std::chrono::high_resolution_clock::now();
-        while (handleEvents(), running) {
-            auto time = std::chrono::high_resolution_clock::now();
-            auto dt = std::chrono::duration<double>(time - startTime).count();
-            frameTime += dt;
-            frameCount += 1;
-
-            if (frameTime > 1) {
-                FPS = frameCount;
-
-                frameTime -= 1;
-                frameCount = 0;
-            }
-
-            startTime = time;
-
-            updateInput(dt);
-
-            executor_execute();
-
-            setupCamera();
-            setupTerrain();
-            renderTerrain();
-
-            ImGui_ImplOpenGL3_NewFrame();
-            ImGui_ImplSDL2_NewFrame(window);
-            ImGui::NewFrame();
-
-            ImGui::SetNextWindowPos(ImVec2(0, 0));
-            ImGui::SetNextWindowSize(ImVec2(300, 150));
-            ImGui::Begin("Debug panel", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoSavedSettings);
-            ImGui::Text("FPS: %d", FPS);
-            ImGui::Text("Position: %.2f, %.2f, %.2f", transform.position.x, transform.position.y, transform.position.z);
-            ImGui::Text("Server chunks: %d", static_cast<int>(serverWorld->chunks.size()));
-            ImGui::Text("Client chunks: %d", clientWorld->provider->chunkArray.getLoaded());
-            ImGui::Text("Render chunks: %zu", chunkToRenders.size());
-//            ImGui::Text("Biome: %", clientWorld->getBiome(transform.position));
-            ImGui::End();
-
-            ImGui::Render();
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-            glBlitNamedFramebuffer(frames[frameIndex].framebuffer, 0, 0, 0, 800, 600, 0, 0, 800, 600, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-            SDL_GL_SwapWindow(window);
-
-            frameIndex = (frameIndex + 1) % 2;
+        while (running) {
+            runGameLoop(true);
         }
     }
 
