@@ -25,7 +25,7 @@ struct Transform {
     }
 
     auto forward() -> glm::vec3 {
-    	return glm::vec3(0, 0, 1) * glm::mat3(getRotationMatrix());
+    	return glm::vec3(0, 0, -1) * glm::mat3(getRotationMatrix());
     }
 
     auto right() -> glm::vec3 {

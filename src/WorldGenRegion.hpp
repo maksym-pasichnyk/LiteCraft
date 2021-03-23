@@ -16,6 +16,9 @@ struct Block;
 struct ServerWorld;
 
 struct WorldGenRegion : WorldReader {
+    WorldGenRegion(const WorldGenRegion&) = delete;
+    WorldGenRegion& operator=(const WorldGenRegion&) = delete;
+
     ServerWorld* world;
     int64_t seed;
     int32_t radius;

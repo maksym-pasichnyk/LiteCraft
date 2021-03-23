@@ -30,46 +30,46 @@ void WorldCarver::registerCarvers() {
 
 WorldCarver::WorldCarver(int32_t maxHeight) : maxHeight{maxHeight} {
     carvableBlocks = {
-        Block::stone,
-//        Block::GRANITE,
-//        Block::DIORITE,
-//        Block::ANDESITE,
-        Block::dirt,
-//        Block::COARSE_DIRT,
-        Block::podzol,
-        Block::grass,
-//        Block::TERRACOTTA,
-//        Block::WHITE_TERRACOTTA,
-//        Block::ORANGE_TERRACOTTA,
-//        Block::MAGENTA_TERRACOTTA,
-//        Block::LIGHT_BLUE_TERRACOTTA,
-//        Block::YELLOW_TERRACOTTA,
-//        Block::LIME_TERRACOTTA,
-//        Block::PINK_TERRACOTTA,
-//        Block::GRAY_TERRACOTTA,
-//        Block::LIGHT_GRAY_TERRACOTTA,
-//        Block::CYAN_TERRACOTTA,
-//        Block::PURPLE_TERRACOTTA,
-//        Block::BLUE_TERRACOTTA,
-//        Block::BROWN_TERRACOTTA,
-//        Block::GREEN_TERRACOTTA,
-//        Block::RED_TERRACOTTA,
-//        Block::BLACK_TERRACOTTA,
-        Block::sandstone,
-        Block::red_sandstone,
-        Block::mycelium,
-        Block::snow,
-        Block::packed_ice
+        Blocks::stone,
+//        Blocks::GRANITE,
+//        Blocks::DIORITE,
+//        Blocks::ANDESITE,
+        Blocks::dirt,
+//        Blocks::COARSE_DIRT,
+        Blocks::podzol,
+        Blocks::grass,
+//        Blocks::TERRACOTTA,
+//        Blocks::WHITE_TERRACOTTA,
+//        Blocks::ORANGE_TERRACOTTA,
+//        Blocks::MAGENTA_TERRACOTTA,
+//        Blocks::LIGHT_BLUE_TERRACOTTA,
+//        Blocks::YELLOW_TERRACOTTA,
+//        Blocks::LIME_TERRACOTTA,
+//        Blocks::PINK_TERRACOTTA,
+//        Blocks::GRAY_TERRACOTTA,
+//        Blocks::LIGHT_GRAY_TERRACOTTA,
+//        Blocks::CYAN_TERRACOTTA,
+//        Blocks::PURPLE_TERRACOTTA,
+//        Blocks::BLUE_TERRACOTTA,
+//        Blocks::BROWN_TERRACOTTA,
+//        Blocks::GREEN_TERRACOTTA,
+//        Blocks::RED_TERRACOTTA,
+//        Blocks::BLACK_TERRACOTTA,
+        Blocks::sandstone,
+        Blocks::red_sandstone,
+        Blocks::mycelium,
+        Blocks::snow,
+        Blocks::packed_ice
     };
     carvableFluids = {
-        Block::water
+        Blocks::water
     };
 }
 
 bool WorldCarver::canCarveBlock(const BlockData &data, const BlockData &above) {
     return carvableBlocks.contains(data.getBlock())
-        || (data.isIn(Block::sand) || data.isIn(Block::gravel))
-        && !(above.isIn(Block::water) || above.isIn(Block::flowing_lava));// && !above.getFluidState().isTagged(FluidTags.WATER);
+        || (data.isIn(Blocks::sand) || data.isIn(Blocks::gravel))
+        && !(above.isIn(Blocks::water) || above.isIn(Blocks::flowing_lava));// && !above.getFluidState().isTagged(FluidTags.WATER);
 }
 
 bool WorldCarver::carveBlocks(Chunk &chunk, const BiomeReadFn &getBiome, int64_t seed, int seaLevel, int chunkx, int chunkz, double xcoord, double ycoord, double zcoord, double unk1, double unk2/*, BitSet carvingMask*/) {
@@ -128,7 +128,7 @@ bool WorldCarver::carveBlock(Chunk& chunk, const BiomeReadFn& getBiome, /*BitSet
 //    }
 //    carvingMask.set(i);
     const auto data = chunk.getData(posX, posY, posZ);
-    if (data.isIn(Block::grass) || data.isIn(Block::mycelium)) {
+    if (data.isIn(Blocks::grass) || data.isIn(Blocks::mycelium)) {
         isSurface = true;
     }
     const auto above = chunk.getData(posX, posY + 1, posZ);
@@ -137,12 +137,12 @@ bool WorldCarver::carveBlock(Chunk& chunk, const BiomeReadFn& getBiome, /*BitSet
         return false;
     }
     if (posY < 11) {
-        chunk.setData(posX, posY, posZ, {Block::lava->id, 0}/*, false*/);
+        chunk.setData(posX, posY, posZ, {Blocks::lava->id, 0}/*, false*/);
     } else {
-        chunk.setData(posX, posY, posZ, {Block::air->id, 1}/*, false*/);
+        chunk.setData(posX, posY, posZ, {Blocks::air->id, 1}/*, false*/);
 
         if (isSurface) {
-            if (chunk.getData(posX, posY - 1, posZ).isIn(Block::dirt)) {
+            if (chunk.getData(posX, posY - 1, posZ).isIn(Blocks::dirt)) {
                 const auto top = getBiome({posX, posY, posZ})->biomeGenerationSettings.surfaceBuilder.config.top;
                 chunk.setData(posX, posY - 1, posZ, top/*, false*/);
             }

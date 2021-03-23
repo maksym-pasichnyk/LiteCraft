@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BiomeGenerationSettings.hpp"
+#include "../gen/carver/ConfiguredCarvers.hpp"
 
 struct DefaultBiomeFeatures {
     static void withBadlandsStructures(BiomeGenerationSettings::Builder& builder) {
@@ -19,15 +20,15 @@ struct DefaultBiomeFeatures {
     }
 
     static void withCavesAndCanyons(BiomeGenerationSettings::Builder& builder) {
-//        builder.withCarver(GenerationStage::Carving.AIR, ConfiguredCarvers.CAVE);
-//        builder.withCarver(GenerationStage::Carving.AIR, ConfiguredCarvers.CANYON);
+        builder.withCarver(GenerationStage::Carving::AIR, ConfiguredCarvers::CAVE);
+        builder.withCarver(GenerationStage::Carving::AIR, ConfiguredCarvers::CANYON);
     }
 
     static void withOceanCavesAndCanyons(BiomeGenerationSettings::Builder& builder) {
-//        builder.withCarver(GenerationStage::Carving.AIR, ConfiguredCarvers.OCEAN_CAVE);
-//        builder.withCarver(GenerationStage::Carving.AIR, ConfiguredCarvers.CANYON);
-//        builder.withCarver(GenerationStage::Carving.LIQUID, ConfiguredCarvers.UNDERWATER_CANYON);
-//        builder.withCarver(GenerationStage::Carving.LIQUID, ConfiguredCarvers.UNDERWATER_CAVE);
+        builder.withCarver(GenerationStage::Carving::AIR, ConfiguredCarvers::OCEAN_CAVE);
+        builder.withCarver(GenerationStage::Carving::AIR, ConfiguredCarvers::CANYON);
+//        builder.withCarver(GenerationStage::Carving::LIQUID, ConfiguredCarvers::UNDERWATER_CANYON);
+//        builder.withCarver(GenerationStage::Carving::LIQUID, ConfiguredCarvers::UNDERWATER_CAVE);
     }
 
     static void withLavaAndWaterLakes(BiomeGenerationSettings::Builder& builder) {

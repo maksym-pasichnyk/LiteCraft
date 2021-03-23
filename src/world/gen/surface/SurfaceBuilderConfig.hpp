@@ -26,4 +26,16 @@ struct SurfaceBuilderConfig {
     BlockData top;
     BlockData mid;
     BlockData underWater;
+
+    BlockData getTop() const {
+        return top;
+    }
+
+    BlockData getUnder() const {
+        return mid;
+    }
+
+    BlockData getUnderWaterMaterial() const {
+        return underWater;
+    }
 };

@@ -1,12 +1,15 @@
 #pragma once
 
 #include "Block.hpp"
+#include "Blocks.hpp"
 
 #include <cstdint>
 
 struct BlockData {
     uint16_t id = 0;
     uint16_t val = 0;
+
+    constexpr auto operator<=>(const BlockData&) const noexcept = default;
 
     bool isAir() const {
         return id == 0;
@@ -17,7 +20,7 @@ struct BlockData {
     }
 
     Block* getBlock() const {
-        return Block::id_to_block[static_cast<size_t>(id)];
+        return Blocks::id_to_block[static_cast<size_t>(id)];
     }
 };
 
@@ -28,7 +31,7 @@ static bool isOpaque(BlockData data) {
 
     auto block = data.getBlock();
 
-    if (block == Block::lava) {
+    if (block == Blocks::lava) {
         return false;
     }
 
@@ -44,13 +47,13 @@ static bool isOpaque(BlockData data) {
 }
 
 static int32_t getLightFor(BlockData data) {
-    if (data.isIn(Block::torch)) {
+    if (data.isIn(Blocks::torch)) {
         return 14;
     }
-    if (data.isIn(Block::lava)) {
+    if (data.isIn(Blocks::lava)) {
         return 14;
     }
-    if (data.isIn(Block::flowing_lava)) {
+    if (data.isIn(Blocks::flowing_lava)) {
         return 14;
     }
     return 0;

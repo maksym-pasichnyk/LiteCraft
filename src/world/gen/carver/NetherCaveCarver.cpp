@@ -26,9 +26,9 @@ bool NetherCaveCarver::carveBlock(Chunk &chunk, const BiomeReadFn &getBiome, Ran
 //    carvingMask.set(i);
     if (carvableBlocks.contains(chunk.getBlock(posX, posY, posZ))) {
         if (posY <= 31) {
-            chunk.setData(posX, posY, posZ, {Block::lava->id, 0}/*, false*/);
+            chunk.setData(posX, posY, posZ, {Blocks::lava->id, 0}/*, false*/);
         } else {
-            chunk.setData(posX, posY, posZ, {Block::air->id, 1}/*, false*/);
+            chunk.setData(posX, posY, posZ, {Blocks::air->id, 1}/*, false*/);
         }
         return true;
     }

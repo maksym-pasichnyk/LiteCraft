@@ -86,8 +86,8 @@ NoiseSettings settings{
 NoiseChunkGenerator::NoiseChunkGenerator(int64_t seed, std::unique_ptr<BiomeProvider>&& biomeProvider)
     : ChunkGenerator(std::move(biomeProvider))
 {
-    defaultBlock = BlockData{Block::stone->id, 0};
-    defaultFluid = BlockData{Block::water->id, 0};
+    defaultBlock = BlockData{Blocks::stone->id, 0};
+    defaultFluid = BlockData{Blocks::water->id, 0};
 
     dimensionHeight = settings.height;
     bedrockFloorPosition = 0;
@@ -124,7 +124,7 @@ void NoiseChunkGenerator::makeBedrock(Chunk& chunk, Random &rand) const {
     const bool makeFloorBedrock = bedrockFloorPosition + 4 >= 0 && bedrockFloorPosition < dimensionHeight;
 
     if (makeRoofBedrock || makeFloorBedrock) {
-        const auto bedrock = BlockData{Block::bedrock->id, 0};
+        const auto bedrock = BlockData{Blocks::bedrock->id, 0};
 
         for (auto x = 0; x <= 15; x++) {
             for (auto z = 0; z <= 15; z++) {

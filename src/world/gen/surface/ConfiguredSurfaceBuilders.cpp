@@ -26,7 +26,7 @@ ConfiguredSurfaceBuilder ConfiguredSurfaceBuilders::SWAMP{};
 ConfiguredSurfaceBuilder ConfiguredSurfaceBuilders::WARPED_FOREST{};
 ConfiguredSurfaceBuilder ConfiguredSurfaceBuilders::WOODED_BADLANDS{};
 
-void ConfiguredSurfaceBuilders::resolveSurfaceBuilders() {
+void ConfiguredSurfaceBuilders::configureSurfaceBuilders() {
     BADLANDS = SurfaceBuilder::Badlands->withConfig(SurfaceBuilderConfig::RED_SAND_WHITE_TERRACOTTA_GRAVEL_CONFIG);
     BASALT_DELTAS = SurfaceBuilder::BasaltDeltas->withConfig(SurfaceBuilderConfig::BASALT_DELTAS_CONFIG);
     CRIMSON_FOREST = SurfaceBuilder::NetherForest->withConfig(SurfaceBuilderConfig::crimson_forest_config);

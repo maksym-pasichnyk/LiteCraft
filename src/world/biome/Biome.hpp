@@ -77,6 +77,10 @@ struct Biome {
         return f;
     }
 
+    BiomeGenerationSettings& getGenerationSettings() {
+        return biomeGenerationSettings;
+    }
+
     void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int sealevel) {
         biomeGenerationSettings.surfaceBuilder.setSeed(0);
         biomeGenerationSettings.surfaceBuilder.buildSurface(rand, chunk, *this, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, sealevel);

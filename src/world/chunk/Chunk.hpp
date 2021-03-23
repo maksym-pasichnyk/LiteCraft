@@ -24,20 +24,20 @@ struct RenderLayerBuilder {
 	void quad() {
         auto i = vertices.size();
         indices.push_back(i + 0);
-        indices.push_back(i + 2);
         indices.push_back(i + 1);
-        indices.push_back(i + 0);
-        indices.push_back(i + 3);
         indices.push_back(i + 2);
+        indices.push_back(i + 0);
+        indices.push_back(i + 2);
+        indices.push_back(i + 3);
     }
     void quadInv() {
         auto i = vertices.size();
         indices.push_back(i + 0);
+        indices.push_back(i + 2);
         indices.push_back(i + 1);
-        indices.push_back(i + 2);
         indices.push_back(i + 0);
-        indices.push_back(i + 2);
         indices.push_back(i + 3);
+        indices.push_back(i + 2);
     }
 
     void vertex(float x, float y, float z, float u, float v, uint8_t r, uint8_t g, uint8_t b, int32_t packedLight, float ao) {
@@ -91,10 +91,10 @@ struct SimpleVBuffer {
     }
 
 	void quad() {
-		quad(0, 2, 1, 0, 3, 2);
+        quad(0, 1, 2, 0, 2, 3);
     }
     void quadInv() {
-		quad(0, 1, 2, 0, 2, 3);
+        quad(0, 2, 1, 0, 3, 2);
     }
 
     void vertex(float x, float y, float z, float u, float v, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
@@ -509,6 +509,10 @@ struct Chunk {
     	}
         heightmap[(x & 15) + (z & 15) * 16] = -1;
     	section->blocks[toIndex(x, y, z)] = data;
+    }
+
+    auto getData(const glm::ivec3& pos) const -> BlockData {
+        return getData(pos.x, pos.y, pos.z);
     }
 
     auto getData(int32_t x, int32_t y, int32_t z) const -> BlockData {

@@ -27,6 +27,7 @@
 #include "world/gen/surface/SurfaceBuilder.hpp"
 #include "world/gen/surface/ConfiguredSurfaceBuilders.hpp"
 #include "world/gen/carver/WorldCarver.hpp"
+#include "world/gen/carver/ConfiguredCarvers.hpp"
 
 #include "client/world/ClientWorld.hpp"
 #include "client/render/ChunkRenderCache.h"
@@ -157,7 +158,7 @@ struct App {
     Transform transform {
         .yaw = 0,
         .pitch = 0,
-        .position = {637, 71, 220}
+        .position = {0, 100, 0}
     };
 
     int32_t last_center_x = -9999;
@@ -398,7 +399,7 @@ struct App {
         glm::ivec2 mouse_center{display_size.x / 2, display_size.y / 2};
 		glm::ivec2 mouse_position;
         SDL_GetMouseState(&mouse_position.x, &mouse_position.y);
-		const auto mouse_delta = mouse_position - mouse_center;
+		const auto mouse_delta = mouse_center - mouse_position;
         SDL_WarpMouseInWindow(window, mouse_center.x, mouse_center.y);
 
         rotateCamera(transform, mouse_delta, dt);
@@ -419,14 +420,14 @@ struct App {
 
                 connection.sendPacket(SChangeBlockPacket{
                     .pos = rayTraceResult->pos,
-                    .data = BlockData{Block::air->id, 0}
+                    .data = BlockData{Blocks::air->id, 0}
                 });
             } else if (input.IsMouseButtonPressed(Input::MouseButton::Right)) {
                 cooldown = 10;
 
                 connection.sendPacket(SChangeBlockPacket{
                     .pos = rayTraceResult->pos + rayTraceResult->dir,
-                    .data = BlockData{Block::torch->id, 0}
+                    .data = BlockData{Blocks::torch->id, 0}
                 });
             }
 		}
@@ -688,11 +689,12 @@ struct App {
 
         return std::async(std::launch::async, [this] {
             BlockGraphics::initBlocks(resources);
-            Block::registerBlocks(block_pallete);
+            Blocks::registerBlocks(block_pallete);
             SurfaceBuilder::registerBuilders();
             SurfaceBuilderConfig::registerConfigs();
-            ConfiguredSurfaceBuilders::resolveSurfaceBuilders();
+            ConfiguredSurfaceBuilders::configureSurfaceBuilders();
             WorldCarver::registerCarvers();
+            ConfiguredCarvers::configureCarvers();
             Biomes::registerBiomes();
 //            loadModels();
         });
@@ -706,7 +708,7 @@ struct App {
         serverWorld = std::make_unique<ServerWorld>(nm.server());
     }
 
-    void sentSpawnPacket() {
+    void sendSpawnPacket() {
         const auto center_x = static_cast<int32_t>(transform.position.x) >> 4;
         const auto center_z = static_cast<int32_t>(transform.position.z) >> 4;
 
@@ -842,7 +844,7 @@ struct App {
         }
 
         createWorld();
-        sentSpawnPacket();
+        sendSpawnPacket();
 
         while (clientWorld->provider->chunkArray.getLoaded() != 289) {
             executor_execute();

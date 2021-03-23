@@ -21,20 +21,20 @@ struct ModelVertexBuilder {
     void quad() {
         auto i = vertices.size();
         indices.push_back(i + 0);
-        indices.push_back(i + 2);
         indices.push_back(i + 1);
-        indices.push_back(i + 0);
-        indices.push_back(i + 3);
         indices.push_back(i + 2);
+        indices.push_back(i + 0);
+        indices.push_back(i + 2);
+        indices.push_back(i + 3);
     }
     void quadInv() {
         auto i = vertices.size();
         indices.push_back(i + 0);
+        indices.push_back(i + 2);
         indices.push_back(i + 1);
-        indices.push_back(i + 2);
         indices.push_back(i + 0);
-        indices.push_back(i + 2);
         indices.push_back(i + 3);
+        indices.push_back(i + 2);
     }
 
     void vertex(float x, float y, float z, float u, float v, float r, float g, float b) {

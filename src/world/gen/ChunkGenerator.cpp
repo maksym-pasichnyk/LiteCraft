@@ -4,7 +4,6 @@
 #include "../biome/Biome.hpp"
 #include "../biome/provider/BiomeProvider.hpp"
 #include "../../WorldGenRegion.hpp"
-#include "../../util/Random.hpp"
 
 struct ExampleStructurePiece : StructurePiece {
     ExampleStructurePiece(int32_t pos_x, int32_t pos_z) {
@@ -14,17 +13,17 @@ struct ExampleStructurePiece : StructurePiece {
 
     void place(WorldGenRegion& region, StructureBoundingBox sbb) override {
         for (auto y = 0; y < 10; y++) {
-            setBlock(region, sbb, 0, y, 0, {Block::iron_bars->id, 2 | 4});
-            setBlock(region, sbb, 0, y, 1, {Block::wood->id, 0});
-            setBlock(region, sbb, 0, y, 2, {Block::iron_bars->id, 8 | 4});
+            setBlock(region, sbb, 0, y, 0, {Blocks::iron_bars->id, 2 | 4});
+            setBlock(region, sbb, 0, y, 1, {Blocks::wood->id, 0});
+            setBlock(region, sbb, 0, y, 2, {Blocks::iron_bars->id, 8 | 4});
 
-            setBlock(region, sbb, 1, y, 0, {Block::wood->id, 0});
-            setBlock(region, sbb, 1, y, 1, {Block::wood->id, 0});
-            setBlock(region, sbb, 1, y, 2, {Block::wood->id, 0});
+            setBlock(region, sbb, 1, y, 0, {Blocks::wood->id, 0});
+            setBlock(region, sbb, 1, y, 1, {Blocks::wood->id, 0});
+            setBlock(region, sbb, 1, y, 2, {Blocks::wood->id, 0});
 
-            setBlock(region, sbb, 2, y, 0, {Block::iron_bars->id, 2 | 1});
-            setBlock(region, sbb, 2, y, 1, {Block::wood->id, 0});
-            setBlock(region, sbb, 2, y, 2, {Block::iron_bars->id, 8 | 1});
+            setBlock(region, sbb, 2, y, 0, {Blocks::iron_bars->id, 2 | 1});
+            setBlock(region, sbb, 2, y, 1, {Blocks::wood->id, 0});
+            setBlock(region, sbb, 2, y, 2, {Blocks::iron_bars->id, 8 | 1});
         }
     }
 };
@@ -63,10 +62,8 @@ void ChunkGenerator::getStructureReferences(WorldGenRegion &region, Chunk& chunk
 void ChunkGenerator::generateCarvers(WorldGenRegion& region, int64_t seed, Chunk& chunk, GenerationStage::Carving carving) {
     const auto [xpos, zpos] = chunk.pos;
 
-    const auto getBiome = std::function{
-        [&region] (glm::ivec3 pos) {
-            return region.getBiome(pos);
-        }
+    const auto getBiome = [&region] (glm::ivec3 pos) {
+        return region.getBiome(pos);
     };
 
     Random rand;
@@ -75,14 +72,14 @@ void ChunkGenerator::generateCarvers(WorldGenRegion& region, int64_t seed, Chunk
 
     for (int32_t xoffset = xpos - 8; xoffset <= xpos + 8; ++xoffset) {
         for (int32_t zoffset = zpos - 8; zoffset <= zpos + 8; ++zoffset) {
-//            auto carvers = std::span(biome->carvers[static_cast<size_t>(carving)]);
-//
-//            for (size_t i = 0; i < carvers.size(); ++i) {
-//                rand.setLargeFeatureSeed(seed + static_cast<int64_t>(i), xoffset, zoffset);
-//                if (carvers[i].shouldCarve(rand, xoffset, zoffset)) {
-//                    carvers[i].carveRegion(chunk, getBiome, rand, /*seaLevel*/63, xoffset, zoffset, xpos, zpos/*, carvingMask*/);
-//                }
-//            }
+            std::span carvers = biome->biomeGenerationSettings.carvers[static_cast<size_t>(carving)];
+
+            for (size_t i = 0; i < carvers.size(); ++i) {
+                rand.setLargeFeatureSeed(seed + static_cast<int64_t>(i), xoffset, zoffset);
+                if (carvers[i].shouldCarve(rand, xoffset, zoffset)) {
+                    carvers[i].carveRegion(chunk, getBiome, rand, /*seaLevel*/63, xoffset, zoffset, xpos, zpos/*, carvingMask*/);
+                }
+            }
         }
     }
 }
@@ -96,8 +93,8 @@ void placeBlock(IBlockWriter auto& blocks, int32_t x, int32_t y, int32_t z, cons
 void generateTree(IBlockWriter auto& blocks, int32_t x, int32_t height, int32_t z, Random& rand, const StructureBoundingBox& sbb) {
     const auto treeHeight = 4 + rand.nextInt(0, 2);
 
-    const BlockData leaves{Block::leaves->id, 0};
-    const BlockData log{Block::log->id, 0};
+    const BlockData leaves{Blocks::leaves->id, 0};
+    const BlockData log{Blocks::log->id, 0};
 
     for (auto y = treeHeight - 2; y <= treeHeight + 1; y++) {
         placeBlock(blocks, x - 1, y + height, z - 1, leaves, sbb);
@@ -133,8 +130,8 @@ void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
         }
     }
 
-    const BlockData red_flower{Block::red_flower->id, 0};
-    const BlockData yellow_flower{Block::yellow_flower->id, 0};
+    const BlockData red_flower{Blocks::red_flower->id, 0};
+    const BlockData yellow_flower{Blocks::yellow_flower->id, 0};
 
     for (int32_t x = 0; x < 16; x++) {
         const auto xpos = x + xStart;
@@ -146,7 +143,7 @@ void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
 
             const int32_t ypos = region.getHeight(xpos, zpos);
 
-            if (region.getData(xpos, ypos - 1, zpos).id != Block::water->id) {
+            if (region.getData(xpos, ypos - 1, zpos).id != Blocks::water->id) {
                 int32_t n = random.nextInt(0, 3000);
 
                 if (n < 15) {

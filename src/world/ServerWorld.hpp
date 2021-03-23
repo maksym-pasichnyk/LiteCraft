@@ -25,7 +25,7 @@ struct ServerWorld {
     ChunkPos last_player_position{};
 
     int viewDistance = 8;
-    int64_t seed = 0;
+    int64_t seed = 1;
 
     explicit ServerWorld(NetworkConnection connection) : connection{connection} {
         generator = std::make_unique<NoiseChunkGenerator>(seed, std::make_unique<OverworldBiomeProvider>(seed, false, false));

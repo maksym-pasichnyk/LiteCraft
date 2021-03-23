@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../biome/BiomeReadFn.hpp"
+
 #include <functional>
 #include <memory>
 #include <set>
@@ -11,8 +13,6 @@ struct Block;
 struct Biome;
 struct Random;
 struct BlockData;
-
-using BiomeReadFn = std::function<Biome*(glm::ivec3)>;
 
 struct WorldCarver {
     static std::unique_ptr<WorldCarver> CAVE;

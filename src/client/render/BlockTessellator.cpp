@@ -38,11 +38,13 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
 
 	auto builder = rb.getForLayer(block->renderLayer);
 
+	auto val = blocks.getData(x, y, z).val;
+
     float aoLights[4] {0.3, 0.6, 0.9, 1 };
 
 	if (shouldRenderFace(blocks.getBlock(x, y, z - 1), block)) {
         const auto packedLight = blocks.getLightPacked(x, y, z - 1);
-        const auto coords = block->graphics->southTexture->get(0);
+        const auto coords = block->graphics->southTexture->get(val);
 
         const auto uf = isOpaque(blocks.getData(x, y + 1, z - 1));
         const auto ub = isOpaque(blocks.getData(x, y - 1, z - 1));
@@ -63,7 +65,7 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
 
 	if (shouldRenderFace(blocks.getBlock(x + 1, y, z), block)) {
         const auto packedLight = blocks.getLightPacked(x + 1, y, z);
-        const auto coords = block->graphics->eastTexture->get(0);
+        const auto coords = block->graphics->eastTexture->get(val);
 
         const auto uf = isOpaque(blocks.getData(x + 1, y - 1, z));
         const auto ub = isOpaque(blocks.getData(x + 1, y + 1, z));
@@ -84,7 +86,7 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
 
 	if (shouldRenderFace(blocks.getBlock(x, y, z + 1), block)) {
         const auto packedLight = blocks.getLightPacked(x, y, z + 1);
-        const auto coords = block->graphics->northTexture->get(0);
+        const auto coords = block->graphics->northTexture->get(val);
 
         const auto uf = isOpaque(blocks.getData(x, y - 1, z + 1));
         const auto ub = isOpaque(blocks.getData(x, y + 1, z + 1));
@@ -105,7 +107,7 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
 
 	if (shouldRenderFace(blocks.getBlock(x - 1, y, z), block)) {
         const auto packedLight = blocks.getLightPacked(x - 1, y, z);
-        const auto coords = block->graphics->westTexture->get(0);
+        const auto coords = block->graphics->westTexture->get(val);
 
         const auto uf = isOpaque(blocks.getData(x - 1, y - 1, z));
         const auto ub = isOpaque(blocks.getData(x - 1, y + 1, z));
@@ -126,7 +128,7 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
 
 	if (shouldRenderFace(blocks.getBlock(x, y + 1, z), block)) {
         const auto packedLight = blocks.getLightPacked(x, y + 1, z);
-		const auto coords = block->graphics->topTexture->get(0);
+		const auto coords = block->graphics->topTexture->get(val);
 
         const auto uf = isOpaque(blocks.getData(x, y + 1, z + 1));
         const auto ub = isOpaque(blocks.getData(x, y + 1, z - 1));
@@ -147,7 +149,7 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
 
 	if (shouldRenderFace(blocks.getBlock(x, y - 1, z), block)) {
         const auto packedLight = blocks.getLightPacked(x, y - 1, z);
-        const auto coords = block->graphics->bottomTexture->get(0);
+        const auto coords = block->graphics->bottomTexture->get(val);
 
         const auto df = isOpaque(blocks.getData(x, y - 1, z + 1));
         const auto db = isOpaque(blocks.getData(x, y - 1, z - 1));
@@ -180,11 +182,13 @@ void renderBlockWithoutAO(int32_t x, int32_t y, int32_t z, Block* block, RenderB
 
     auto [r, g, b] = getTintColor(block->tint);
 
+    auto val = blocks.getData(x, y, z).val;
+
     auto builder = rb.getForLayer(block->renderLayer);
 
     if (shouldRenderFace(blocks.getBlock(x, y, z - 1), block)) {
         const auto packedLight = blocks.getLightPacked(x, y, z - 1);
-        const auto coords = block->graphics->southTexture->get(0);
+        const auto coords = block->graphics->southTexture->get(val);
 
         builder.quad();
         builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, packedLight, 0.7f);
@@ -195,7 +199,7 @@ void renderBlockWithoutAO(int32_t x, int32_t y, int32_t z, Block* block, RenderB
 
     if (shouldRenderFace(blocks.getBlock(x + 1, y, z), block)) {
         const auto packedLight = blocks.getLightPacked(x + 1, y, z);
-        const auto coords = block->graphics->eastTexture->get(0);
+        const auto coords = block->graphics->eastTexture->get(val);
 
         builder.quad();
         builder.vertex(fx + 1, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, packedLight, 0.8f);
@@ -206,7 +210,7 @@ void renderBlockWithoutAO(int32_t x, int32_t y, int32_t z, Block* block, RenderB
 
     if (shouldRenderFace(blocks.getBlock(x, y, z + 1), block)) {
         const auto packedLight = blocks.getLightPacked(x, y, z + 1);
-        const auto coords = block->graphics->northTexture->get(0);
+        const auto coords = block->graphics->northTexture->get(val);
 
         builder.quad();
         builder.vertex(fx + 1, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, packedLight, 0.8f);
@@ -217,7 +221,7 @@ void renderBlockWithoutAO(int32_t x, int32_t y, int32_t z, Block* block, RenderB
 
     if (shouldRenderFace(blocks.getBlock(x - 1, y, z), block)) {
         const auto packedLight = blocks.getLightPacked(x - 1, y, z);
-        const auto coords = block->graphics->westTexture->get(0);
+        const auto coords = block->graphics->westTexture->get(val);
 
         builder.quad();
         builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, packedLight, 0.7f);
@@ -228,7 +232,7 @@ void renderBlockWithoutAO(int32_t x, int32_t y, int32_t z, Block* block, RenderB
 
     if (shouldRenderFace(blocks.getBlock(x, y + 1, z), block)) {
         const auto packedLight = blocks.getLightPacked(x, y + 1, z);
-        const auto coords = block->graphics->topTexture->get(0);
+        const auto coords = block->graphics->topTexture->get(val);
 
         builder.quad();
         builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.minV, r, g, b, packedLight, 1.0f);
@@ -239,7 +243,7 @@ void renderBlockWithoutAO(int32_t x, int32_t y, int32_t z, Block* block, RenderB
 
     if (shouldRenderFace(blocks.getBlock(x, y - 1, z), block)) {
         const auto packedLight = blocks.getLightPacked(x, y - 1, z);
-        const auto coords = block->graphics->bottomTexture->get(0);
+        const auto coords = block->graphics->bottomTexture->get(val);
 
         if (block->tint == Tint::Grass) {
             r = 0xFF;
@@ -294,7 +298,7 @@ void renderLiquid(int32_t x, int32_t y, int32_t z, Block* block, RenderBuffer& r
 	uint8_t g = 0xAF;
 	uint8_t b = 0xF5;
 	
-	if (block == Block::lava || block == Block::flowing_lava) {
+	if (block == Blocks::lava || block == Blocks::flowing_lava) {
         r = 0xff;
         g = 0xff;
         b = 0xff;
