@@ -1,6 +1,7 @@
 #include "NetherCaveCarver.hpp"
 #include "../../chunk/Chunk.hpp"
 #include "../../../util/Random.hpp"
+#include "../../../block/Blocks.hpp"
 
 NetherCaveCarver::NetherCaveCarver() : CaveWorldCarver(128) {
     carvableBlocks = {
@@ -26,9 +27,9 @@ bool NetherCaveCarver::carveBlock(Chunk &chunk, const BiomeReadFn &getBiome, Ran
 //    carvingMask.set(i);
     if (carvableBlocks.contains(chunk.getBlock(posX, posY, posZ))) {
         if (posY <= 31) {
-            chunk.setData(posX, posY, posZ, {Blocks::lava->id, 0}/*, false*/);
+            chunk.setData(posX, posY, posZ, Blocks::lava->getDefaultState()/*, false*/);
         } else {
-            chunk.setData(posX, posY, posZ, {Blocks::air->id, 1}/*, false*/);
+            chunk.setData(posX, posY, posZ, Blocks::air->getDefaultState()/*, false*/);
         }
         return true;
     }

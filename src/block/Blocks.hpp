@@ -6,7 +6,8 @@ struct Block;
 struct BlockTable;
 
 struct Blocks {
-    static std::vector<Block *> id_to_block;
+    static BlockTable pallete;
+    static std::vector<Block *> blocks;
 
     [[maybe_unused]] static Block *acacia_button;
     [[maybe_unused]] static Block *acacia_door;
@@ -435,5 +436,5 @@ struct Blocks {
     [[maybe_unused]] static Block *weeping_vines;
     [[maybe_unused]] static Block *powder_snow;
 
-    static void registerBlocks(BlockTable& pallete);
+    static void registerBlocks();
 };

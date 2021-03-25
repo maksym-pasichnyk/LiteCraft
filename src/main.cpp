@@ -30,10 +30,13 @@
 #include "world/gen/carver/ConfiguredCarvers.hpp"
 
 #include "client/world/ClientWorld.hpp"
-#include "client/render/ChunkRenderCache.h"
+#include "client/render/ChunkRenderCache.hpp"
 #include "client/render/ModelRendered.hpp"
 #include "client/render/model/ModelFormat.hpp"
+#include "block/Block.hpp"
+#include "block/Blocks.hpp"
 #include "block/BlockGraphics.hpp"
+#include "block/material/Materials.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -158,7 +161,7 @@ struct App {
     Transform transform {
         .yaw = 0,
         .pitch = 0,
-        .position = {0, 100, 0}
+        .position = {-300, 100, 5165}
     };
 
     int32_t last_center_x = -9999;
@@ -173,7 +176,6 @@ struct App {
     GLuint cutout_pipeline;
     GLuint transparent_pipeline;
 
-    BlockTable block_pallete{};
     TextureAtlas texture_atlas;
 
     std::vector<Chunk*> chunkToRenders;
@@ -420,14 +422,14 @@ struct App {
 
                 connection.sendPacket(SChangeBlockPacket{
                     .pos = rayTraceResult->pos,
-                    .data = BlockData{Blocks::air->id, 0}
+                    .data = Blocks::air->getDefaultState()
                 });
             } else if (input.IsMouseButtonPressed(Input::MouseButton::Right)) {
                 cooldown = 10;
 
                 connection.sendPacket(SChangeBlockPacket{
                     .pos = rayTraceResult->pos + rayTraceResult->dir,
-                    .data = BlockData{Blocks::torch->id, 0}
+                    .data = Blocks::torch->getDefaultState()
                 });
             }
 		}
@@ -688,8 +690,9 @@ struct App {
         BlockGraphics::mTerrainTextureAtlas = &texture_atlas;
 
         return std::async(std::launch::async, [this] {
+            Materials::registerMaterials();
             BlockGraphics::initBlocks(resources);
-            Blocks::registerBlocks(block_pallete);
+            Blocks::registerBlocks();
             SurfaceBuilder::registerBuilders();
             SurfaceBuilderConfig::registerConfigs();
             ConfiguredSurfaceBuilders::configureSurfaceBuilders();
@@ -808,10 +811,11 @@ struct App {
         flipFrame();
     }
 
+    glm::ivec2 display_size;
+
     void run() {
         using namespace std::chrono_literals;
 
-        glm::ivec2 display_size;
         SDL_GetWindowSize(window, &display_size.x, &display_size.y);
         SDL_WarpMouseInWindow(window, display_size.x / 2, display_size.y / 2);
 

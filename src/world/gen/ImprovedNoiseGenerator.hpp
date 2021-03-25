@@ -5,6 +5,22 @@
 #include <cmath>
 #include <array>
 
+static constexpr float MathHelper_lerp(float pct, float start, float end) {
+    return start + pct * (end - start);
+}
+
+static constexpr double MathHelper_lerp(double pct, double start, double end) {
+    return start + pct * (end - start);
+}
+
+static constexpr double MathHelper_lerp2(double xFade, double yFade, double d0, double d1, double d2, double d3) {
+    return MathHelper_lerp(yFade, MathHelper_lerp(xFade, d0, d1), MathHelper_lerp(xFade, d2, d3));
+}
+
+static constexpr double MathHelper_lerp3(double xFade, double yFade, double zFade, double d0, double d1, double d2, double d3, double d4, double d5, double d6, double d7) {
+    return MathHelper_lerp(zFade, MathHelper_lerp2(xFade, yFade, d0, d1, d2, d3), MathHelper_lerp2(xFade, yFade, d4, d5, d6, d7));
+}
+
 class ImprovedNoiseGenerator {
     std::array<int8_t, 256> permutations;
 
@@ -51,7 +67,7 @@ public:
         const double d6 = dotGrad(getPermutValue(k + 1), dx, dy - 1.0, dz - 1.0);
         const double d7 = dotGrad(getPermutValue(j1 + 1), dx - 1.0, dy - 1.0, dz - 1.0);
 
-        return lerp3(xFade, yFade, zFade, d0, d1, d2, d3, d4, d5, d6, d7);
+        return MathHelper_lerp3(xFade, yFade, zFade, d0, d1, d2, d3, d4, d5, d6, d7);
     }
 
     double getNoiseValue(double x, double y, double z, double unk1, double unk2) const {
@@ -82,21 +98,5 @@ public:
 
     static constexpr double perlinFade(double v) {
         return v * v * v * (v * (v * 6.0 - 15.0) + 10.0);
-    }
-
-    static constexpr float lerp(float pct, float start, float end) {
-        return start + pct * (end - start);
-    }
-
-    static constexpr double lerp(double pct, double start, double end) {
-        return start + pct * (end - start);
-    }
-
-    static constexpr double lerp2(double xFade, double yFade, double d0, double d1, double d2, double d3) {
-        return lerp(yFade, lerp(xFade, d0, d1), lerp(xFade, d2, d3));
-    }
-
-    static constexpr double lerp3(double xFade, double yFade, double zFade, double d0, double d1, double d2, double d3, double d4, double d5, double d6, double d7) {
-        return lerp(zFade, lerp2(xFade, yFade, d0, d1, d2, d3), lerp2(xFade, yFade, d4, d5, d6, d7));
     }
 };

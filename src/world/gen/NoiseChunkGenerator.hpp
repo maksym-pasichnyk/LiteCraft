@@ -6,12 +6,23 @@
 #include "../../block/BlockData.hpp"
 
 #include <memory>
+#include <optional>
+#include <span>
 
 struct Random;
 struct BiomeProvider;
 
 class NoiseChunkGenerator : public ChunkGenerator {
-    std::array<float, 25> biomeWeights;
+    static constexpr std::array<float, 25> biomeWeights = [] {
+        std::array<float, 25> weights{};
+        for (int i = -2; i <= 2; ++i) {
+            for (int j = -2; j <= 2; ++j) {
+                weights[i + 2 + (j + 2) * 5] = 10.0F / std::sqrt(static_cast<float>(i * i + j * j) + 0.2F);
+            }
+        }
+        return weights;
+    }();
+
     int dimensionHeight;
     int noiseSizeX;
     int noiseSizeZ;
@@ -21,7 +32,7 @@ class NoiseChunkGenerator : public ChunkGenerator {
     int bedrockFloorPosition;
     int bedrockRoofPosition;
 
-    std::array<std::array<std::array<double, 33>, 5>, 2> noises{};
+    std::array<std::vector<std::vector<double>>, 2> cacheNoiseColumns;
 
     std::unique_ptr<OctavesNoiseGenerator> minLimitPerlinNoise;
     std::unique_ptr<OctavesNoiseGenerator> maxLimitPerlinNoise;
@@ -39,9 +50,12 @@ public:
 
     double getRandomDensity(int x, int z);
     double sampleAndClampNoise(int x, int y, int z, double xzScale, double yScale, double xzFactor, double yFactor);
-    void fillNoiseColumn(std::array<double, 33>& column, int xpos, int zpos);
+    void fillNoiseColumn(std::span<double> column, int xpos, int zpos);
 
     void makeBedrock(Chunk& chunk, Random& rand) const;
     void generateSurface(WorldGenRegion& region, Chunk& chunk) override;
     void generateTerrain(Chunk& chunk) override;
+
+    std::vector<double> getNoiseColumn(int x, int z);
+    int getColumn(int x, int z, std::span<BlockData> datas, bool(*predicate)(BlockData));
 };

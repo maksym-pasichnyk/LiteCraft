@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ClientChunkProvider.h"
+#include "ClientChunkProvider.hpp"
 #include "../../block/Block.hpp"
 
 #include <memory>
@@ -54,7 +54,7 @@ struct ClientWorld {
     }
 
     auto getBlock(int32_t x, int32_t y, int32_t z) const -> Block* {
-        return Blocks::id_to_block[(int) getData(x, y, z).id];
+        return getData(x, y, z).getBlock();
     }
 
     auto getBiome(glm::ivec3 pos) const -> Biome* {

@@ -117,16 +117,16 @@ struct WorldGenRegion : WorldReader {
     }
 
     auto getBiome(int32_t x, int32_t y, int32_t z) -> Biome* {
-        return magnifier(seed, x, y, z, *this);
+        return magnifier(seed, x, 0, z, *this);
     }
 
     auto getSeed() const -> int64_t {
 	    return seed;
 	}
 
-    auto getTopBlockY(/*type, */int32_t x, int32_t z) -> int32_t;
+//    auto getTopBlockY(/*type, */int32_t x, int32_t z) -> int32_t;
 
-    auto getHeight(/*type, */int32_t x, int32_t z) -> int32_t;
+//    auto getHeight(/*type, */int32_t x, int32_t z) -> int32_t;
 
     Chunk *getChunk(int x, int z, ChunkStatus const* requiredStatus, bool nonnull) override {
         return nullptr;

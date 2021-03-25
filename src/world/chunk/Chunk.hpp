@@ -15,6 +15,8 @@
 #include <queue>
 #include <cstdint>
 
+#include "../gen/Heightmap.hpp"
+
 struct WorldGenRegion;
 
 struct RenderLayerBuilder {
@@ -302,22 +304,6 @@ struct StructureStart {
     }
 };
 
-struct Heightmap {
-    std::array<int32_t, 16 * 16> data{};
-
-    Heightmap() {
-        data.fill(-1);
-    }
-
-    int32_t& operator[](size_t i) {
-        return data[i];
-    }
-
-    const int32_t& operator[](size_t i) const {
-        return data[i];
-    }
-};
-
 struct Light {
     uint8_t block : 4;
     uint8_t sky : 4;
@@ -507,7 +493,7 @@ struct Chunk {
     	if (section == nullptr) {
     		section = std::make_unique<ChunkSection>();
     	}
-        heightmap[(x & 15) + (z & 15) * 16] = -1;
+//        heightmap[(x & 15) + (z & 15) * 16] = -1;
     	section->blocks[toIndex(x, y, z)] = data;
     }
 

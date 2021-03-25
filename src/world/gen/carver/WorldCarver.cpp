@@ -8,6 +8,7 @@
 
 #include "../../chunk/Chunk.hpp"
 #include "../../biome/Biome.hpp"
+#include "../../../block/Blocks.hpp"
 
 static int MathHelper_floor(double value) {
     int i = static_cast<int>(value);
@@ -137,9 +138,9 @@ bool WorldCarver::carveBlock(Chunk& chunk, const BiomeReadFn& getBiome, /*BitSet
         return false;
     }
     if (posY < 11) {
-        chunk.setData(posX, posY, posZ, {Blocks::lava->id, 0}/*, false*/);
+        chunk.setData(posX, posY, posZ, Blocks::lava->getDefaultState()/*, false*/);
     } else {
-        chunk.setData(posX, posY, posZ, {Blocks::air->id, 1}/*, false*/);
+        chunk.setData(posX, posY, posZ, Blocks::air->getDefaultState()/*, false*/);
 
         if (isSurface) {
             if (chunk.getData(posX, posY - 1, posZ).isIn(Blocks::dirt)) {

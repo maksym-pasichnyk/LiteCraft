@@ -1,0 +1,65 @@
+#pragma once
+
+#include "MaterialColor.hpp"
+
+struct MaterialColors {
+    static constexpr MaterialColor AIR{0, 0};
+    static constexpr MaterialColor GRASS{1, 8368696};
+    static constexpr MaterialColor SAND{2, 16247203};
+    static constexpr MaterialColor WOOL{3, 13092807};
+    static constexpr MaterialColor TNT{4, 16711680};
+    static constexpr MaterialColor ICE{5, 10526975};
+    static constexpr MaterialColor IRON{6, 10987431};
+    static constexpr MaterialColor FOLIAGE{7, 31744};
+    static constexpr MaterialColor SNOW{8, 16777215};
+    static constexpr MaterialColor CLAY{9, 10791096};
+    static constexpr MaterialColor DIRT{10, 9923917};
+    static constexpr MaterialColor STONE{11, 7368816};
+    static constexpr MaterialColor WATER{12, 4210943};
+    static constexpr MaterialColor WOOD{13, 9402184};
+    static constexpr MaterialColor QUARTZ{14, 16776437};
+    static constexpr MaterialColor ADOBE{15, 14188339};
+    static constexpr MaterialColor MAGENTA{16, 11685080};
+    static constexpr MaterialColor LIGHT_BLUE{17, 6724056};
+    static constexpr MaterialColor YELLOW{18, 15066419};
+    static constexpr MaterialColor LIME{19, 8375321};
+    static constexpr MaterialColor PINK{20, 15892389};
+    static constexpr MaterialColor GRAY{21, 5000268};
+    static constexpr MaterialColor LIGHT_GRAY{22, 10066329};
+    static constexpr MaterialColor CYAN{23, 5013401};
+    static constexpr MaterialColor PURPLE{24, 8339378};
+    static constexpr MaterialColor BLUE{25, 3361970};
+    static constexpr MaterialColor BROWN{26, 6704179};
+    static constexpr MaterialColor GREEN{27, 6717235};
+    static constexpr MaterialColor RED{28, 10040115};
+    static constexpr MaterialColor BLACK{29, 1644825};
+    static constexpr MaterialColor GOLD{30, 16445005};
+    static constexpr MaterialColor DIAMOND{31, 6085589};
+    static constexpr MaterialColor LAPIS{32, 4882687};
+    static constexpr MaterialColor EMERALD{33, 55610};
+    static constexpr MaterialColor OBSIDIAN{34, 8476209};
+    static constexpr MaterialColor NETHERRACK{35, 7340544};
+    static constexpr MaterialColor WHITE_TERRACOTTA{36, 13742497};
+    static constexpr MaterialColor ORANGE_TERRACOTTA{37, 10441252};
+    static constexpr MaterialColor MAGENTA_TERRACOTTA{38, 9787244};
+    static constexpr MaterialColor LIGHT_BLUE_TERRACOTTA{39, 7367818};
+    static constexpr MaterialColor YELLOW_TERRACOTTA{40, 12223780};
+    static constexpr MaterialColor LIME_TERRACOTTA{41, 6780213};
+    static constexpr MaterialColor PINK_TERRACOTTA{42, 10505550};
+    static constexpr MaterialColor GRAY_TERRACOTTA{43, 3746083};
+    static constexpr MaterialColor LIGHT_GRAY_TERRACOTTA{44, 8874850};
+    static constexpr MaterialColor CYAN_TERRACOTTA{45, 5725276};
+    static constexpr MaterialColor PURPLE_TERRACOTTA{46, 8014168};
+    static constexpr MaterialColor BLUE_TERRACOTTA{47, 4996700};
+    static constexpr MaterialColor BROWN_TERRACOTTA{48, 4993571};
+    static constexpr MaterialColor GREEN_TERRACOTTA{49, 5001770};
+    static constexpr MaterialColor RED_TERRACOTTA{50, 9321518};
+    static constexpr MaterialColor BLACK_TERRACOTTA{51, 2430480};
+    static constexpr MaterialColor CRIMSON_NYLIUM{52, 12398641};
+    static constexpr MaterialColor CRIMSON_STEM{53, 9715553};
+    static constexpr MaterialColor CRIMSON_HYPHAE{54, 6035741};
+    static constexpr MaterialColor WARPED_NYLIUM{55, 1474182};
+    static constexpr MaterialColor WARPED_STEM{56, 3837580};
+    static constexpr MaterialColor WARPED_HYPHAE{57, 5647422};
+    static constexpr MaterialColor WARPED_WART{58, 1356933};
+};

@@ -2,6 +2,8 @@
 #include "../PerlinNoiseGenerator.hpp"
 #include "../../biome/Biome.hpp"
 #include "../../chunk/Chunk.hpp"
+#include "../../../block/Blocks.hpp"
+#include "../../../block/material/Materials.hpp"
 
 #include <ranges>
 
@@ -27,6 +29,9 @@ struct NoopSurfaceBuilder : public SurfaceBuilder {
 };
 
 struct DefaultSurfaceBuilder : public SurfaceBuilder {
+    const BlockData AIR = Blocks::air->getDefaultState();
+    const BlockData ICE = Blocks::ice->getDefaultState();
+
     void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
         buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, config.top, config.mid, config.underWater, seaLevel);
     }
@@ -39,14 +44,14 @@ struct DefaultSurfaceBuilder : public SurfaceBuilder {
         int xPos = xStart & 15;
         int zPos = zStart & 15;
 
-        for(int yPos = startHeight; yPos >= 0; --yPos) {
+        for (int yPos = startHeight; yPos >= 0; --yPos) {
             auto blockstate2 = chunk.getData(xPos, yPos, zPos);
             if (blockstate2.isAir()) {
                 i = -1;
             } else if (blockstate2.isIn(defaultBlock.getBlock())) {
                 if (i == -1) {
                     if (j <= 0) {
-                        blockstate = {Blocks::air->id, 0};
+                        blockstate = AIR;
                         blockstate1 = defaultBlock;
                     } else if (yPos >= sealevel - 4 && yPos <= sealevel + 1) {
                         blockstate = top;
@@ -55,7 +60,7 @@ struct DefaultSurfaceBuilder : public SurfaceBuilder {
 
                     if (yPos < sealevel && blockstate.isAir()) {
                         if (biome.getTemperature(glm::ivec3{xStart, yPos, zStart}) < 0.15F) {
-                            blockstate = BlockData{Blocks::ice->id, 0};
+                            blockstate = ICE;
                         } else {
                             blockstate = defaultFluid;
                         }
@@ -65,7 +70,7 @@ struct DefaultSurfaceBuilder : public SurfaceBuilder {
                     if (yPos >= sealevel - 1) {
                         chunk.setData(xPos, yPos, zPos, blockstate/*, false*/);
                     } else if (yPos < sealevel - 7 - j) {
-                        blockstate = BlockData{Blocks::air->id, 0};
+                        blockstate = AIR;
                         blockstate1 = defaultBlock;
                         chunk.setData(xPos, yPos, zPos, underWater/*, false*/);
                     } else {
@@ -141,8 +146,7 @@ struct SwampSurfaceBuilder : public SurfaceBuilder {
 
             for(int k = startHeight; k >= 0; --k) {
                 if (!chunk.getData(i, k, j).isAir()) {
-//                    if (k == 62 && !chunk.getData(i, k, j).isIn(defaultFluid.getData())) {
-                    if (k == 62 && chunk.getData(i, k, j).id != defaultFluid.id) {
+                    if (k == 62 && !chunk.getData(i, k, j).isIn(defaultFluid.getBlock())) {
                         chunk.setData(i, k, j, defaultFluid/*, false*/);
                     }
                     break;
@@ -155,24 +159,24 @@ struct SwampSurfaceBuilder : public SurfaceBuilder {
 };
 
 struct BadlandsSurfaceBuilder : public SurfaceBuilder {
-    const BlockData AIR {Blocks::air->id, 0};
-    const BlockData TERRACOTTA {Blocks::clay->id, 0};
-    const BlockData WHITE_TERRACOTTA {Blocks::stained_hardened_clay->id, 0};
-    const BlockData ORANGE_TERRACOTTA {Blocks::stained_hardened_clay->id, 1};
-    const BlockData MAGENTA_TERRACOTTA {Blocks::stained_hardened_clay->id, 2};
-    const BlockData LIGHT_BLUE_TERRACOTTA {Blocks::stained_hardened_clay->id, 3};
-    const BlockData YELLOW_TERRACOTTA {Blocks::stained_hardened_clay->id, 4};
-    const BlockData LIME_TERRACOTTA {Blocks::stained_hardened_clay->id, 5};
-    const BlockData PINK_TERRACOTTA {Blocks::stained_hardened_clay->id, 6};
-    const BlockData GRAY_TERRACOTTA {Blocks::stained_hardened_clay->id, 7};
-    const BlockData LIGHT_GRAY_TERRACOTTA {Blocks::stained_hardened_clay->id, 8};
-    const BlockData CYAN_TERRACOTTA {Blocks::stained_hardened_clay->id, 9};
-    const BlockData PURPLE_TERRACOTTA {Blocks::stained_hardened_clay->id, 10};
-    const BlockData BLUE_TERRACOTTA {Blocks::stained_hardened_clay->id, 11};
-    const BlockData BROWN_TERRACOTTA {Blocks::stained_hardened_clay->id, 12};
-    const BlockData GREEN_TERRACOTTA {Blocks::stained_hardened_clay->id, 13};
-    const BlockData RED_TERRACOTTA {Blocks::stained_hardened_clay->id, 14};
-    const BlockData BLACK_TERRACOTTA {Blocks::stained_hardened_clay->id, 15};
+    const BlockData AIR = Blocks::air->getDefaultState();
+    const BlockData TERRACOTTA = Blocks::clay->getDefaultState();
+    const BlockData WHITE_TERRACOTTA = Blocks::stained_hardened_clay->getStateWithMeta(0);
+    const BlockData ORANGE_TERRACOTTA = Blocks::stained_hardened_clay->getStateWithMeta(1);
+    const BlockData MAGENTA_TERRACOTTA = Blocks::stained_hardened_clay->getStateWithMeta(2);
+    const BlockData LIGHT_BLUE_TERRACOTTA = Blocks::stained_hardened_clay->getStateWithMeta(3);
+    const BlockData YELLOW_TERRACOTTA = Blocks::stained_hardened_clay->getStateWithMeta(4);
+    const BlockData LIME_TERRACOTTA = Blocks::stained_hardened_clay->getStateWithMeta(5);
+    const BlockData PINK_TERRACOTTA = Blocks::stained_hardened_clay->getStateWithMeta(6);
+    const BlockData GRAY_TERRACOTTA = Blocks::stained_hardened_clay->getStateWithMeta(7);
+    const BlockData LIGHT_GRAY_TERRACOTTA = Blocks::stained_hardened_clay->getStateWithMeta(8);
+    const BlockData CYAN_TERRACOTTA = Blocks::stained_hardened_clay->getStateWithMeta(9);
+    const BlockData PURPLE_TERRACOTTA = Blocks::stained_hardened_clay->getStateWithMeta(10);
+    const BlockData BLUE_TERRACOTTA = Blocks::stained_hardened_clay->getStateWithMeta(11);
+    const BlockData BROWN_TERRACOTTA = Blocks::stained_hardened_clay->getStateWithMeta(12);
+    const BlockData GREEN_TERRACOTTA = Blocks::stained_hardened_clay->getStateWithMeta(13);
+    const BlockData RED_TERRACOTTA = Blocks::stained_hardened_clay->getStateWithMeta(14);
+    const BlockData BLACK_TERRACOTTA = Blocks::stained_hardened_clay->getStateWithMeta(15);
 
     std::optional<int64_t> seed = std::nullopt;
     std::optional<PerlinNoiseGenerator> noise1 = std::nullopt;
@@ -372,8 +376,8 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
 };
 
 struct WoodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
-    const BlockData GRASS_BLOCK{Blocks::grass->id, 0};
-    const BlockData COARSE_DIRT{Blocks::dirt->id, 1};
+    const BlockData GRASS_BLOCK = Blocks::grass->getDefaultState();
+    const BlockData COARSE_DIRT = Blocks::dirt->getStateWithMeta(1);
 
     void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
         const int xpos = xStart & 15;
@@ -582,11 +586,11 @@ struct ErodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
 };
 
 struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
-    const BlockData AIR {Blocks::air->id, 0};
-    const BlockData ICE {Blocks::ice->id, 0};
-    const BlockData PACKED_ICE {Blocks::packed_ice->id, 0};
-    const BlockData SNOW_BLOCK {Blocks::snow->id, 0};
-    const BlockData GRAVEL {Blocks::gravel->id, 0};
+    const BlockData AIR = Blocks::air->getDefaultState();
+    const BlockData ICE = Blocks::ice->getDefaultState();
+    const BlockData PACKED_ICE = Blocks::packed_ice->getDefaultState();
+    const BlockData SNOW_BLOCK = Blocks::snow->getDefaultState();
+    const BlockData GRAVEL = Blocks::gravel->getDefaultState();
 
     std::optional<int64_t> seed = std::nullopt;
     std::optional<PerlinNoiseGenerator> noise1 = std::nullopt;
@@ -602,17 +606,15 @@ struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
         }
     }
 
-    static bool isWater(BlockData data) {
-        return data.isIn(Blocks::water) || data.isIn(Blocks::flowing_water);
-    }
-
     void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
         double d0 = 0.0;
         double d1 = 0.0;
         const float temperature = biome.getTemperature(glm::ivec3{xStart, 63, zStart});
         const double d2 = std::min(std::abs(noise), noise1->noiseAt(static_cast<double>(xStart) * 0.1, static_cast<double>(zStart) * 0.1, false) * 15.0);
+
         if (d2 > 1.8) {
             const double d4 = std::abs(noise2->noiseAt(static_cast<double>(xStart) * 0.09765625, static_cast<double>(zStart) * 0.09765625, false));
+
             d0 = d2 * d2 * 1.2;
             const double d5 = std::ceil(d4 * 40.0) + 14.0;
             if (d0 > d5) {
@@ -646,12 +648,13 @@ struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
 
         for (int k1 = std::max(startHeight, static_cast<int>(d0) + 1); k1 >= 0; --k1) {
             const glm::ivec3 blockpos{xpos, k1, zpos};
-            const auto data = chunk.getData(blockpos);
+            auto data = chunk.getData(blockpos);
             if (data.isAir() && k1 < static_cast<int>(d0) && rand.nextDouble() > 0.01) {
                 chunk.setData(blockpos, PACKED_ICE/*, false*/);
-            } else if (isWater(data)/*.getMaterial() == Material.WATER*/ && k1 > static_cast<int>(d1) && k1 < seaLevel && d1 != 0.0 && rand.nextDouble() > 0.15) {
+            } else if (data.getBlock()->getMaterial() == Materials::WATER && k1 > static_cast<int>(d1) && k1 < seaLevel && d1 != 0.0 && rand.nextDouble() > 0.15) {
                 chunk.setData(blockpos, PACKED_ICE/*, false*/);
             }
+            data = chunk.getData(blockpos);
             if (data.isAir()) {
                 k = -1;
             } else if (!data.isIn(defaultBlock.getBlock())) {
@@ -697,6 +700,8 @@ struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
                 }
             }
         }
+
+//        exit(1);
     }
 };
 

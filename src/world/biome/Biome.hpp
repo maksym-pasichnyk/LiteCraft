@@ -11,6 +11,7 @@
 #include "../../util/linked_unordered_map.hpp"
 
 #include <glm/vec3.hpp>
+#include <string_view>
 #include <functional>
 #include <variant>
 #include <memory>
@@ -81,8 +82,8 @@ struct Biome {
         return biomeGenerationSettings;
     }
 
-    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int sealevel) {
-        biomeGenerationSettings.surfaceBuilder.setSeed(0);
+    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int sealevel, int64_t worldSeed) {
+        biomeGenerationSettings.surfaceBuilder.setSeed(worldSeed);
         biomeGenerationSettings.surfaceBuilder.buildSurface(rand, chunk, *this, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, sealevel);
     }
 };

@@ -1,9 +1,10 @@
 #include "../../block/Block.hpp"
+#include "../../block/Blocks.hpp"
 #include "../../block/BlockGraphics.hpp"
 #include "../../world/chunk/Chunk.hpp"
 #include "../../BlockReader.hpp"
 #include "../../TextureAtlas.hpp"
-#include "ChunkRenderCache.h"
+#include "ChunkRenderCache.hpp"
 
 #include <glm/vec3.hpp>
 
@@ -46,15 +47,15 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
         const auto packedLight = blocks.getLightPacked(x, y, z - 1);
         const auto coords = block->graphics->southTexture->get(val);
 
-        const auto uf = isOpaque(blocks.getData(x, y + 1, z - 1));
-        const auto ub = isOpaque(blocks.getData(x, y - 1, z - 1));
-        const auto ul = isOpaque(blocks.getData(x - 1, y, z - 1));
-        const auto ur = isOpaque(blocks.getData(x + 1, y, z - 1));
+        const auto uf = blocks.getData(x, y + 1, z - 1).isOpaque();
+        const auto ub = blocks.getData(x, y - 1, z - 1).isOpaque();
+        const auto ul = blocks.getData(x - 1, y, z - 1).isOpaque();
+        const auto ur = blocks.getData(x + 1, y, z - 1).isOpaque();
 
-        const int ao0 = vertexAO(ub, ul, isOpaque(blocks.getData(x - 1, y - 1, z - 1)));
-        const int ao1 = vertexAO(uf, ul, isOpaque(blocks.getData(x - 1, y + 1, z - 1)));
-        const int ao2 = vertexAO(uf, ur, isOpaque(blocks.getData(x + 1, y + 1, z - 1)));
-        const int ao3 = vertexAO(ub, ur, isOpaque(blocks.getData(x + 1, y - 1, z - 1)));
+        const int ao0 = vertexAO(ub, ul, blocks.getData(x - 1, y - 1, z - 1).isOpaque());
+        const int ao1 = vertexAO(uf, ul, blocks.getData(x - 1, y + 1, z - 1).isOpaque());
+        const int ao2 = vertexAO(uf, ur, blocks.getData(x + 1, y + 1, z - 1).isOpaque());
+        const int ao3 = vertexAO(ub, ur, blocks.getData(x + 1, y - 1, z - 1).isOpaque());
 
 		builder.quad();
 		builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 0.7f);
@@ -67,15 +68,15 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
         const auto packedLight = blocks.getLightPacked(x + 1, y, z);
         const auto coords = block->graphics->eastTexture->get(val);
 
-        const auto uf = isOpaque(blocks.getData(x + 1, y - 1, z));
-        const auto ub = isOpaque(blocks.getData(x + 1, y + 1, z));
-        const auto ul = isOpaque(blocks.getData(x + 1, y, z + 1));
-        const auto ur = isOpaque(blocks.getData(x + 1, y, z - 1));
+        const auto uf = blocks.getData(x + 1, y - 1, z).isOpaque();
+        const auto ub = blocks.getData(x + 1, y + 1, z).isOpaque();
+        const auto ul = blocks.getData(x + 1, y, z + 1).isOpaque();
+        const auto ur = blocks.getData(x + 1, y, z - 1).isOpaque();
 
-        const int ao0 = vertexAO(uf, ur, isOpaque(blocks.getData(x + 1, y - 1, z - 1)));
-        const int ao1 = vertexAO(ub, ur, isOpaque(blocks.getData(x + 1, y + 1, z - 1)));
-        const int ao2 = vertexAO(ub, ul, isOpaque(blocks.getData(x + 1, y + 1, z + 1)));
-        const int ao3 = vertexAO(uf, ul, isOpaque(blocks.getData(x + 1, y - 1, z + 1)));
+        const int ao0 = vertexAO(uf, ur, blocks.getData(x + 1, y - 1, z - 1).isOpaque());
+        const int ao1 = vertexAO(ub, ur, blocks.getData(x + 1, y + 1, z - 1).isOpaque());
+        const int ao2 = vertexAO(ub, ul, blocks.getData(x + 1, y + 1, z + 1).isOpaque());
+        const int ao3 = vertexAO(uf, ul, blocks.getData(x + 1, y - 1, z + 1).isOpaque());
 
 		builder.quad();
 		builder.vertex(fx + 1, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 0.8f);
@@ -88,15 +89,15 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
         const auto packedLight = blocks.getLightPacked(x, y, z + 1);
         const auto coords = block->graphics->northTexture->get(val);
 
-        const auto uf = isOpaque(blocks.getData(x, y - 1, z + 1));
-        const auto ub = isOpaque(blocks.getData(x, y + 1, z + 1));
-        const auto ul = isOpaque(blocks.getData(x - 1, y, z + 1));
-        const auto ur = isOpaque(blocks.getData(x + 1, y, z + 1));
+        const auto uf = blocks.getData(x, y - 1, z + 1).isOpaque();
+        const auto ub = blocks.getData(x, y + 1, z + 1).isOpaque();
+        const auto ul = blocks.getData(x - 1, y, z + 1).isOpaque();
+        const auto ur = blocks.getData(x + 1, y, z + 1).isOpaque();
 
-        const int ao0 = vertexAO(uf, ur, isOpaque(blocks.getData(x + 1, y - 1, z + 1)));
-        const int ao1 = vertexAO(ub, ur, isOpaque(blocks.getData(x + 1, y + 1, z + 1)));
-        const int ao2 = vertexAO(ub, ul, isOpaque(blocks.getData(x - 1, y + 1, z + 1)));
-        const int ao3 = vertexAO(uf, ul, isOpaque(blocks.getData(x - 1, y - 1, z + 1)));
+        const int ao0 = vertexAO(uf, ur, blocks.getData(x + 1, y - 1, z + 1).isOpaque());
+        const int ao1 = vertexAO(ub, ur, blocks.getData(x + 1, y + 1, z + 1).isOpaque());
+        const int ao2 = vertexAO(ub, ul, blocks.getData(x - 1, y + 1, z + 1).isOpaque());
+        const int ao3 = vertexAO(uf, ul, blocks.getData(x - 1, y - 1, z + 1).isOpaque());
 
 		builder.quad();
 		builder.vertex(fx + 1, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 0.8f);
@@ -109,15 +110,15 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
         const auto packedLight = blocks.getLightPacked(x - 1, y, z);
         const auto coords = block->graphics->westTexture->get(val);
 
-        const auto uf = isOpaque(blocks.getData(x - 1, y - 1, z));
-        const auto ub = isOpaque(blocks.getData(x - 1, y + 1, z));
-        const auto ul = isOpaque(blocks.getData(x - 1, y, z - 1));
-        const auto ur = isOpaque(blocks.getData(x - 1, y, z + 1));
+        const auto uf = blocks.getData(x - 1, y - 1, z).isOpaque();
+        const auto ub = blocks.getData(x - 1, y + 1, z).isOpaque();
+        const auto ul = blocks.getData(x - 1, y, z - 1).isOpaque();
+        const auto ur = blocks.getData(x - 1, y, z + 1).isOpaque();
 
-        const int ao0 = vertexAO(uf, ur, isOpaque(blocks.getData(x - 1, y - 1, z + 1)));
-        const int ao1 = vertexAO(ub, ur, isOpaque(blocks.getData(x - 1, y + 1, z + 1)));
-        const int ao2 = vertexAO(ub, ul, isOpaque(blocks.getData(x - 1, y + 1, z - 1)));
-        const int ao3 = vertexAO(uf, ul, isOpaque(blocks.getData(x - 1, y - 1, z - 1)));
+        const int ao0 = vertexAO(uf, ur, blocks.getData(x - 1, y - 1, z + 1).isOpaque());
+        const int ao1 = vertexAO(ub, ur, blocks.getData(x - 1, y + 1, z + 1).isOpaque());
+        const int ao2 = vertexAO(ub, ul, blocks.getData(x - 1, y + 1, z - 1).isOpaque());
+        const int ao3 = vertexAO(uf, ul, blocks.getData(x - 1, y - 1, z - 1).isOpaque());
 
         builder.quad();
 		builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 0.7f);
@@ -130,15 +131,15 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
         const auto packedLight = blocks.getLightPacked(x, y + 1, z);
 		const auto coords = block->graphics->topTexture->get(val);
 
-        const auto uf = isOpaque(blocks.getData(x, y + 1, z + 1));
-        const auto ub = isOpaque(blocks.getData(x, y + 1, z - 1));
-        const auto ul = isOpaque(blocks.getData(x - 1, y + 1, z));
-        const auto ur = isOpaque(blocks.getData(x + 1, y + 1, z));
+        const auto uf = blocks.getData(x, y + 1, z + 1).isOpaque();
+        const auto ub = blocks.getData(x, y + 1, z - 1).isOpaque();
+        const auto ul = blocks.getData(x - 1, y + 1, z).isOpaque();
+        const auto ur = blocks.getData(x + 1, y + 1, z).isOpaque();
 
-        const int ao0 = vertexAO(ub, ul, isOpaque(blocks.getData(x - 1, y + 1, z - 1)));
-        const int ao1 = vertexAO(uf, ul, isOpaque(blocks.getData(x - 1, y + 1, z + 1)));
-        const int ao2 = vertexAO(uf, ur, isOpaque(blocks.getData(x + 1, y + 1, z + 1)));
-        const int ao3 = vertexAO(ub, ur, isOpaque(blocks.getData(x + 1, y + 1, z - 1)));
+        const int ao0 = vertexAO(ub, ul, blocks.getData(x - 1, y + 1, z - 1).isOpaque());
+        const int ao1 = vertexAO(uf, ul, blocks.getData(x - 1, y + 1, z + 1).isOpaque());
+        const int ao2 = vertexAO(uf, ur, blocks.getData(x + 1, y + 1, z + 1).isOpaque());
+        const int ao3 = vertexAO(ub, ur, blocks.getData(x + 1, y + 1, z - 1).isOpaque());
 
 		builder.quad();
 		builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 1.0f);
@@ -151,15 +152,15 @@ void renderBlockWithAO(int32_t x, int32_t y, int32_t z, Block* block, RenderBuff
         const auto packedLight = blocks.getLightPacked(x, y - 1, z);
         const auto coords = block->graphics->bottomTexture->get(val);
 
-        const auto df = isOpaque(blocks.getData(x, y - 1, z + 1));
-        const auto db = isOpaque(blocks.getData(x, y - 1, z - 1));
-        const auto dl = isOpaque(blocks.getData(x - 1, y - 1, z));
-        const auto dr = isOpaque(blocks.getData(x + 1, y - 1, z));
+        const auto df = blocks.getData(x, y - 1, z + 1).isOpaque();
+        const auto db = blocks.getData(x, y - 1, z - 1).isOpaque();
+        const auto dl = blocks.getData(x - 1, y - 1, z).isOpaque();
+        const auto dr = blocks.getData(x + 1, y - 1, z).isOpaque();
 
-        const int ao0 = vertexAO(df, dl, isOpaque(blocks.getData(x - 1, y - 1, z + 1)));
-        const int ao1 = vertexAO(db, dl, isOpaque(blocks.getData(x - 1, y - 1, z - 1)));
-        const int ao2 = vertexAO(db, dr, isOpaque(blocks.getData(x + 1, y - 1, z - 1)));
-        const int ao3 = vertexAO(df, dr, isOpaque(blocks.getData(x + 1, y - 1, z + 1)));
+        const int ao0 = vertexAO(df, dl, blocks.getData(x - 1, y - 1, z + 1).isOpaque());
+        const int ao1 = vertexAO(db, dl, blocks.getData(x - 1, y - 1, z - 1).isOpaque());
+        const int ao2 = vertexAO(db, dr, blocks.getData(x + 1, y - 1, z - 1).isOpaque());
+        const int ao3 = vertexAO(df, dr, blocks.getData(x + 1, y - 1, z + 1).isOpaque());
 
         if (block->tint == Tint::Grass) {
             r = 0xFF;

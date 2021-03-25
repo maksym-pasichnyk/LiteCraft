@@ -1,4 +1,6 @@
 #include "SurfaceBuilderConfig.hpp"
+#include "../../../block/Block.hpp"
+#include "../../../block/Blocks.hpp"
 
 SurfaceBuilderConfig SurfaceBuilderConfig::PODZOL_DIRT_GRAVEL_CONFIG{};
 SurfaceBuilderConfig SurfaceBuilderConfig::GRAVEL_CONFIG{};
@@ -19,27 +21,27 @@ SurfaceBuilderConfig SurfaceBuilderConfig::WARPED_FOREST_CONFIG{};
 SurfaceBuilderConfig SurfaceBuilderConfig::BASALT_DELTAS_CONFIG{};
 
 void SurfaceBuilderConfig::registerConfigs() {
-    const BlockData GRASS_BLOCK{Blocks::grass->id, 0};
-    const BlockData DIRT{Blocks::dirt->id, 0};
-    const BlockData COARSE_DIRT{Blocks::dirt->id, 1};
-    const BlockData PODZOL{Blocks::podzol->id, 0};
-    const BlockData MYCELIUM{Blocks::mycelium->id, 0};
-    const BlockData GRAVEL{Blocks::gravel->id, 0};
-    const BlockData STONE{Blocks::stone->id, 0};
-    const BlockData SAND{Blocks::sand->id, 0};
-    const BlockData RED_SAND{Blocks::sand->id, 1};
-    const BlockData SNOW{Blocks::snow->id, 0};
-    const BlockData WHITE_TERRACOTTA{Blocks::stained_hardened_clay->id, 0};
-    const BlockData NETHERRACK{Blocks::netherrack->id, 0};
-    const BlockData SOUL_SAND{Blocks::soul_sand->id, 0};
-    const BlockData END_STONE{Blocks::end_stone->id, 0};
-    const BlockData CRIMSON_NYLIUM{Blocks::crimson_nylium->id, 0};
-    const BlockData WARPED_NYLIUM{Blocks::warped_nylium->id, 0};
-    const BlockData NETHER_WART_BLOCK{Blocks::nether_wart_block->id, 0};
-    const BlockData WARPED_WART_BLOCK{Blocks::warped_wart_block->id, 0};
-    const BlockData BLACKSTONE{Blocks::blackstone->id, 0};
-    const BlockData BASALT{Blocks::basalt->id, 0};
-    const BlockData MAGMA_BLOCK{Blocks::magma->id, 0};
+    const BlockData GRASS_BLOCK = Blocks::grass->getDefaultState();
+    const BlockData DIRT = Blocks::dirt->getDefaultState();
+    const BlockData COARSE_DIRT = Blocks::dirt->getStateWithMeta(1);
+    const BlockData PODZOL = Blocks::podzol->getDefaultState();
+    const BlockData MYCELIUM = Blocks::mycelium->getDefaultState();
+    const BlockData GRAVEL = Blocks::gravel->getDefaultState();
+    const BlockData STONE = Blocks::stone->getDefaultState();
+    const BlockData SAND = Blocks::sand->getDefaultState();
+    const BlockData RED_SAND = Blocks::sand->getStateWithMeta(1);
+    const BlockData SNOW = Blocks::snow->getDefaultState();
+    const BlockData WHITE_TERRACOTTA = Blocks::stained_hardened_clay->getDefaultState();
+    const BlockData NETHERRACK = Blocks::netherrack->getDefaultState();
+    const BlockData SOUL_SAND = Blocks::soul_sand->getDefaultState();
+    const BlockData END_STONE = Blocks::end_stone->getDefaultState();
+    const BlockData CRIMSON_NYLIUM = Blocks::crimson_nylium->getDefaultState();
+    const BlockData WARPED_NYLIUM = Blocks::warped_nylium->getDefaultState();
+    const BlockData NETHER_WART_BLOCK = Blocks::nether_wart_block->getDefaultState();
+    const BlockData WARPED_WART_BLOCK = Blocks::warped_wart_block->getDefaultState();
+    const BlockData BLACKSTONE = Blocks::blackstone->getDefaultState();
+    const BlockData BASALT = Blocks::basalt->getDefaultState();
+    const BlockData MAGMA_BLOCK = Blocks::magma->getDefaultState();
 
     PODZOL_DIRT_GRAVEL_CONFIG = SurfaceBuilderConfig{PODZOL, DIRT, GRAVEL};
     GRAVEL_CONFIG = SurfaceBuilderConfig{GRAVEL, GRAVEL, GRAVEL};

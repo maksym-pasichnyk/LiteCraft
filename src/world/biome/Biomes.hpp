@@ -2,11 +2,13 @@
 
 #include <map>
 #include <memory>
+#include <string_view>
 
 struct Biome;
 
 struct Biomes {
     static std::map<int, std::unique_ptr<Biome>> biomes;
+    static std::map<std::string_view, Biome*> table;
 
     static Biome* OCEAN;
     static Biome* PLAINS;
@@ -88,6 +90,6 @@ struct Biomes {
     static Biome* WARPED_FOREST;
     static Biome* BASALT_DELTAS;
 
-    static Biome* registerBiome(int id, Biome* biome);
+    static Biome* registerBiome(int id, std::string_view name, Biome* biome);
     static void registerBiomes();
 };

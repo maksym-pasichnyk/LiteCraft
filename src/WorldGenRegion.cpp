@@ -4,7 +4,7 @@
 #include "block/Block.hpp"
 
 auto WorldGenRegion::getBlock(int32_t x, int32_t y, int32_t z) const -> Block * {
-    return Blocks::id_to_block[(int) getData(x, y, z).id];
+    return getData(x, y, z).getBlock();
 }
 
 auto WorldGenRegion::getData(int32_t x, int32_t y, int32_t z) const -> BlockData {
@@ -44,13 +44,13 @@ auto WorldGenRegion::getLightPacked(int32_t x, int32_t y, int32_t z) const -> in
     return getChunk(x >> 4, z >> 4)->getLightPacked(x, y, z);
 }
 
-auto WorldGenRegion::getTopBlockY(int32_t x, int32_t z) -> int32_t {
-    return getChunk(x >> 4, z >> 4)->getTopBlockY(x, z);
-}
-
-auto WorldGenRegion::getHeight(int32_t x, int32_t z) -> int32_t {
-    return getChunk(x >> 4, z >> 4)->getHeight(x, z);
-}
+//auto WorldGenRegion::getTopBlockY(int32_t x, int32_t z) -> int32_t {
+//    return getChunk(x >> 4, z >> 4)->getTopBlockY(x, z);
+//}
+//
+//auto WorldGenRegion::getHeight(int32_t x, int32_t z) -> int32_t {
+//    return getChunk(x >> 4, z >> 4)->getHeight(x, z);
+//}
 
 Biome *WorldGenRegion::getNoiseBiomeRaw(int x, int y, int z) {
     return world->getNoiseBiomeRaw(x, y, z);

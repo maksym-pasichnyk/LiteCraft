@@ -31,7 +31,7 @@ public:
     static constexpr double G2 = (3.0 - SQRT_3) / 6.0;
 
 private:
-    int p[512];
+    std::array<int, 512> p;
 
 public:
     double xo;
@@ -45,7 +45,8 @@ public:
         yo = rand.nextDouble() * 256.0;
         zo = rand.nextDouble() * 256.0;
 
-        for (int i = 0; i < 256; p[i] = i++) {
+        for (int i = 0; i < 256; ++i) {
+            p[i] = i;
         }
 
         for (int l = 0; l < 256; ++l) {

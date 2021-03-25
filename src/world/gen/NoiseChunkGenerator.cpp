@@ -5,6 +5,7 @@
 #include "../biome/provider/BiomeProvider.hpp"
 #include "../biome/provider/EndBiomeProvider.hpp"
 #include "../../WorldGenRegion.hpp"
+#include "../../block/Blocks.hpp"
 
 #include <glm/ext.hpp>
 
@@ -86,8 +87,8 @@ NoiseSettings settings{
 NoiseChunkGenerator::NoiseChunkGenerator(int64_t seed, std::unique_ptr<BiomeProvider>&& biomeProvider)
     : ChunkGenerator(std::move(biomeProvider))
 {
-    defaultBlock = BlockData{Blocks::stone->id, 0};
-    defaultFluid = BlockData{Blocks::water->id, 0};
+    defaultBlock = Blocks::stone->getDefaultState();
+    defaultFluid = Blocks::water->getDefaultState();
 
     dimensionHeight = settings.height;
     bedrockFloorPosition = 0;
@@ -100,6 +101,14 @@ NoiseChunkGenerator::NoiseChunkGenerator(int64_t seed, std::unique_ptr<BiomeProv
     noiseSizeY = dimensionHeight / verticalNoiseGranularity;
     noiseSizeZ = 16 / horizontalNoiseGranularity;
 
+    cacheNoiseColumns[0].resize(noiseSizeZ + 1);
+    cacheNoiseColumns[1].resize(noiseSizeZ + 1);
+    
+    for (int z = 0; z < noiseSizeZ + 1; ++z) {
+        cacheNoiseColumns[0][z].resize(noiseSizeY + 1);
+        cacheNoiseColumns[1][z].resize(noiseSizeY + 1);
+    }
+
     auto randomSeed = Random::from(seed);
     minLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-15, 1));
     maxLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-15, 1));
@@ -110,12 +119,6 @@ NoiseChunkGenerator::NoiseChunkGenerator(int64_t seed, std::unique_ptr<BiomeProv
     randomSeed.skip(2620);
     depthNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-15, 1));
     endNoise = nullptr;
-
-    for (int i = -2; i <= 2; ++i) {
-        for (int j = -2; j <= 2; ++j) {
-            biomeWeights[i + 2 + (j + 2) * 5] = 10.0F / std::sqrt(static_cast<float>(i * i + j * j) + 0.2F);
-        }
-    }
 }
 
 void NoiseChunkGenerator::makeBedrock(Chunk& chunk, Random &rand) const {
@@ -124,7 +127,7 @@ void NoiseChunkGenerator::makeBedrock(Chunk& chunk, Random &rand) const {
     const bool makeFloorBedrock = bedrockFloorPosition + 4 >= 0 && bedrockFloorPosition < dimensionHeight;
 
     if (makeRoofBedrock || makeFloorBedrock) {
-        const auto bedrock = BlockData{Blocks::bedrock->id, 0};
+        const auto bedrock = Blocks::bedrock->getDefaultState();
 
         for (auto x = 0; x <= 15; x++) {
             for (auto z = 0; z <= 15; z++) {
@@ -195,7 +198,7 @@ double NoiseChunkGenerator::getRandomDensity(int x, int z) {
     return b < 0.0 ? b * 0.009486607142857142 : std::min(b, 1.0) * 0.006640625;
 }
 
-void NoiseChunkGenerator::fillNoiseColumn(std::array<double, 33>& column, int xpos, int zpos) {
+void NoiseChunkGenerator::fillNoiseColumn(std::span<double> column, int xpos, int zpos) {
     double biomeDepth;
     double biomeScale;
     if (endNoise != nullptr) {
@@ -272,12 +275,95 @@ void NoiseChunkGenerator::fillNoiseColumn(std::array<double, 33>& column, int xp
     }
 }
 
+static int Math_floorDiv(int x, int y) {
+    int r = x / y;
+    // if the signs are different and modulo not zero, round down
+    if ((x ^ y) < 0 && (r * y != x)) {
+        r--;
+    }
+    return r;
+}
+
+static int64_t Math_floorMod(int64_t x, int64_t y) {
+//        return x - floorDiv(x, y) * y;
+    return ((x % y) + y) % y;
+}
+
+std::vector<double> NoiseChunkGenerator::getNoiseColumn(int x, int z) {
+    std::vector<double> noises(noiseSizeY + 1);
+    fillNoiseColumn(noises, x, z);
+    return std::move(noises);
+}
+
+int NoiseChunkGenerator::getColumn(int x, int z, std::span<BlockData> datas, bool(*predicate)(BlockData)) {
+    const int i = Math_floorDiv(x, horizontalNoiseGranularity);
+    const int j = Math_floorDiv(z, horizontalNoiseGranularity);
+    const int k = Math_floorDiv(x, horizontalNoiseGranularity);
+    const int l = Math_floorDiv(z, horizontalNoiseGranularity);
+    const double d0 = (double) k / (double) horizontalNoiseGranularity;
+    const double d1 = (double) l / (double) horizontalNoiseGranularity;
+    const int seaLevel = 63;
+
+    std::array columns {
+        getNoiseColumn(i, j),
+        getNoiseColumn(i, j + 1),
+        getNoiseColumn(i + 1, j),
+        getNoiseColumn(i + 1, j + 1)
+    };
+
+    for (int i1 = noiseSizeY - 1; i1 >= 0; --i1) {
+        const double d2 = columns[0][i1];
+        const double d3 = columns[1][i1];
+        const double d4 = columns[2][i1];
+        const double d5 = columns[3][i1];
+        const double d6 = columns[0][i1 + 1];
+        const double d7 = columns[1][i1 + 1];
+        const double d8 = columns[2][i1 + 1];
+        const double d9 = columns[3][i1 + 1];
+
+        for (int j1 = verticalNoiseGranularity - 1; j1 >= 0; --j1) {
+            const double d10 = (double) j1 / (double) verticalNoiseGranularity;
+            const double d11 = MathHelper_lerp3(d10, d0, d1, d2, d6, d4, d8, d3, d7, d5, d9);
+            const int ypos = i1 * verticalNoiseGranularity + j1;
+
+            const auto data = [this, d11, ypos, seaLevel] {
+                if (d11 > 0.0) {
+                    return defaultBlock;
+                } else if (ypos < seaLevel) {
+                    return defaultFluid;
+                }
+                return Blocks::air->getDefaultState();
+            }();
+
+            if (datas.data() != nullptr) {
+                datas[ypos] = data;
+            }
+
+            if (predicate && predicate(data)) {
+                return ypos + 1;
+            }
+        }
+    }
+
+    return 0;
+}
+
 void NoiseChunkGenerator::generateSurface(WorldGenRegion &region, Chunk& chunk) {
-    const auto xStart = chunk.pos.getStartX();
-    const auto zStart = chunk.pos.getStartZ();
+    const auto chunkpos = chunk.pos;
+    const auto xStart = chunkpos.getStartX();
+    const auto zStart = chunkpos.getStartZ();
 
     Random rand{};
-    rand.setBaseChunkSeed(chunk.pos.x, chunk.pos.z);
+    rand.setBaseChunkSeed(chunkpos.x, chunkpos.z);
+
+//    auto getHeight = [this](int x, int z) -> int32_t {
+//        return getColumn(x, z, /*null,*/ [] (BlockData data) {
+//            return !data.isAir();
+//        });
+//    };
+//    auto getTopBlockY = [getHeight](int x, int z) -> int32_t {
+//        return getHeight(x, z) - 1;
+//    };
 
     for (auto x = 0; x < 16; x++) {
         for (auto z = 0; z < 16; z++) {
@@ -290,8 +376,9 @@ void NoiseChunkGenerator::generateSurface(WorldGenRegion &region, Chunk& chunk) 
                     0.0625,
                     (double) x * 0.0625
             );
+
             auto biome = region.getBiome(xPos, yPos, zPos);
-            biome->buildSurface(rand, chunk, xPos, zPos, yPos, noise, defaultBlock, defaultFluid, 63);
+            biome->buildSurface(rand, chunk, xPos, zPos, yPos, noise, defaultBlock, defaultFluid, 63, region.getSeed());
         }
     }
 
@@ -304,24 +391,24 @@ void NoiseChunkGenerator::generateTerrain(Chunk& chunk) {
     const int seaLevel = 63;
 
     for (int z = 0; z < noiseSizeZ + 1; ++z) {
-        fillNoiseColumn(noises[0][z], chunkPosX * noiseSizeX, chunkPosZ * noiseSizeZ + z);
+        fillNoiseColumn(cacheNoiseColumns[0][z], chunkPosX * noiseSizeX, chunkPosZ * noiseSizeZ + z);
     }
 
     for (int x = 0; x < noiseSizeX; x++) {
         for (int z = 0; z < noiseSizeZ + 1; ++z) {
-            fillNoiseColumn(noises[1][z], chunkPosX * noiseSizeX + x + 1, chunkPosZ * noiseSizeZ + z);
+            fillNoiseColumn(cacheNoiseColumns[1][z], chunkPosX * noiseSizeX + x + 1, chunkPosZ * noiseSizeZ + z);
         }
 
         for (int z = 0; z < noiseSizeZ; ++z) {
             for (int y = noiseSizeY - 1; y >= 0; --y) {
-                const double d0 = noises[0][z][y];
-                const double d1 = noises[0][z + 1][y];
-                const double d2 = noises[1][z][y];
-                const double d3 = noises[1][z + 1][y];
-                const double d4 = noises[0][z][y + 1];
-                const double d5 = noises[0][z + 1][y + 1];
-                const double d6 = noises[1][z][y + 1];
-                const double d7 = noises[1][z + 1][y + 1];
+                const double d0 = cacheNoiseColumns[0][z][y];
+                const double d1 = cacheNoiseColumns[0][z + 1][y];
+                const double d2 = cacheNoiseColumns[1][z][y];
+                const double d3 = cacheNoiseColumns[1][z + 1][y];
+                const double d4 = cacheNoiseColumns[0][z][y + 1];
+                const double d5 = cacheNoiseColumns[0][z + 1][y + 1];
+                const double d6 = cacheNoiseColumns[1][z][y + 1];
+                const double d7 = cacheNoiseColumns[1][z + 1][y + 1];
 
                 for (int l1 = verticalNoiseGranularity - 1; l1 >= 0; --l1) {
                     const int ypos = y * verticalNoiseGranularity + l1;
@@ -357,6 +444,6 @@ void NoiseChunkGenerator::generateTerrain(Chunk& chunk) {
             }
         }
 
-        std::swap(noises[0], noises[1]);
+        std::swap(cacheNoiseColumns[0], cacheNoiseColumns[1]);
     }
 }

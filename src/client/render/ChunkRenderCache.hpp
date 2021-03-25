@@ -37,7 +37,7 @@ struct ChunkRenderCache {
     }
 
     auto getBlock(int32_t x, int32_t y, int32_t z) const -> Block* {
-        return Blocks::id_to_block[(int) getData(x, y, z).id];
+        return getData(x, y, z).getBlock();
     }
 
     auto getData(int32_t x, int32_t y, int32_t z) const -> BlockData {

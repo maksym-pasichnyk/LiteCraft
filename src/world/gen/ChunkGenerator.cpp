@@ -4,6 +4,7 @@
 #include "../biome/Biome.hpp"
 #include "../biome/provider/BiomeProvider.hpp"
 #include "../../WorldGenRegion.hpp"
+#include "../../block/Blocks.hpp"
 
 struct ExampleStructurePiece : StructurePiece {
     ExampleStructurePiece(int32_t pos_x, int32_t pos_z) {
@@ -12,18 +13,20 @@ struct ExampleStructurePiece : StructurePiece {
     }
 
     void place(WorldGenRegion& region, StructureBoundingBox sbb) override {
+        const auto wood = Blocks::wood->getDefaultState();
+
         for (auto y = 0; y < 10; y++) {
-            setBlock(region, sbb, 0, y, 0, {Blocks::iron_bars->id, 2 | 4});
-            setBlock(region, sbb, 0, y, 1, {Blocks::wood->id, 0});
-            setBlock(region, sbb, 0, y, 2, {Blocks::iron_bars->id, 8 | 4});
+            setBlock(region, sbb, 0, y, 0, Blocks::iron_bars->getStateWithMeta(2 | 4));
+            setBlock(region, sbb, 0, y, 1, wood);
+            setBlock(region, sbb, 0, y, 2, Blocks::iron_bars->getStateWithMeta(8 | 4));
 
-            setBlock(region, sbb, 1, y, 0, {Blocks::wood->id, 0});
-            setBlock(region, sbb, 1, y, 1, {Blocks::wood->id, 0});
-            setBlock(region, sbb, 1, y, 2, {Blocks::wood->id, 0});
+            setBlock(region, sbb, 1, y, 0, wood);
+            setBlock(region, sbb, 1, y, 1, wood);
+            setBlock(region, sbb, 1, y, 2, wood);
 
-            setBlock(region, sbb, 2, y, 0, {Blocks::iron_bars->id, 2 | 1});
-            setBlock(region, sbb, 2, y, 1, {Blocks::wood->id, 0});
-            setBlock(region, sbb, 2, y, 2, {Blocks::iron_bars->id, 8 | 1});
+            setBlock(region, sbb, 2, y, 0, Blocks::iron_bars->getStateWithMeta(2 | 1));
+            setBlock(region, sbb, 2, y, 1, wood);
+            setBlock(region, sbb, 2, y, 2, Blocks::iron_bars->getStateWithMeta(8 | 1));
         }
     }
 };
@@ -93,8 +96,8 @@ void placeBlock(IBlockWriter auto& blocks, int32_t x, int32_t y, int32_t z, cons
 void generateTree(IBlockWriter auto& blocks, int32_t x, int32_t height, int32_t z, Random& rand, const StructureBoundingBox& sbb) {
     const auto treeHeight = 4 + rand.nextInt(0, 2);
 
-    const BlockData leaves{Blocks::leaves->id, 0};
-    const BlockData log{Blocks::log->id, 0};
+    const BlockData leaves = Blocks::leaves->getDefaultState();
+    const BlockData log = Blocks::log->getDefaultState();
 
     for (auto y = treeHeight - 2; y <= treeHeight + 1; y++) {
         placeBlock(blocks, x - 1, y + height, z - 1, leaves, sbb);
@@ -130,8 +133,8 @@ void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
         }
     }
 
-    const BlockData red_flower{Blocks::red_flower->id, 0};
-    const BlockData yellow_flower{Blocks::yellow_flower->id, 0};
+    const BlockData red_flower = Blocks::red_flower->getDefaultState();
+    const BlockData yellow_flower = Blocks::yellow_flower->getDefaultState();
 
     for (int32_t x = 0; x < 16; x++) {
         const auto xpos = x + xStart;
@@ -141,24 +144,23 @@ void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
 
 			random.setFeatureSeed(seed, xpos, zpos);
 
-            const int32_t ypos = region.getHeight(xpos, zpos);
-
-            if (region.getData(xpos, ypos - 1, zpos).id != Blocks::water->id) {
-                int32_t n = random.nextInt(0, 3000);
-
-                if (n < 15) {
-                    generateTree(region, xpos, ypos, zpos, random, sbb);
-                } else if (n < 40) {
-                    placeBlock(region, xpos, ypos, zpos, red_flower, sbb);
-                } else if (n < 80) {
-                    placeBlock(region, xpos, ypos, zpos, yellow_flower, sbb);
-                } else if (n < 200) {
-//                    region.setData(xpos, ypos, zpos, {
-//                            BlockData{pallete.getId("tallgrass"), 0},
-//                            BlockData{BlockID::AIR, 0}
-//                    });
-                }
-            }
+//            const int32_t ypos = region.getHeight(xpos, zpos);
+//            if (!region.getData(xpos, ypos - 1, zpos).isIn(Blocks::water)) {
+//                int32_t n = random.nextInt(0, 3000);
+//
+//                if (n < 15) {
+//                    generateTree(region, xpos, ypos, zpos, random, sbb);
+//                } else if (n < 40) {
+//                    placeBlock(region, xpos, ypos, zpos, red_flower, sbb);
+//                } else if (n < 80) {
+//                    placeBlock(region, xpos, ypos, zpos, yellow_flower, sbb);
+//                } else if (n < 200) {
+////                    region.setData(xpos, ypos, zpos, {
+////                            BlockData{pallete.getId("tallgrass"), 0},
+////                            BlockData{BlockID::AIR, 0}
+////                    });
+//                }
+//            }
         }
     }
 }

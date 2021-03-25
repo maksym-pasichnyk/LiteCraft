@@ -29,7 +29,7 @@ struct WorldLightManager {
 
         const auto new_light = src_light - 1;
 
-        if (!isOpaque(region.getData(x, y, z)) && light < new_light) {
+        if (!region.getData(x, y, z).isOpaque() && light < new_light) {
             mask.set(region.toIndex(x >> 4, z >> 4), true);
 
             region.setLight(x, y, z, channel, new_light);
@@ -101,14 +101,14 @@ struct WorldLightManager {
 
         int32_t y = 255;
         for (; y >= 0; --y) {
-            auto block_light = getLightFor(region.getData(x, y, z));
+            auto block_light = region.getData(x, y, z).getLightLevel();
             if (block_light > 0) {
                 sources.emplace(x, y, z, 0);
                 region.setLight(x, y, z, 0, block_light);
             }
 
             if (sky) {
-                if (isOpaque(region.getData(x, y, z))) {
+                if (region.getData(x, y, z).isOpaque()) {
                     sources.emplace(x, y + 1, z, 3);
                     sky = false;
                 } else {
@@ -146,7 +146,7 @@ struct WorldLightManager {
     void update(WorldGenRegion& region, int32_t x, int32_t y, int32_t z, BlockData old, BlockData data) {
         std::bitset<9> mask{};
 
-        if (isOpaque(data)) {
+        if (data.isOpaque()) {
             removes.emplace(x, y, z, 3, region.getLight(x, y, z, 3));
             region.setLight(x, y, z, 3, 0);
 
@@ -175,7 +175,7 @@ struct WorldLightManager {
 
         column(region, x, z);
 
-        const auto bl_light = getLightFor(data);
+        const auto bl_light = data.getLightLevel();
         const auto light0 = region.getLight(x, y, z, 0);
 
         if (bl_light < light0) {
