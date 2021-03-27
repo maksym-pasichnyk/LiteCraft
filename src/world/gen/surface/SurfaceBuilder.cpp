@@ -589,7 +589,7 @@ struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
     const BlockData AIR = Blocks::AIR->getDefaultState();
     const BlockData ICE = Blocks::ICE->getDefaultState();
     const BlockData PACKED_ICE = Blocks::PACKED_ICE->getDefaultState();
-    const BlockData SNOW_BLOCK = Blocks::SNOW->getDefaultState();
+    const BlockData SNOW_BLOCK = Blocks::SNOW_BLOCK->getDefaultState();
     const BlockData GRAVEL = Blocks::GRAVEL->getDefaultState();
 
     std::optional<int64_t> seed = std::nullopt;

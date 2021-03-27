@@ -33,299 +33,299 @@ struct DefaultBiomeFeatures {
     }
 
     static void withLavaAndWaterLakes(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::LAKES, Features::LAKE_WATER);
-//        builder.withFeature(GenerationStage::Decoration::LAKES, Features::LAKE_LAVA);
+//        builder.withFeature(GenerationStage::Decoration::LAKES, ConfiguredFeatures::LAKE_WATER);
+//        builder.withFeature(GenerationStage::Decoration::LAKES, ConfiguredFeatures::LAKE_LAVA);
     }
 
     static void withLavaLakes(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::LAKES, Features::LAKE_LAVA);
+//        builder.withFeature(GenerationStage::Decoration::LAKES, ConfiguredFeatures::LAKE_LAVA);
     }
 
     static void withMonsterRoom(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_STRUCTURES, Features::MONSTER_ROOM);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_STRUCTURES, ConfiguredFeatures::MONSTER_ROOM);
     }
 
     static void withCommonOverworldBlocks(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, Features::ORE_DIRT);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, Features::ORE_GRAVEL);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, Features::ORE_GRANITE);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, Features::ORE_DIORITE);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, Features::ORE_ANDESITE);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_DIRT);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_GRAVEL);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_GRANITE);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_DIORITE);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_ANDESITE);
     }
 
     static void withOverworldOres(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, Features::ORE_COAL);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, Features::ORE_IRON);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, Features::ORE_GOLD);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, Features::ORE_REDSTONE);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, Features::ORE_DIAMOND);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, Features::ORE_LAPIS);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_COAL);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_IRON);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_GOLD);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_REDSTONE);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_DIAMOND);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_LAPIS);
     }
 
     static void withExtraGoldOre(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, Features::ORE_GOLD_EXTRA);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_GOLD_EXTRA);
     }
 
     static void withEmeraldOre(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, Features::ORE_EMERALD);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_EMERALD);
     }
 
     static void withInfestedStone(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::ORE_INFESTED);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_INFESTED);
     }
 
     static void withDisks(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, Features::DISK_SAND);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, Features::DISK_CLAY);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, Features::DISK_GRAVEL);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::DISK_SAND);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::DISK_CLAY);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::DISK_GRAVEL);
     }
 
     static void withClayDisks(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, Features::DISK_CLAY);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::DISK_CLAY);
     }
 
     static void withForestRocks(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::LOCAL_MODIFICATIONS, Features::FOREST_ROCK);
+//        builder.withFeature(GenerationStage::Decoration::LOCAL_MODIFICATIONS, ConfiguredFeatures::FOREST_ROCK);
     }
 
     static void withLargeFern(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_LARGE_FERN);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_LARGE_FERN);
     }
 
     static void withChanceBerries(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_BERRY_DECORATED);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_BERRY_DECORATED);
     }
 
     static void withSparseBerries(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_BERRY_SPARSE);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_BERRY_SPARSE);
     }
 
     static void withLightBambooVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::BAMBOO_LIGHT);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BAMBOO_LIGHT);
     }
 
     static void withBambooVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::BAMBOO);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::BAMBOO_VEGETATION);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BAMBOO);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BAMBOO_VEGETATION);
     }
 
     static void withTaigaVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::TAIGA_VEGETATION);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TAIGA_VEGETATION);
     }
 
     static void withTreesInWater(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::TREES_WATER);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_WATER);
     }
 
     static void withBirchTrees(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::TREES_BIRCH);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_BIRCH);
     }
 
     static void withForestBirchTrees(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::BIRCH_OTHER);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BIRCH_OTHER);
     }
 
     static void withTallBirches(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::BIRCH_TALL);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BIRCH_TALL);
     }
 
     static void withSavannaTrees(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::TREES_SAVANNA);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_SAVANNA);
     }
 
     static void withShatteredSavannaTrees(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::TREES_SHATTERED_SAVANNA);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_SHATTERED_SAVANNA);
     }
 
     static void withMountainTrees(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::TREES_MOUNTAIN);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_MOUNTAIN);
     }
 
     static void withMountainEdgeTrees(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::TREES_MOUNTAIN_EDGE);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_MOUNTAIN_EDGE);
     }
 
     static void withJungleTrees(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::TREES_JUNGLE);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_JUNGLE);
     }
 
     static void withJungleEdgeTrees(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::TREES_JUNGLE_EDGE);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_JUNGLE_EDGE);
     }
 
     static void withBadlandsOakTrees(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::OAK_BADLANDS);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::OAK_BADLANDS);
     }
 
     static void withSnowySpruces(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::SPRUCE_SNOWY);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRUCE_SNOWY);
     }
 
     static void withJungleGrass(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_GRASS_JUNGLE);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_JUNGLE);
     }
 
     static void withTallGrass(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_TALL_GRASS);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_TALL_GRASS);
     }
 
     static void withNormalGrassPatch(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_GRASS_NORMAL);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_NORMAL);
     }
 
     static void withSavannaGrass(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_GRASS_SAVANNA);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_SAVANNA);
     }
 
     static void withBadlandsGrassAndBush(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_GRASS_BADLANDS);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_DEAD_BUSH_BADLANDS);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_BADLANDS);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_DEAD_BUSH_BADLANDS);
     }
 
     static void withAllForestFlowerGeneration(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::FOREST_FLOWER_VEGETATION);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FOREST_FLOWER_VEGETATION);
     }
 
     static void withForestGrass(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_GRASS_FOREST);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_FOREST);
     }
 
     static void withSwampVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::SWAMP_TREE);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::FLOWER_SWAMP);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_GRASS_NORMAL);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_DEAD_BUSH);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_WATERLILLY);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::BROWN_MUSHROOM_SWAMP);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::RED_MUSHROOM_SWAMP);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SWAMP_TREE);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FLOWER_SWAMP);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_NORMAL);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_DEAD_BUSH);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_WATERLILLY);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BROWN_MUSHROOM_SWAMP);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::RED_MUSHROOM_SWAMP);
     }
 
     static void withMushroomBiomeVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::MUSHROOM_FIELD_VEGETATION);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::BROWN_MUSHROOM_TAIGA);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::RED_MUSHROOM_TAIGA);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::MUSHROOM_FIELD_VEGETATION);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BROWN_MUSHROOM_TAIGA);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::RED_MUSHROOM_TAIGA);
     }
 
     static void withPlainGrassVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PLAIN_VEGETATION);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::FLOWER_PLAIN_DECORATED);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_GRASS_PLAIN);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PLAIN_VEGETATION);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FLOWER_PLAIN_DECORATED);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_PLAIN);
     }
 
     static void withDesertDeadBushes(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_DEAD_BUSH_2);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_DEAD_BUSH_2);
     }
 
     static void withGiantTaigaGrassVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_GRASS_TAIGA);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_DEAD_BUSH);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::BROWN_MUSHROOM_GIANT);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::RED_MUSHROOM_GIANT);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_TAIGA);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_DEAD_BUSH);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BROWN_MUSHROOM_GIANT);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::RED_MUSHROOM_GIANT);
     }
 
     static void withDefaultFlowers(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::FLOWER_DEFAULT);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FLOWER_DEFAULT);
     }
 
     static void withWarmFlowers(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::FLOWER_WARM);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FLOWER_WARM);
     }
 
     static void withBadlandsGrass(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_GRASS_BADLANDS);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_BADLANDS);
     }
 
     static void withTaigaGrassVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_GRASS_TAIGA_2);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::BROWN_MUSHROOM_TAIGA);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::RED_MUSHROOM_TAIGA);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_TAIGA_2);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BROWN_MUSHROOM_TAIGA);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::RED_MUSHROOM_TAIGA);
     }
 
     static void withNoiseTallGrass(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_TALL_GRASS_2);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_TALL_GRASS_2);
     }
 
     static void withNormalMushroomGeneration(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::BROWN_MUSHROOM_NORMAL);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::RED_MUSHROOM_NORMAL);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BROWN_MUSHROOM_NORMAL);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::RED_MUSHROOM_NORMAL);
     }
 
     static void withSugarCaneAndPumpkins(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_SUGAR_CANE);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_PUMPKIN);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_SUGAR_CANE);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_PUMPKIN);
     }
 
     static void withBadlandsVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_SUGAR_CANE_BADLANDS);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_PUMPKIN);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_CACTUS_DECORATED);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_SUGAR_CANE_BADLANDS);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_PUMPKIN);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_CACTUS_DECORATED);
     }
 
     static void withMelonPatchesAndVines(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_MELON);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::VINES);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_MELON);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::VINES);
     }
 
     static void withDesertVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_SUGAR_CANE_DESERT);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_PUMPKIN);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_CACTUS_DESERT);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_SUGAR_CANE_DESERT);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_PUMPKIN);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_CACTUS_DESERT);
     }
 
     static void withSwampSugarcaneAndPumpkin(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_SUGAR_CANE_SWAMP);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_PUMPKIN);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_SUGAR_CANE_SWAMP);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_PUMPKIN);
     }
 
     static void withDesertWells(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, Features::DESERT_WELL);
+//        builder.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, ConfiguredFeatures::DESERT_WELL);
     }
 
     static void withFossils(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_STRUCTURES, Features::FOSSIL);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_STRUCTURES, ConfiguredFeatures::FOSSIL);
     }
 
     static void withColdKelp(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::KELP_COLD);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::KELP_COLD);
     }
 
     static void withSimpleSeagrass(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::SEAGRASS_SIMPLE);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SEAGRASS_SIMPLE);
     }
 
     static void withWarmKelp(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::KELP_WARM);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::KELP_WARM);
     }
 
     static void withLavaAndWaterSprings(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::SPRING_WATER);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::SPRING_LAVA);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRING_WATER);
+//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRING_LAVA);
     }
 
     static void withIcebergs(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::LOCAL_MODIFICATIONS, Features::ICEBERG_PACKED);
-//        builder.withFeature(GenerationStage::Decoration::LOCAL_MODIFICATIONS, Features::ICEBERG_BLUE);
+//        builder.withFeature(GenerationStage::Decoration::LOCAL_MODIFICATIONS, ConfiguredFeatures::ICEBERG_PACKED);
+//        builder.withFeature(GenerationStage::Decoration::LOCAL_MODIFICATIONS, ConfiguredFeatures::ICEBERG_BLUE);
     }
 
     static void withBlueIce(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, Features::BLUE_ICE);
+//        builder.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, ConfiguredFeatures::BLUE_ICE);
     }
 
     static void withFrozenTopLayer(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::TOP_LAYER_MODIFICATION, Features::FREEZE_TOP_LAYER);
+        builder.withFeature(GenerationStage::Decoration::TOP_LAYER_MODIFICATION, ConfiguredFeatures::FREEZE_TOP_LAYER);
     }
 
     static void withCommonNetherBlocks(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::ORE_GRAVEL_NETHER);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::ORE_BLACKSTONE);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::ORE_GOLD_NETHER);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::ORE_QUARTZ_NETHER);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_GRAVEL_NETHER);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_BLACKSTONE);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_GOLD_NETHER);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_QUARTZ_NETHER);
 //        withDebrisOre(builder);
     }
 
     static void withDebrisOre(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::ORE_DEBRIS_LARGE);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::ORE_DEBRIS_SMALL);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_DEBRIS_LARGE);
+//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_DEBRIS_SMALL);
     }
 
 //    static void withPassiveMobs(MobSpawnInfo::Builder& builder) {

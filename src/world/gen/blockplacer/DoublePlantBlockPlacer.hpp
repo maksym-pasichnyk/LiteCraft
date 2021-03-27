@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BlockPlacer.hpp"
-#include "src/world/WorldGenRegion.hpp"
+#include "../../WorldGenRegion.hpp"
 
 struct DoublePlantBlockPlacer : public BlockPlacer {
     void place(WorldGenRegion &world, glm::ivec3 pos, BlockData blockData, Random &rand) override {

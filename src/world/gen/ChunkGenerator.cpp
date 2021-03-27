@@ -1,11 +1,10 @@
 #include "ChunkGenerator.hpp"
 
-#include "../../block/Block.hpp"
-#include "../../block/Blocks.hpp"
+#include "../WorldGenRegion.hpp"
 #include "../biome/Biome.hpp"
 #include "../biome/provider/BiomeProvider.hpp"
 #include "../chunk/Chunk.hpp"
-#include "src/world/WorldGenRegion.hpp"
+#include "../../block/Block.hpp"
 
 struct ExampleStructurePiece : StructurePiece {
     ExampleStructurePiece(int32_t pos_x, int32_t pos_z) {

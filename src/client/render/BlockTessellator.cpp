@@ -500,6 +500,19 @@ void renderTorch(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRen
     builder.vertex(fx + max.x, fy + min.y, fz + max.z, tex5.getInterpolatedU(max.x), tex5.getInterpolatedV(0.125f), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
 }
 
+void renderSnow(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
+//    renderBlockWithAO(pos, block, rb, blocks);
+    const auto [fx, fy, fz] = glm::vec3(pos);
+    auto builder = rb.getForLayer(block->getRenderLayer());
+
+    const glm::vec3 min{0.0f, 0.0f, 0.0};
+    const glm::vec3 max{1.0f, 0.125f, 1.0f};
+
+    auto& graphics = block->getGraphics();
+
+    renderBox(builder, pos, graphics, min, max);
+}
+
 void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
 	rb.clear();
 
@@ -533,6 +546,9 @@ void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
 					break;
                 case RenderType::Torch:
                     renderTorch(pos, block, rb, blocks);
+                    break;
+                case RenderType::SnowLayer:
+                    renderSnow(pos, block, rb, blocks);
                     break;
 				}
             }

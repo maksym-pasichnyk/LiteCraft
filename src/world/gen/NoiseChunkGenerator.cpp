@@ -1,12 +1,12 @@
 #include "NoiseChunkGenerator.hpp"
 
-#include "../../block/Block.hpp"
-#include "../../block/Blocks.hpp"
+#include "../WorldGenRegion.hpp"
 #include "../biome/Biome.hpp"
 #include "../biome/provider/BiomeProvider.hpp"
 #include "../biome/provider/EndBiomeProvider.hpp"
 #include "../chunk/Chunk.hpp"
-#include "src/world/WorldGenRegion.hpp"
+#include "../../block/Block.hpp"
+#include "../../block/Blocks.hpp"
 
 struct ScalingSettings {
     double xz_scale;

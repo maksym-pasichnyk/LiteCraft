@@ -5,8 +5,9 @@
 #include "../gen/carver/ConfiguredCarver.hpp"
 #include "../gen/GenerationStage.hpp"
 
-#include <array>
 #include <vector>
+#include <array>
+#include <span>
 
 struct ConfiguredFeature;
 struct BiomeGenerationSettings {
@@ -16,7 +17,7 @@ struct BiomeGenerationSettings {
 
     ConfiguredSurfaceBuilder surfaceBuilder;
     std::array<std::vector<ConfiguredCarver>, 2> carvers;
-    std::array<std::vector<ConfiguredFeature>, 10> features;
+    std::array<std::vector<ConfiguredFeature*>, 10> features;
 //    std::vector<StructureFeature> structures;
 //    std::vector<ConfiguredFeature> flowerFeatures;
 
@@ -24,10 +25,14 @@ struct BiomeGenerationSettings {
         return surfaceBuilder.config;
     }
 
+//    std::span<ConfiguredFeature*> getFeatures(GenerationStage::Decoration decoration) {
+//        return features[static_cast<int>(decoration)];
+//    }
+
     struct Builder {
         ConfiguredSurfaceBuilder surfaceBuilder;
         std::array<std::vector<ConfiguredCarver>, 2> carvers;
-        std::array<std::vector<ConfiguredFeature>, 10> features;
+        std::array<std::vector<ConfiguredFeature*>, 10> features;
 
         Builder& withSurfaceBuilder(const ConfiguredSurfaceBuilder& builder) {
             surfaceBuilder = builder;
@@ -39,7 +44,7 @@ struct BiomeGenerationSettings {
             return *this;
         }
 
-        Builder& withFeature(GenerationStage::Decoration decoration, const ConfiguredFeature& feature) {
+        Builder& withFeature(GenerationStage::Decoration decoration, ConfiguredFeature* feature) {
             features.at(static_cast<int>(decoration)).emplace_back(feature);
             return *this;
         }
@@ -47,7 +52,8 @@ struct BiomeGenerationSettings {
         BiomeGenerationSettings build() {
             return {
                 .surfaceBuilder = surfaceBuilder,
-                .carvers = std::move(carvers)
+                .carvers = std::move(carvers),
+                .features = std::move(features)
             };
         }
     };

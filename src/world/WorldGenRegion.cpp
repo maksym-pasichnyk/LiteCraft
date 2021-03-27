@@ -1,6 +1,6 @@
 #include "WorldGenRegion.hpp"
 #include "ServerWorld.hpp"
-#include "src/world/chunk/Chunk.hpp"
+#include "chunk/Chunk.hpp"
 
 auto WorldGenRegion::getBlock(int32_t x, int32_t y, int32_t z) const -> Block* {
     return getData(x, y, z).getBlock();

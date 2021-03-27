@@ -13,31 +13,17 @@ const PerlinNoiseGenerator Biome::FROZEN_TEMPERATURE_NOISE = PerlinNoiseGenerato
 const PerlinNoiseGenerator Biome::INFO_NOISE = PerlinNoiseGenerator(Random::from(2345), std::views::single(0));
 
 void Biome::decorate(ChunkGenerator &generator, WorldGenRegion &region, int64_t seed, Random &rand, glm::ivec3 pos) {
-//        auto features = biomeGenerationSettings.features;
+    for (int i = 0; i < 10; i++) {
+        int k = 0;
 
-    for (int x = 0; x < 16; x++) {
-        for (int z = 0; z < 16; z++) {
-            const int xpos = pos.x + x;
-            const int zpos = pos.z + z;
-            const int ypos = region.getHeight(/*Heightmap::Type::MOTION_BLOCKING,*/ xpos, zpos);
-            const glm::ivec3 selfpos{xpos, ypos, zpos};
-            const glm::ivec3 downpos{xpos, ypos - 1, zpos};
-            auto biome = region.getBiome(selfpos);
-            if (biome->doesWaterFreeze(region, downpos, false)) {
-                region.setData(downpos, Blocks::ICE->getDefaultState()/*, 2*/);
-            }
-
-            if (biome->doesSnowGenerate(region, selfpos)) {
-                region.setData(selfpos, Blocks::SNOW->getDefaultState()/*, 2*/);
-                const auto data = region.getData(downpos);
-                if (data.hasProperty(SnowyDirtBlock::SNOWY)) {
-//                    region.setData(downpos, data.with(SnowyDirtBlock::SNOWY, true)/*, 2*/);
-                }
-            }
+        for (auto feature : biomeGenerationSettings.features[i]) {
+            rand.setFeatureSeed(seed, k, i);
+            feature->generate(region, generator, rand, pos);
+            ++k;
         }
     }
-
 }
+
 bool Biome::doesSnowGenerate(WorldReader &world, const glm::ivec3 &pos) {
     if (getTemperature(pos) >= 0.15F) {
         return false;

@@ -1,11 +1,11 @@
 #pragma once
 
+#include "../WorldGenRegion.hpp"
+#include "../chunk/Chunk.hpp"
+
 #include <tuple>
 #include <queue>
 #include <bitset>
-
-#include "../chunk/Chunk.hpp"
-#include "src/world/WorldGenRegion.hpp"
 
 struct WorldLightManager {
     std::queue<std::tuple<int32_t, int32_t, int32_t, int32_t>> sources;

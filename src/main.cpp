@@ -27,6 +27,8 @@
 #include "world/gen/surface/ConfiguredSurfaceBuilders.hpp"
 #include "world/gen/carver/Carvers.hpp"
 #include "world/gen/carver/ConfiguredCarvers.hpp"
+#include "world/gen/feature/Features.hpp"
+#include "world/gen/feature/ConfiguredFeatures.hpp"
 
 #include "client/world/ClientWorld.hpp"
 #include "client/render/ChunkRenderCache.hpp"
@@ -201,7 +203,7 @@ struct App {
 
     App(const char* title, uint32_t width, uint32_t height) {
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
         window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
@@ -210,6 +212,7 @@ struct App {
 //        SDL_SetWindowResizable(window, SDL_TRUE);
 
         glewInit();
+        glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
 
         createFrames(width, height);
         createImGui();
@@ -229,7 +232,7 @@ struct App {
             glTextureParameteri(frames[i].color_attachment, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
             glCreateRenderbuffers(1, &frames[i].depth_attachment);
-            glNamedRenderbufferStorage(frames[i].depth_attachment, GL_DEPTH24_STENCIL8, width, height);
+            glNamedRenderbufferStorage(frames[i].depth_attachment, GL_DEPTH32F_STENCIL8, width, height);
 
             glCreateFramebuffers(1, &frames[i].framebuffer);
             glNamedFramebufferTexture(frames[i].framebuffer, GL_COLOR_ATTACHMENT0, frames[i].color_attachment, 0);
@@ -438,9 +441,10 @@ struct App {
 
         glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
+//        glEnable(GL_DEPTH_CLAMP);
+		glDepthFunc(GL_GREATER);
 		glDisable(GL_BLEND);
-		glDepthRange(0.01, 1.0);
+//		glDepthRange(0.01, 1.0);
 
         glUseProgram(opaque_pipeline);
         glUniform3fv(0, 1, fog_color.data());
@@ -544,7 +548,7 @@ struct App {
 
         if (!lineCache.indices.empty()) {
             glDisable(GL_BLEND);
-            glDepthRange(0, 1.0);
+//            glDepthRange(0, 1.0);
             lineMesh->SetIndices(lineCache.indices);
             lineMesh->SetVertices(lineCache.vertices);
 
@@ -588,6 +592,8 @@ struct App {
             ConfiguredSurfaceBuilders::configureSurfaceBuilders();
             Carvers::registerCarvers();
             ConfiguredCarvers::configureCarvers();
+            Features::registerFeatures();
+            ConfiguredFeatures::configureFeatures();
             Biomes::registerBiomes();
 //            loadModels();
         });
@@ -666,7 +672,7 @@ struct App {
         executor_execute();
 
         glClearNamedFramebufferfv(frames[frameIndex].framebuffer, GL_COLOR, 0, fog_color.data());
-        glClearNamedFramebufferfi(frames[frameIndex].framebuffer, GL_DEPTH_STENCIL, 0, 1, 0);
+        glClearNamedFramebufferfi(frames[frameIndex].framebuffer, GL_DEPTH_STENCIL, 0, 0, 0);
 
         glBindFramebuffer(GL_FRAMEBUFFER, frames[frameIndex].framebuffer);
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, frames[frameIndex].camera_ubo);
@@ -721,7 +727,7 @@ struct App {
             std::array<float, 4> color{0, 0, 0, 0};
 
             glClearNamedFramebufferfv(frames[frameIndex].framebuffer, GL_COLOR, 0, color.data());
-            glClearNamedFramebufferfi(frames[frameIndex].framebuffer, GL_DEPTH_STENCIL, 0, 1, 0);
+            glClearNamedFramebufferfi(frames[frameIndex].framebuffer, GL_DEPTH_STENCIL, 0, 0, 0);
             glBindFramebuffer(GL_FRAMEBUFFER, frames[frameIndex].framebuffer);
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
             glBlitNamedFramebuffer(frames[frameIndex].framebuffer, 0, 0, 0, 800, 600, 0, 0, 800, 600, GL_COLOR_BUFFER_BIT, GL_NEAREST);
@@ -748,12 +754,13 @@ struct App {
 	void renderLayer(RenderLayer layer) {
         for (auto chunk : chunkToRenders) {
             // todo: sometimes crash here
-            glBindVertexArray(chunk->mesh->vao);
 
-            auto [index_offset, index_count] = chunk->layers[(int) layer];
+            const auto [offset, count] = chunk->layers[(int) layer];
 
-            if (index_count != 0) {
-                glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT,(void *) (index_offset * sizeof(int32_t)));
+            if (count != 0) {
+                glBindVertexArray(chunk->mesh->vao);
+
+                glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, static_cast<std::byte*>(nullptr) + offset * sizeof(int32_t));
             }
         }
     }

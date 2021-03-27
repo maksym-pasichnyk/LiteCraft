@@ -1,8 +1,8 @@
 #pragma once
 
+#include "../gen/Heightmap.hpp"
 #include "../../block/BlockTable.hpp"
-#include "src/block/BlockReader.hpp"
-
+#include "../../block/BlockReader.hpp"
 #include "../../mesh.hpp"
 #include "../../util/math/ChunkPos.hpp"
 
@@ -14,7 +14,6 @@
 #include <queue>
 #include <cstdint>
 
-#include "../gen/Heightmap.hpp"
 
 struct WorldGenRegion;
 

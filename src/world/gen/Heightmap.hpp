@@ -1,6 +1,7 @@
 #pragma once
 
-//#include "../../block/BlockData.hpp"
+#include <cstdint>
+#include <array>
 
 struct Heightmap {
 //    bool(*heightLimitPredicate)(BlockData);

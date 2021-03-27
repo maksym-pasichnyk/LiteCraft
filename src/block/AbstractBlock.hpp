@@ -21,7 +21,8 @@ enum class RenderType {
     Leaves,
     Cross,
     Pane,
-    Torch
+    Torch,
+    SnowLayer
 };
 
 enum class RenderLayer {
