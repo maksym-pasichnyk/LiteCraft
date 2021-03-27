@@ -8,6 +8,8 @@
 
 #include "light/WorldLightManager.hpp"
 #include "gen/NoiseChunkGenerator.hpp"
+#include "biome/Biomes.hpp"
+#include "biome/provider/SingleBiomeProvider.hpp"
 #include "biome/provider/OverworldBiomeProvider.hpp"
 #include "../NetworkManager.hpp"
 #include "../util/math/ChunkPos.hpp"
@@ -28,7 +30,8 @@ struct ServerWorld {
     int64_t seed = 1;
 
     explicit ServerWorld(NetworkConnection connection) : connection{connection} {
-        generator = std::make_unique<NoiseChunkGenerator>(seed, std::make_unique<OverworldBiomeProvider>(seed, false, false));
+//        generator = std::make_unique<NoiseChunkGenerator>(seed, std::make_unique<OverworldBiomeProvider>(seed, false, false));
+        generator = std::make_unique<NoiseChunkGenerator>(seed, std::make_unique<SingleBiomeProvider>(Biomes::PLAINS));
 
         workers.emplace_back(std::bind_front(&ServerWorld::runWorker, this));
     }

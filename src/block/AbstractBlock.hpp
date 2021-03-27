@@ -316,7 +316,7 @@ struct AbstractBlock {
         return RenderLayer::Opaque;
     }
 
-    virtual bool isValidPosition(const BlockData& data, WorldReader &reader, const glm::vec3 &pos) {
+    virtual bool isValidPosition(const BlockData& data, WorldReader &reader, const glm::ivec3 &pos) {
         return true;
     }
 };

@@ -368,13 +368,9 @@ void NoiseChunkGenerator::generateSurface(WorldGenRegion &region, Chunk& chunk) 
         for (auto z = 0; z < 16; z++) {
             const auto xPos = xStart + x;
             const auto zPos = zStart + z;
+
             const auto yPos = chunk.getTopBlockY(/*Heightmap.Type.WORLD_SURFACE_WG,*/ x, z) + 1;
-            const auto noise = 15.0 * surfaceNoise->noiseAt(
-                    static_cast<double>(xPos) * 0.0625,
-                    static_cast<double>(zPos) * 0.0625,
-                    0.0625,
-                    (double) x * 0.0625
-            );
+            const auto noise = 15.0 * surfaceNoise->noiseAt(static_cast<double>(xPos) * 0.0625, static_cast<double>(zPos) * 0.0625, 0.0625, static_cast<double>(x) * 0.0625);
 
             auto biome = region.getBiome(xPos, yPos, zPos);
             biome->buildSurface(rand, chunk, xPos, zPos, yPos, noise, defaultBlock, defaultFluid, 63, region.getSeed());

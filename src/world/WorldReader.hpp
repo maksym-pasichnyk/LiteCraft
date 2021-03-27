@@ -16,4 +16,5 @@ struct WorldReader : virtual BiomeReader, virtual BlockReader {
     }
 
     bool hasWater(const glm::ivec3& pos);
+    bool isAirBlock(const glm::ivec3& pos);
 };

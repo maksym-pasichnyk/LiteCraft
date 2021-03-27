@@ -208,7 +208,7 @@ struct DefaultBiomeFeatures {
 
     static void withPlainGrassVegetation(BiomeGenerationSettings::Builder& builder) {
 //        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PLAIN_VEGETATION);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FLOWER_PLAIN_DECORATED);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FLOWER_PLAIN_DECORATED);
 //        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_PLAIN);
     }
 
@@ -224,11 +224,11 @@ struct DefaultBiomeFeatures {
     }
 
     static void withDefaultFlowers(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FLOWER_DEFAULT);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FLOWER_DEFAULT);
     }
 
     static void withWarmFlowers(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FLOWER_WARM);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FLOWER_WARM);
     }
 
     static void withBadlandsGrass(BiomeGenerationSettings::Builder& builder) {

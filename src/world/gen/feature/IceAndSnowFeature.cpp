@@ -5,7 +5,7 @@
 #include "../../../block/Blocks.hpp"
 #include "../../../block/SnowyDirtBlock.hpp"
 
-void IceAndSnowFeature::generate(WorldGenRegion& region, ChunkGenerator &generator, Random &rand, glm::ivec3 pos, const FeatureConfig &config) {
+bool IceAndSnowFeature::generate(WorldGenRegion& region, ChunkGenerator &generator, Random &random, glm::ivec3 pos, const FeatureConfig &config) {
     for (int x = 0; x < 16; x++) {
         for (int z = 0; z < 16; z++) {
             const int xpos = pos.x + x;
@@ -27,4 +27,5 @@ void IceAndSnowFeature::generate(WorldGenRegion& region, ChunkGenerator &generat
             }
         }
     }
+    return true;
 }

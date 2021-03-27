@@ -1467,10 +1467,10 @@ Properties::create(Materials::WOOD, [](const BlockData& data) -> MaterialColor {
     //.setOpaque(isntSolid)
     //.setSuffocates(isntSolid)
     //.setBlocksVision(isntSolid)));
-    //    DANDELION = createBlock<FlowerBlock>("dandelion", (Effects::SATURATION, 7, Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
+    DANDELION = createBlock<FlowerBlock>("yellow_flower", Effects::SATURATION, 7, Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
     //    POPPY = createBlock<FlowerBlock>("poppy", (Effects::NIGHT_VISION, 5, Properties::create(Materials::PLANTS)
     //.doesNotBlockMovement()
     //.zeroHardnessAndResistance()

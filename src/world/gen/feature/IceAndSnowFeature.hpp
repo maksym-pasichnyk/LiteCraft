@@ -3,5 +3,5 @@
 #include "Feature.hpp"
 
 struct IceAndSnowFeature : Feature {
-    void generate(WorldGenRegion& region, ChunkGenerator &generator, Random &rand, glm::ivec3 pos, const FeatureConfig &config) override;
+    bool generate(WorldGenRegion& region, ChunkGenerator &generator, Random &random, glm::ivec3 pos, const FeatureConfig &config) override;
 };

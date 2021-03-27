@@ -1,5 +1,7 @@
 #include "Features.hpp"
 #include "IceAndSnowFeature.hpp"
+#include "DefaultFlowersFeature.hpp"
+#include "DecoratedFeature.hpp"
 
 std::map<std::string, std::unique_ptr<Feature>> Features::features;
 Feature* Features::NO_OP;
@@ -65,8 +67,8 @@ static T* createFeature(std::string name, Args&&... args) {
 void Features::registerFeatures() {
 //    NO_OP = createFeature<NoOpFeature>("no_op");
 //    TREE = createFeature<TreeFeature>("tree");
-//    FLOWER = createFeature<DefaultFlowersFeature>("flower");
-//    NO_BONEMEAL_FLOWER = createFeature<DefaultFlowersFeature>("no_bonemeal_flower");
+    FLOWER = createFeature<DefaultFlowersFeature>("flower");
+    NO_BONEMEAL_FLOWER = createFeature<DefaultFlowersFeature>("no_bonemeal_flower");
 //    RANDOM_PATCH = createFeature<RandomPatchFeature>("random_patch");
 //    BLOCK_PILE = createFeature<BlockPileFeature>("block_pile");
 //    SPRING_FEATURE = createFeature<SpringFeature>("spring_feature");
@@ -114,5 +116,5 @@ void Features::registerFeatures() {
 //    RANDOM_SELECTOR = createFeature<MultipleWithChanceRandomFeature>("random_selector");
 //    SIMPLE_RANDOM_SELECTOR = createFeature<SingleRandomFeatureConfig>("simple_random_selector");
 //    RANDOM_BOOLEAN_SELECTOR = createFeature<TwoFeatureChoiceFeature>("random_boolean_selector");
-//    DECORATED = createFeature<DecoratedFeature>("decorated");
+    DECORATED = createFeature<DecoratedFeature>("decorated");
 }

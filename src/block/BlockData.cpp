@@ -13,7 +13,7 @@ auto BlockData::isOpaque() const -> bool {
 auto BlockData::getLightLevel() const -> int32_t {
     return getBlock()->getLightLevel(*this);
 }
-auto BlockData::isValidPosition(WorldReader &reader, const glm::vec3 &pos) -> bool {
+auto BlockData::isValidPosition(WorldReader &reader, const glm::vec3 &pos) const -> bool {
     return getBlock()->isValidPosition(*this, reader, pos);
 }
 auto BlockData::hasProperty(BlockStateProperties property) const -> bool {

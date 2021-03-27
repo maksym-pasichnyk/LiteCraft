@@ -25,6 +25,6 @@ struct BlockData {
     auto getBlock() const -> Block*;
     auto isOpaque() const -> bool;
     auto getLightLevel() const -> int32_t;
-    auto isValidPosition(WorldReader& reader, const glm::vec3& pos) -> bool;
+    auto isValidPosition(WorldReader& reader, const glm::vec3& pos) const -> bool;
     auto hasProperty(BlockStateProperties property) const -> bool;
 };

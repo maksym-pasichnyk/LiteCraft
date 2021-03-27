@@ -38,8 +38,8 @@ const ChunkStatus ChunkStatus::LiquidCarver = create(7, 0, [](ServerWorld* world
     generator.generateCarvers(region, seed, *chunk, GenerationStage::Carving::LIQUID);
 });
 
-const ChunkStatus ChunkStatus::Features = create(8, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk* chunk, std::span<Chunk*> chunks, int64_t seed) {
-    WorldGenRegion region{world, chunks, 0, x, z, seed};
+const ChunkStatus ChunkStatus::Features = create(8, 1, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk* chunk, std::span<Chunk*> chunks, int64_t seed) {
+    WorldGenRegion region{world, chunks, 1, x, z, seed};
     generator.generateFeatures(region, *chunk);
 });
 

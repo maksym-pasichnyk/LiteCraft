@@ -28,6 +28,7 @@
 #include "world/gen/carver/Carvers.hpp"
 #include "world/gen/carver/ConfiguredCarvers.hpp"
 #include "world/gen/feature/Features.hpp"
+#include "world/gen/placement/Placements.hpp"
 #include "world/gen/feature/ConfiguredFeatures.hpp"
 
 #include "client/world/ClientWorld.hpp"
@@ -162,7 +163,7 @@ struct App {
     Transform transform {
         .yaw = 0,
         .pitch = 0,
-        .position = {-300, 100, 5165}
+        .position = {86, 83, 271}
     };
 
     int32_t last_center_x = -9999;
@@ -593,6 +594,7 @@ struct App {
             Carvers::registerCarvers();
             ConfiguredCarvers::configureCarvers();
             Features::registerFeatures();
+            Placements::registerPlacements();
             ConfiguredFeatures::configureFeatures();
             Biomes::registerBiomes();
 //            loadModels();

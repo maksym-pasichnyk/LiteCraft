@@ -10,7 +10,7 @@ struct ChunkGenerator;
 
 struct Feature {
     virtual ~Feature() = default;
-    virtual void generate(WorldGenRegion& reader, ChunkGenerator& generator, Random& rand, glm::ivec3 pos, const FeatureConfig& config) = 0;
+    virtual bool generate(WorldGenRegion& reader, ChunkGenerator& generator, Random& random, glm::ivec3 pos, const FeatureConfig& config) = 0;
 
     auto withConfiguration(FeatureConfig config) -> ConfiguredFeature* {
         return new ConfiguredFeature {
