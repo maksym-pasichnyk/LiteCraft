@@ -14,9 +14,8 @@
 #include "input.hpp"
 #include "camera.hpp"
 #include "transform.hpp"
-#include "block/Block.hpp"
 #include "world/chunk/Chunk.hpp"
-#include "BlockReader.hpp"
+#include "block/BlockReader.hpp"
 #include "TextureAtlas.hpp"
 #include "raytrace.hpp"
 #include "shader.hpp"
@@ -26,7 +25,7 @@
 #include "world/biome/Biomes.hpp"
 #include "world/gen/surface/SurfaceBuilder.hpp"
 #include "world/gen/surface/ConfiguredSurfaceBuilders.hpp"
-#include "world/gen/carver/WorldCarver.hpp"
+#include "world/gen/carver/Carvers.hpp"
 #include "world/gen/carver/ConfiguredCarvers.hpp"
 
 #include "client/world/ClientWorld.hpp"
@@ -180,16 +179,25 @@ struct App {
 
     std::vector<Chunk*> chunkToRenders;
 
-    SimpleVBuffer selectionCache{};
-    std::unique_ptr<Mesh> selectionMesh{nullptr};
+    SimpleVBuffer lineCache{};
+    std::unique_ptr<Mesh> lineMesh{nullptr};
     std::unique_ptr<ServerWorld> serverWorld{nullptr};
     std::unique_ptr<ClientWorld> clientWorld{nullptr};
 
     std::optional<RayTraceResult> rayTraceResult{std::nullopt};
 
+    bool debugCamera = false;
     int frameIndex = 0;
-
     std::array<RenderFrame, 2> frames;
+
+    std::array<float, 4> fog_color;
+    glm::vec2 fog_offset;
+
+    double frameTime = 0;
+    int frameCount = 0;
+    int FPS = 0;
+    std::chrono::high_resolution_clock::time_point startTime;
+    glm::ivec2 display_size;
 
     App(const char* title, uint32_t width, uint32_t height) {
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -203,136 +211,12 @@ struct App {
 
         glewInit();
 
-        create_frames(width, height);
-        create_imgui();
+        createFrames(width, height);
+        createImGui();
     }
 
-    std::map<std::string, std::unique_ptr<ModelFormat>> models;
-
-    void parseModels(const nlohmann::json& geometries) {
-        using namespace std::string_view_literals;
-
-        auto format_version = geometries.at("format_version").get<std::string>();
-
-        if (format_version == "1.8.0"sv || format_version == "1.10.0"sv) {
-            for (auto& [name, geometry] : geometries.items()) {
-                if (!name.starts_with("geometry.")) continue;
-
-                auto model_format = new ModelFormat();
-
-                if (const auto delim = name.find_first_of(':'); delim != std::string::npos) {
-                    model_format->name = name.substr(0, delim);
-                    model_format->parent = name.substr(delim + 1);
-                } else {
-                    model_format->name = name.substr(0);
-                }
-
-                model_format->visible_bounds_width = geometry.value("visible_bounds_width", 0);
-                model_format->visible_bounds_height = geometry.value("visible_bounds_height", 0);
-                model_format->texture_width = geometry.value<int>("texturewidth", 64);
-                model_format->texture_height = geometry.value<int>("textureheight", 64);
-
-                auto bones = geometry.find("bones");
-                if (bones != geometry.end()) {
-                    for (auto &bone : *bones) {
-                        auto bone_format = new ModelBoneFormat();
-                        bone_format->name = bone.at("name").get<std::string>();
-                        bone_format->neverRender = bone.value<bool>("neverRender", false);
-                        bone_format->mirror = bone.value<bool>("mirror", false);
-                        bone_format->reset = bone.value<bool>("reset", false);
-                        bone_format->pivot = bone.value<glm::vec3>("pivot", glm::vec3{});
-
-                        auto cubes = bone.find("cubes");
-                        if (cubes != bone.end()) {
-                            bone_format->cubes.reserve(cubes->size());
-
-                            for (auto &cube : *cubes) {
-                                auto &cube_format = bone_format->cubes.emplace_back();
-
-                                cube_format.origin = cube.at("origin").get<glm::vec3>();
-                                cube_format.size = cube.at("size").get<glm::vec3>();
-                                cube_format.uv = cube.value<glm::vec2>("uv", glm::vec2{});
-                            }
-
-                            model_format->bones.emplace(bone_format->name, bone_format);
-                        }
-                    }
-                }
-
-                models.emplace(model_format->name, model_format);
-            }
-        }  else if (format_version == "1.12.0"sv || format_version == "1.16.0"sv) {
-            for (auto& geometry : geometries["minecraft:geometry"]) {
-                auto& description = geometry.at("description");
-
-                auto model_format = new ModelFormat();
-
-                model_format->name = description.at("identifier").get<std::string>();
-                model_format->visible_bounds_width = description.value("visible_bounds_width", 0);
-                model_format->visible_bounds_height = description.value("visible_bounds_height", 0);
-                model_format->texture_width = description.value<int>("texture_width", 64);
-                model_format->texture_height = description.value<int>("texture_height", 64);
-
-                if (auto bones = geometry.find("bones"); bones != geometry.end()) {
-                    for (auto &bone : *bones) {
-                        auto bone_format = new ModelBoneFormat();
-                        bone_format->name = bone.at("name").get<std::string>();
-                        bone_format->neverRender = bone.value<bool>("neverRender", false);
-                        bone_format->mirror = bone.value<bool>("mirror", false);
-                        bone_format->reset = bone.value<bool>("reset", false);
-                        bone_format->pivot = bone.value<glm::vec3>("pivot", glm::vec3{});
-
-                        if (auto cubes = bone.find("cubes"); cubes != bone.end()) {
-                            bone_format->cubes.reserve(cubes->size());
-
-                            for (auto &cube : *cubes) {
-                                auto &cube_format = bone_format->cubes.emplace_back();
-
-                                cube_format.origin = cube.at("origin").get<glm::vec3>();
-                                cube_format.rotation = cube.value("rotation", glm::vec3{});
-                                cube_format.size = cube.at("size").get<glm::vec3>();
-
-                                if (auto uv = cube.find("uv"); uv != cube.end()) {
-                                    if (uv->is_array()) {
-                                        cube_format.uv = uv->get<glm::vec2>();
-                                    } else {
-                                        cube_format.uv_box = false;
-
-                                        for (auto& item : uv->items()) {
-                                            auto& face = cube_format.faces[item.key()];
-                                            face.uv = item.value().at("uv").get<glm::vec2>();
-                                        }
-                                    }
-                                }
-                            }
-
-                            model_format->bones.emplace(bone_format->name, bone_format);
-                        }
-                    }
-                }
-                models.emplace(model_format->name, model_format);
-            }
-        } else {
-            fmt::print("unsupported geometry format: {}\n", format_version);
-        }
-    }
-
-    std::unique_ptr<ModelRendered> agentModel{nullptr};
-    std::unique_ptr<ModelRendered> goatModel{nullptr};
-    GLuint agentTexture;
-    GLuint goatTexture;
-
-    void loadModels() {
-        resources.loadResources("models", [this](std::span<char> bytes) {
-            parseModels(nlohmann::json::parse(bytes, nullptr, true, true));
-        });
-
-        agentModel = std::make_unique<ModelRendered>(*models.at("geometry.agent"));
-        goatModel = std::make_unique<ModelRendered>(*models.at("geometry.goat"));
-    }
-
-    void create_frames(uint32_t width, uint32_t height) {
-        selectionMesh = std::make_unique<Mesh>();
+    void createFrames(uint32_t width, uint32_t height) {
+        lineMesh = std::make_unique<Mesh>();
 
         for (int i = 0; i < 2; i++) {
             glCreateBuffers(1, &frames[i].camera_ubo);
@@ -357,7 +241,7 @@ struct App {
         }
     }
 
-    void create_imgui() {
+    void createImGui() {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
 
@@ -395,6 +279,10 @@ struct App {
             cooldown -= 1;
         }
 
+        if (input.IsKeyDown(Input::Key::X)) {
+            debugCamera = !debugCamera;
+        }
+
         glm::ivec2 display_size;
         SDL_GetWindowSize(window, &display_size.x, &display_size.y);
 
@@ -422,14 +310,14 @@ struct App {
 
                 connection.sendPacket(SChangeBlockPacket{
                     .pos = rayTraceResult->pos,
-                    .data = Blocks::air->getDefaultState()
+                    .data = Blocks::AIR->getDefaultState()
                 });
             } else if (input.IsMouseButtonPressed(Input::MouseButton::Right)) {
                 cooldown = 10;
 
                 connection.sendPacket(SChangeBlockPacket{
                     .pos = rayTraceResult->pos + rayTraceResult->dir,
-                    .data = Blocks::torch->getDefaultState()
+                    .data = Blocks::TORCH->getDefaultState()
                 });
             }
 		}
@@ -447,7 +335,9 @@ struct App {
 
         std::memcpy(frames[frameIndex].camera_ptr, &camera_constants, sizeof(CameraConstants));
 
-        ExtractPlanes(planes, glm::transpose(camera_matrix), true);
+        if (!debugCamera) {
+            ExtractPlanes(planes, glm::transpose(camera_matrix), true);
+        }
     }
 
     auto createRenderCache(int32_t chunk_x, int32_t chunk_z) -> std::optional<ChunkRenderCache> {
@@ -497,21 +387,23 @@ struct App {
         const auto center_x = static_cast<int32_t>(transform.position.x) >> 4;
         const auto center_z = static_cast<int32_t>(transform.position.z) >> 4;
 
-        if (last_center_x != center_x || last_center_z != center_z) {
-            last_center_x = center_x;
-            last_center_z = center_z;
+        if (!debugCamera) {
+            if (last_center_x != center_x || last_center_z != center_z) {
+                last_center_x = center_x;
+                last_center_z = center_z;
 
-            clientWorld->provider->chunkArray.setCenter(center_x, center_z);
+                clientWorld->provider->chunkArray.setCenter(center_x, center_z);
 
-            connection.sendPacket(PositionPacket{
-                .pos = transform.position
-            });
+                connection.sendPacket(PositionPacket{
+                    .pos = transform.position
+                });
+            }
         }
 
         chunkToRenders.clear();
 
-        for (int32_t chunk_x = center_x - 8; chunk_x <= center_x + 8; chunk_x++) {
-            for (int32_t chunk_z = center_z - 8; chunk_z <= center_z + 8; chunk_z++) {
+        for (int32_t chunk_x = last_center_x - 8; chunk_x <= last_center_x + 8; chunk_x++) {
+            for (int32_t chunk_z = last_center_z - 8; chunk_z <= last_center_z + 8; chunk_z++) {
                 auto chunk = clientWorld->getChunk(chunk_x, chunk_z);
                 if (chunk == nullptr) continue;
 
@@ -540,10 +432,7 @@ struct App {
         }
     }
 
-    std::array<float, 4> sky_color;
-    glm::vec2 fog_offset;
-
-	void renderTerrain() {
+    void renderTerrain() {
         glBindTexture(GL_TEXTURE_2D, texture_atlas.texture);
 		glActiveTexture(GL_TEXTURE0);
 
@@ -554,12 +443,12 @@ struct App {
 		glDepthRange(0.01, 1.0);
 
         glUseProgram(opaque_pipeline);
-        glUniform3fv(0, 1, sky_color.data());
+        glUniform3fv(0, 1, fog_color.data());
         glUniform2f(4, fog_offset.x, fog_offset.y);
         renderLayer(RenderLayer::Opaque);
 
         glUseProgram(cutout_pipeline);
-        glUniform3fv(0, 1, sky_color.data());
+        glUniform3fv(0, 1, fog_color.data());
         glUniform2f(4, fog_offset.x, fog_offset.y);
         renderLayer(RenderLayer::Cutout);
 
@@ -567,7 +456,7 @@ struct App {
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 
 		glUseProgram(transparent_pipeline);
-        glUniform3fv(0, 1, sky_color.data());
+        glUniform3fv(0, 1, fog_color.data());
         glUniform2f(4, fog_offset.x, fog_offset.y);
         renderLayer(RenderLayer::Transparent);
 
@@ -578,7 +467,7 @@ struct App {
 //        glm::mat4 model_transform = glm::translate(glm::mat4(1.0f), glm::vec3(636, 72, 221));
 
 //        glUseProgram(entity_pipeline);
-//        glUniform3fv(0, 1, sky_color.data());
+//        glUniform3fv(0, 1, fog_color.data());
 //        glUniform2f(4, fog_offset.x, fog_offset.y);
 //        glUniformMatrix4fv(8, 1, GL_FALSE, glm::value_ptr(model_transform));
 
@@ -588,82 +477,83 @@ struct App {
 
         glBindTexture(GL_TEXTURE_2D, 0);
 
+        lineCache.clear();
 		if (rayTraceResult.has_value()) {
 			const auto [fx, fy, fz] = glm::vec3(rayTraceResult->pos);
 
-            selectionCache.clear();
+            lineCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
+            lineCache.vertex(fx + 0, fy + 0, fz + 0, 0, 0, 0, 0, 0, 0xFF);
+            lineCache.vertex(fx + 0, fy + 1, fz + 0, 0, 1, 0, 0, 0, 0xFF);
+            lineCache.vertex(fx + 1, fy + 1, fz + 0, 1, 1, 0, 0, 0, 0xFF);
+            lineCache.vertex(fx + 1, fy + 0, fz + 0, 1, 0, 0, 0, 0, 0xFF);
 
-			selectionCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
-			selectionCache.vertex(fx + 0, fy + 0, fz + 0, 0, 0, 0, 0, 0, 0xFF);
-			selectionCache.vertex(fx + 0, fy + 1, fz + 0, 0, 1, 0, 0, 0, 0xFF);
-			selectionCache.vertex(fx + 1, fy + 1, fz + 0, 1, 1, 0, 0, 0, 0xFF);
-			selectionCache.vertex(fx + 1, fy + 0, fz + 0, 1, 0, 0, 0, 0, 0xFF);
+            lineCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
+            lineCache.vertex(fx + 1, fy + 0, fz + 0, 0, 0, 0, 0, 0, 0xFF);
+            lineCache.vertex(fx + 1, fy + 1, fz + 0, 0, 1, 0, 0, 0, 0xFF);
+            lineCache.vertex(fx + 1, fy + 1, fz + 1, 1, 1, 0, 0, 0, 0xFF);
+            lineCache.vertex(fx + 1, fy + 0, fz + 1, 1, 0, 0, 0, 0, 0xFF);
 
-			selectionCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
-			selectionCache.vertex(fx + 1, fy + 0, fz + 0, 0, 0, 0, 0, 0, 0xFF);
-			selectionCache.vertex(fx + 1, fy + 1, fz + 0, 0, 1, 0, 0, 0, 0xFF);
-			selectionCache.vertex(fx + 1, fy + 1, fz + 1, 1, 1, 0, 0, 0, 0xFF);
-			selectionCache.vertex(fx + 1, fy + 0, fz + 1, 1, 0, 0, 0, 0, 0xFF);
+            lineCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
+            lineCache.vertex(fx + 1, fy + 0, fz + 1, 0, 0, 0, 0, 0, 0xFF);
+            lineCache.vertex(fx + 1, fy + 1, fz + 1, 0, 1, 0, 0, 0, 0xFF);
+            lineCache.vertex(fx + 0, fy + 1, fz + 1, 1, 1, 0, 0, 0, 0xFF);
+            lineCache.vertex(fx + 0, fy + 0, fz + 1, 1, 0, 0, 0, 0, 0xFF);
 
-			selectionCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
-			selectionCache.vertex(fx + 1, fy + 0, fz + 1, 0, 0, 0, 0, 0, 0xFF);
-			selectionCache.vertex(fx + 1, fy + 1, fz + 1, 0, 1, 0, 0, 0, 0xFF);
-			selectionCache.vertex(fx + 0, fy + 1, fz + 1, 1, 1, 0, 0, 0, 0xFF);
-			selectionCache.vertex(fx + 0, fy + 0, fz + 1, 1, 0, 0, 0, 0, 0xFF);
-
-			selectionCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
-			selectionCache.vertex(fx + 0, fy + 0, fz + 1, 0, 0, 0, 0, 0, 0xFF);
-			selectionCache.vertex(fx + 0, fy + 1, fz + 1, 0, 1, 0, 0, 0, 0xFF);
-			selectionCache.vertex(fx + 0, fy + 1, fz + 0, 1, 1, 0, 0, 0, 0xFF);
-			selectionCache.vertex(fx + 0, fy + 0, fz + 0, 1, 0, 0, 0, 0, 0xFF);
-
-			selectionMesh->SetIndices(selectionCache.indices);
-			selectionMesh->SetVertices(selectionCache.vertices);
-
-            glDisable(GL_BLEND);
-            glDepthRange(0, 1.0);
-
-            glUseProgram(simple_pipeline);
-			glBindVertexArray(selectionMesh->vao);
-			glDrawElements(GL_LINES, selectionMesh->index_count, GL_UNSIGNED_INT, nullptr);
+            lineCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
+            lineCache.vertex(fx + 0, fy + 0, fz + 1, 0, 0, 0, 0, 0, 0xFF);
+            lineCache.vertex(fx + 0, fy + 1, fz + 1, 0, 1, 0, 0, 0, 0xFF);
+            lineCache.vertex(fx + 0, fy + 1, fz + 0, 1, 1, 0, 0, 0, 0xFF);
+            lineCache.vertex(fx + 0, fy + 0, fz + 0, 1, 0, 0, 0, 0, 0xFF);
 		}
 
-        glUseProgram(0);
+//        for (auto chunk : chunkToRenders) {
+//            const auto [x, z] = chunk->pos;
+//            const auto [dx, dz] = std::tuple(x - last_center_x, z - last_center_z);
+//
+//            if (dx * dx + dz * dz > 4) {
+//                continue;
+//            }
+//
+//            const auto [fx, fy, fz] = std::tuple(x * 16.0f, 0.0f, z * 16.0f);
+//            const auto [w, h, d] = std::tuple(16, 256, 16);
+//
+//            lineCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
+//            lineCache.vertex(fx + 0, fy + 0, fz + 0, 0, 0, 0, 0, 0, 0xFF);
+//            lineCache.vertex(fx + 0, fy + h, fz + 0, 0, 1, 0, 0, 0, 0xFF);
+//            lineCache.vertex(fx + w, fy + h, fz + 0, 1, 1, 0, 0, 0, 0xFF);
+//            lineCache.vertex(fx + w, fy + 0, fz + 0, 1, 0, 0, 0, 0, 0xFF);
+//
+//            lineCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
+//            lineCache.vertex(fx + w, fy + 0, fz + 0, 0, 0, 0, 0, 0, 0xFF);
+//            lineCache.vertex(fx + w, fy + h, fz + 0, 0, 1, 0, 0, 0, 0xFF);
+//            lineCache.vertex(fx + w, fy + h, fz + d, 1, 1, 0, 0, 0, 0xFF);
+//            lineCache.vertex(fx + w, fy + 0, fz + d, 1, 0, 0, 0, 0, 0xFF);
+//
+//            lineCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
+//            lineCache.vertex(fx + w, fy + 0, fz + d, 0, 0, 0, 0, 0, 0xFF);
+//            lineCache.vertex(fx + w, fy + h, fz + d, 0, 1, 0, 0, 0, 0xFF);
+//            lineCache.vertex(fx + 0, fy + h, fz + d, 1, 1, 0, 0, 0, 0xFF);
+//            lineCache.vertex(fx + 0, fy + 0, fz + d, 1, 0, 0, 0, 0, 0xFF);
+//
+//            lineCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
+//            lineCache.vertex(fx + 0, fy + 0, fz + d, 0, 0, 0, 0, 0, 0xFF);
+//            lineCache.vertex(fx + 0, fy + h, fz + d, 0, 1, 0, 0, 0, 0xFF);
+//            lineCache.vertex(fx + 0, fy + h, fz + 0, 1, 1, 0, 0, 0, 0xFF);
+//            lineCache.vertex(fx + 0, fy + 0, fz + 0, 1, 0, 0, 0, 0, 0xFF);
+//        }
+
+        if (!lineCache.indices.empty()) {
+            glDisable(GL_BLEND);
+            glDepthRange(0, 1.0);
+            lineMesh->SetIndices(lineCache.indices);
+            lineMesh->SetVertices(lineCache.vertices);
+
+            glUseProgram(simple_pipeline);
+            glBindVertexArray(lineMesh->vao);
+            glDrawElements(GL_LINES, lineMesh->index_count, GL_UNSIGNED_INT, nullptr);
+            glUseProgram(0);
+        }
 	}
-
-	void _load() {
-        glGenTextures(1, &agentTexture);
-        glBindTexture(GL_TEXTURE_2D, agentTexture);
-
-        auto agentTextureData = resources.loadTextureData("textures/entity/agent", false).value();
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 4);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, agentTextureData.width, agentTextureData.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, agentTextureData.pixels.get());
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        glGenTextures(1, &goatTexture);
-        glBindTexture(GL_TEXTURE_2D, goatTexture);
-
-        auto goatTextureData = resources.loadTextureData("textures/entity/goat/goat", false).value();
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 4);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, goatTextureData.width, goatTextureData.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, goatTextureData.pixels.get());
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
 
     std::future<void> loadResources() {
         using namespace std::string_view_literals;
@@ -696,7 +586,7 @@ struct App {
             SurfaceBuilder::registerBuilders();
             SurfaceBuilderConfig::registerConfigs();
             ConfiguredSurfaceBuilders::configureSurfaceBuilders();
-            WorldCarver::registerCarvers();
+            Carvers::registerCarvers();
             ConfiguredCarvers::configureCarvers();
             Biomes::registerBiomes();
 //            loadModels();
@@ -725,11 +615,6 @@ struct App {
         });
     }
 
-    double frameTime = 0;
-    int frameCount = 0;
-    int FPS = 0;
-    std::chrono::high_resolution_clock::time_point startTime = std::chrono::high_resolution_clock::now();
-
     void tick() {
 
     }
@@ -745,18 +630,17 @@ struct App {
         setupCamera();
         setupTerrain();
 
-        const auto topBlock = clientWorld->getBlock(
-                transform.position.x,
-                std::floor(transform.position.y + 1.68),
-                transform.position.z
-        );
-        const bool is_liquid = topBlock->renderType == RenderType::Liquid;
+        const auto [x, y, z] = transform.position;
+        const auto topMaterial = clientWorld->getBlock(glm::floor(x),std::floor(y + 1.68), glm::floor(z))->getMaterial();
 
-        if (is_liquid) {
-            sky_color = {0.27, 0.68, 0.96, 1};
+        if (topMaterial == Materials::WATER) {
+            fog_color = {0.27, 0.68, 0.96, 1};
             fog_offset = glm::vec2{0, 5};
+        } else if (topMaterial == Materials::LAVA) {
+            fog_color = {0.96, 0.38, 0.27, 1};
+            fog_offset = glm::vec2{-2, 1};
         } else {
-            sky_color = {0, 0.68, 1.0, 1};
+            fog_color = {0, 0.68, 1.0, 1};
             fog_offset = {9, 13};
         }
 
@@ -781,7 +665,7 @@ struct App {
         updateInput(dt);
         executor_execute();
 
-        glClearNamedFramebufferfv(frames[frameIndex].framebuffer, GL_COLOR, 0, sky_color.data());
+        glClearNamedFramebufferfv(frames[frameIndex].framebuffer, GL_COLOR, 0, fog_color.data());
         glClearNamedFramebufferfi(frames[frameIndex].framebuffer, GL_DEPTH_STENCIL, 0, 1, 0);
 
         glBindFramebuffer(GL_FRAMEBUFFER, frames[frameIndex].framebuffer);
@@ -800,6 +684,7 @@ struct App {
         ImGui::Text("Server chunks: %d", static_cast<int>(serverWorld->chunks.size()));
         ImGui::Text("Client chunks: %d", clientWorld->provider->chunkArray.getLoaded());
         ImGui::Text("Render chunks: %zu", chunkToRenders.size());
+        ImGui::Text("Debug camera: %s", debugCamera ? "true" : "false");
         ImGui::End();
         ImGui::Render();
 
@@ -810,8 +695,6 @@ struct App {
 
         flipFrame();
     }
-
-    glm::ivec2 display_size;
 
     void run() {
         using namespace std::chrono_literals;
@@ -856,6 +739,7 @@ struct App {
 
         // todo: game loop
 
+        startTime = std::chrono::high_resolution_clock::now();
         while (running) {
             runGameLoop(true);
         }

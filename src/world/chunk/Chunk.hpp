@@ -1,10 +1,9 @@
 #pragma once
 
 #include "../../block/BlockTable.hpp"
-#include "../../BlockReader.hpp"
+#include "src/block/BlockReader.hpp"
 
 #include "../../mesh.hpp"
-#include "../../block/Block.hpp"
 #include "../../util/math/ChunkPos.hpp"
 
 #include <glm/vec3.hpp>
@@ -241,36 +240,36 @@ struct StructurePiece {
         if (sbb.contains(blockpos.x, blockpos.y, blockpos.z)) {
             if (coordBaseMode == EAST || coordBaseMode == NORTH) {
                 auto val = 0;
-                if (blockData.val & BlockPane_WEST) {
+                if (blockData.dv & BlockPane_WEST) {
                     val |= BlockPane_WEST;
                 }
-                if (blockData.val & BlockPane_NORTH) {
+                if (blockData.dv & BlockPane_NORTH) {
                     val |= BlockPane_SOUTH;
                 }
-                if (blockData.val & BlockPane_EAST) {
+                if (blockData.dv & BlockPane_EAST) {
                     val |= BlockPane_EAST;
                 }
-                if (blockData.val & BlockPane_SOUTH) {
+                if (blockData.dv & BlockPane_SOUTH) {
                     val |= BlockPane_NORTH;
                 }
-                blockData.val = val;
+                blockData.dv = val;
             }
 
             if (coordBaseMode == EAST || coordBaseMode == WEST) {
                 auto val = 0;
-                if (blockData.val & BlockPane_WEST) {
+                if (blockData.dv & BlockPane_WEST) {
                     val |= BlockPane_SOUTH;
                 }
-                if (blockData.val & BlockPane_NORTH) {
+                if (blockData.dv & BlockPane_NORTH) {
                     val |= BlockPane_WEST;
                 }
-                if (blockData.val & BlockPane_EAST) {
+                if (blockData.dv & BlockPane_EAST) {
                     val |= BlockPane_NORTH;
                 }
-                if (blockData.val & BlockPane_SOUTH) {
+                if (blockData.dv & BlockPane_SOUTH) {
                     val |= BlockPane_EAST;
                 }
-                blockData.val = val;
+                blockData.dv = val;
             }
 
             blocks.setData(blockpos.x, blockpos.y, blockpos.z, blockData);
@@ -427,7 +426,7 @@ struct Chunk {
 //            }
 //            section = std::make_unique<LightSection>();
 //        }
-//        section->setLight(x & 15, y & 15, z & 15, /*15 -*/ new_light);
+//        section->setLightFor(x & 15, y & 15, z & 15, /*15 -*/ new_light);
 //    }
 //
 //    auto getSkyLight(int32_t x, int32_t y, int32_t z) const -> int32_t {
@@ -435,7 +434,7 @@ struct Chunk {
 //        if (section == nullptr) {
 //            return /*15*/0;
 //        }
-//        return /*15 - */section->getLight(x & 15, y & 15, z & 15);
+//        return /*15 - */section->getLightFor(x & 15, y & 15, z & 15);
 //    }
 //
 //    void setBlockLight(int32_t x, int32_t y, int32_t z, int32_t new_light) {
@@ -446,7 +445,7 @@ struct Chunk {
 //            }
 //            section = std::make_unique<LightSection>();
 //        }
-//        section->setLight(x & 15, y & 15, z & 15, new_light);
+//        section->setLightFor(x & 15, y & 15, z & 15, new_light);
 //    }
 //
 //    auto getBlockLight(int32_t x, int32_t y, int32_t z) const -> int32_t {
@@ -454,7 +453,7 @@ struct Chunk {
 //        if (section == nullptr) {
 //            return 0;
 //        }
-//        return section->getLight(x & 15, y & 15, z & 15);
+//        return section->getLightFor(x & 15, y & 15, z & 15);
 //    }
 
     void setLight(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val) {

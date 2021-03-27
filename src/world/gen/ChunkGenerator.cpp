@@ -1,10 +1,11 @@
 #include "ChunkGenerator.hpp"
 
-#include "../chunk/Chunk.hpp"
+#include "../../block/Block.hpp"
+#include "../../block/Blocks.hpp"
 #include "../biome/Biome.hpp"
 #include "../biome/provider/BiomeProvider.hpp"
-#include "../../WorldGenRegion.hpp"
-#include "../../block/Blocks.hpp"
+#include "../chunk/Chunk.hpp"
+#include "src/world/WorldGenRegion.hpp"
 
 struct ExampleStructurePiece : StructurePiece {
     ExampleStructurePiece(int32_t pos_x, int32_t pos_z) {
@@ -13,21 +14,21 @@ struct ExampleStructurePiece : StructurePiece {
     }
 
     void place(WorldGenRegion& region, StructureBoundingBox sbb) override {
-        const auto wood = Blocks::wood->getDefaultState();
-
-        for (auto y = 0; y < 10; y++) {
-            setBlock(region, sbb, 0, y, 0, Blocks::iron_bars->getStateWithMeta(2 | 4));
-            setBlock(region, sbb, 0, y, 1, wood);
-            setBlock(region, sbb, 0, y, 2, Blocks::iron_bars->getStateWithMeta(8 | 4));
-
-            setBlock(region, sbb, 1, y, 0, wood);
-            setBlock(region, sbb, 1, y, 1, wood);
-            setBlock(region, sbb, 1, y, 2, wood);
-
-            setBlock(region, sbb, 2, y, 0, Blocks::iron_bars->getStateWithMeta(2 | 1));
-            setBlock(region, sbb, 2, y, 1, wood);
-            setBlock(region, sbb, 2, y, 2, Blocks::iron_bars->getStateWithMeta(8 | 1));
-        }
+//        const auto wood = Blocks::WOOD->getDefaultState();
+//
+//        for (auto y = 0; y < 10; y++) {
+//            setBlock(region, sbb, 0, y, 0, Blocks2::iron_bars->getStateWithMeta(2 | 4));
+//            setBlock(region, sbb, 0, y, 1, wood);
+//            setBlock(region, sbb, 0, y, 2, Blocks2::iron_bars->getStateWithMeta(8 | 4));
+//
+//            setBlock(region, sbb, 1, y, 0, wood);
+//            setBlock(region, sbb, 1, y, 1, wood);
+//            setBlock(region, sbb, 1, y, 2, wood);
+//
+//            setBlock(region, sbb, 2, y, 0, Blocks2::iron_bars->getStateWithMeta(2 | 1));
+//            setBlock(region, sbb, 2, y, 1, wood);
+//            setBlock(region, sbb, 2, y, 2, Blocks2::iron_bars->getStateWithMeta(8 | 1));
+//        }
     }
 };
 
@@ -94,28 +95,27 @@ void placeBlock(IBlockWriter auto& blocks, int32_t x, int32_t y, int32_t z, cons
 }
 
 void generateTree(IBlockWriter auto& blocks, int32_t x, int32_t height, int32_t z, Random& rand, const StructureBoundingBox& sbb) {
-    const auto treeHeight = 4 + rand.nextInt(0, 2);
-
-    const BlockData leaves = Blocks::leaves->getDefaultState();
-    const BlockData log = Blocks::log->getDefaultState();
-
-    for (auto y = treeHeight - 2; y <= treeHeight + 1; y++) {
-        placeBlock(blocks, x - 1, y + height, z - 1, leaves, sbb);
-        placeBlock(blocks, x + 0, y + height, z - 1, leaves, sbb);
-        placeBlock(blocks, x + 1, y + height, z - 1, leaves, sbb);
-
-        placeBlock(blocks, x - 1, y + height, z, leaves, sbb);
-        placeBlock(blocks, x + 0, y + height, z, leaves, sbb);
-        placeBlock(blocks, x + 1, y + height, z, leaves, sbb);
-
-        placeBlock(blocks, x - 1, y + height, z + 1, leaves, sbb);
-        placeBlock(blocks, x + 0, y + height, z + 1, leaves, sbb);
-        placeBlock(blocks, x + 1, y + height, z + 1, leaves, sbb);
-    }
-
-    for (auto y = height; y < height + treeHeight; y++) {
-        placeBlock(blocks, x, y, z, log, sbb);
-    }
+//    const auto treeHeight = 4 + rand.nextInt(0, 2);
+//
+//    const BlockData leaves = Blocks::LEAVES->getDefaultState();
+//    const BlockData log = Blocks::LOG->getDefaultState();
+//
+//    for (auto y = treeHeight - 2; y <= treeHeight + 1; y++) {
+//        placeBlock(blocks, x - 1, y + height, z - 1, leaves, sbb);
+//        placeBlock(blocks, x + 0, y + height, z - 1, leaves, sbb);
+//        placeBlock(blocks, x + 1, y + height, z - 1, leaves, sbb);
+//
+//        placeBlock(blocks, x - 1, y + height, z, leaves, sbb);
+//        placeBlock(blocks, x + 0, y + height, z, leaves, sbb);
+//        placeBlock(blocks, x + 1, y + height, z, leaves, sbb);
+//
+//        placeBlock(blocks, x - 1, y + height, z + 1, leaves, sbb);
+//        placeBlock(blocks, x + 0, y + height, z + 1, leaves, sbb);
+//        placeBlock(blocks, x + 1, y + height, z + 1, leaves, sbb);
+//    }
+//    for (auto y = height; y < height + treeHeight; y++) {
+//        placeBlock(blocks, x, y, z, log, sbb);
+//    }
 }
 
 void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
@@ -125,27 +125,28 @@ void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
     const auto xStart = chunkPos.getStartX();
     const auto zStart = chunkPos.getStartZ();
     const auto seed = random.setDecorationSeed(region.getSeed(), xStart, zStart);
-    const auto sbb = StructureBoundingBox::fromChunkPos(chunkPos.x, chunkPos.z);
+//    const auto sbb = StructureBoundingBox::fromChunkPos(chunkPos.x, chunkPos.z);
 
-    for (auto& structure : chunk.structureReferences) {
-        for (auto& piece : structure->pieces) {
-            piece->place(region, sbb);
-        }
-    }
+//    for (auto& structure : chunk.structureReferences) {
+//        for (auto& piece : structure->pieces) {
+//            piece->place(region, sbb);
+//        }
+//    }
 
-    const BlockData red_flower = Blocks::red_flower->getDefaultState();
-    const BlockData yellow_flower = Blocks::yellow_flower->getDefaultState();
+//    const BlockData red_flower = Blocks::RED_FLOWER->getDefaultState();
+//    const BlockData yellow_flower = Blocks::YELLOW_FLOWER->getDefaultState();
 
-    for (int32_t x = 0; x < 16; x++) {
-        const auto xpos = x + xStart;
+    auto biome = biomeProvider->getNoiseBiome((chunkPos.x << 2) + 2, 2, (chunkPos.z << 2) + 2);
+    biome->decorate(*this, region, seed, random, glm::ivec3(xStart, 0, zStart));
 
-        for (int32_t z = 0; z < 16; z++) {
-            const auto zpos = z + zStart;
-
-			random.setFeatureSeed(seed, xpos, zpos);
+//    for (int32_t x = 0; x < 16; x++) {
+//        const auto xpos = x + xStart;
+//        for (int32_t z = 0; z < 16; z++) {
+//            const auto zpos = z + zStart;
+//			random.setFeatureSeed(seed, xpos, zpos);
 
 //            const int32_t ypos = region.getHeight(xpos, zpos);
-//            if (!region.getData(xpos, ypos - 1, zpos).isIn(Blocks::water)) {
+//            if (!region.getData(xpos, ypos - 1, zpos).isIn(Blocks2::water)) {
 //                int32_t n = random.nextInt(0, 3000);
 //
 //                if (n < 15) {
@@ -161,6 +162,6 @@ void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
 ////                    });
 //                }
 //            }
-        }
-    }
+//        }
+//    }
 }

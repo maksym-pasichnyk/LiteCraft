@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BlockPlacer.hpp"
-#include "../../../WorldGenRegion.hpp"
+#include "src/world/WorldGenRegion.hpp"
 
 struct ColumnBlockPlacer : public BlockPlacer {
     int minSize;

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../block/Block.hpp"
 #include "../../world/chunk/Chunk.hpp"
 
 struct ChunkRenderCache {

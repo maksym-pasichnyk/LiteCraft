@@ -13,7 +13,9 @@ public:
         Down,
         Esc,
         Jump,
-        Shift
+        Shift,
+
+        X
     };
 
     enum class MouseButton {
@@ -61,6 +63,7 @@ public:
         thisFrameKeys.set((int) Key::Esc, keys[SDL_SCANCODE_ESCAPE]);
         thisFrameKeys.set((int) Key::Jump, keys[SDL_SCANCODE_SPACE]);
         thisFrameKeys.set((int) Key::Shift, keys[SDL_SCANCODE_LSHIFT]);
+        thisFrameKeys.set((int) Key::X, keys[SDL_SCANCODE_X]);
 
         const auto mouse = SDL_GetMouseState(nullptr, nullptr);
 

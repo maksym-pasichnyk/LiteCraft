@@ -1,13 +1,8 @@
 #include "WorldCarver.hpp"
 
-#include "CaveWorldCarver.hpp"
-#include "NetherCaveCarver.hpp"
-#include "CanyonWorldCarver.hpp"
-#include "UnderwaterCanyonWorldCarver.hpp"
-#include "UnderwaterCaveWorldCarver.hpp"
-
 #include "../../chunk/Chunk.hpp"
 #include "../../biome/Biome.hpp"
+#include "../../../block/Block.hpp"
 #include "../../../block/Blocks.hpp"
 
 static int MathHelper_floor(double value) {
@@ -15,62 +10,48 @@ static int MathHelper_floor(double value) {
     return value < (double)i ? i - 1 : i;
 }
 
-std::unique_ptr<WorldCarver> WorldCarver::CAVE = nullptr;
-std::unique_ptr<WorldCarver> WorldCarver::NETHER_CAVE = nullptr;
-std::unique_ptr<WorldCarver> WorldCarver::CANYON = nullptr;
-//std::unique_ptr<WorldCarver> WorldCarver::UNDERWATER_CANYON = nullptr;
-//std::unique_ptr<WorldCarver> WorldCarver::UNDERWATER_CAVE = nullptr;
-
-void WorldCarver::registerCarvers() {
-    CAVE = std::make_unique<CaveWorldCarver>(256);
-    NETHER_CAVE = std::make_unique<NetherCaveCarver>();
-    CANYON = std::make_unique<CanyonWorldCarver>();
-//    UNDERWATER_CANYON = std::make_unique<UnderwaterCanyonWorldCarver>();
-//    UNDERWATER_CAVE = std::make_unique<UnderwaterCaveWorldCarver>();
-}
-
 WorldCarver::WorldCarver(int32_t maxHeight) : maxHeight{maxHeight} {
     carvableBlocks = {
-        Blocks::stone,
-//        Blocks::GRANITE,
-//        Blocks::DIORITE,
-//        Blocks::ANDESITE,
-        Blocks::dirt,
-//        Blocks::COARSE_DIRT,
-        Blocks::podzol,
-        Blocks::grass,
-//        Blocks::TERRACOTTA,
-//        Blocks::WHITE_TERRACOTTA,
-//        Blocks::ORANGE_TERRACOTTA,
-//        Blocks::MAGENTA_TERRACOTTA,
-//        Blocks::LIGHT_BLUE_TERRACOTTA,
-//        Blocks::YELLOW_TERRACOTTA,
-//        Blocks::LIME_TERRACOTTA,
-//        Blocks::PINK_TERRACOTTA,
-//        Blocks::GRAY_TERRACOTTA,
-//        Blocks::LIGHT_GRAY_TERRACOTTA,
-//        Blocks::CYAN_TERRACOTTA,
-//        Blocks::PURPLE_TERRACOTTA,
-//        Blocks::BLUE_TERRACOTTA,
-//        Blocks::BROWN_TERRACOTTA,
-//        Blocks::GREEN_TERRACOTTA,
-//        Blocks::RED_TERRACOTTA,
-//        Blocks::BLACK_TERRACOTTA,
-        Blocks::sandstone,
-        Blocks::red_sandstone,
-        Blocks::mycelium,
-        Blocks::snow,
-        Blocks::packed_ice
+        Blocks::STONE,
+//        Blocks2::GRANITE,
+//        Blocks2::DIORITE,
+//        Blocks2::ANDESITE,
+        Blocks::DIRT,
+//        Blocks2::COARSE_DIRT,
+        Blocks::PODZOL,
+        Blocks::GRASS,
+//        Blocks2::TERRACOTTA,
+//        Blocks2::WHITE_TERRACOTTA,
+//        Blocks2::ORANGE_TERRACOTTA,
+//        Blocks2::MAGENTA_TERRACOTTA,
+//        Blocks2::LIGHT_BLUE_TERRACOTTA,
+//        Blocks2::YELLOW_TERRACOTTA,
+//        Blocks2::LIME_TERRACOTTA,
+//        Blocks2::PINK_TERRACOTTA,
+//        Blocks2::GRAY_TERRACOTTA,
+//        Blocks2::LIGHT_GRAY_TERRACOTTA,
+//        Blocks2::CYAN_TERRACOTTA,
+//        Blocks2::PURPLE_TERRACOTTA,
+//        Blocks2::BLUE_TERRACOTTA,
+//        Blocks2::BROWN_TERRACOTTA,
+//        Blocks2::GREEN_TERRACOTTA,
+//        Blocks2::RED_TERRACOTTA,
+//        Blocks2::BLACK_TERRACOTTA,
+        Blocks::SANDSTONE,
+        Blocks::RED_SANDSTONE,
+        Blocks::MYCELIUM,
+        Blocks::SNOW,
+        Blocks::PACKED_ICE
     };
     carvableFluids = {
-        Blocks::water
+        Blocks::WATER
     };
 }
 
 bool WorldCarver::canCarveBlock(const BlockData &data, const BlockData &above) {
     return carvableBlocks.contains(data.getBlock())
-        || (data.isIn(Blocks::sand) || data.isIn(Blocks::gravel))
-        && !(above.isIn(Blocks::water) || above.isIn(Blocks::flowing_lava));// && !above.getFluidState().isTagged(FluidTags.WATER);
+        || (data.isIn(Blocks::SAND) || data.isIn(Blocks::GRAVEL))
+        && !above.isIn(Blocks::WATER);// && !above.getFluidState().isTagged(FluidTags.WATER);
 }
 
 bool WorldCarver::carveBlocks(Chunk &chunk, const BiomeReadFn &getBiome, int64_t seed, int seaLevel, int chunkx, int chunkz, double xcoord, double ycoord, double zcoord, double unk1, double unk2/*, BitSet carvingMask*/) {
@@ -95,9 +76,6 @@ bool WorldCarver::carveBlocks(Chunk &chunk, const BiomeReadFn &getBiome, int64_t
         return false;
     }
     bool flag = false;
-//    BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
-//    BlockPos.Mutable blockpos$mutable1 = new BlockPos.Mutable();
-//    BlockPos.Mutable blockpos$mutable2 = new BlockPos.Mutable();
 
     for (int x = minX; x < maxX; ++x) {
         const int xStart = x + chunkx * 16;
@@ -129,7 +107,7 @@ bool WorldCarver::carveBlock(Chunk& chunk, const BiomeReadFn& getBiome, /*BitSet
 //    }
 //    carvingMask.set(i);
     const auto data = chunk.getData(posX, posY, posZ);
-    if (data.isIn(Blocks::grass) || data.isIn(Blocks::mycelium)) {
+    if (data.isIn(Blocks::GRASS_BLOCK) || data.isIn(Blocks::MYCELIUM)) {
         isSurface = true;
     }
     const auto above = chunk.getData(posX, posY + 1, posZ);
@@ -138,12 +116,12 @@ bool WorldCarver::carveBlock(Chunk& chunk, const BiomeReadFn& getBiome, /*BitSet
         return false;
     }
     if (posY < 11) {
-        chunk.setData(posX, posY, posZ, Blocks::lava->getDefaultState()/*, false*/);
+        chunk.setData(posX, posY, posZ, Blocks::LAVA->getDefaultState()/*, false*/);
     } else {
-        chunk.setData(posX, posY, posZ, Blocks::air->getDefaultState()/*, false*/);
+        chunk.setData(posX, posY, posZ, Blocks::AIR->getDefaultState()/*, false*/);
 
         if (isSurface) {
-            if (chunk.getData(posX, posY - 1, posZ).isIn(Blocks::dirt)) {
+            if (chunk.getData(posX, posY - 1, posZ).isIn(Blocks::DIRT)) {
                 const auto top = getBiome({posX, posY, posZ})->biomeGenerationSettings.surfaceBuilder.config.top;
                 chunk.setData(posX, posY - 1, posZ, top/*, false*/);
             }

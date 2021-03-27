@@ -2,12 +2,21 @@
 #include "Blocks.hpp"
 #include "Block.hpp"
 
-Block *BlockData::getBlock() const {
+#include <algorithm>
+
+auto BlockData::getBlock() const -> Block* {
     return Blocks::blocks[static_cast<size_t>(id)];
 }
-bool BlockData::isOpaque() const {
+auto BlockData::isOpaque() const -> bool {
     return getBlock()->getMaterial()->isOpaque;
 }
-int32_t BlockData::getLightLevel() const{
+auto BlockData::getLightLevel() const -> int32_t {
     return getBlock()->getLightLevel(*this);
+}
+auto BlockData::isValidPosition(WorldReader &reader, const glm::vec3 &pos) -> bool {
+    return getBlock()->isValidPosition(*this, reader, pos);
+}
+auto BlockData::hasProperty(BlockStateProperties property) const -> bool {
+    auto properties = getBlock()->getBlockStateProperties();
+    return std::ranges::find(properties, property) != properties.end();
 }

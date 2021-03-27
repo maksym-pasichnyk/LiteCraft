@@ -1,0 +1,1 @@
+#include "RedstoneLampBlock.hpp"

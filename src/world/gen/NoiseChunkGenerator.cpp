@@ -1,13 +1,12 @@
 #include "NoiseChunkGenerator.hpp"
 
-#include "../chunk/Chunk.hpp"
+#include "../../block/Block.hpp"
+#include "../../block/Blocks.hpp"
 #include "../biome/Biome.hpp"
 #include "../biome/provider/BiomeProvider.hpp"
 #include "../biome/provider/EndBiomeProvider.hpp"
-#include "../../WorldGenRegion.hpp"
-#include "../../block/Blocks.hpp"
-
-#include <glm/ext.hpp>
+#include "../chunk/Chunk.hpp"
+#include "src/world/WorldGenRegion.hpp"
 
 struct ScalingSettings {
     double xz_scale;
@@ -87,8 +86,8 @@ NoiseSettings settings{
 NoiseChunkGenerator::NoiseChunkGenerator(int64_t seed, std::unique_ptr<BiomeProvider>&& biomeProvider)
     : ChunkGenerator(std::move(biomeProvider))
 {
-    defaultBlock = Blocks::stone->getDefaultState();
-    defaultFluid = Blocks::water->getDefaultState();
+    defaultBlock = Blocks::STONE->getDefaultState();
+    defaultFluid = Blocks::WATER->getDefaultState();
 
     dimensionHeight = settings.height;
     bedrockFloorPosition = 0;
@@ -127,7 +126,7 @@ void NoiseChunkGenerator::makeBedrock(Chunk& chunk, Random &rand) const {
     const bool makeFloorBedrock = bedrockFloorPosition + 4 >= 0 && bedrockFloorPosition < dimensionHeight;
 
     if (makeRoofBedrock || makeFloorBedrock) {
-        const auto bedrock = Blocks::bedrock->getDefaultState();
+        const auto bedrock = Blocks::BEDROCK->getDefaultState();
 
         for (auto x = 0; x <= 15; x++) {
             for (auto z = 0; z <= 15; z++) {
@@ -332,7 +331,7 @@ int NoiseChunkGenerator::getColumn(int x, int z, std::span<BlockData> datas, boo
                 } else if (ypos < seaLevel) {
                     return defaultFluid;
                 }
-                return Blocks::air->getDefaultState();
+                return Blocks::AIR->getDefaultState();
             }();
 
             if (datas.data() != nullptr) {

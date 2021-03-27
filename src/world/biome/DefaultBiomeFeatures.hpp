@@ -2,6 +2,7 @@
 
 #include "BiomeGenerationSettings.hpp"
 #include "../gen/carver/ConfiguredCarvers.hpp"
+#include "../gen/feature/ConfiguredFeatures.hpp"
 
 struct DefaultBiomeFeatures {
     static void withBadlandsStructures(BiomeGenerationSettings::Builder& builder) {

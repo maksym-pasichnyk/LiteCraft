@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ClientChunkProvider.hpp"
-#include "../../block/Block.hpp"
+#include "../../block/BlockData.hpp"
 
 #include <memory>
 

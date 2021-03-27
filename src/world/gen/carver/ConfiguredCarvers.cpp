@@ -1,6 +1,6 @@
 #include "ConfiguredCarvers.hpp"
 #include "ConfiguredCarver.hpp"
-#include "WorldCarver.hpp"
+#include "Carvers.hpp"
 
 ConfiguredCarver ConfiguredCarvers::CAVE;
 ConfiguredCarver ConfiguredCarvers::CANYON;
@@ -9,25 +9,25 @@ ConfiguredCarver ConfiguredCarvers::NETHER_CAVE;
 
 void ConfiguredCarvers::configureCarvers() {
     CAVE = {
-        .carver = WorldCarver::CAVE.get(),
+        .carver = Carvers::CAVE,
         .config {
             .probability = 0.14285715F
         }
     };
     CANYON = {
-        .carver = WorldCarver::CANYON.get(),
+        .carver = Carvers::CANYON,
         .config {
             .probability = 0.02F
         }
     };
     OCEAN_CAVE = {
-        .carver = WorldCarver::CAVE.get(),
+        .carver = Carvers::CAVE,
         .config {
             .probability = 0.06666667F
         }
     };
     NETHER_CAVE = {
-        .carver = WorldCarver::CAVE.get(),
+        .carver = Carvers::CAVE,
         .config {
             .probability = 0.2F
         }

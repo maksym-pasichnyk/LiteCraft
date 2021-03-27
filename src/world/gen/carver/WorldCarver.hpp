@@ -2,11 +2,8 @@
 
 #include "../../biome/BiomeReadFn.hpp"
 
-#include <functional>
-#include <memory>
+#include <cstdint>
 #include <set>
-
-#include <glm/vec3.hpp>
 
 struct Chunk;
 struct Block;
@@ -15,14 +12,6 @@ struct Random;
 struct BlockData;
 
 struct WorldCarver {
-    static std::unique_ptr<WorldCarver> CAVE;
-    static std::unique_ptr<WorldCarver> NETHER_CAVE;
-    static std::unique_ptr<WorldCarver> CANYON;
-//    static std::unique_ptr<WorldCarver> UNDERWATER_CANYON;
-//    static std::unique_ptr<WorldCarver> UNDERWATER_CAVE;
-
-    static void registerCarvers();
-
     int32_t maxHeight;
     std::set<Block*> carvableBlocks;
     std::set<Block*> carvableFluids;

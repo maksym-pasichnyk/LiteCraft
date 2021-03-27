@@ -17,6 +17,9 @@
 #include <memory>
 #include <map>
 
+struct ChunkGenerator;
+struct WorldGenRegion;
+struct WorldReader;
 struct Random;
 struct Chunk;
 
@@ -86,4 +89,9 @@ struct Biome {
         biomeGenerationSettings.surfaceBuilder.setSeed(worldSeed);
         biomeGenerationSettings.surfaceBuilder.buildSurface(rand, chunk, *this, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, sealevel);
     }
+
+    void decorate(ChunkGenerator& generator, WorldGenRegion& region, int64_t seed, Random& rand, glm::ivec3 pos);
+
+    bool doesWaterFreeze(WorldReader& world, const glm::ivec3& pos, bool mustBeAtEdge = true);
+    bool doesSnowGenerate(WorldReader& world, const glm::ivec3& pos);
 };

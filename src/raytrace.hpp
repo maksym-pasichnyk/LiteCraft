@@ -1,7 +1,8 @@
 //module;
 
-#include "BlockReader.hpp"
+#include "block/BlockReader.hpp"
 #include "block/Block.hpp"
+#include "block/material/Materials.hpp"
 
 #include <glm/glm.hpp>
 #include <optional>
@@ -42,7 +43,8 @@ auto rayTraceBlocks(IBlockReader /*auto*/& blocks, const RayTraceContext& contex
 		// todo: shape
 
 		auto block = blocks.getBlock(pos);
-		if (block->renderType != RenderType::Air && block->renderType != RenderType::Liquid) {
+        auto material = block->getMaterial();
+		if (material != Materials::AIR && material != Materials::WATER && material != Materials::LAVA) {
 			return RayTraceResult{
 				.pos = pos,
 				.dir = -dir,
