@@ -134,5 +134,8 @@ struct WorldGenRegion : WorldReader {
     Biome *getNoiseBiomeRaw(int x, int y, int z) override;
 
     int getHeight(/*Heightmap::Type heightmapType,*/ int x, int z);
+    glm::ivec3 getHeight(/*Heightmap::Type heightmapType,*/ const glm::ivec3& pos) {
+        return glm::ivec3(pos.x, getHeight(/*heightmapType,*/ pos.x, pos.z), pos.z);
+    }
     auto getBlockLight(glm::ivec3 pos) const -> int32_t override;
 };

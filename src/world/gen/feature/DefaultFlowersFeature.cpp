@@ -7,7 +7,7 @@ bool DefaultFlowersFeature::isValidPosition(WorldGenRegion &reader, glm::ivec3 p
     return !config.blacklist.contains(reader.getData(pos));
 }
 
-bool DefaultFlowersFeature::getFlowerCount(const BlockClusterFeatureConfig &config) {
+int DefaultFlowersFeature::getFlowerCount(const BlockClusterFeatureConfig &config) {
     return config.tries;
 }
 

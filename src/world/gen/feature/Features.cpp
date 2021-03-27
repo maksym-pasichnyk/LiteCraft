@@ -1,6 +1,8 @@
 #include "Features.hpp"
 #include "IceAndSnowFeature.hpp"
 #include "DefaultFlowersFeature.hpp"
+#include "RandomPatchFeature.hpp"
+#include "MultipleWithChanceRandomFeature.hpp"
 #include "DecoratedFeature.hpp"
 
 std::map<std::string, std::unique_ptr<Feature>> Features::features;
@@ -69,7 +71,7 @@ void Features::registerFeatures() {
 //    TREE = createFeature<TreeFeature>("tree");
     FLOWER = createFeature<DefaultFlowersFeature>("flower");
     NO_BONEMEAL_FLOWER = createFeature<DefaultFlowersFeature>("no_bonemeal_flower");
-//    RANDOM_PATCH = createFeature<RandomPatchFeature>("random_patch");
+    RANDOM_PATCH = createFeature<RandomPatchFeature>("random_patch");
 //    BLOCK_PILE = createFeature<BlockPileFeature>("block_pile");
 //    SPRING_FEATURE = createFeature<SpringFeature>("spring_feature");
 //    CHORUS_PLANT = createFeature<ChorusPlantFeature>("chorus_plant");
@@ -113,7 +115,7 @@ void Features::registerFeatures() {
 //    BONUS_CHEST = createFeature<BonusChestFeature>("bonus_chest");
 //    BASALT_PILLAR = createFeature<BasaltPillarFeature>("basalt_pillar");
 //    NO_SURFACE_ORE = createFeature<NoExposedOreFeature>("no_surface_ore");
-//    RANDOM_SELECTOR = createFeature<MultipleWithChanceRandomFeature>("random_selector");
+    RANDOM_SELECTOR = createFeature<MultipleWithChanceRandomFeature>("random_selector");
 //    SIMPLE_RANDOM_SELECTOR = createFeature<SingleRandomFeatureConfig>("simple_random_selector");
 //    RANDOM_BOOLEAN_SELECTOR = createFeature<TwoFeatureChoiceFeature>("random_boolean_selector");
     DECORATED = createFeature<DecoratedFeature>("decorated");

@@ -16,13 +16,9 @@ struct ConfiguredPlacement {
     void forEach(WorldGenRegion& region, Random& random, glm::ivec3 pos, const std::function<void(glm::ivec3)>& fn);
 
     ConfiguredPlacement* withPlacement(ConfiguredPlacement* placement);
-
     ConfiguredPlacement* chance(int chance);
-
     ConfiguredPlacement* range(int maximum);
-
     ConfiguredPlacement* square();
-
     ConfiguredPlacement* withSpreadPlacement(FeatureSpread spread);
 
     ConfiguredPlacement* withSpreadPlacement(int base) {

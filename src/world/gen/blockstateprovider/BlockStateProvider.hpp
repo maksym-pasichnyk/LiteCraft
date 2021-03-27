@@ -3,7 +3,6 @@
 #include "../../../block/BlockData.hpp"
 
 struct Random;
-
-struct BlockDataProvider {
-    virtual BlockData getBlockState(Random& rand, glm::ivec3 blockPos) = 0;
+struct BlockStateProvider {
+    virtual BlockData getBlockState(Random& random, glm::ivec3 pos) = 0;
 };

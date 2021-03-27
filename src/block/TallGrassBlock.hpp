@@ -1,7 +1,11 @@
 #pragma once
 
-#include "Block.hpp"
+#include "BushBlock.hpp"
 
-struct TallGrassBlock : Block {
-    using Block::Block;
+struct TallGrassBlock : BushBlock {
+    using BushBlock::BushBlock;
+
+    TintType getTintType() const override {
+        return TintType::Grass;
+    }
 };

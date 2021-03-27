@@ -209,7 +209,7 @@ struct DefaultBiomeFeatures {
     static void withPlainGrassVegetation(BiomeGenerationSettings::Builder& builder) {
 //        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PLAIN_VEGETATION);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FLOWER_PLAIN_DECORATED);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_PLAIN);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_PLAIN);
     }
 
     static void withDesertDeadBushes(BiomeGenerationSettings::Builder& builder) {

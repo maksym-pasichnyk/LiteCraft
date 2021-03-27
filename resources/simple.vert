@@ -7,6 +7,9 @@ out gl_PerVertex {
 layout (binding = 0) uniform CameraConstants {
     mat4 transform;
     vec3 position;
+    vec3 FOG_COLOR;
+    vec2 FOG_CONTROL;
+    float RENDER_DISTANCE;
 } camera;
 
 layout (location = 0) in vec3 in_point;

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "config/FeatureConfig.hpp"
 #include "FeatureSpread.hpp"
+#include "ConfiguredRandomFeatureList.hpp"
+#include "config/FeatureConfig.hpp"
 
 #include <glm/vec3.hpp>
 
@@ -17,13 +18,9 @@ struct ConfiguredFeature {
     bool generate(WorldGenRegion &region, ChunkGenerator &generator, Random &random, glm::ivec3 vec);
 
     ConfiguredFeature* withPlacement(ConfiguredPlacement* placement);
-
     ConfiguredFeature* chance(int chance);
-
     ConfiguredFeature* range(int maximum);
-
     ConfiguredFeature* square();
-
     ConfiguredFeature* withSpreadPlacement(FeatureSpread spread);
 
     ConfiguredFeature* withSpreadPlacement(int base) {
@@ -32,5 +29,12 @@ struct ConfiguredFeature {
 
     ConfiguredFeature* func_242732_c(int spread) {
         return withSpreadPlacement(FeatureSpread{0, spread});
+    }
+
+    ConfiguredRandomFeatureList withChance(float chance) {
+        return {
+            .feature = this,
+            .chance = chance
+        };
     }
 };

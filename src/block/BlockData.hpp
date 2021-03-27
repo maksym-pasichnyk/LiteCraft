@@ -7,6 +7,7 @@
 enum class BlockStateProperties;
 
 struct Block;
+struct Material;
 struct WorldReader;
 struct BlockData {
     uint16_t id = 0;
@@ -23,6 +24,7 @@ struct BlockData {
     }
 
     auto getBlock() const -> Block*;
+    auto getMaterial() const -> Material*;
     auto isOpaque() const -> bool;
     auto getLightLevel() const -> int32_t;
     auto isValidPosition(WorldReader& reader, const glm::vec3& pos) const -> bool;

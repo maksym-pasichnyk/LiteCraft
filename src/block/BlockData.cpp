@@ -7,8 +7,11 @@
 auto BlockData::getBlock() const -> Block* {
     return Blocks::blocks[static_cast<size_t>(id)];
 }
+auto BlockData::getMaterial() const -> Material * {
+    return getBlock()->getMaterial();
+}
 auto BlockData::isOpaque() const -> bool {
-    return getBlock()->getMaterial()->isOpaque;
+    return getMaterial()->isOpaque;
 }
 auto BlockData::getLightLevel() const -> int32_t {
     return getBlock()->getLightLevel(*this);

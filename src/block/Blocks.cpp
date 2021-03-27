@@ -615,8 +615,8 @@ Block *Blocks::SUNFLOWER;
 Block *Blocks::LILAC;
 Block *Blocks::ROSE_BUSH;
 Block *Blocks::PEONY;
-Block *Blocks::TALL_GRASS;
-Block *Blocks::LARGE_FERN;
+//Block *Blocks::TALL_GRASS;
+//Block *Blocks::LARGE_FERN;
 Block *Blocks::WHITE_BANNER;
 Block *Blocks::ORANGE_BANNER;
 Block *Blocks::MAGENTA_BANNER;
@@ -1387,10 +1387,10 @@ Properties::create(Materials::WOOD, [](const BlockData& data) -> MaterialColor {
         .doesNotBlockMovement()
         .setRequiresTool()
         .setHardnessAndResistance(4.0F));
-//    GRASS = createBlock<TallGrassBlock>("grass", Properties::create(Materials::TALL_PLANTS)
-//        .doesNotBlockMovement()
-//        .zeroHardnessAndResistance()
-//        .setSound(SoundType::PLANT));
+    GRASS = createBlock<TallGrassBlock>("tallgrass", Properties::create(Materials::TALL_PLANTS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
     //    FERN = createBlock<TallGrassBlock>("fern", Properties::create(Materials::TALL_PLANTS)
     //.doesNotBlockMovement()
     //.zeroHardnessAndResistance()
@@ -2465,14 +2465,14 @@ return TileEntityType::CHEST;
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
-    TALL_GRASS = createBlock<DoublePlantBlock>("tall_grass", Properties::create(Materials::TALL_PLANTS)
-        .doesNotBlockMovement()
-        .zeroHardnessAndResistance()
-        .setSound(SoundType::PLANT));
-    LARGE_FERN = createBlock<DoublePlantBlock>("large_fern", Properties::create(Materials::TALL_PLANTS)
-        .doesNotBlockMovement()
-        .zeroHardnessAndResistance()
-        .setSound(SoundType::PLANT));
+//    TALL_GRASS = createBlock<DoublePlantBlock>("tall_grass", Properties::create(Materials::TALL_PLANTS)
+//        .doesNotBlockMovement()
+//        .zeroHardnessAndResistance()
+//        .setSound(SoundType::PLANT));
+//    LARGE_FERN = createBlock<DoublePlantBlock>("large_fern", Properties::create(Materials::TALL_PLANTS)
+//        .doesNotBlockMovement()
+//        .zeroHardnessAndResistance()
+//        .setSound(SoundType::PLANT));
     WHITE_BANNER = createBanner("white_banner", DyeColors::WHITE);
     ORANGE_BANNER = createBanner("orange_banner", DyeColors::ORANGE);
     MAGENTA_BANNER = createBanner("magenta_banner", DyeColors::MAGENTA);

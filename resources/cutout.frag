@@ -23,5 +23,5 @@ void main() {
     float gamma = 1.3;
     col.rgb = pow(col.rgb, vec3(gamma));
     col.rgb = mix(col.rgb, v_in.fogColor.rgb, v_in.fogColor.a);
-    out_color = vec4(col, 1.0);
+    out_color = vec4(col, 1.0f);
 }

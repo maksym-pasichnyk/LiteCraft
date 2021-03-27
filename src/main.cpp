@@ -52,7 +52,10 @@ extern void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks);
 
 struct CameraConstants {
 	glm::mat4 transform;
-	glm::vec3 position;
+	glm::vec4 position;
+    glm::vec4 FOG_COLOR;
+    glm::vec2 FOG_CONTROL;
+    float RENDER_DISTANCE;
 };
 
 struct RenderFrame {
@@ -192,9 +195,7 @@ struct App {
     bool debugCamera = false;
     int frameIndex = 0;
     std::array<RenderFrame, 2> frames;
-
-    std::array<float, 4> fog_color;
-    glm::vec2 fog_offset;
+    glm::vec4 FOG_COLOR;
 
     double frameTime = 0;
     int frameCount = 0;
@@ -328,13 +329,31 @@ struct App {
     }
 
     void setupCamera() {
+        const auto [x, y, z] = transform.position;
+        const auto topMaterial = clientWorld->getBlock(glm::floor(x),std::floor(y + 1.68), glm::floor(z))->getMaterial();
+
+        glm::vec2 FOG_CONTROL;
+        if (topMaterial == Materials::WATER) {
+            FOG_COLOR = {0.27, 0.68, 0.96, 1};
+            FOG_CONTROL = glm::vec2{0, 5};
+        } else if (topMaterial == Materials::LAVA) {
+            FOG_COLOR = {0.96, 0.38, 0.27, 1};
+            FOG_CONTROL = glm::vec2{-2, 1};
+        } else {
+            FOG_COLOR = {0, 0.68, 1.0, 1};
+            FOG_CONTROL = {9, 13};
+        }
+
         const auto projection_matrix = camera.getProjection();
         const auto transform_matrix = transform.getTransformMatrix(glm::vec3(0, 1.68, 0));
         const auto camera_matrix = projection_matrix * transform_matrix;
 
         CameraConstants camera_constants{
             .transform = camera_matrix,
-            .position = transform.position
+            .position = glm::vec4(transform.position, 0),
+            .FOG_COLOR = FOG_COLOR,
+            .FOG_CONTROL = FOG_CONTROL,
+            .RENDER_DISTANCE = 8.0f,
         };
 
         std::memcpy(frames[frameIndex].camera_ptr, &camera_constants, sizeof(CameraConstants));
@@ -448,21 +467,18 @@ struct App {
 //		glDepthRange(0.01, 1.0);
 
         glUseProgram(opaque_pipeline);
-        glUniform3fv(0, 1, fog_color.data());
-        glUniform2f(4, fog_offset.x, fog_offset.y);
         renderLayer(RenderLayer::Opaque);
 
+//        glEnable(GL_BLEND);
+//        glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+
         glUseProgram(cutout_pipeline);
-        glUniform3fv(0, 1, fog_color.data());
-        glUniform2f(4, fog_offset.x, fog_offset.y);
         renderLayer(RenderLayer::Cutout);
 
 		glEnable(GL_BLEND);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 
 		glUseProgram(transparent_pipeline);
-        glUniform3fv(0, 1, fog_color.data());
-        glUniform2f(4, fog_offset.x, fog_offset.y);
         renderLayer(RenderLayer::Transparent);
 
 //        glDisable(GL_BLEND);
@@ -472,8 +488,7 @@ struct App {
 //        glm::mat4 model_transform = glm::translate(glm::mat4(1.0f), glm::vec3(636, 72, 221));
 
 //        glUseProgram(entity_pipeline);
-//        glUniform3fv(0, 1, fog_color.data());
-//        glUniform2f(4, fog_offset.x, fog_offset.y);
+//        glUniform3fv(0, 1, FOG_COLOR.data());
 //        glUniformMatrix4fv(8, 1, GL_FALSE, glm::value_ptr(model_transform));
 
 //        glBindTexture(GL_TEXTURE_2D, goatTexture);
@@ -637,21 +652,6 @@ struct App {
     void updateCameraAndRender() {
         setupCamera();
         setupTerrain();
-
-        const auto [x, y, z] = transform.position;
-        const auto topMaterial = clientWorld->getBlock(glm::floor(x),std::floor(y + 1.68), glm::floor(z))->getMaterial();
-
-        if (topMaterial == Materials::WATER) {
-            fog_color = {0.27, 0.68, 0.96, 1};
-            fog_offset = glm::vec2{0, 5};
-        } else if (topMaterial == Materials::LAVA) {
-            fog_color = {0.96, 0.38, 0.27, 1};
-            fog_offset = glm::vec2{-2, 1};
-        } else {
-            fog_color = {0, 0.68, 1.0, 1};
-            fog_offset = {9, 13};
-        }
-
         renderTerrain();
     }
 
@@ -673,7 +673,7 @@ struct App {
         updateInput(dt);
         executor_execute();
 
-        glClearNamedFramebufferfv(frames[frameIndex].framebuffer, GL_COLOR, 0, fog_color.data());
+        glClearNamedFramebufferfv(frames[frameIndex].framebuffer, GL_COLOR, 0, glm::value_ptr(FOG_COLOR));
         glClearNamedFramebufferfi(frames[frameIndex].framebuffer, GL_DEPTH_STENCIL, 0, 0, 0);
 
         glBindFramebuffer(GL_FRAMEBUFFER, frames[frameIndex].framebuffer);
