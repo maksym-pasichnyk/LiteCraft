@@ -1893,12 +1893,12 @@ void Blocks::registerBlocks() {
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::WOOD));
-    PUMPKIN_STEM = createBlock<StemBlock>("pumpkin_stem", (StemGrownBlock *) PUMPKIN, Properties::create(Materials::PLANTS)
+    PUMPKIN_STEM = createBlock<StemBlock>("pumpkin_stem", (StemGrownBlock*)PUMPKIN, Properties::create(Materials::PLANTS)
         .doesNotBlockMovement()
         .setTickRandomly()
         .zeroHardnessAndResistance()
         .setSound(SoundType::STEM));
-    MELON_STEM = createBlock<StemBlock>("melon_stem", (StemGrownBlock *) MELON, Properties::create(Materials::PLANTS).doesNotBlockMovement().setTickRandomly().zeroHardnessAndResistance().setSound(SoundType::STEM));
+    MELON_STEM = createBlock<StemBlock>("melon_stem", (StemGrownBlock*)MELON, Properties::create(Materials::PLANTS).doesNotBlockMovement().setTickRandomly().zeroHardnessAndResistance().setSound(SoundType::STEM));
     VINE = createBlock<VineBlock>("vine", Properties::create(Materials::TALL_PLANTS)
         .doesNotBlockMovement()
         .setTickRandomly()

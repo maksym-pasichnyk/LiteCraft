@@ -5,6 +5,6 @@
 
 struct SimpleBlockPlacer : public BlockPlacer {
     void place(WorldGenRegion &world, glm::ivec3 pos, BlockData blockData, Random &rand) override {
-        world.setData(pos.x, pos.y + y, pos.z, blockData/*, 2*/);
+        world.setData(pos.x, pos.y, pos.z, blockData/*, 2*/);
     }
 };

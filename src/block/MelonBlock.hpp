@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "StemGrownBlock.hpp"
 
-struct MelonBlock : Block {
-    using Block::Block;
+struct MelonBlock : StemGrownBlock {
+    using StemGrownBlock::StemGrownBlock;
 };

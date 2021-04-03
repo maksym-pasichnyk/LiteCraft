@@ -22,7 +22,8 @@ enum class RenderType {
     Cross,
     Pane,
     Torch,
-    SnowLayer
+    SnowLayer,
+    Cactus,
 };
 
 enum class RenderLayer {

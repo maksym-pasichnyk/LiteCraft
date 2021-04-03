@@ -270,19 +270,22 @@ void renderCross(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRen
 
 	auto builder = rb.getForLayer(block->getRenderLayer());
 
-	builder.quad();
-	builder.quadInv();
-	builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, 0xFFFF, 1.0f);
-	builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
-	builder.vertex(fx + 1, fy + 1, fz + 1, coords.maxU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
-	builder.vertex(fx + 1, fy + 0, fz + 1, coords.maxU, coords.minV, r, g, b, 0xFFFF, 1.0f);
+	constexpr float f = 0.146446609f;
+	constexpr float s = 0.853553391f;
 
 	builder.quad();
 	builder.quadInv();
-	builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, 0xFFFF, 1.0f);
-	builder.vertex(fx + 0, fy + 1, fz + 1, coords.minU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
-	builder.vertex(fx + 1, fy + 1, fz + 0, coords.maxU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
-	builder.vertex(fx + 1, fy + 0, fz + 0, coords.maxU, coords.minV, r, g, b, 0xFFFF, 1.0f);
+	builder.vertex(fx + f, fy + 0, fz + f, coords.minU, coords.minV, r, g, b, 0xFFFF, 1.0f);
+	builder.vertex(fx + f, fy + 1, fz + f, coords.minU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+	builder.vertex(fx + s, fy + 1, fz + s, coords.maxU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+	builder.vertex(fx + s, fy + 0, fz + s, coords.maxU, coords.minV, r, g, b, 0xFFFF, 1.0f);
+
+	builder.quad();
+	builder.quadInv();
+	builder.vertex(fx + f, fy + 0, fz + s, coords.minU, coords.minV, r, g, b, 0xFFFF, 1.0f);
+	builder.vertex(fx + f, fy + 1, fz + s, coords.minU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+	builder.vertex(fx + s, fy + 1, fz + f, coords.maxU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
+	builder.vertex(fx + s, fy + 0, fz + f, coords.maxU, coords.minV, r, g, b, 0xFFFF, 1.0f);
 }
 
 void renderLiquid(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
@@ -513,6 +516,61 @@ void renderSnow(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRend
     renderBox(builder, pos, graphics, min, max);
 }
 
+void renderCactus(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
+    const auto [fx, fy, fz] = glm::vec3(pos);
+    auto builder = rb.getForLayer(block->getRenderLayer());
+
+//    const glm::vec3 min{0.0625f, 0.0f, 0.0625f};
+//    const glm::vec3 max{0.9375f, 1.0f, 0.9375f};
+    const glm::vec3 min{0.0f, 0.0f, 0.0f};
+    const glm::vec3 max{1.0f, 1.0f, 1.0f};
+
+    auto& graphics = block->getGraphics();
+
+    auto tex0 = graphics.southTexture->get(0);
+    auto tex1 = graphics.eastTexture->get(0);
+    auto tex2 = graphics.northTexture->get(0);
+    auto tex3 = graphics.westTexture->get(0);
+    auto tex4 = graphics.topTexture->get(0);
+    auto tex5 = graphics.bottomTexture->get(0);
+
+    builder.quad();
+    builder.vertex(fx + min.x, fy + min.y, fz + 0.0625f, tex0.getInterpolatedU(min.x), tex0.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + max.y, fz + 0.0625f, tex0.getInterpolatedU(min.x), tex0.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + 0.0625f, tex0.getInterpolatedU(max.x), tex0.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + min.y, fz + 0.0625f, tex0.getInterpolatedU(max.x), tex0.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+
+    builder.quad();
+    builder.vertex(fx + 0.9375f, fy + min.y, fz + min.z, tex1.getInterpolatedU(min.z), tex1.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + 0.9375f, fy + max.y, fz + min.z, tex1.getInterpolatedU(min.z), tex1.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + 0.9375f, fy + max.y, fz + max.z, tex1.getInterpolatedU(max.z), tex1.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + 0.9375f, fy + min.y, fz + max.z, tex1.getInterpolatedU(max.z), tex1.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+
+    builder.quad();
+    builder.vertex(fx + max.x, fy + min.y, fz + 0.9375f, tex2.getInterpolatedU(min.x), tex2.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + 0.9375f, tex2.getInterpolatedU(min.x), tex2.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + max.y, fz + 0.9375f, tex2.getInterpolatedU(max.x), tex2.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + min.y, fz + 0.9375f, tex2.getInterpolatedU(max.x), tex2.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+
+    builder.quad();
+    builder.vertex(fx + 0.0625f, fy + min.y, fz + max.z, tex3.getInterpolatedU(min.z), tex3.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + 0.0625f, fy + max.y, fz + max.z, tex3.getInterpolatedU(min.z), tex3.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + 0.0625f, fy + max.y, fz + min.z, tex3.getInterpolatedU(max.z), tex3.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + 0.0625f, fy + min.y, fz + min.z, tex3.getInterpolatedU(max.z), tex3.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+
+    builder.quad();
+    builder.vertex(fx + min.x, fy + max.y, fz + min.z, tex4.getInterpolatedU(min.x), tex4.getInterpolatedV(min.z), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + max.y, fz + max.z, tex4.getInterpolatedU(min.x), tex4.getInterpolatedV(max.z), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + max.z, tex4.getInterpolatedU(max.x), tex4.getInterpolatedV(max.z), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + min.z, tex4.getInterpolatedU(max.x), tex4.getInterpolatedV(min.z), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+
+    builder.quad();
+    builder.vertex(fx + min.x, fy + min.y, fz + max.z, tex5.getInterpolatedU(min.x), tex5.getInterpolatedV(max.z), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + min.y, fz + min.z, tex5.getInterpolatedU(min.x), tex5.getInterpolatedV(min.z), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + min.y, fz + min.z, tex5.getInterpolatedU(max.x), tex5.getInterpolatedV(min.z), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + min.y, fz + max.z, tex5.getInterpolatedU(max.x), tex5.getInterpolatedV(max.z), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+}
+
 void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
 	rb.clear();
 
@@ -549,6 +607,9 @@ void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
                     break;
                 case RenderType::SnowLayer:
                     renderSnow(pos, block, rb, blocks);
+                    break;
+                case RenderType::Cactus:
+                    renderCactus(pos, block, rb, blocks);
                     break;
 				}
             }

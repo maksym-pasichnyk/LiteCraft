@@ -190,8 +190,6 @@ struct BiomeMaker {
         return makeTropicalBiome(depth, scale, 0.9F, true, false, false/*, mobSpawnInfo*/);
     }
 
-
-
     static Biome* makeTropicalBiome(float depth, float scale, float downfall, bool hasOnlyBambooVegetation, bool isEdgeBiome, bool isModified/*, MobSpawnInfo::Builder mobSpawnBuilder*/) {
         auto generation = BiomeGenerationSettings::Builder{}
             .withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
@@ -414,7 +412,7 @@ struct BiomeMaker {
 
         DefaultBiomeFeatures::withNormalMushroomGeneration(generation);
         if (isSunflowerVariant) {
-//            generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::PATCH_PUMPKIN);
+            generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_PUMPKIN);
         } else {
             DefaultBiomeFeatures::withSugarCaneAndPumpkins(generation);
         }
