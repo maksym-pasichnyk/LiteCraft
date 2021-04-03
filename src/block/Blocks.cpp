@@ -615,8 +615,8 @@ Block *Blocks::SUNFLOWER;
 Block *Blocks::LILAC;
 Block *Blocks::ROSE_BUSH;
 Block *Blocks::PEONY;
-//Block *Blocks::TALL_GRASS;
-//Block *Blocks::LARGE_FERN;
+Block *Blocks::TALL_GRASS;
+Block *Blocks::LARGE_FERN;
 Block *Blocks::WHITE_BANNER;
 Block *Blocks::ORANGE_BANNER;
 Block *Blocks::MAGENTA_BANNER;
@@ -1031,13 +1031,12 @@ static T* createBlock(std::string name, Args &&...args) {
     }
 
     auto block = new T(id, std::forward<Args>(args)...);
-    if (!BlockGraphics::mBlockLookupMap.contains(name)) {
+    if (auto it = BlockGraphics::mBlockLookupMap.find(name); it != BlockGraphics::mBlockLookupMap.end()) {
+        block->graphics = it->second;
+    } else {
         fmt::print("missing block graphics: {}\n", name);
-
-        BlockGraphics::mBlockLookupMap.emplace(name, nullptr);
+        block->graphics = BlockGraphics::mMissingTexture;
     }
-
-    block->graphics = BlockGraphics::mBlockLookupMap.at(name);
 
     Blocks::blocks[id] = block;
     return block;
@@ -1080,7 +1079,7 @@ static Block *createBed(std::string name, DyeColors color) {
         .notSolid());
 }
 
-static Block *createStainedGlassFromColor(std::string name, DyeColors color) {
+static Block *createStainedGlass(std::string name, DyeColors color) {
     return createBlock<StainedGlassBlock>(std::move(name), color, Properties::create(Materials::GLASS, color)
           .setHardnessAndResistance(0.3F)
           .setSound(SoundType::GLASS)
@@ -1092,7 +1091,7 @@ static Block *createStainedGlassFromColor(std::string name, DyeColors color) {
 }
 
 static Block *createShulkerBox(std::string name, std::optional<DyeColors> color, Properties properties) {
-    auto isBlocksVision = [](BlockReader &reader, const BlockData &data, const glm::ivec3 &pos) -> bool {
+    static constexpr auto isBlocksVision = [](BlockReader &reader, const BlockData &data, const glm::ivec3 &pos) -> bool {
 //        TileEntity tileentity = p_235444_1_.getTileEntity(p_235444_2_);
 //        if (!(tileentity instanceof ShulkerBoxTileEntity)) {
 //            return true;
@@ -1115,24 +1114,6 @@ static Block* createBanner(std::string name, DyeColors color) {
     return createBlock<BannerBlock>(std::move(name), color, Properties::create(Materials::WOOD).doesNotBlockMovement().setHardnessAndResistance(1.0F).setSound(SoundType::WOOD));
 }
 
-auto getStoneMaterialColor(const BlockData &data) -> MaterialColor {
-    switch (data.dv) {
-        case 0:
-            return MaterialColors::STONE;
-        case 1:
-        case 2:
-            return MaterialColors::DIRT;
-        case 3:
-        case 4:
-            return MaterialColors::QUARTZ;
-        case 5:
-        case 6:
-            return MaterialColors::STONE;
-        default:
-            return MaterialColors::STONE;
-    }
-}
-
 void Blocks::registerBlocks() {
     using namespace std::string_literals;
 
@@ -1140,109 +1121,91 @@ void Blocks::registerBlocks() {
         .doesNotBlockMovement()
         .noDrops()
         .setAir());
-    STONE = createBlock<Block>("stone", Properties::create(Materials::ROCK, getStoneMaterialColor)
+    STONE = createBlock<Block>("stone", Properties::create(Materials::ROCK, MaterialColors::STONE)
         .setRequiresTool()
         .setHardnessAndResistance(1.5F, 6.0F));
-    //    STONE = createBlock<Block>("stone", Properties::create(Materials::ROCK, MaterialColors::STONE)
-    //.setRequiresTool()
-    //.setHardnessAndResistance(1.5F, 6.0F)));
-    //    GRANITE = createBlock<Block>("granite", Properties::create(Materials::ROCK, MaterialColors::DIRT)
-    //.setRequiresTool()
-    //.setHardnessAndResistance(1.5F, 6.0F)));
-    //    POLISHED_GRANITE = createBlock<Block>("polished_granite", Properties::create(Materials::ROCK, MaterialColors::DIRT)
-    //.setRequiresTool()
-    //.setHardnessAndResistance(1.5F, 6.0F)));
-    //    DIORITE = createBlock<Block>("diorite", Properties::create(Materials::ROCK, MaterialColors::QUARTZ)
-    //.setRequiresTool()
-    //.setHardnessAndResistance(1.5F, 6.0F)));
-    //    POLISHED_DIORITE = createBlock<Block>("polished_diorite", Properties::create(Materials::ROCK, MaterialColors::QUARTZ)
-    //.setRequiresTool()
-    //.setHardnessAndResistance(1.5F, 6.0F)));
-    //    ANDESITE = createBlock<Block>("andesite", Properties::create(Materials::ROCK, MaterialColors::STONE)
-    //.setRequiresTool()
-    //.setHardnessAndResistance(1.5F, 6.0F)));
-    //    POLISHED_ANDESITE = createBlock<Block>("polished_andesite", Properties::create(Materials::ROCK, MaterialColors::STONE)
-    //.setRequiresTool()
-    //.setHardnessAndResistance(1.5F, 6.0F)));
-    GRASS_BLOCK = createBlock<GrassBlock>("grass", Properties::create(Materials::ORGANIC)
+    GRANITE = createBlock<Block>("granite", Properties::create(Materials::ROCK, MaterialColors::DIRT)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.5F, 6.0F));
+    POLISHED_GRANITE = createBlock<Block>("polished_granite", Properties::create(Materials::ROCK, MaterialColors::DIRT)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.5F, 6.0F));
+    DIORITE = createBlock<Block>("diorite", Properties::create(Materials::ROCK, MaterialColors::QUARTZ)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.5F, 6.0F));
+    POLISHED_DIORITE = createBlock<Block>("polished_diorite", Properties::create(Materials::ROCK, MaterialColors::QUARTZ)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.5F, 6.0F));
+    ANDESITE = createBlock<Block>("andesite", Properties::create(Materials::ROCK, MaterialColors::STONE)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.5F, 6.0F));
+    POLISHED_ANDESITE = createBlock<Block>("polished_andesite", Properties::create(Materials::ROCK, MaterialColors::STONE)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.5F, 6.0F));
+    GRASS_BLOCK = createBlock<GrassBlock>("grass_block", Properties::create(Materials::ORGANIC)
         .setTickRandomly()
         .setHardnessAndResistance(0.6F)
         .setSound(SoundType::PLANT));
     DIRT = createBlock<Block>("dirt", Properties::create(Materials::EARTH, MaterialColors::DIRT)
         .setHardnessAndResistance(0.5F)
         .setSound(SoundType::GROUND));
-    //    COARSE_DIRT = createBlock<Block>("coarse_dirt", Properties::create(Materials::EARTH, MaterialColors::DIRT)
-    //.setHardnessAndResistance(0.5F)
-    //.setSound(SoundType::GROUND)));
+    COARSE_DIRT = createBlock<Block>("coarse_dirt", Properties::create(Materials::EARTH, MaterialColors::DIRT)
+        .setHardnessAndResistance(0.5F)
+        .setSound(SoundType::GROUND));
     PODZOL = createBlock<SnowyDirtBlock>("podzol", Properties::create(Materials::EARTH, MaterialColors::OBSIDIAN)
         .setHardnessAndResistance(0.5F)
         .setSound(SoundType::GROUND));
     COBBLESTONE = createBlock<Block>("cobblestone", Properties::create(Materials::ROCK)
         .setRequiresTool()
         .setHardnessAndResistance(2.0F, 6.0F));
-    /*PLANKS = createBlock<Block>("planks", (
-Properties::create(Materials::WOOD, [](const BlockData& data) -> MaterialColor {
-    switch (data.val) {
-        case 0: return MaterialColors::WOOD;
-        case 1: return MaterialColors::OBSIDIAN;
-        case 2: return MaterialColors::SAND;
-        case 3: return MaterialColors::DIRT;
-        case 4: return MaterialColors::QUARTZ;
-        case 5: return MaterialColors::ADOBE;
-        case 6: return MaterialColors::BROWN;
-        default: return MaterialColors::WOOD;
-    }
-})
-.setHardnessAndResistance(2.0F, 3.0F)
-.setSound(SoundType::WOOD)));*/
-    //    OAK_PLANKS = createBlock<Block>("oak_planks", Properties::create(Materials::WOOD, MaterialColors::WOOD)
-    //.setHardnessAndResistance(2.0F, 3.0F)
-    //.setSound(SoundType::WOOD)));
-    //    SPRUCE_PLANKS = createBlock<Block>("spruce_planks", Properties::create(Materials::WOOD, MaterialColors::OBSIDIAN)
-    //.setHardnessAndResistance(2.0F, 3.0F)
-    //.setSound(SoundType::WOOD)));
-    //    BIRCH_PLANKS = createBlock<Block>("birch_planks", Properties::create(Materials::WOOD, MaterialColors::SAND)
-    //.setHardnessAndResistance(2.0F, 3.0F)
-    //.setSound(SoundType::WOOD)));
-    //    JUNGLE_PLANKS = createBlock<Block>("jungle_planks", Properties::create(Materials::WOOD, MaterialColors::DIRT)
-    //.setHardnessAndResistance(2.0F, 3.0F)
-    //.setSound(SoundType::WOOD)));
-    //    ACACIA_PLANKS = createBlock<Block>("acacia_planks", Properties::create(Materials::WOOD, MaterialColors::ADOBE)
-    //.setHardnessAndResistance(2.0F, 3.0F)
-    //.setSound(SoundType::WOOD)));
-    //    DARK_OAK_PLANKS = createBlock<Block>("dark_oak_planks", Properties::create(Materials::WOOD, MaterialColors::BROWN)
-    //.setHardnessAndResistance(2.0F, 3.0F)
-    //.setSound(SoundType::WOOD)));
-    //    OAK_SAPLING = createBlock<SaplingBlock>("oak_sapling", (new OakTree(), Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.setTickRandomly()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
-    //    SPRUCE_SAPLING = createBlock<SaplingBlock>("spruce_sapling", (new SpruceTree(), Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.setTickRandomly()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
-    //    BIRCH_SAPLING = createBlock<SaplingBlock>("birch_sapling", (new BirchTree(), Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.setTickRandomly()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
-    //    JUNGLE_SAPLING = createBlock<SaplingBlock>("jungle_sapling", (new JungleTree(), Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.setTickRandomly()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
-    //    ACACIA_SAPLING = createBlock<SaplingBlock>("acacia_sapling", (new AcaciaTree(), Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.setTickRandomly()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
-    //    DARK_OAK_SAPLING = createBlock<SaplingBlock>("dark_oak_sapling", (new DarkOakTree(), Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.setTickRandomly()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
+    OAK_PLANKS = createBlock<Block>("oak_planks", Properties::create(Materials::WOOD, MaterialColors::WOOD)
+        .setHardnessAndResistance(2.0F, 3.0F)
+        .setSound(SoundType::WOOD));
+    SPRUCE_PLANKS = createBlock<Block>("spruce_planks", Properties::create(Materials::WOOD, MaterialColors::OBSIDIAN)
+        .setHardnessAndResistance(2.0F, 3.0F)
+        .setSound(SoundType::WOOD));
+    BIRCH_PLANKS = createBlock<Block>("birch_planks", Properties::create(Materials::WOOD, MaterialColors::SAND)
+        .setHardnessAndResistance(2.0F, 3.0F)
+        .setSound(SoundType::WOOD));
+    JUNGLE_PLANKS = createBlock<Block>("jungle_planks", Properties::create(Materials::WOOD, MaterialColors::DIRT)
+        .setHardnessAndResistance(2.0F, 3.0F)
+        .setSound(SoundType::WOOD));
+    ACACIA_PLANKS = createBlock<Block>("acacia_planks", Properties::create(Materials::WOOD, MaterialColors::ADOBE)
+        .setHardnessAndResistance(2.0F, 3.0F)
+        .setSound(SoundType::WOOD));
+    DARK_OAK_PLANKS = createBlock<Block>("dark_oak_planks", Properties::create(Materials::WOOD, MaterialColors::BROWN)
+        .setHardnessAndResistance(2.0F, 3.0F)
+        .setSound(SoundType::WOOD));
+    OAK_SAPLING = createBlock<SaplingBlock>("oak_sapling", new OakTree(), Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .setTickRandomly()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
+    SPRUCE_SAPLING = createBlock<SaplingBlock>("spruce_sapling", new SpruceTree(), Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .setTickRandomly()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
+    BIRCH_SAPLING = createBlock<SaplingBlock>("birch_sapling", new BirchTree(), Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .setTickRandomly()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
+    JUNGLE_SAPLING = createBlock<SaplingBlock>("jungle_sapling", new JungleTree(), Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .setTickRandomly()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
+    ACACIA_SAPLING = createBlock<SaplingBlock>("acacia_sapling", new AcaciaTree(), Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .setTickRandomly()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
+    DARK_OAK_SAPLING = createBlock<SaplingBlock>("dark_oak_sapling", new DarkOakTree(), Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .setTickRandomly()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
     BEDROCK = createBlock<Block>("bedrock", Properties::create(Materials::ROCK)
         .setHardnessAndResistance(-1.0F, 3600000.0F)
         .noDrops()
@@ -1250,9 +1213,9 @@ Properties::create(Materials::WOOD, [](const BlockData& data) -> MaterialColor {
     WATER = createBlock<FlowingFluidBlock>("water", Fluids::WATER, Properties::create(Materials::WATER).doesNotBlockMovement().setHardnessAndResistance(100.0F).noDrops());
     LAVA = createBlock<FlowingFluidBlock>("lava", Fluids::LAVA, Properties::create(Materials::LAVA).doesNotBlockMovement().setTickRandomly().setHardnessAndResistance(100.0F).setLightLevel(getLightValue(15)).noDrops());
     SAND = createBlock<SandBlock>("sand", 14406560, Properties::create(Materials::SAND, MaterialColors::SAND).setHardnessAndResistance(0.5F).setSound(SoundType::SAND));
-    //    RED_SAND = createBlock<SandBlock>("red_sand", (11098145, Properties::create(Materials::SAND, MaterialColors::ADOBE)
-    //.setHardnessAndResistance(0.5F)
-    //.setSound(SoundType::SAND)));
+    RED_SAND = createBlock<SandBlock>("red_sand", 11098145, Properties::create(Materials::SAND, MaterialColors::ADOBE)
+        .setHardnessAndResistance(0.5F)
+        .setSound(SoundType::SAND));
     GRAVEL = createBlock<GravelBlock>("gravel", Properties::create(Materials::SAND, MaterialColors::STONE)
         .setHardnessAndResistance(0.6F)
         .setSound(SoundType::GROUND));
@@ -1269,66 +1232,66 @@ Properties::create(Materials::WOOD, [](const BlockData& data) -> MaterialColor {
         .setRequiresTool()
         .setHardnessAndResistance(3.0F, 3.0F)
         .setSound(SoundType::NETHER_GOLD));
-    //    OAK_LOG = createLogBlock("oak_log", MaterialColors::WOOD, MaterialColors::OBSIDIAN));
-    //    SPRUCE_LOG = createLogBlock("spruce_log", MaterialColors::OBSIDIAN, MaterialColors::BROWN);
-    //    BIRCH_LOG = createLogBlock("birch_log", MaterialColors::SAND, MaterialColors::QUARTZ);
-    //    JUNGLE_LOG = createLogBlock("jungle_log", MaterialColors::DIRT, MaterialColors::OBSIDIAN);
-    //    ACACIA_LOG = createLogBlock("acacia_log", MaterialColors::ADOBE, MaterialColors::STONE);
-    //    DARK_OAK_LOG = createLogBlock("dark_oak_log", MaterialColors::BROWN, MaterialColors::BROWN);
+    OAK_LOG = createLogBlock("oak_log", MaterialColors::WOOD, MaterialColors::OBSIDIAN);
+    SPRUCE_LOG = createLogBlock("spruce_log", MaterialColors::OBSIDIAN, MaterialColors::BROWN);
+    BIRCH_LOG = createLogBlock("birch_log", MaterialColors::SAND, MaterialColors::QUARTZ);
+    JUNGLE_LOG = createLogBlock("jungle_log", MaterialColors::DIRT, MaterialColors::OBSIDIAN);
+    ACACIA_LOG = createLogBlock("acacia_log", MaterialColors::ADOBE, MaterialColors::STONE);
+    DARK_OAK_LOG = createLogBlock("dark_oak_log", MaterialColors::BROWN, MaterialColors::BROWN);
     STRIPPED_SPRUCE_LOG = createLogBlock("stripped_spruce_log", MaterialColors::OBSIDIAN, MaterialColors::OBSIDIAN);
     STRIPPED_BIRCH_LOG = createLogBlock("stripped_birch_log", MaterialColors::SAND, MaterialColors::SAND);
     STRIPPED_JUNGLE_LOG = createLogBlock("stripped_jungle_log", MaterialColors::DIRT, MaterialColors::DIRT);
     STRIPPED_ACACIA_LOG = createLogBlock("stripped_acacia_log", MaterialColors::ADOBE, MaterialColors::ADOBE);
     STRIPPED_DARK_OAK_LOG = createLogBlock("stripped_dark_oak_log", MaterialColors::BROWN, MaterialColors::BROWN);
     STRIPPED_OAK_LOG = createLogBlock("stripped_oak_log", MaterialColors::WOOD, MaterialColors::WOOD);
-    //    OAK_WOOD = createBlock<RotatedPillarBlock>("oak_wood", Properties::create(Materials::WOOD, MaterialColors::WOOD)
-    //.setHardnessAndResistance(2.0F)
-    //.setSound(SoundType::WOOD)));
-    //    SPRUCE_WOOD = createBlock<RotatedPillarBlock>("spruce_wood", Properties::create(Materials::WOOD, MaterialColors::OBSIDIAN)
-    //.setHardnessAndResistance(2.0F)
-    //.setSound(SoundType::WOOD)));
-    //    BIRCH_WOOD = createBlock<RotatedPillarBlock>("birch_wood", Properties::create(Materials::WOOD, MaterialColors::SAND)
-    //.setHardnessAndResistance(2.0F)
-    //.setSound(SoundType::WOOD)));
-    //    JUNGLE_WOOD = createBlock<RotatedPillarBlock>("jungle_wood", Properties::create(Materials::WOOD, MaterialColors::DIRT)
-    //.setHardnessAndResistance(2.0F)
-    //.setSound(SoundType::WOOD)));
-    //    ACACIA_WOOD = createBlock<RotatedPillarBlock>("acacia_wood", Properties::create(Materials::WOOD, MaterialColors::GRAY)
-    //.setHardnessAndResistance(2.0F)
-    //.setSound(SoundType::WOOD)));
-    //    DARK_OAK_WOOD = createBlock<RotatedPillarBlock>("dark_oak_wood", Properties::create(Materials::WOOD, MaterialColors::BROWN)
-    //.setHardnessAndResistance(2.0F)
-    //.setSound(SoundType::WOOD)));
-    //    STRIPPED_OAK_WOOD = createBlock<RotatedPillarBlock>("stripped_oak_wood", Properties::create(Materials::WOOD, MaterialColors::WOOD)
-    //.setHardnessAndResistance(2.0F)
-    //.setSound(SoundType::WOOD)));
-    //    STRIPPED_SPRUCE_WOOD = createBlock<RotatedPillarBlock>("stripped_spruce_wood", Properties::create(Materials::WOOD, MaterialColors::OBSIDIAN)
-    //.setHardnessAndResistance(2.0F)
-    //.setSound(SoundType::WOOD)));
-    //    STRIPPED_BIRCH_WOOD = createBlock<RotatedPillarBlock>("stripped_birch_wood", Properties::create(Materials::WOOD, MaterialColors::SAND)
-    //.setHardnessAndResistance(2.0F)
-    //.setSound(SoundType::WOOD)));
-    //    STRIPPED_JUNGLE_WOOD = createBlock<RotatedPillarBlock>("stripped_jungle_wood", Properties::create(Materials::WOOD, MaterialColors::DIRT)
-    //.setHardnessAndResistance(2.0F)
-    //.setSound(SoundType::WOOD)));
-    //    STRIPPED_ACACIA_WOOD = createBlock<RotatedPillarBlock>("stripped_acacia_wood", Properties::create(Materials::WOOD, MaterialColors::ADOBE)
-    //.setHardnessAndResistance(2.0F)
-    //.setSound(SoundType::WOOD)));
-    //    STRIPPED_DARK_OAK_WOOD = createBlock<RotatedPillarBlock>("stripped_dark_oak_wood", Properties::create(Materials::WOOD, MaterialColors::BROWN)
-    //.setHardnessAndResistance(2.0F)
-    //.setSound(SoundType::WOOD)));
-    //    OAK_LEAVES = createLeavesBlock("oak_leaves");
-    //    SPRUCE_LEAVES = createLeavesBlock("spruce_leaves");
-    //    BIRCH_LEAVES = createLeavesBlock("birch_leaves");
-    //    JUNGLE_LEAVES = createLeavesBlock("jungle_leaves");
-    //    ACACIA_LEAVES = createLeavesBlock("acacia_leaves");
-    //    DARK_OAK_LEAVES = createLeavesBlock("dark_oak_leaves");
+    OAK_WOOD = createBlock<RotatedPillarBlock>("oak_wood", Properties::create(Materials::WOOD, MaterialColors::WOOD)
+        .setHardnessAndResistance(2.0F)
+        .setSound(SoundType::WOOD));
+    SPRUCE_WOOD = createBlock<RotatedPillarBlock>("spruce_wood", Properties::create(Materials::WOOD, MaterialColors::OBSIDIAN)
+        .setHardnessAndResistance(2.0F)
+        .setSound(SoundType::WOOD));
+    BIRCH_WOOD = createBlock<RotatedPillarBlock>("birch_wood", Properties::create(Materials::WOOD, MaterialColors::SAND)
+        .setHardnessAndResistance(2.0F)
+        .setSound(SoundType::WOOD));
+    JUNGLE_WOOD = createBlock<RotatedPillarBlock>("jungle_wood", Properties::create(Materials::WOOD, MaterialColors::DIRT)
+        .setHardnessAndResistance(2.0F)
+        .setSound(SoundType::WOOD));
+    ACACIA_WOOD = createBlock<RotatedPillarBlock>("acacia_wood", Properties::create(Materials::WOOD, MaterialColors::GRAY)
+        .setHardnessAndResistance(2.0F)
+        .setSound(SoundType::WOOD));
+    DARK_OAK_WOOD = createBlock<RotatedPillarBlock>("dark_oak_wood", Properties::create(Materials::WOOD, MaterialColors::BROWN)
+        .setHardnessAndResistance(2.0F)
+        .setSound(SoundType::WOOD));
+    STRIPPED_OAK_WOOD = createBlock<RotatedPillarBlock>("stripped_oak_wood", Properties::create(Materials::WOOD, MaterialColors::WOOD)
+        .setHardnessAndResistance(2.0F)
+        .setSound(SoundType::WOOD));
+    STRIPPED_SPRUCE_WOOD = createBlock<RotatedPillarBlock>("stripped_spruce_wood", Properties::create(Materials::WOOD, MaterialColors::OBSIDIAN)
+        .setHardnessAndResistance(2.0F)
+        .setSound(SoundType::WOOD));
+    STRIPPED_BIRCH_WOOD = createBlock<RotatedPillarBlock>("stripped_birch_wood", Properties::create(Materials::WOOD, MaterialColors::SAND)
+        .setHardnessAndResistance(2.0F)
+        .setSound(SoundType::WOOD));
+    STRIPPED_JUNGLE_WOOD = createBlock<RotatedPillarBlock>("stripped_jungle_wood", Properties::create(Materials::WOOD, MaterialColors::DIRT)
+        .setHardnessAndResistance(2.0F)
+        .setSound(SoundType::WOOD));
+    STRIPPED_ACACIA_WOOD = createBlock<RotatedPillarBlock>("stripped_acacia_wood", Properties::create(Materials::WOOD, MaterialColors::ADOBE)
+        .setHardnessAndResistance(2.0F)
+        .setSound(SoundType::WOOD));
+    STRIPPED_DARK_OAK_WOOD = createBlock<RotatedPillarBlock>("stripped_dark_oak_wood", Properties::create(Materials::WOOD, MaterialColors::BROWN)
+        .setHardnessAndResistance(2.0F)
+        .setSound(SoundType::WOOD));
+    OAK_LEAVES = createLeavesBlock("oak_leaves");
+    SPRUCE_LEAVES = createLeavesBlock("spruce_leaves");
+    BIRCH_LEAVES = createLeavesBlock("birch_leaves");
+    JUNGLE_LEAVES = createLeavesBlock("jungle_leaves");
+    ACACIA_LEAVES = createLeavesBlock("acacia_leaves");
+    DARK_OAK_LEAVES = createLeavesBlock("dark_oak_leaves");
     SPONGE = createBlock<SpongeBlock>("sponge", Properties::create(Materials::SPONGE)
         .setHardnessAndResistance(0.6F)
         .setSound(SoundType::PLANT));
-    //    WET_SPONGE = createBlock<WetSpongeBlock>("wet_sponge", Properties::create(Materials::SPONGE)
-    //.setHardnessAndResistance(0.6F)
-    //.setSound(SoundType::PLANT)));
+    WET_SPONGE = createBlock<WetSpongeBlock>("wet_sponge", Properties::create(Materials::SPONGE)
+        .setHardnessAndResistance(0.6F)
+        .setSound(SoundType::PLANT));
     GLASS = createBlock<GlassBlock>("glass", Properties::create(Materials::GLASS)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
@@ -1349,173 +1312,173 @@ Properties::create(Materials::WOOD, [](const BlockData& data) -> MaterialColor {
     SANDSTONE = createBlock<Block>("sandstone", Properties::create(Materials::ROCK, MaterialColors::SAND)
         .setRequiresTool()
         .setHardnessAndResistance(0.8F));
-    //    CHISELED_SANDSTONE = createBlock<Block>("chiseled_sandstone", Properties::create(Materials::ROCK, MaterialColors::SAND)
-    //.setRequiresTool()
-    //.setHardnessAndResistance(0.8F)));
-    //    CUT_SANDSTONE = createBlock<Block>("cut_sandstone", Properties::create(Materials::ROCK, MaterialColors::SAND)
-    //.setRequiresTool()
-    //.setHardnessAndResistance(0.8F)));
-    //    NOTE_BLOCK = createBlock<NoteBlock>("note_block", Properties::create(Materials::WOOD)
-    //.setSound(SoundType::WOOD)
-    //.setHardnessAndResistance(0.8F)));
-    //    WHITE_BED = createBed("white_bed", (DyeColors::WHITE));
-    //    ORANGE_BED = createBed("orange_bed", DyeColors::ORANGE);
-    //    MAGENTA_BED = createBed("magenta_bed", DyeColors::MAGENTA);
-    //    LIGHT_BLUE_BED = createBed("light_blue_bed", DyeColors::LIGHT_BLUE);
-    //    YELLOW_BED = createBed("yellow_bed", DyeColors::YELLOW);
-    //    LIME_BED = createBed("lime_bed", DyeColors::LIME);
-    //    PINK_BED = createBed("pink_bed", DyeColors::PINK);
-    //    GRAY_BED = createBed("gray_bed", DyeColors::GRAY);
-    //    LIGHT_GRAY_BED = createBed("light_gray_bed", DyeColors::LIGHT_GRAY);
-    //    CYAN_BED = createBed("cyan_bed", DyeColors::CYAN);
-    //    PURPLE_BED = createBed("purple_bed", DyeColors::PURPLE);
-    //    BLUE_BED = createBed("blue_bed", DyeColors::BLUE);
-    //    BROWN_BED = createBed("brown_bed", DyeColors::BROWN);
-    //    GREEN_BED = createBed("green_bed", DyeColors::GREEN);
-    //    RED_BED = createBed("red_bed", DyeColors::RED);
-    //    BLACK_BED = createBed("black_bed", DyeColors::BLACK);
-    //    POWERED_RAIL = createBlock<PoweredRailBlock>("powered_rail", Properties::create(Materials::MISCELLANEOUS)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(0.7F)
-    //.setSound(SoundType::METAL)));
+    CHISELED_SANDSTONE = createBlock<Block>("chiseled_sandstone", Properties::create(Materials::ROCK, MaterialColors::SAND)
+        .setRequiresTool()
+        .setHardnessAndResistance(0.8F));
+    CUT_SANDSTONE = createBlock<Block>("cut_sandstone", Properties::create(Materials::ROCK, MaterialColors::SAND)
+        .setRequiresTool()
+        .setHardnessAndResistance(0.8F));
+    NOTE_BLOCK = createBlock<NoteBlock>("note_block", Properties::create(Materials::WOOD)
+        .setSound(SoundType::WOOD)
+        .setHardnessAndResistance(0.8F));
+    WHITE_BED = createBed("white_bed", (DyeColors::WHITE));
+    ORANGE_BED = createBed("orange_bed", DyeColors::ORANGE);
+    MAGENTA_BED = createBed("magenta_bed", DyeColors::MAGENTA);
+    LIGHT_BLUE_BED = createBed("light_blue_bed", DyeColors::LIGHT_BLUE);
+    YELLOW_BED = createBed("yellow_bed", DyeColors::YELLOW);
+    LIME_BED = createBed("lime_bed", DyeColors::LIME);
+    PINK_BED = createBed("pink_bed", DyeColors::PINK);
+    GRAY_BED = createBed("gray_bed", DyeColors::GRAY);
+    LIGHT_GRAY_BED = createBed("light_gray_bed", DyeColors::LIGHT_GRAY);
+    CYAN_BED = createBed("cyan_bed", DyeColors::CYAN);
+    PURPLE_BED = createBed("purple_bed", DyeColors::PURPLE);
+    BLUE_BED = createBed("blue_bed", DyeColors::BLUE);
+    BROWN_BED = createBed("brown_bed", DyeColors::BROWN);
+    GREEN_BED = createBed("green_bed", DyeColors::GREEN);
+    RED_BED = createBed("red_bed", DyeColors::RED);
+    BLACK_BED = createBed("black_bed", DyeColors::BLACK);
+    POWERED_RAIL = createBlock<PoweredRailBlock>("powered_rail", Properties::create(Materials::MISCELLANEOUS)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(0.7F)
+        .setSound(SoundType::METAL));
     DETECTOR_RAIL = createBlock<DetectorRailBlock>("detector_rail", Properties::create(Materials::MISCELLANEOUS)
         .doesNotBlockMovement()
         .setHardnessAndResistance(0.7F)
         .setSound(SoundType::METAL));
     STICKY_PISTON = createPiston("sticky_piston", true);
-    COBWEB = createBlock<WebBlock>("web", Properties::create(Materials::WEB)
+    COBWEB = createBlock<WebBlock>("cobweb", Properties::create(Materials::WEB)
         .doesNotBlockMovement()
         .setRequiresTool()
         .setHardnessAndResistance(4.0F));
-    GRASS = createBlock<TallGrassBlock>("tallgrass", Properties::create(Materials::TALL_PLANTS)
+    GRASS = createBlock<TallGrassBlock>("grass", Properties::create(Materials::TALL_PLANTS)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
-    //    FERN = createBlock<TallGrassBlock>("fern", Properties::create(Materials::TALL_PLANTS)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
-    //    DEAD_BUSH = createBlock<DeadBushBlock>("dead_bush", Properties::create(Materials::TALL_PLANTS, MaterialColors::WOOD)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
+    FERN = createBlock<TallGrassBlock>("fern", Properties::create(Materials::TALL_PLANTS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
+    DEAD_BUSH = createBlock<DeadBushBlock>("dead_bush", Properties::create(Materials::TALL_PLANTS, MaterialColors::WOOD)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
     SEAGRASS = createBlock<SeaGrassBlock>("seagrass", Properties::create(Materials::SEA_GRASS)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::WET_GRASS));
-    //    TALL_SEAGRASS = createBlock<TallSeaGrassBlock>("tall_seagrass", Properties::create(Materials::SEA_GRASS)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::WET_GRASS)));
+    TALL_SEAGRASS = createBlock<TallSeaGrassBlock>("tall_seagrass", Properties::create(Materials::SEA_GRASS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::WET_GRASS));
     PISTON = createPiston("piston", false);
-    //    PISTON_HEAD = createBlock<PistonHeadBlock>("piston_head", Properties::create(Materials::PISTON)
-    //.setHardnessAndResistance(1.5F)
-    //.noDrops()));
-    //    WHITE_WOOL = createBlock<Block>("white_wool", Properties::create(Materials::WOOL, MaterialColors::SNOW)
-    //.setHardnessAndResistance(0.8F)
-    //.setSound(SoundType::CLOTH)));
-    //    ORANGE_WOOL = createBlock<Block>("orange_wool", Properties::create(Materials::WOOL, MaterialColors::ADOBE)
-    //.setHardnessAndResistance(0.8F)
-    //.setSound(SoundType::CLOTH)));
-    //    MAGENTA_WOOL = createBlock<Block>("magenta_wool", Properties::create(Materials::WOOL, MaterialColors::MAGENTA)
-    //.setHardnessAndResistance(0.8F)
-    //.setSound(SoundType::CLOTH)));
-    //    LIGHT_BLUE_WOOL = createBlock<Block>("light_blue_wool", Properties::create(Materials::WOOL, MaterialColors::LIGHT_BLUE)
-    //.setHardnessAndResistance(0.8F)
-    //.setSound(SoundType::CLOTH)));
-    //    YELLOW_WOOL = createBlock<Block>("yellow_wool", Properties::create(Materials::WOOL, MaterialColors::YELLOW)
-    //.setHardnessAndResistance(0.8F)
-    //.setSound(SoundType::CLOTH)));
-    //    LIME_WOOL = createBlock<Block>("lime_wool", Properties::create(Materials::WOOL, MaterialColors::LIME)
-    //.setHardnessAndResistance(0.8F)
-    //.setSound(SoundType::CLOTH)));
-    //    PINK_WOOL = createBlock<Block>("pink_wool", Properties::create(Materials::WOOL, MaterialColors::PINK)
-    //.setHardnessAndResistance(0.8F)
-    //.setSound(SoundType::CLOTH)));
-    //    GRAY_WOOL = createBlock<Block>("gray_wool", Properties::create(Materials::WOOL, MaterialColors::GRAY)
-    //.setHardnessAndResistance(0.8F)
-    //.setSound(SoundType::CLOTH)));
-    //    LIGHT_GRAY_WOOL = createBlock<Block>("light_gray_wool", Properties::create(Materials::WOOL, MaterialColors::LIGHT_GRAY)
-    //.setHardnessAndResistance(0.8F)
-    //.setSound(SoundType::CLOTH)));
-    //    CYAN_WOOL = createBlock<Block>("cyan_wool", Properties::create(Materials::WOOL, MaterialColors::CYAN)
-    //.setHardnessAndResistance(0.8F)
-    //.setSound(SoundType::CLOTH)));
-    //    PURPLE_WOOL = createBlock<Block>("purple_wool", Properties::create(Materials::WOOL, MaterialColors::PURPLE)
-    //.setHardnessAndResistance(0.8F)
-    //.setSound(SoundType::CLOTH)));
-    //    BLUE_WOOL = createBlock<Block>("blue_wool", Properties::create(Materials::WOOL, MaterialColors::BLUE)
-    //.setHardnessAndResistance(0.8F)
-    //.setSound(SoundType::CLOTH)));
-    //    BROWN_WOOL = createBlock<Block>("brown_wool", Properties::create(Materials::WOOL, MaterialColors::BROWN)
-    //.setHardnessAndResistance(0.8F)
-    //.setSound(SoundType::CLOTH)));
-    //    GREEN_WOOL = createBlock<Block>("green_wool", Properties::create(Materials::WOOL, MaterialColors::GREEN)
-    //.setHardnessAndResistance(0.8F)
-    //.setSound(SoundType::CLOTH)));
-    //    RED_WOOL = createBlock<Block>("red_wool", Properties::create(Materials::WOOL, MaterialColors::RED)
-    //.setHardnessAndResistance(0.8F)
-    //.setSound(SoundType::CLOTH)));
-    //    BLACK_WOOL = createBlock<Block>("black_wool", Properties::create(Materials::WOOL, MaterialColors::BLACK)
-    //.setHardnessAndResistance(0.8F)
-    //.setSound(SoundType::CLOTH)));
-    //    MOVING_PISTON = createBlock<MovingPistonBlock>("moving_piston", Properties::create(Materials::PISTON)
-    //.setHardnessAndResistance(-1.0F)
-    //.setVariableOpacity()
-    //.noDrops()
-    //.notSolid()
-    //.setOpaque(isntSolid)
-    //.setSuffocates(isntSolid)
-    //.setBlocksVision(isntSolid)));
-    DANDELION = createBlock<FlowerBlock>("yellow_flower", Effects::SATURATION, 7, Properties::create(Materials::PLANTS)
+    PISTON_HEAD = createBlock<PistonHeadBlock>("piston_head", Properties::create(Materials::PISTON)
+        .setHardnessAndResistance(1.5F)
+        .noDrops());
+    WHITE_WOOL = createBlock<Block>("white_wool", Properties::create(Materials::WOOL, MaterialColors::SNOW)
+        .setHardnessAndResistance(0.8F)
+        .setSound(SoundType::CLOTH));
+    ORANGE_WOOL = createBlock<Block>("orange_wool", Properties::create(Materials::WOOL, MaterialColors::ADOBE)
+        .setHardnessAndResistance(0.8F)
+        .setSound(SoundType::CLOTH));
+    MAGENTA_WOOL = createBlock<Block>("magenta_wool", Properties::create(Materials::WOOL, MaterialColors::MAGENTA)
+        .setHardnessAndResistance(0.8F)
+        .setSound(SoundType::CLOTH));
+    LIGHT_BLUE_WOOL = createBlock<Block>("light_blue_wool", Properties::create(Materials::WOOL, MaterialColors::LIGHT_BLUE)
+        .setHardnessAndResistance(0.8F)
+        .setSound(SoundType::CLOTH));
+    YELLOW_WOOL = createBlock<Block>("yellow_wool", Properties::create(Materials::WOOL, MaterialColors::YELLOW)
+        .setHardnessAndResistance(0.8F)
+        .setSound(SoundType::CLOTH));
+    LIME_WOOL = createBlock<Block>("lime_wool", Properties::create(Materials::WOOL, MaterialColors::LIME)
+        .setHardnessAndResistance(0.8F)
+        .setSound(SoundType::CLOTH));
+    PINK_WOOL = createBlock<Block>("pink_wool", Properties::create(Materials::WOOL, MaterialColors::PINK)
+        .setHardnessAndResistance(0.8F)
+        .setSound(SoundType::CLOTH));
+    GRAY_WOOL = createBlock<Block>("gray_wool", Properties::create(Materials::WOOL, MaterialColors::GRAY)
+        .setHardnessAndResistance(0.8F)
+        .setSound(SoundType::CLOTH));
+    LIGHT_GRAY_WOOL = createBlock<Block>("light_gray_wool", Properties::create(Materials::WOOL, MaterialColors::LIGHT_GRAY)
+        .setHardnessAndResistance(0.8F)
+        .setSound(SoundType::CLOTH));
+    CYAN_WOOL = createBlock<Block>("cyan_wool", Properties::create(Materials::WOOL, MaterialColors::CYAN)
+        .setHardnessAndResistance(0.8F)
+        .setSound(SoundType::CLOTH));
+    PURPLE_WOOL = createBlock<Block>("purple_wool", Properties::create(Materials::WOOL, MaterialColors::PURPLE)
+        .setHardnessAndResistance(0.8F)
+        .setSound(SoundType::CLOTH));
+    BLUE_WOOL = createBlock<Block>("blue_wool", Properties::create(Materials::WOOL, MaterialColors::BLUE)
+        .setHardnessAndResistance(0.8F)
+        .setSound(SoundType::CLOTH));
+    BROWN_WOOL = createBlock<Block>("brown_wool", Properties::create(Materials::WOOL, MaterialColors::BROWN)
+        .setHardnessAndResistance(0.8F)
+        .setSound(SoundType::CLOTH));
+    GREEN_WOOL = createBlock<Block>("green_wool", Properties::create(Materials::WOOL, MaterialColors::GREEN)
+        .setHardnessAndResistance(0.8F)
+        .setSound(SoundType::CLOTH));
+    RED_WOOL = createBlock<Block>("red_wool", Properties::create(Materials::WOOL, MaterialColors::RED)
+        .setHardnessAndResistance(0.8F)
+        .setSound(SoundType::CLOTH));
+    BLACK_WOOL = createBlock<Block>("black_wool", Properties::create(Materials::WOOL, MaterialColors::BLACK)
+        .setHardnessAndResistance(0.8F)
+        .setSound(SoundType::CLOTH));
+    MOVING_PISTON = createBlock<MovingPistonBlock>("moving_piston", Properties::create(Materials::PISTON)
+        .setHardnessAndResistance(-1.0F)
+        .setVariableOpacity()
+        .noDrops()
+        .notSolid()
+        .setOpaque(isntSolid)
+        .setSuffocates(isntSolid)
+        .setBlocksVision(isntSolid));
+    DANDELION = createBlock<FlowerBlock>("dandelion", Effects::SATURATION, 7, Properties::create(Materials::PLANTS)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
-    //    POPPY = createBlock<FlowerBlock>("poppy", (Effects::NIGHT_VISION, 5, Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
-    //    BLUE_ORCHID = createBlock<FlowerBlock>("blue_orchid", (Effects::SATURATION, 7, Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
-    //    ALLIUM = createBlock<FlowerBlock>("allium", (Effects::FIRE_RESISTANCE, 4, Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
-    //    AZURE_BLUET = createBlock<FlowerBlock>("azure_bluet", (Effects::BLINDNESS, 8, Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
-    //    RED_TULIP = createBlock<FlowerBlock>("red_tulip", (Effects::WEAKNESS, 9, Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
-    //    ORANGE_TULIP = createBlock<FlowerBlock>("orange_tulip", (Effects::WEAKNESS, 9, Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
-    //    WHITE_TULIP = createBlock<FlowerBlock>("white_tulip", (Effects::WEAKNESS, 9, Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
-    //    PINK_TULIP = createBlock<FlowerBlock>("pink_tulip", (Effects::WEAKNESS, 9, Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
-    //    OXEYE_DAISY = createBlock<FlowerBlock>("oxeye_daisy", (Effects::REGENERATION, 8, Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
-    //    CORNFLOWER = createBlock<FlowerBlock>("cornflower", (Effects::JUMP_BOOST, 6, Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
+    POPPY = createBlock<FlowerBlock>("poppy", Effects::NIGHT_VISION, 5, Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
+    BLUE_ORCHID = createBlock<FlowerBlock>("blue_orchid", Effects::SATURATION, 7, Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
+    ALLIUM = createBlock<FlowerBlock>("allium", Effects::FIRE_RESISTANCE, 4, Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
+    AZURE_BLUET = createBlock<FlowerBlock>("azure_bluet", Effects::BLINDNESS, 8, Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
+    RED_TULIP = createBlock<FlowerBlock>("red_tulip", Effects::WEAKNESS, 9, Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
+    ORANGE_TULIP = createBlock<FlowerBlock>("orange_tulip", Effects::WEAKNESS, 9, Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
+    WHITE_TULIP = createBlock<FlowerBlock>("white_tulip", Effects::WEAKNESS, 9, Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
+    PINK_TULIP = createBlock<FlowerBlock>("pink_tulip", Effects::WEAKNESS, 9, Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
+        OXEYE_DAISY = createBlock<FlowerBlock>("oxeye_daisy", Effects::REGENERATION, 8, Properties::create(Materials::PLANTS)
+    .doesNotBlockMovement()
+    .zeroHardnessAndResistance()
+    .setSound(SoundType::PLANT));
+    CORNFLOWER = createBlock<FlowerBlock>("cornflower", Effects::JUMP_BOOST, 6, Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
     WITHER_ROSE = createBlock<WitherRoseBlock>("wither_rose", Effects::WITHER, Properties::create(Materials::PLANTS).doesNotBlockMovement().zeroHardnessAndResistance().setSound(SoundType::PLANT));
-    //    LILY_OF_THE_VALLEY = createBlock<FlowerBlock>("lily_of_the_valley", (Effects::POISON, 12, Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
+    LILY_OF_THE_VALLEY = createBlock<FlowerBlock>("lily_of_the_valley", Effects::POISON, 12, Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
     BROWN_MUSHROOM = createBlock<MushroomBlock>("brown_mushroom", Properties::create(Materials::PLANTS, MaterialColors::BROWN)
         .doesNotBlockMovement()
         .setTickRandomly()
@@ -1537,7 +1500,7 @@ Properties::create(Materials::WOOD, [](const BlockData& data) -> MaterialColor {
         .setRequiresTool()
         .setHardnessAndResistance(5.0F, 6.0F)
         .setSound(SoundType::METAL));
-    BRICKS = createBlock<Block>("brick_block", Properties::create(Materials::ROCK, MaterialColors::RED)
+    BRICKS = createBlock<Block>("bricks", Properties::create(Materials::ROCK, MaterialColors::RED)
         .setRequiresTool()
         .setHardnessAndResistance(2.0F, 6.0F));
     TNT = createBlock<TNTBlock>("tnt", Properties::create(Materials::TNT)
@@ -1553,12 +1516,12 @@ Properties::create(Materials::WOOD, [](const BlockData& data) -> MaterialColor {
         .setRequiresTool()
         .setHardnessAndResistance(50.0F, 1200.0F));
     TORCH = createBlock<TorchBlock>("torch", Properties::create(Materials::MISCELLANEOUS).doesNotBlockMovement().zeroHardnessAndResistance().setLightLevel(getLightValue(14)).setSound(SoundType::WOOD), ParticleTypes::FLAME);
-    //    WALL_TORCH = createBlock<WallTorchBlock>("wall_torch", Properties::create(Materials::MISCELLANEOUS)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setLightLevel(getLightValue(14))
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(TORCH), ParticleTypes::FLAME));
+    WALL_TORCH = createBlock<WallTorchBlock>("wall_torch", Properties::create(Materials::MISCELLANEOUS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setLightLevel(getLightValue(14))
+        .setSound(SoundType::WOOD)
+        .setLootFrom(TORCH), ParticleTypes::FLAME);
     FIRE = createBlock<FireBlock>("fire", Properties::create(Materials::FIRE, MaterialColors::TNT)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
@@ -1569,17 +1532,18 @@ Properties::create(Materials::WOOD, [](const BlockData& data) -> MaterialColor {
         .zeroHardnessAndResistance()
         .setLightLevel(getLightValue(10))
         .setSound(SoundType::CLOTH));
-    //    SPAWNER = createBlock<SpawnerBlock>("spawner", Properties::create(Materials::ROCK)
-    //.setRequiresTool()
-    //.setHardnessAndResistance(5.0F)
-    //.setSound(SoundType::METAL)
-    //.notSolid()));
-    //    OAK_STAIRS = createBlock<StairsBlock>("oak_stairs", OAK_PLANKS->getDefaultState(), Properties::from(OAK_PLANKS));
+    SPAWNER = createBlock<SpawnerBlock>("spawner", Properties::create(Materials::ROCK)
+        .setRequiresTool()
+        .setHardnessAndResistance(5.0F)
+        .setSound(SoundType::METAL)
+        .notSolid());
+    OAK_STAIRS = createBlock<StairsBlock>("oak_stairs", OAK_PLANKS->getDefaultState(), Properties::from(OAK_PLANKS));
     CHEST = createBlock<ChestBlock>("chest", Properties::create(Materials::WOOD)
         .setHardnessAndResistance(2.5F)
-        .setSound(SoundType::WOOD) /*, () -> {
-return TileEntityType::CHEST;
-}*/
+        .setSound(SoundType::WOOD) /*,
+        []() -> {
+        return TileEntityType::CHEST;
+        }*/
     );
     REDSTONE_WIRE = createBlock<RedstoneWireBlock>("redstone_wire", Properties::create(Materials::MISCELLANEOUS)
         .doesNotBlockMovement()
@@ -1609,34 +1573,34 @@ return TileEntityType::CHEST;
         .setRequiresTool()
         .setHardnessAndResistance(3.5F)
         .setLightLevel(getLightValueLit(13)));
-    //    OAK_SIGN = createBlock<StandingSignBlock>("oak_sign", Properties::create(Materials::WOOD)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD), WoodType::OAK));
-    //    SPRUCE_SIGN = createBlock<StandingSignBlock>("spruce_sign", Properties::create(Materials::WOOD, SPRUCE_LOG->getMaterialColor())
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD), WoodType::SPRUCE));
-    //    BIRCH_SIGN = createBlock<StandingSignBlock>("birch_sign", Properties::create(Materials::WOOD, MaterialColors::SAND)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD), WoodType::BIRCH));
-    //    ACACIA_SIGN = createBlock<StandingSignBlock>("acacia_sign", Properties::create(Materials::WOOD, MaterialColors::ADOBE)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD), WoodType::ACACIA));
-    //    JUNGLE_SIGN = createBlock<StandingSignBlock>("jungle_sign", Properties::create(Materials::WOOD, JUNGLE_LOG->getMaterialColor())
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD), WoodType::JUNGLE));
-    //    DARK_OAK_SIGN = createBlock<StandingSignBlock>("dark_oak_sign", Properties::create(Materials::WOOD, DARK_OAK_LOG->getMaterialColor())
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD), WoodType::DARK_OAK));
-    //    OAK_DOOR = createBlock<DoorBlock>("oak_door", Properties::create(Materials::WOOD, OAK_PLANKS->getMaterialColor())
-    //.setHardnessAndResistance(3.0F)
-    //.setSound(SoundType::WOOD)
-    //.notSolid()));
+    OAK_SIGN = createBlock<StandingSignBlock>("oak_sign", Properties::create(Materials::WOOD)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD), WoodType::OAK);
+    SPRUCE_SIGN = createBlock<StandingSignBlock>("spruce_sign", Properties::create(Materials::WOOD, SPRUCE_LOG->getMaterialColor())
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD), WoodType::SPRUCE);
+    BIRCH_SIGN = createBlock<StandingSignBlock>("birch_sign", Properties::create(Materials::WOOD, MaterialColors::SAND)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD), WoodType::BIRCH);
+    ACACIA_SIGN = createBlock<StandingSignBlock>("acacia_sign", Properties::create(Materials::WOOD, MaterialColors::ADOBE)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD), WoodType::ACACIA);
+    JUNGLE_SIGN = createBlock<StandingSignBlock>("jungle_sign", Properties::create(Materials::WOOD, JUNGLE_LOG->getMaterialColor())
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD), WoodType::JUNGLE);
+    DARK_OAK_SIGN = createBlock<StandingSignBlock>("dark_oak_sign", Properties::create(Materials::WOOD, DARK_OAK_LOG->getMaterialColor())
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD), WoodType::DARK_OAK);
+    OAK_DOOR = createBlock<DoorBlock>("oak_door", Properties::create(Materials::WOOD, OAK_PLANKS->getMaterialColor())
+        .setHardnessAndResistance(3.0F)
+        .setSound(SoundType::WOOD)
+        .notSolid());
     LADDER = createBlock<LadderBlock>("ladder", Properties::create(Materials::MISCELLANEOUS)
         .setHardnessAndResistance(0.4F)
         .setSound(SoundType::LADDER)
@@ -1645,37 +1609,37 @@ return TileEntityType::CHEST;
         .doesNotBlockMovement()
         .setHardnessAndResistance(0.7F)
         .setSound(SoundType::METAL));
-    //    COBBLESTONE_STAIRS = createBlock<StairsBlock>("cobblestone_stairs", COBBLESTONE->getDefaultState(), Properties::from(COBBLESTONE));
-    //    OAK_WALL_SIGN = createBlock<WallSignBlock>("oak_wall_sign", Properties::create(Materials::WOOD)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(OAK_SIGN), WoodType::OAK));
-    //    SPRUCE_WALL_SIGN = createBlock<WallSignBlock>("spruce_wall_sign", Properties::create(Materials::WOOD, SPRUCE_LOG->getMaterialColor())
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(SPRUCE_SIGN), WoodType::SPRUCE));
-    //    BIRCH_WALL_SIGN = createBlock<WallSignBlock>("birch_wall_sign", Properties::create(Materials::WOOD, MaterialColors::SAND)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(BIRCH_SIGN), WoodType::BIRCH));
-    //    ACACIA_WALL_SIGN = createBlock<WallSignBlock>("acacia_wall_sign", Properties::create(Materials::WOOD, MaterialColors::ADOBE)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(ACACIA_SIGN), WoodType::ACACIA));
-    //    JUNGLE_WALL_SIGN = createBlock<WallSignBlock>("jungle_wall_sign", Properties::create(Materials::WOOD, JUNGLE_LOG->getMaterialColor())
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(JUNGLE_SIGN), WoodType::JUNGLE));
-    //    DARK_OAK_WALL_SIGN = createBlock<WallSignBlock>("dark_oak_wall_sign", Properties::create(Materials::WOOD, DARK_OAK_LOG->getMaterialColor())
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(DARK_OAK_SIGN), WoodType::DARK_OAK));
+    COBBLESTONE_STAIRS = createBlock<StairsBlock>("cobblestone_stairs", COBBLESTONE->getDefaultState(), Properties::from(COBBLESTONE));
+    OAK_WALL_SIGN = createBlock<WallSignBlock>("oak_wall_sign", Properties::create(Materials::WOOD)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(OAK_SIGN), WoodType::OAK);
+    SPRUCE_WALL_SIGN = createBlock<WallSignBlock>("spruce_wall_sign", Properties::create(Materials::WOOD, SPRUCE_LOG->getMaterialColor())
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(SPRUCE_SIGN), WoodType::SPRUCE);
+    BIRCH_WALL_SIGN = createBlock<WallSignBlock>("birch_wall_sign", Properties::create(Materials::WOOD, MaterialColors::SAND)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(BIRCH_SIGN), WoodType::BIRCH);
+    ACACIA_WALL_SIGN = createBlock<WallSignBlock>("acacia_wall_sign", Properties::create(Materials::WOOD, MaterialColors::ADOBE)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(ACACIA_SIGN), WoodType::ACACIA);
+    JUNGLE_WALL_SIGN = createBlock<WallSignBlock>("jungle_wall_sign", Properties::create(Materials::WOOD, JUNGLE_LOG->getMaterialColor())
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(JUNGLE_SIGN), WoodType::JUNGLE);
+    DARK_OAK_WALL_SIGN = createBlock<WallSignBlock>("dark_oak_wall_sign", Properties::create(Materials::WOOD, DARK_OAK_LOG->getMaterialColor())
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(DARK_OAK_SIGN), WoodType::DARK_OAK);
     LEVER = createBlock<LeverBlock>("lever", Properties::create(Materials::MISCELLANEOUS)
         .doesNotBlockMovement()
         .setHardnessAndResistance(0.5F)
@@ -1689,30 +1653,30 @@ return TileEntityType::CHEST;
         .setHardnessAndResistance(5.0F)
         .setSound(SoundType::METAL)
         .notSolid());
-    //    OAK_PRESSURE_PLATE = createBlock<PressurePlateBlock>("oak_pressure_plate", (PressurePlateBlock::Sensitivity::EVERYTHING, Properties::create(Materials::WOOD, OAK_PLANKS->getMaterialColor())
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(0.5F)
-    //.setSound(SoundType::WOOD)));
-    //    SPRUCE_PRESSURE_PLATE = createBlock<PressurePlateBlock>("spruce_pressure_plate", (PressurePlateBlock::Sensitivity::EVERYTHING, Properties::create(Materials::WOOD, SPRUCE_PLANKS->getMaterialColor())
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(0.5F)
-    //.setSound(SoundType::WOOD)));
-    //    BIRCH_PRESSURE_PLATE = createBlock<PressurePlateBlock>("birch_pressure_plate", (PressurePlateBlock::Sensitivity::EVERYTHING, Properties::create(Materials::WOOD, BIRCH_PLANKS->getMaterialColor())
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(0.5F)
-    //.setSound(SoundType::WOOD)));
-    //    JUNGLE_PRESSURE_PLATE = createBlock<PressurePlateBlock>("jungle_pressure_plate", (PressurePlateBlock::Sensitivity::EVERYTHING, Properties::create(Materials::WOOD, JUNGLE_PLANKS->getMaterialColor())
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(0.5F)
-    //.setSound(SoundType::WOOD)));
-    //    ACACIA_PRESSURE_PLATE = createBlock<PressurePlateBlock>("acacia_pressure_plate", (PressurePlateBlock::Sensitivity::EVERYTHING, Properties::create(Materials::WOOD, ACACIA_PLANKS->getMaterialColor())
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(0.5F)
-    //.setSound(SoundType::WOOD)));
-    //    DARK_OAK_PRESSURE_PLATE = createBlock<PressurePlateBlock>("dark_oak_pressure_plate", (PressurePlateBlock::Sensitivity::EVERYTHING, Properties::create(Materials::WOOD, DARK_OAK_PLANKS->getMaterialColor())
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(0.5F)
-    //.setSound(SoundType::WOOD)));
+    OAK_PRESSURE_PLATE = createBlock<PressurePlateBlock>("oak_pressure_plate", PressurePlateBlock::Sensitivity::EVERYTHING, Properties::create(Materials::WOOD, OAK_PLANKS->getMaterialColor())
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(0.5F)
+        .setSound(SoundType::WOOD));
+    SPRUCE_PRESSURE_PLATE = createBlock<PressurePlateBlock>("spruce_pressure_plate", PressurePlateBlock::Sensitivity::EVERYTHING, Properties::create(Materials::WOOD, SPRUCE_PLANKS->getMaterialColor())
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(0.5F)
+        .setSound(SoundType::WOOD));
+    BIRCH_PRESSURE_PLATE = createBlock<PressurePlateBlock>("birch_pressure_plate", PressurePlateBlock::Sensitivity::EVERYTHING, Properties::create(Materials::WOOD, BIRCH_PLANKS->getMaterialColor())
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(0.5F)
+        .setSound(SoundType::WOOD));
+    JUNGLE_PRESSURE_PLATE = createBlock<PressurePlateBlock>("jungle_pressure_plate", PressurePlateBlock::Sensitivity::EVERYTHING, Properties::create(Materials::WOOD, JUNGLE_PLANKS->getMaterialColor())
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(0.5F)
+        .setSound(SoundType::WOOD));
+    ACACIA_PRESSURE_PLATE = createBlock<PressurePlateBlock>("acacia_pressure_plate", PressurePlateBlock::Sensitivity::EVERYTHING, Properties::create(Materials::WOOD, ACACIA_PLANKS->getMaterialColor())
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(0.5F)
+        .setSound(SoundType::WOOD));
+    DARK_OAK_PRESSURE_PLATE = createBlock<PressurePlateBlock>("dark_oak_pressure_plate", PressurePlateBlock::Sensitivity::EVERYTHING, Properties::create(Materials::WOOD, DARK_OAK_PLANKS->getMaterialColor())
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(0.5F)
+        .setSound(SoundType::WOOD));
     REDSTONE_ORE = createBlock<RedstoneOreBlock>("redstone_ore", Properties::create(Materials::ROCK)
         .setRequiresTool()
         .setTickRandomly()
@@ -1723,16 +1687,16 @@ return TileEntityType::CHEST;
         .zeroHardnessAndResistance()
         .setLightLevel(getLightValueLit(7))
         .setSound(SoundType::WOOD));
-    //    REDSTONE_WALL_TORCH = createBlock<RedstoneWallTorchBlock>("redstone_wall_torch", Properties::create(Materials::MISCELLANEOUS)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setLightLevel(getLightValueLit(7))
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(REDSTONE_TORCH)));
+    REDSTONE_WALL_TORCH = createBlock<RedstoneWallTorchBlock>("redstone_wall_torch", Properties::create(Materials::MISCELLANEOUS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setLightLevel(getLightValueLit(7))
+        .setSound(SoundType::WOOD)
+        .setLootFrom(REDSTONE_TORCH));
     STONE_BUTTON = createBlock<StoneButtonBlock>("stone_button", Properties::create(Materials::MISCELLANEOUS)
         .doesNotBlockMovement()
         .setHardnessAndResistance(0.5F));
-    SNOW = createBlock<SnowBlock>("snow_layer", Properties::create(Materials::SNOW)
+    SNOW = createBlock<SnowBlock>("snow", Properties::create(Materials::SNOW)
         .setTickRandomly()
         .setHardnessAndResistance(0.1F)
         .setRequiresTool()
@@ -1746,7 +1710,7 @@ return TileEntityType::CHEST;
         .setAllowsSpawn([](BlockReader &reader, const BlockData &data, const glm::ivec3 &pos, const EntityType &type) -> bool {
             return false;//p_235450_3_ == EntityType.POLAR_BEAR;
         }));
-    SNOW_BLOCK = createBlock<Block>("snow", Properties::create(Materials::SNOW_BLOCK)
+    SNOW_BLOCK = createBlock<Block>("snow_block", Properties::create(Materials::SNOW_BLOCK)
         .setRequiresTool()
         .setHardnessAndResistance(0.2F)
         .setSound(SoundType::SNOW));
@@ -1757,16 +1721,16 @@ return TileEntityType::CHEST;
     CLAY = createBlock<Block>("clay", Properties::create(Materials::CLAY)
         .setHardnessAndResistance(0.6F)
         .setSound(SoundType::GROUND));
-    //    SUGAR_CANE = createBlock<SugarCaneBlock>("sugar_cane", Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.setTickRandomly()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::PLANT)));
+    SUGAR_CANE = createBlock<SugarCaneBlock>("sugar_cane", Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .setTickRandomly()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
     JUKEBOX = createBlock<JukeboxBlock>("jukebox", Properties::create(Materials::WOOD, MaterialColors::DIRT)
         .setHardnessAndResistance(2.0F, 6.0F));
-    //    OAK_FENCE = createBlock<FenceBlock>("oak_fence", Properties::create(Materials::WOOD, OAK_PLANKS->getMaterialColor())
-    //.setHardnessAndResistance(2.0F, 3.0F)
-    //.setSound(SoundType::WOOD)));
+    OAK_FENCE = createBlock<FenceBlock>("oak_fence", Properties::create(Materials::WOOD, OAK_PLANKS->getMaterialColor())
+        .setHardnessAndResistance(2.0F, 3.0F)
+        .setSound(SoundType::WOOD));
     PUMPKIN = createBlock<PumpkinBlock>("pumpkin", Properties::create(Materials::GOURD, MaterialColors::ADOBE)
         .setHardnessAndResistance(1.0F)
         .setSound(SoundType::WOOD));
@@ -1794,58 +1758,58 @@ return TileEntityType::CHEST;
         .setHardnessAndResistance(1.25F, 4.2F)
         .setSound(SoundType::BASALT));
     SOUL_TORCH = createBlock<TorchBlock>("soul_torch", Properties::create(Materials::MISCELLANEOUS).doesNotBlockMovement().zeroHardnessAndResistance().setLightLevel(getLightValue(10)).setSound(SoundType::WOOD), ParticleTypes::SOUL_FIRE_FLAME);
-    //    SOUL_WALL_TORCH = createBlock<WallTorchBlock>("soul_wall_torch", Properties::create(Materials::MISCELLANEOUS)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setLightLevel(getLightValue(10))
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(SOUL_TORCH), ParticleTypes::SOUL_FIRE_FLAME));
+    SOUL_WALL_TORCH = createBlock<WallTorchBlock>("soul_wall_torch", Properties::create(Materials::MISCELLANEOUS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setLightLevel(getLightValue(10))
+        .setSound(SoundType::WOOD)
+        .setLootFrom(SOUL_TORCH), ParticleTypes::SOUL_FIRE_FLAME);
     GLOWSTONE = createBlock<Block>("glowstone", Properties::create(Materials::GLASS, MaterialColors::SAND)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
         .setLightLevel(getLightValue(15)));
-    //    NETHER_PORTAL = createBlock<NetherPortalBlock>("nether_portal", Properties::create(Materials::PORTAL)
-    //.doesNotBlockMovement()
-    //.setTickRandomly()
-    //.setHardnessAndResistance(-1.0F)
-    //.setSound(SoundType::GLASS)
-    //.setLightLevel(getLightValue(11))));
+    NETHER_PORTAL = createBlock<NetherPortalBlock>("nether_portal", Properties::create(Materials::PORTAL)
+        .doesNotBlockMovement()
+        .setTickRandomly()
+        .setHardnessAndResistance(-1.0F)
+        .setSound(SoundType::GLASS)
+        .setLightLevel(getLightValue(11)));
     CARVED_PUMPKIN = createBlock<CarvedPumpkinBlock>("carved_pumpkin", Properties::create(Materials::GOURD, MaterialColors::ADOBE)
         .setHardnessAndResistance(1.0F)
         .setSound(SoundType::WOOD)
         .setAllowsSpawn(alwaysAllowSpawn));
-    //    JACK_O_LANTERN = createBlock<CarvedPumpkinBlock>("jack_o_lantern", Properties::create(Materials::GOURD, MaterialColors::ADOBE)
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLightLevel(getLightValue(15))
-    //.setAllowsSpawn(alwaysAllowSpawn)));
+    JACK_O_LANTERN = createBlock<CarvedPumpkinBlock>("jack_o_lantern", Properties::create(Materials::GOURD, MaterialColors::ADOBE)
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLightLevel(getLightValue(15))
+        .setAllowsSpawn(alwaysAllowSpawn));
     CAKE = createBlock<CakeBlock>("cake", Properties::create(Materials::CAKE)
         .setHardnessAndResistance(0.5F)
         .setSound(SoundType::CLOTH));
-    //    REPEATER = createBlock<RepeaterBlock>("repeater", Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::WOOD)));
-    //    WHITE_STAINED_GLASS = createBlock("<DyeColors>white_stained_glass", createStainedGlassFromColor::WHITE));
-    //    ORANGE_STAINED_GLASS = createBlock("<DyeColors>orange_stained_glass", createStainedGlassFromColor::ORANGE));
-    //    MAGENTA_STAINED_GLASS = createBlock("<DyeColors>magenta_stained_glass", createStainedGlassFromColor::MAGENTA));
-    //    LIGHT_BLUE_STAINED_GLASS = createBlock("<DyeColors>light_blue_stained_glass", createStainedGlassFromColor::LIGHT_BLUE));
-    //    YELLOW_STAINED_GLASS = createBlock("<DyeColors>yellow_stained_glass", createStainedGlassFromColor::YELLOW));
-    //    LIME_STAINED_GLASS = createBlock("<DyeColors>lime_stained_glass", createStainedGlassFromColor::LIME));
-    //    PINK_STAINED_GLASS = createBlock("<DyeColors>pink_stained_glass", createStainedGlassFromColor::PINK));
-    //    GRAY_STAINED_GLASS = createBlock("<DyeColors>gray_stained_glass", createStainedGlassFromColor::GRAY));
-    //    LIGHT_GRAY_STAINED_GLASS = createBlock("<DyeColors>light_gray_stained_glass", createStainedGlassFromColor::LIGHT_GRAY));
-    //    CYAN_STAINED_GLASS = createBlock("<DyeColors>cyan_stained_glass", createStainedGlassFromColor::CYAN));
-    //    PURPLE_STAINED_GLASS = createBlock("<DyeColors>purple_stained_glass", createStainedGlassFromColor::PURPLE));
-    //    BLUE_STAINED_GLASS = createBlock("<DyeColors>blue_stained_glass", createStainedGlassFromColor::BLUE));
-    //    BROWN_STAINED_GLASS = createBlock("<DyeColors>brown_stained_glass", createStainedGlassFromColor::BROWN));
-    //    GREEN_STAINED_GLASS = createBlock("<DyeColors>green_stained_glass", createStainedGlassFromColor::GREEN));
-    //    RED_STAINED_GLASS = createBlock("<DyeColors>red_stained_glass", createStainedGlassFromColor::RED));
-    //    BLACK_STAINED_GLASS = createBlock("<DyeColors>black_stained_glass", createStainedGlassFromColor::BLACK));
-    //    OAK_TRAPDOOR = createBlock<TrapDoorBlock>("oak_trapdoor", Properties::create(Materials::WOOD, MaterialColors::WOOD)
-    //.setHardnessAndResistance(3.0F)
-    //.setSound(SoundType::WOOD)
-    //.notSolid()
-    //.setAllowsSpawn(neverAllowSpawn)));
+    REPEATER = createBlock<RepeaterBlock>("repeater", Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::WOOD));
+    WHITE_STAINED_GLASS = createStainedGlass("white_stained_glass", DyeColors::WHITE);
+    ORANGE_STAINED_GLASS = createStainedGlass("orange_stained_glass", DyeColors::ORANGE);
+    MAGENTA_STAINED_GLASS = createStainedGlass("magenta_stained_glass", DyeColors::MAGENTA);
+    LIGHT_BLUE_STAINED_GLASS = createStainedGlass("light_blue_stained_glass", DyeColors::LIGHT_BLUE);
+    YELLOW_STAINED_GLASS = createStainedGlass("yellow_stained_glass", DyeColors::YELLOW);
+    LIME_STAINED_GLASS = createStainedGlass("lime_stained_glass", DyeColors::LIME);
+    PINK_STAINED_GLASS = createStainedGlass("pink_stained_glass", DyeColors::PINK);
+    GRAY_STAINED_GLASS = createStainedGlass("gray_stained_glass", DyeColors::GRAY);
+    LIGHT_GRAY_STAINED_GLASS = createStainedGlass("light_gray_stained_glass", DyeColors::LIGHT_GRAY);
+    CYAN_STAINED_GLASS = createStainedGlass("cyan_stained_glass", DyeColors::CYAN);
+    PURPLE_STAINED_GLASS = createStainedGlass("purple_stained_glass", DyeColors::PURPLE);
+    BLUE_STAINED_GLASS = createStainedGlass("blue_stained_glass", DyeColors::BLUE);
+    BROWN_STAINED_GLASS = createStainedGlass("brown_stained_glass", DyeColors::BROWN);
+    GREEN_STAINED_GLASS = createStainedGlass("green_stained_glass", DyeColors::GREEN);
+    RED_STAINED_GLASS = createStainedGlass("red_stained_glass", DyeColors::RED);
+    BLACK_STAINED_GLASS = createStainedGlass("black_stained_glass", DyeColors::BLACK);
+    OAK_TRAPDOOR = createBlock<TrapDoorBlock>("oak_trapdoor", Properties::create(Materials::WOOD, MaterialColors::WOOD)
+        .setHardnessAndResistance(3.0F)
+        .setSound(SoundType::WOOD)
+        .notSolid()
+        .setAllowsSpawn(neverAllowSpawn));
     SPRUCE_TRAPDOOR = createBlock<TrapDoorBlock>("spruce_trapdoor", Properties::create(Materials::WOOD, MaterialColors::OBSIDIAN)
         .setHardnessAndResistance(3.0F)
         .setSound(SoundType::WOOD)
@@ -1871,39 +1835,39 @@ return TileEntityType::CHEST;
         .setSound(SoundType::WOOD)
         .notSolid()
         .setAllowsSpawn(neverAllowSpawn));
-    //    STONE_BRICKS = createBlock<Block>("stone_bricks", Properties::create(Materials::ROCK)
-    //.setRequiresTool()
-    //.setHardnessAndResistance(1.5F, 6.0F)));
-    //    MOSSY_STONE_BRICKS = createBlock<Block>("mossy_stone_bricks", Properties::create(Materials::ROCK)
-    //.setRequiresTool()
-    //.setHardnessAndResistance(1.5F, 6.0F)));
-    //    CRACKED_STONE_BRICKS = createBlock<Block>("cracked_stone_bricks", Properties::create(Materials::ROCK)
-    //.setRequiresTool()
-    //.setHardnessAndResistance(1.5F, 6.0F)));
-    //    CHISELED_STONE_BRICKS = createBlock<Block>("chiseled_stone_bricks", Properties::create(Materials::ROCK)
-    //.setRequiresTool()
-    //.setHardnessAndResistance(1.5F, 6.0F)));
-    //    INFESTED_STONE = createBlock<SilverfishBlock>("infested_stone", (STONE, Properties::create(Materials::CLAY)
-    //.setHardnessAndResistance(0.0F, 0.75F)));
-    //    INFESTED_COBBLESTONE = createBlock<SilverfishBlock>("infested_cobblestone", (COBBLESTONE, Properties::create(Materials::CLAY)
-    //.setHardnessAndResistance(0.0F, 0.75F)));
-    //    INFESTED_STONE_BRICKS = createBlock<SilverfishBlock>("infested_stone_bricks", (STONE_BRICKS, Properties::create(Materials::CLAY)
-    //.setHardnessAndResistance(0.0F, 0.75F)));
-    //    INFESTED_MOSSY_STONE_BRICKS = createBlock<SilverfishBlock>("infested_mossy_stone_bricks", (MOSSY_STONE_BRICKS, Properties::create(Materials::CLAY)
-    //.setHardnessAndResistance(0.0F, 0.75F)));
-    //    INFESTED_CRACKED_STONE_BRICKS = createBlock<SilverfishBlock>("infested_cracked_stone_bricks", (CRACKED_STONE_BRICKS, Properties::create(Materials::CLAY)
-    //.setHardnessAndResistance(0.0F, 0.75F)));
-    //    INFESTED_CHISELED_STONE_BRICKS = createBlock<SilverfishBlock>("infested_chiseled_stone_bricks", (CHISELED_STONE_BRICKS, Properties::create(Materials::CLAY)
-    //.setHardnessAndResistance(0.0F, 0.75F)));
+    STONE_BRICKS = createBlock<Block>("stone_bricks", Properties::create(Materials::ROCK)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.5F, 6.0F));
+    MOSSY_STONE_BRICKS = createBlock<Block>("mossy_stone_bricks", Properties::create(Materials::ROCK)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.5F, 6.0F));
+    CRACKED_STONE_BRICKS = createBlock<Block>("cracked_stone_bricks", Properties::create(Materials::ROCK)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.5F, 6.0F));
+    CHISELED_STONE_BRICKS = createBlock<Block>("chiseled_stone_bricks", Properties::create(Materials::ROCK)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.5F, 6.0F));
+    INFESTED_STONE = createBlock<SilverfishBlock>("infested_stone", STONE, Properties::create(Materials::CLAY)
+        .setHardnessAndResistance(0.0F, 0.75F));
+    INFESTED_COBBLESTONE = createBlock<SilverfishBlock>("infested_cobblestone", COBBLESTONE, Properties::create(Materials::CLAY)
+        .setHardnessAndResistance(0.0F, 0.75F));
+    INFESTED_STONE_BRICKS = createBlock<SilverfishBlock>("infested_stone_bricks", STONE_BRICKS, Properties::create(Materials::CLAY)
+        .setHardnessAndResistance(0.0F, 0.75F));
+    INFESTED_MOSSY_STONE_BRICKS = createBlock<SilverfishBlock>("infested_mossy_stone_bricks", MOSSY_STONE_BRICKS, Properties::create(Materials::CLAY)
+        .setHardnessAndResistance(0.0F, 0.75F));
+    INFESTED_CRACKED_STONE_BRICKS = createBlock<SilverfishBlock>("infested_cracked_stone_bricks", CRACKED_STONE_BRICKS, Properties::create(Materials::CLAY)
+        .setHardnessAndResistance(0.0F, 0.75F));
+    INFESTED_CHISELED_STONE_BRICKS = createBlock<SilverfishBlock>("infested_chiseled_stone_bricks", CHISELED_STONE_BRICKS, Properties::create(Materials::CLAY)
+        .setHardnessAndResistance(0.0F, 0.75F));
     BROWN_MUSHROOM_BLOCK = createBlock<HugeMushroomBlock>("brown_mushroom_block", Properties::create(Materials::WOOD, MaterialColors::DIRT)
         .setHardnessAndResistance(0.2F)
         .setSound(SoundType::WOOD));
     RED_MUSHROOM_BLOCK = createBlock<HugeMushroomBlock>("red_mushroom_block", Properties::create(Materials::WOOD, MaterialColors::RED)
         .setHardnessAndResistance(0.2F)
         .setSound(SoundType::WOOD));
-    //    MUSHROOM_STEM = createBlock<HugeMushroomBlock>("mushroom_stem", Properties::create(Materials::WOOD, MaterialColors::WOOL)
-    //.setHardnessAndResistance(0.2F)
-    //.setSound(SoundType::WOOD)));
+    MUSHROOM_STEM = createBlock<HugeMushroomBlock>("mushroom_stem", Properties::create(Materials::WOOD, MaterialColors::WOOL)
+        .setHardnessAndResistance(0.2F)
+        .setSound(SoundType::WOOD));
     IRON_BARS = createBlock<PaneBlock>("iron_bars", Properties::create(Materials::IRON, MaterialColors::AIR)
         .setRequiresTool()
         .setHardnessAndResistance(5.0F, 6.0F)
@@ -1918,17 +1882,17 @@ return TileEntityType::CHEST;
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
         .notSolid());
-    //    MELON = createBlock<MelonBlock>("melon", Properties::create(Materials::GOURD, MaterialColors::LIME)
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)));
-    //    ATTACHED_PUMPKIN_STEM = createBlock<AttachedStemBlock>("attached_pumpkin_stem", ((StemGrownBlock*)PUMPKIN, Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::WOOD)));
-    //    ATTACHED_MELON_STEM = createBlock<AttachedStemBlock>("attached_melon_stem", ((StemGrownBlock*)MELON, Properties::create(Materials::PLANTS)
-    //.doesNotBlockMovement()
-    //.zeroHardnessAndResistance()
-    //.setSound(SoundType::WOOD)));
+    MELON = createBlock<MelonBlock>("melon", Properties::create(Materials::GOURD, MaterialColors::LIME)
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD));
+    ATTACHED_PUMPKIN_STEM = createBlock<AttachedStemBlock>("attached_pumpkin_stem", (StemGrownBlock*)PUMPKIN, Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::WOOD));
+    ATTACHED_MELON_STEM = createBlock<AttachedStemBlock>("attached_melon_stem", (StemGrownBlock*)MELON, Properties::create(Materials::PLANTS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::WOOD));
     PUMPKIN_STEM = createBlock<StemBlock>("pumpkin_stem", (StemGrownBlock *) PUMPKIN, Properties::create(Materials::PLANTS)
         .doesNotBlockMovement()
         .setTickRandomly()
@@ -1940,11 +1904,11 @@ return TileEntityType::CHEST;
         .setTickRandomly()
         .setHardnessAndResistance(0.2F)
         .setSound(SoundType::VINE));
-    //    OAK_FENCE_GATE = createBlock<FenceGateBlock>("oak_fence_gate", Properties::create(Materials::WOOD, OAK_PLANKS->getMaterialColor())
-    //.setHardnessAndResistance(2.0F, 3.0F)
-    //.setSound(SoundType::WOOD)));
+    OAK_FENCE_GATE = createBlock<FenceGateBlock>("oak_fence_gate", Properties::create(Materials::WOOD, OAK_PLANKS->getMaterialColor())
+        .setHardnessAndResistance(2.0F, 3.0F)
+        .setSound(SoundType::WOOD));
     BRICK_STAIRS = createBlock<StairsBlock>("brick_stairs", BRICKS->getDefaultState(), Properties::from(BRICKS));
-//    STONE_BRICK_STAIRS = createBlock<StairsBlock>("stone_brick_stairs", STONE_BRICKS->getDefaultState(), Properties::from(STONE_BRICKS));
+    STONE_BRICK_STAIRS = createBlock<StairsBlock>("stone_brick_stairs", STONE_BRICKS->getDefaultState(), Properties::from(STONE_BRICKS));
     MYCELIUM = createBlock<MyceliumBlock>("mycelium", Properties::create(Materials::ORGANIC, MaterialColors::PURPLE)
         .setTickRandomly()
         .setHardnessAndResistance(0.6F)
@@ -2021,9 +1985,9 @@ return TileEntityType::CHEST;
         .setRequiresTool()
         .setHardnessAndResistance(5.0F, 6.0F)
         .setSound(SoundType::METAL));
-    //    SPRUCE_STAIRS = createBlock<StairsBlock>("spruce_stairs", SPRUCE_PLANKS->getDefaultState(), Properties::from(SPRUCE_PLANKS));
-    //    BIRCH_STAIRS = createBlock<StairsBlock>("birch_stairs", BIRCH_PLANKS->getDefaultState(), Properties::from(BIRCH_PLANKS));
-    //    JUNGLE_STAIRS = createBlock<StairsBlock>("jungle_stairs", JUNGLE_PLANKS->getDefaultState(), Properties::from(JUNGLE_PLANKS));
+    SPRUCE_STAIRS = createBlock<StairsBlock>("spruce_stairs", SPRUCE_PLANKS->getDefaultState(), Properties::from(SPRUCE_PLANKS));
+    BIRCH_STAIRS = createBlock<StairsBlock>("birch_stairs", BIRCH_PLANKS->getDefaultState(), Properties::from(BIRCH_PLANKS));
+    JUNGLE_STAIRS = createBlock<StairsBlock>("jungle_stairs", JUNGLE_PLANKS->getDefaultState(), Properties::from(JUNGLE_PLANKS));
     COMMAND_BLOCK = createBlock<CommandBlockBlock>("command_block", Properties::create(Materials::IRON, MaterialColors::BROWN)
         .setRequiresTool()
         .setHardnessAndResistance(-1.0F, 3600000.0F)
@@ -2036,78 +2000,78 @@ return TileEntityType::CHEST;
     COBBLESTONE_WALL = createBlock<WallBlock>("cobblestone_wall", Properties::from(COBBLESTONE));
     MOSSY_COBBLESTONE_WALL = createBlock<WallBlock>("mossy_cobblestone_wall", Properties::from(COBBLESTONE));
     FLOWER_POT = createBlock<FlowerPotBlock>("flower_pot", AIR, Properties::create(Materials::MISCELLANEOUS).zeroHardnessAndResistance().notSolid());
-    //    POTTED_OAK_SAPLING = createBlock<FlowerPotBlock>("potted_oak_sapling", OAK_SAPLING, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_SPRUCE_SAPLING = createBlock<FlowerPotBlock>("potted_spruce_sapling", SPRUCE_SAPLING, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_BIRCH_SAPLING = createBlock<FlowerPotBlock>("potted_birch_sapling", BIRCH_SAPLING, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_JUNGLE_SAPLING = createBlock<FlowerPotBlock>("potted_jungle_sapling", JUNGLE_SAPLING, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_ACACIA_SAPLING = createBlock<FlowerPotBlock>("potted_acacia_sapling", ACACIA_SAPLING, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_DARK_OAK_SAPLING = createBlock<FlowerPotBlock>("potted_dark_oak_sapling", DARK_OAK_SAPLING, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_FERN = createBlock<FlowerPotBlock>("potted_fern", FERN, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_DANDELION = createBlock<FlowerPotBlock>("potted_dandelion", DANDELION, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_POPPY = createBlock<FlowerPotBlock>("potted_poppy", POPPY, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_BLUE_ORCHID = createBlock<FlowerPotBlock>("potted_blue_orchid", BLUE_ORCHID, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_ALLIUM = createBlock<FlowerPotBlock>("potted_allium", ALLIUM, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_AZURE_BLUET = createBlock<FlowerPotBlock>("potted_azure_bluet", AZURE_BLUET, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_RED_TULIP = createBlock<FlowerPotBlock>("potted_red_tulip", RED_TULIP, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_ORANGE_TULIP = createBlock<FlowerPotBlock>("potted_orange_tulip", ORANGE_TULIP, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_WHITE_TULIP = createBlock<FlowerPotBlock>("potted_white_tulip", WHITE_TULIP, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_PINK_TULIP = createBlock<FlowerPotBlock>("potted_pink_tulip", PINK_TULIP, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_OXEYE_DAISY = createBlock<FlowerPotBlock>("potted_oxeye_daisy", OXEYE_DAISY, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_CORNFLOWER = createBlock<FlowerPotBlock>("potted_cornflower", CORNFLOWER, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_LILY_OF_THE_VALLEY = createBlock<FlowerPotBlock>("potted_lily_of_the_valley", LILY_OF_THE_VALLEY, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_WITHER_ROSE = createBlock<FlowerPotBlock>("potted_wither_rose", WITHER_ROSE, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_RED_MUSHROOM = createBlock<FlowerPotBlock>("potted_red_mushroom", RED_MUSHROOM, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_BROWN_MUSHROOM = createBlock<FlowerPotBlock>("potted_brown_mushroom", BROWN_MUSHROOM, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_DEAD_BUSH = createBlock<FlowerPotBlock>("potted_dead_bush", DEAD_BUSH, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
-    //    POTTED_CACTUS = createBlock<FlowerPotBlock>("potted_cactus", CACTUS, Properties::create(Materials::MISCELLANEOUS)
-    //.zeroHardnessAndResistance()
-    //.notSolid());
+    POTTED_OAK_SAPLING = createBlock<FlowerPotBlock>("potted_oak_sapling", OAK_SAPLING, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_SPRUCE_SAPLING = createBlock<FlowerPotBlock>("potted_spruce_sapling", SPRUCE_SAPLING, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_BIRCH_SAPLING = createBlock<FlowerPotBlock>("potted_birch_sapling", BIRCH_SAPLING, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_JUNGLE_SAPLING = createBlock<FlowerPotBlock>("potted_jungle_sapling", JUNGLE_SAPLING, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_ACACIA_SAPLING = createBlock<FlowerPotBlock>("potted_acacia_sapling", ACACIA_SAPLING, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_DARK_OAK_SAPLING = createBlock<FlowerPotBlock>("potted_dark_oak_sapling", DARK_OAK_SAPLING, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_FERN = createBlock<FlowerPotBlock>("potted_fern", FERN, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_DANDELION = createBlock<FlowerPotBlock>("potted_dandelion", DANDELION, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_POPPY = createBlock<FlowerPotBlock>("potted_poppy", POPPY, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_BLUE_ORCHID = createBlock<FlowerPotBlock>("potted_blue_orchid", BLUE_ORCHID, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_ALLIUM = createBlock<FlowerPotBlock>("potted_allium", ALLIUM, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_AZURE_BLUET = createBlock<FlowerPotBlock>("potted_azure_bluet", AZURE_BLUET, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_RED_TULIP = createBlock<FlowerPotBlock>("potted_red_tulip", RED_TULIP, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_ORANGE_TULIP = createBlock<FlowerPotBlock>("potted_orange_tulip", ORANGE_TULIP, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_WHITE_TULIP = createBlock<FlowerPotBlock>("potted_white_tulip", WHITE_TULIP, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_PINK_TULIP = createBlock<FlowerPotBlock>("potted_pink_tulip", PINK_TULIP, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_OXEYE_DAISY = createBlock<FlowerPotBlock>("potted_oxeye_daisy", OXEYE_DAISY, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_CORNFLOWER = createBlock<FlowerPotBlock>("potted_cornflower", CORNFLOWER, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_LILY_OF_THE_VALLEY = createBlock<FlowerPotBlock>("potted_lily_of_the_valley", LILY_OF_THE_VALLEY, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_WITHER_ROSE = createBlock<FlowerPotBlock>("potted_wither_rose", WITHER_ROSE, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_RED_MUSHROOM = createBlock<FlowerPotBlock>("potted_red_mushroom", RED_MUSHROOM, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_BROWN_MUSHROOM = createBlock<FlowerPotBlock>("potted_brown_mushroom", BROWN_MUSHROOM, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_DEAD_BUSH = createBlock<FlowerPotBlock>("potted_dead_bush", DEAD_BUSH, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
+    POTTED_CACTUS = createBlock<FlowerPotBlock>("potted_cactus", CACTUS, Properties::create(Materials::MISCELLANEOUS)
+        .zeroHardnessAndResistance()
+        .notSolid());
     CARROTS = createBlock<CarrotBlock>("carrots", Properties::create(Materials::PLANTS)
         .doesNotBlockMovement()
         .setTickRandomly()
@@ -2234,54 +2198,54 @@ return TileEntityType::CHEST;
     DROPPER = createBlock<DropperBlock>("dropper", Properties::create(Materials::ROCK)
         .setRequiresTool()
         .setHardnessAndResistance(3.5F));
-//    WHITE_TERRACOTTA = createBlock<Block>("white_terracotta", Properties::create(Materials::ROCK, MaterialColors::WHITE_TERRACOTTA)
-//        .setRequiresTool()
-//        .setHardnessAndResistance(1.25F, 4.2F));
-//    ORANGE_TERRACOTTA = createBlock<Block>("orange_terracotta", Properties::create(Materials::ROCK, MaterialColors::ORANGE_TERRACOTTA)
-//        .setRequiresTool()
-//        .setHardnessAndResistance(1.25F, 4.2F));
-//    MAGENTA_TERRACOTTA = createBlock<Block>("magenta_terracotta", Properties::create(Materials::ROCK, MaterialColors::MAGENTA_TERRACOTTA)
-//        .setRequiresTool()
-//        .setHardnessAndResistance(1.25F, 4.2F));
-//    LIGHT_BLUE_TERRACOTTA = createBlock<Block>("light_blue_terracotta", Properties::create(Materials::ROCK, MaterialColors::LIGHT_BLUE_TERRACOTTA)
-//        .setRequiresTool()
-//        .setHardnessAndResistance(1.25F, 4.2F));
-//    YELLOW_TERRACOTTA = createBlock<Block>("yellow_terracotta", Properties::create(Materials::ROCK, MaterialColors::YELLOW_TERRACOTTA)
-//        .setRequiresTool()
-//        .setHardnessAndResistance(1.25F, 4.2F));
-//    LIME_TERRACOTTA = createBlock<Block>("lime_terracotta", Properties::create(Materials::ROCK, MaterialColors::LIME_TERRACOTTA)
-//        .setRequiresTool()
-//        .setHardnessAndResistance(1.25F, 4.2F));
-//    PINK_TERRACOTTA = createBlock<Block>("pink_terracotta", Properties::create(Materials::ROCK, MaterialColors::PINK_TERRACOTTA)
-//        .setRequiresTool()
-//        .setHardnessAndResistance(1.25F, 4.2F));
-//    GRAY_TERRACOTTA = createBlock<Block>("gray_terracotta", Properties::create(Materials::ROCK, MaterialColors::GRAY_TERRACOTTA)
-//        .setRequiresTool()
-//        .setHardnessAndResistance(1.25F, 4.2F));
-//    LIGHT_GRAY_TERRACOTTA = createBlock<Block>("light_gray_terracotta", Properties::create(Materials::ROCK, MaterialColors::LIGHT_GRAY_TERRACOTTA)
-//        .setRequiresTool()
-//        .setHardnessAndResistance(1.25F, 4.2F));
-//    CYAN_TERRACOTTA = createBlock<Block>("cyan_terracotta", Properties::create(Materials::ROCK, MaterialColors::CYAN_TERRACOTTA)
-//        .setRequiresTool()
-//        .setHardnessAndResistance(1.25F, 4.2F));
-//    PURPLE_TERRACOTTA = createBlock<Block>("purple_terracotta", Properties::create(Materials::ROCK, MaterialColors::PURPLE_TERRACOTTA)
-//        .setRequiresTool()
-//        .setHardnessAndResistance(1.25F, 4.2F));
-//    BLUE_TERRACOTTA = createBlock<Block>("blue_terracotta", Properties::create(Materials::ROCK, MaterialColors::BLUE_TERRACOTTA)
-//        .setRequiresTool()
-//        .setHardnessAndResistance(1.25F, 4.2F));
-//    BROWN_TERRACOTTA = createBlock<Block>("brown_terracotta", Properties::create(Materials::ROCK, MaterialColors::BROWN_TERRACOTTA)
-//        .setRequiresTool()
-//        .setHardnessAndResistance(1.25F, 4.2F));
-//    GREEN_TERRACOTTA = createBlock<Block>("green_terracotta", Properties::create(Materials::ROCK, MaterialColors::GREEN_TERRACOTTA)
-//        .setRequiresTool()
-//        .setHardnessAndResistance(1.25F, 4.2F));
-//    RED_TERRACOTTA = createBlock<Block>("red_terracotta", Properties::create(Materials::ROCK, MaterialColors::RED_TERRACOTTA)
-//        .setRequiresTool()
-//        .setHardnessAndResistance(1.25F, 4.2F));
-//    BLACK_TERRACOTTA = createBlock<Block>("black_terracotta", Properties::create(Materials::ROCK, MaterialColors::BLACK_TERRACOTTA)
-//        .setRequiresTool()
-//        .setHardnessAndResistance(1.25F, 4.2F));
+    WHITE_TERRACOTTA = createBlock<Block>("white_terracotta", Properties::create(Materials::ROCK, MaterialColors::WHITE_TERRACOTTA)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.25F, 4.2F));
+    ORANGE_TERRACOTTA = createBlock<Block>("orange_terracotta", Properties::create(Materials::ROCK, MaterialColors::ORANGE_TERRACOTTA)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.25F, 4.2F));
+    MAGENTA_TERRACOTTA = createBlock<Block>("magenta_terracotta", Properties::create(Materials::ROCK, MaterialColors::MAGENTA_TERRACOTTA)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.25F, 4.2F));
+    LIGHT_BLUE_TERRACOTTA = createBlock<Block>("light_blue_terracotta", Properties::create(Materials::ROCK, MaterialColors::LIGHT_BLUE_TERRACOTTA)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.25F, 4.2F));
+    YELLOW_TERRACOTTA = createBlock<Block>("yellow_terracotta", Properties::create(Materials::ROCK, MaterialColors::YELLOW_TERRACOTTA)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.25F, 4.2F));
+    LIME_TERRACOTTA = createBlock<Block>("lime_terracotta", Properties::create(Materials::ROCK, MaterialColors::LIME_TERRACOTTA)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.25F, 4.2F));
+    PINK_TERRACOTTA = createBlock<Block>("pink_terracotta", Properties::create(Materials::ROCK, MaterialColors::PINK_TERRACOTTA)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.25F, 4.2F));
+    GRAY_TERRACOTTA = createBlock<Block>("gray_terracotta", Properties::create(Materials::ROCK, MaterialColors::GRAY_TERRACOTTA)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.25F, 4.2F));
+    LIGHT_GRAY_TERRACOTTA = createBlock<Block>("light_gray_terracotta", Properties::create(Materials::ROCK, MaterialColors::LIGHT_GRAY_TERRACOTTA)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.25F, 4.2F));
+    CYAN_TERRACOTTA = createBlock<Block>("cyan_terracotta", Properties::create(Materials::ROCK, MaterialColors::CYAN_TERRACOTTA)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.25F, 4.2F));
+    PURPLE_TERRACOTTA = createBlock<Block>("purple_terracotta", Properties::create(Materials::ROCK, MaterialColors::PURPLE_TERRACOTTA)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.25F, 4.2F));
+    BLUE_TERRACOTTA = createBlock<Block>("blue_terracotta", Properties::create(Materials::ROCK, MaterialColors::BLUE_TERRACOTTA)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.25F, 4.2F));
+    BROWN_TERRACOTTA = createBlock<Block>("brown_terracotta", Properties::create(Materials::ROCK, MaterialColors::BROWN_TERRACOTTA)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.25F, 4.2F));
+    GREEN_TERRACOTTA = createBlock<Block>("green_terracotta", Properties::create(Materials::ROCK, MaterialColors::GREEN_TERRACOTTA)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.25F, 4.2F));
+    RED_TERRACOTTA = createBlock<Block>("red_terracotta", Properties::create(Materials::ROCK, MaterialColors::RED_TERRACOTTA)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.25F, 4.2F));
+    BLACK_TERRACOTTA = createBlock<Block>("black_terracotta", Properties::create(Materials::ROCK, MaterialColors::BLACK_TERRACOTTA)
+        .setRequiresTool()
+        .setHardnessAndResistance(1.25F, 4.2F));
     WHITE_STAINED_GLASS_PANE = createBlock<StainedGlassPaneBlock>("white_stained_glass_pane", DyeColors::WHITE, Properties::create(Materials::GLASS)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
@@ -2346,8 +2310,8 @@ return TileEntityType::CHEST;
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
         .notSolid());
-    //    ACACIA_STAIRS = createBlock<StairsBlock>("acacia_stairs", ACACIA_PLANKS->getDefaultState(), Properties::from(ACACIA_PLANKS));
-    //    DARK_OAK_STAIRS = createBlock<StairsBlock>("dark_oak_stairs", DARK_OAK_PLANKS->getDefaultState(), Properties::from(DARK_OAK_PLANKS));
+    ACACIA_STAIRS = createBlock<StairsBlock>("acacia_stairs", ACACIA_PLANKS->getDefaultState(), Properties::from(ACACIA_PLANKS));
+    DARK_OAK_STAIRS = createBlock<StairsBlock>("dark_oak_stairs", DARK_OAK_PLANKS->getDefaultState(), Properties::from(DARK_OAK_PLANKS));
     SLIME_BLOCK = createBlock<SlimeBlock>("slime_block", Properties::create(Materials::CLAY, MaterialColors::GRASS)
         .setSlipperiness(0.8F)
         .setSound(SoundType::SLIME)
@@ -2465,14 +2429,14 @@ return TileEntityType::CHEST;
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
-//    TALL_GRASS = createBlock<DoublePlantBlock>("tall_grass", Properties::create(Materials::TALL_PLANTS)
-//        .doesNotBlockMovement()
-//        .zeroHardnessAndResistance()
-//        .setSound(SoundType::PLANT));
-//    LARGE_FERN = createBlock<DoublePlantBlock>("large_fern", Properties::create(Materials::TALL_PLANTS)
-//        .doesNotBlockMovement()
-//        .zeroHardnessAndResistance()
-//        .setSound(SoundType::PLANT));
+    TALL_GRASS = createBlock<DoublePlantBlock>("tall_grass", Properties::create(Materials::TALL_PLANTS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
+    LARGE_FERN = createBlock<DoublePlantBlock>("large_fern", Properties::create(Materials::TALL_PLANTS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setSound(SoundType::PLANT));
     WHITE_BANNER = createBanner("white_banner", DyeColors::WHITE);
     ORANGE_BANNER = createBanner("orange_banner", DyeColors::ORANGE);
     MAGENTA_BANNER = createBanner("magenta_banner", DyeColors::MAGENTA);
@@ -2489,86 +2453,86 @@ return TileEntityType::CHEST;
     GREEN_BANNER = createBanner("green_banner", DyeColors::GREEN);
     RED_BANNER = createBanner("red_banner", DyeColors::RED);
     BLACK_BANNER = createBanner("black_banner", DyeColors::BLACK);
-    //    WHITE_WALL_BANNER = createBlock<WallBannerBlock>("white_wall_banner", (DyeColors::WHITE, Properties::create(Materials::WOOD)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(WHITE_BANNER)));
-    //    ORANGE_WALL_BANNER = createBlock<WallBannerBlock>("orange_wall_banner", (DyeColors::ORANGE, Properties::create(Materials::WOOD)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(ORANGE_BANNER)));
-    //    MAGENTA_WALL_BANNER = createBlock<WallBannerBlock>("magenta_wall_banner", (DyeColors::MAGENTA, Properties::create(Materials::WOOD)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(MAGENTA_BANNER)));
-    //    LIGHT_BLUE_WALL_BANNER = createBlock<WallBannerBlock>("light_blue_wall_banner", (DyeColors::LIGHT_BLUE, Properties::create(Materials::WOOD)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(LIGHT_BLUE_BANNER)));
-    //    YELLOW_WALL_BANNER = createBlock<WallBannerBlock>("yellow_wall_banner", (DyeColors::YELLOW, Properties::create(Materials::WOOD)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(YELLOW_BANNER)));
-    //    LIME_WALL_BANNER = createBlock<WallBannerBlock>("lime_wall_banner", (DyeColors::LIME, Properties::create(Materials::WOOD)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(LIME_BANNER)));
-    //    PINK_WALL_BANNER = createBlock<WallBannerBlock>("pink_wall_banner", (DyeColors::PINK, Properties::create(Materials::WOOD)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(PINK_BANNER)));
-    //    GRAY_WALL_BANNER = createBlock<WallBannerBlock>("gray_wall_banner", (DyeColors::GRAY, Properties::create(Materials::WOOD)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(GRAY_BANNER)));
-    //    LIGHT_GRAY_WALL_BANNER = createBlock<WallBannerBlock>("light_gray_wall_banner", (DyeColors::LIGHT_GRAY, Properties::create(Materials::WOOD)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(LIGHT_GRAY_BANNER)));
-    //    CYAN_WALL_BANNER = createBlock<WallBannerBlock>("cyan_wall_banner", (DyeColors::CYAN, Properties::create(Materials::WOOD)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(CYAN_BANNER)));
-    //    PURPLE_WALL_BANNER = createBlock<WallBannerBlock>("purple_wall_banner", (DyeColors::PURPLE, Properties::create(Materials::WOOD)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(PURPLE_BANNER)));
-    //    BLUE_WALL_BANNER = createBlock<WallBannerBlock>("blue_wall_banner", (DyeColors::BLUE, Properties::create(Materials::WOOD)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(BLUE_BANNER)));
-    //    BROWN_WALL_BANNER = createBlock<WallBannerBlock>("brown_wall_banner", (DyeColors::BROWN, Properties::create(Materials::WOOD)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(BROWN_BANNER)));
-    //    GREEN_WALL_BANNER = createBlock<WallBannerBlock>("green_wall_banner", (DyeColors::GREEN, Properties::create(Materials::WOOD)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(GREEN_BANNER)));
-    //    RED_WALL_BANNER = createBlock<WallBannerBlock>("red_wall_banner", (DyeColors::RED, Properties::create(Materials::WOOD)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(RED_BANNER)));
-    //    BLACK_WALL_BANNER = createBlock<WallBannerBlock>("black_wall_banner", (DyeColors::BLACK, Properties::create(Materials::WOOD)
-    //.doesNotBlockMovement()
-    //.setHardnessAndResistance(1.0F)
-    //.setSound(SoundType::WOOD)
-    //.setLootFrom(BLACK_BANNER)));
+    WHITE_WALL_BANNER = createBlock<WallBannerBlock>("white_wall_banner", DyeColors::WHITE, Properties::create(Materials::WOOD)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(WHITE_BANNER));
+    ORANGE_WALL_BANNER = createBlock<WallBannerBlock>("orange_wall_banner", DyeColors::ORANGE, Properties::create(Materials::WOOD)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(ORANGE_BANNER));
+    MAGENTA_WALL_BANNER = createBlock<WallBannerBlock>("magenta_wall_banner", DyeColors::MAGENTA, Properties::create(Materials::WOOD)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(MAGENTA_BANNER));
+    LIGHT_BLUE_WALL_BANNER = createBlock<WallBannerBlock>("light_blue_wall_banner", DyeColors::LIGHT_BLUE, Properties::create(Materials::WOOD)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(LIGHT_BLUE_BANNER));
+    YELLOW_WALL_BANNER = createBlock<WallBannerBlock>("yellow_wall_banner", DyeColors::YELLOW, Properties::create(Materials::WOOD)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(YELLOW_BANNER));
+    LIME_WALL_BANNER = createBlock<WallBannerBlock>("lime_wall_banner", DyeColors::LIME, Properties::create(Materials::WOOD)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(LIME_BANNER));
+    PINK_WALL_BANNER = createBlock<WallBannerBlock>("pink_wall_banner", DyeColors::PINK, Properties::create(Materials::WOOD)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(PINK_BANNER));
+    GRAY_WALL_BANNER = createBlock<WallBannerBlock>("gray_wall_banner", DyeColors::GRAY, Properties::create(Materials::WOOD)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(GRAY_BANNER));
+    LIGHT_GRAY_WALL_BANNER = createBlock<WallBannerBlock>("light_gray_wall_banner", DyeColors::LIGHT_GRAY, Properties::create(Materials::WOOD)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(LIGHT_GRAY_BANNER));
+    CYAN_WALL_BANNER = createBlock<WallBannerBlock>("cyan_wall_banner", DyeColors::CYAN, Properties::create(Materials::WOOD)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(CYAN_BANNER));
+    PURPLE_WALL_BANNER = createBlock<WallBannerBlock>("purple_wall_banner", DyeColors::PURPLE, Properties::create(Materials::WOOD)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(PURPLE_BANNER));
+    BLUE_WALL_BANNER = createBlock<WallBannerBlock>("blue_wall_banner", DyeColors::BLUE, Properties::create(Materials::WOOD)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(BLUE_BANNER));
+    BROWN_WALL_BANNER = createBlock<WallBannerBlock>("brown_wall_banner", DyeColors::BROWN, Properties::create(Materials::WOOD)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(BROWN_BANNER));
+    GREEN_WALL_BANNER = createBlock<WallBannerBlock>("green_wall_banner", DyeColors::GREEN, Properties::create(Materials::WOOD)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(GREEN_BANNER));
+    RED_WALL_BANNER = createBlock<WallBannerBlock>("red_wall_banner", DyeColors::RED, Properties::create(Materials::WOOD)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(RED_BANNER));
+    BLACK_WALL_BANNER = createBlock<WallBannerBlock>("black_wall_banner", DyeColors::BLACK, Properties::create(Materials::WOOD)
+        .doesNotBlockMovement()
+        .setHardnessAndResistance(1.0F)
+        .setSound(SoundType::WOOD)
+        .setLootFrom(BLACK_BANNER));
     RED_SANDSTONE = createBlock<Block>("red_sandstone", Properties::create(Materials::ROCK, MaterialColors::ADOBE)
         .setRequiresTool()
         .setHardnessAndResistance(0.8F));
@@ -2649,56 +2613,56 @@ return TileEntityType::CHEST;
     SMOOTH_RED_SANDSTONE = createBlock<Block>("smooth_red_sandstone", Properties::create(Materials::ROCK, MaterialColors::ADOBE)
         .setRequiresTool()
         .setHardnessAndResistance(2.0F, 6.0F));
-    //    SPRUCE_FENCE_GATE = createBlock<FenceGateBlock>("spruce_fence_gate", Properties::create(Materials::WOOD, SPRUCE_PLANKS->getMaterialColor())
-    //.setHardnessAndResistance(2.0F, 3.0F)
-    //.setSound(SoundType::WOOD));
-    //    BIRCH_FENCE_GATE = createBlock<FenceGateBlock>("birch_fence_gate", Properties::create(Materials::WOOD, BIRCH_PLANKS->getMaterialColor())
-    //.setHardnessAndResistance(2.0F, 3.0F)
-    //.setSound(SoundType::WOOD));
-    //    JUNGLE_FENCE_GATE = createBlock<FenceGateBlock>("jungle_fence_gate", Properties::create(Materials::WOOD, JUNGLE_PLANKS->getMaterialColor())
-    //.setHardnessAndResistance(2.0F, 3.0F)
-    //.setSound(SoundType::WOOD));
-    //    ACACIA_FENCE_GATE = createBlock<FenceGateBlock>("acacia_fence_gate", Properties::create(Materials::WOOD, ACACIA_PLANKS->getMaterialColor())
-    //.setHardnessAndResistance(2.0F, 3.0F)
-    //.setSound(SoundType::WOOD));
-    //    DARK_OAK_FENCE_GATE = createBlock<FenceGateBlock>("dark_oak_fence_gate", Properties::create(Materials::WOOD, DARK_OAK_PLANKS->getMaterialColor())
-    //.setHardnessAndResistance(2.0F, 3.0F)
-    //.setSound(SoundType::WOOD));
-    //    SPRUCE_FENCE = createBlock<FenceBlock>("spruce_fence", Properties::create(Materials::WOOD, SPRUCE_PLANKS->getMaterialColor())
-    //.setHardnessAndResistance(2.0F, 3.0F)
-    //.setSound(SoundType::WOOD));
-    //    BIRCH_FENCE = createBlock<FenceBlock>("birch_fence", Properties::create(Materials::WOOD, BIRCH_PLANKS->getMaterialColor())
-    //.setHardnessAndResistance(2.0F, 3.0F)
-    //.setSound(SoundType::WOOD));
-    //    JUNGLE_FENCE = createBlock<FenceBlock>("jungle_fence", Properties::create(Materials::WOOD, JUNGLE_PLANKS->getMaterialColor())
-    //.setHardnessAndResistance(2.0F, 3.0F)
-    //.setSound(SoundType::WOOD));
-    //    ACACIA_FENCE = createBlock<FenceBlock>("acacia_fence", Properties::create(Materials::WOOD, ACACIA_PLANKS->getMaterialColor())
-    //.setHardnessAndResistance(2.0F, 3.0F)
-    //.setSound(SoundType::WOOD));
-    //    DARK_OAK_FENCE = createBlock<FenceBlock>("dark_oak_fence", Properties::create(Materials::WOOD, DARK_OAK_PLANKS->getMaterialColor())
-    //.setHardnessAndResistance(2.0F, 3.0F)
-    //.setSound(SoundType::WOOD));
-    //    SPRUCE_DOOR = createBlock<DoorBlock>("spruce_door", Properties::create(Materials::WOOD, SPRUCE_PLANKS->getMaterialColor())
-    //.setHardnessAndResistance(3.0F)
-    //.setSound(SoundType::WOOD)
-    //.notSolid());
-    //    BIRCH_DOOR = createBlock<DoorBlock>("birch_door", Properties::create(Materials::WOOD, BIRCH_PLANKS->getMaterialColor())
-    //.setHardnessAndResistance(3.0F)
-    //.setSound(SoundType::WOOD)
-    //.notSolid());
-    //    JUNGLE_DOOR = createBlock<DoorBlock>("jungle_door", Properties::create(Materials::WOOD, JUNGLE_PLANKS->getMaterialColor())
-    //.setHardnessAndResistance(3.0F)
-    //.setSound(SoundType::WOOD)
-    //.notSolid());
-    //    ACACIA_DOOR = createBlock<DoorBlock>("acacia_door", Properties::create(Materials::WOOD, ACACIA_PLANKS->getMaterialColor())
-    //.setHardnessAndResistance(3.0F)
-    //.setSound(SoundType::WOOD)
-    //.notSolid());
-    //    DARK_OAK_DOOR = createBlock<DoorBlock>("dark_oak_door", Properties::create(Materials::WOOD, DARK_OAK_PLANKS->getMaterialColor())
-    //.setHardnessAndResistance(3.0F)
-    //.setSound(SoundType::WOOD)
-    //.notSolid());
+    SPRUCE_FENCE_GATE = createBlock<FenceGateBlock>("spruce_fence_gate", Properties::create(Materials::WOOD, SPRUCE_PLANKS->getMaterialColor())
+        .setHardnessAndResistance(2.0F, 3.0F)
+        .setSound(SoundType::WOOD));
+    BIRCH_FENCE_GATE = createBlock<FenceGateBlock>("birch_fence_gate", Properties::create(Materials::WOOD, BIRCH_PLANKS->getMaterialColor())
+        .setHardnessAndResistance(2.0F, 3.0F)
+        .setSound(SoundType::WOOD));
+    JUNGLE_FENCE_GATE = createBlock<FenceGateBlock>("jungle_fence_gate", Properties::create(Materials::WOOD, JUNGLE_PLANKS->getMaterialColor())
+        .setHardnessAndResistance(2.0F, 3.0F)
+        .setSound(SoundType::WOOD));
+    ACACIA_FENCE_GATE = createBlock<FenceGateBlock>("acacia_fence_gate", Properties::create(Materials::WOOD, ACACIA_PLANKS->getMaterialColor())
+        .setHardnessAndResistance(2.0F, 3.0F)
+        .setSound(SoundType::WOOD));
+    DARK_OAK_FENCE_GATE = createBlock<FenceGateBlock>("dark_oak_fence_gate", Properties::create(Materials::WOOD, DARK_OAK_PLANKS->getMaterialColor())
+        .setHardnessAndResistance(2.0F, 3.0F)
+        .setSound(SoundType::WOOD));
+    SPRUCE_FENCE = createBlock<FenceBlock>("spruce_fence", Properties::create(Materials::WOOD, SPRUCE_PLANKS->getMaterialColor())
+        .setHardnessAndResistance(2.0F, 3.0F)
+        .setSound(SoundType::WOOD));
+    BIRCH_FENCE = createBlock<FenceBlock>("birch_fence", Properties::create(Materials::WOOD, BIRCH_PLANKS->getMaterialColor())
+        .setHardnessAndResistance(2.0F, 3.0F)
+        .setSound(SoundType::WOOD));
+    JUNGLE_FENCE = createBlock<FenceBlock>("jungle_fence", Properties::create(Materials::WOOD, JUNGLE_PLANKS->getMaterialColor())
+        .setHardnessAndResistance(2.0F, 3.0F)
+        .setSound(SoundType::WOOD));
+    ACACIA_FENCE = createBlock<FenceBlock>("acacia_fence", Properties::create(Materials::WOOD, ACACIA_PLANKS->getMaterialColor())
+        .setHardnessAndResistance(2.0F, 3.0F)
+        .setSound(SoundType::WOOD));
+    DARK_OAK_FENCE = createBlock<FenceBlock>("dark_oak_fence", Properties::create(Materials::WOOD, DARK_OAK_PLANKS->getMaterialColor())
+        .setHardnessAndResistance(2.0F, 3.0F)
+        .setSound(SoundType::WOOD));
+    SPRUCE_DOOR = createBlock<DoorBlock>("spruce_door", Properties::create(Materials::WOOD, SPRUCE_PLANKS->getMaterialColor())
+        .setHardnessAndResistance(3.0F)
+        .setSound(SoundType::WOOD)
+        .notSolid());
+    BIRCH_DOOR = createBlock<DoorBlock>("birch_door", Properties::create(Materials::WOOD, BIRCH_PLANKS->getMaterialColor())
+        .setHardnessAndResistance(3.0F)
+        .setSound(SoundType::WOOD)
+        .notSolid());
+    JUNGLE_DOOR = createBlock<DoorBlock>("jungle_door", Properties::create(Materials::WOOD, JUNGLE_PLANKS->getMaterialColor())
+        .setHardnessAndResistance(3.0F)
+        .setSound(SoundType::WOOD)
+        .notSolid());
+    ACACIA_DOOR = createBlock<DoorBlock>("acacia_door", Properties::create(Materials::WOOD, ACACIA_PLANKS->getMaterialColor())
+        .setHardnessAndResistance(3.0F)
+        .setSound(SoundType::WOOD)
+        .notSolid());
+    DARK_OAK_DOOR = createBlock<DoorBlock>("dark_oak_door", Properties::create(Materials::WOOD, DARK_OAK_PLANKS->getMaterialColor())
+        .setHardnessAndResistance(3.0F)
+        .setSound(SoundType::WOOD)
+        .notSolid());
     END_ROD = createBlock<EndRodBlock>("end_rod", Properties::create(Materials::MISCELLANEOUS)
         .zeroHardnessAndResistance()
         .setLightLevel(getLightValue(14))
@@ -3162,41 +3126,41 @@ return TileEntityType::CHEST;
     BUBBLE_COLUMN = createBlock<BubbleColumnBlock>("bubble_column", Properties::create(Materials::BUBBLE_COLUMN)
         .doesNotBlockMovement()
         .noDrops());
-    //    POLISHED_GRANITE_STAIRS = createBlock<StairsBlock>("polished_granite_stairs", POLISHED_GRANITE->getDefaultState(), Properties::from(POLISHED_GRANITE));
-    //    SMOOTH_RED_SANDSTONE_STAIRS = createBlock<StairsBlock>("smooth_red_sandstone_stairs", SMOOTH_RED_SANDSTONE->getDefaultState(), Properties::from(SMOOTH_RED_SANDSTONE));
-    //    MOSSY_STONE_BRICK_STAIRS = createBlock<StairsBlock>("mossy_stone_brick_stairs", MOSSY_STONE_BRICKS->getDefaultState(), Properties::from(MOSSY_STONE_BRICKS));
-    //    POLISHED_DIORITE_STAIRS = createBlock<StairsBlock>("polished_diorite_stairs", POLISHED_DIORITE->getDefaultState(), Properties::from(POLISHED_DIORITE));
+    POLISHED_GRANITE_STAIRS = createBlock<StairsBlock>("polished_granite_stairs", POLISHED_GRANITE->getDefaultState(), Properties::from(POLISHED_GRANITE));
+    SMOOTH_RED_SANDSTONE_STAIRS = createBlock<StairsBlock>("smooth_red_sandstone_stairs", SMOOTH_RED_SANDSTONE->getDefaultState(), Properties::from(SMOOTH_RED_SANDSTONE));
+    MOSSY_STONE_BRICK_STAIRS = createBlock<StairsBlock>("mossy_stone_brick_stairs", MOSSY_STONE_BRICKS->getDefaultState(), Properties::from(MOSSY_STONE_BRICKS));
+    POLISHED_DIORITE_STAIRS = createBlock<StairsBlock>("polished_diorite_stairs", POLISHED_DIORITE->getDefaultState(), Properties::from(POLISHED_DIORITE));
     MOSSY_COBBLESTONE_STAIRS = createBlock<StairsBlock>("mossy_cobblestone_stairs", MOSSY_COBBLESTONE->getDefaultState(), Properties::from(MOSSY_COBBLESTONE));
     END_STONE_BRICK_STAIRS = createBlock<StairsBlock>("end_stone_brick_stairs", END_STONE_BRICKS->getDefaultState(), Properties::from(END_STONE_BRICKS));
     STONE_STAIRS = createBlock<StairsBlock>("stone_stairs", STONE->getDefaultState(), Properties::from(STONE));
     SMOOTH_SANDSTONE_STAIRS = createBlock<StairsBlock>("smooth_sandstone_stairs", SMOOTH_SANDSTONE->getDefaultState(), Properties::from(SMOOTH_SANDSTONE));
     SMOOTH_QUARTZ_STAIRS = createBlock<StairsBlock>("smooth_quartz_stairs", SMOOTH_QUARTZ->getDefaultState(), Properties::from(SMOOTH_QUARTZ));
-//    GRANITE_STAIRS = createBlock<StairsBlock>("granite_stairs", GRANITE->getDefaultState(), Properties::from(GRANITE));
-//    ANDESITE_STAIRS = createBlock<StairsBlock>("andesite_stairs", ANDESITE->getDefaultState(), Properties::from(ANDESITE));
+    GRANITE_STAIRS = createBlock<StairsBlock>("granite_stairs", GRANITE->getDefaultState(), Properties::from(GRANITE));
+    ANDESITE_STAIRS = createBlock<StairsBlock>("andesite_stairs", ANDESITE->getDefaultState(), Properties::from(ANDESITE));
     RED_NETHER_BRICK_STAIRS = createBlock<StairsBlock>("red_nether_brick_stairs", RED_NETHER_BRICKS->getDefaultState(), Properties::from(RED_NETHER_BRICKS));
-//    POLISHED_ANDESITE_STAIRS = createBlock<StairsBlock>("polished_andesite_stairs", POLISHED_ANDESITE->getDefaultState(), Properties::from(POLISHED_ANDESITE));
-//    DIORITE_STAIRS = createBlock<StairsBlock>("diorite_stairs", DIORITE->getDefaultState(), Properties::from(DIORITE));
-//    POLISHED_GRANITE_SLAB = createBlock<SlabBlock>("polished_granite_slab", Properties::from(POLISHED_GRANITE));
+    POLISHED_ANDESITE_STAIRS = createBlock<StairsBlock>("polished_andesite_stairs", POLISHED_ANDESITE->getDefaultState(), Properties::from(POLISHED_ANDESITE));
+    DIORITE_STAIRS = createBlock<StairsBlock>("diorite_stairs", DIORITE->getDefaultState(), Properties::from(DIORITE));
+    POLISHED_GRANITE_SLAB = createBlock<SlabBlock>("polished_granite_slab", Properties::from(POLISHED_GRANITE));
     SMOOTH_RED_SANDSTONE_SLAB = createBlock<SlabBlock>("smooth_red_sandstone_slab", Properties::from(SMOOTH_RED_SANDSTONE));
-//    MOSSY_STONE_BRICK_SLAB = createBlock<SlabBlock>("mossy_stone_brick_slab", Properties::from(MOSSY_STONE_BRICKS));
-//    POLISHED_DIORITE_SLAB = createBlock<SlabBlock>("polished_diorite_slab", Properties::from(POLISHED_DIORITE));
+    MOSSY_STONE_BRICK_SLAB = createBlock<SlabBlock>("mossy_stone_brick_slab", Properties::from(MOSSY_STONE_BRICKS));
+    POLISHED_DIORITE_SLAB = createBlock<SlabBlock>("polished_diorite_slab", Properties::from(POLISHED_DIORITE));
     MOSSY_COBBLESTONE_SLAB = createBlock<SlabBlock>("mossy_cobblestone_slab", Properties::from(MOSSY_COBBLESTONE));
     END_STONE_BRICK_SLAB = createBlock<SlabBlock>("end_stone_brick_slab", Properties::from(END_STONE_BRICKS));
     SMOOTH_SANDSTONE_SLAB = createBlock<SlabBlock>("smooth_sandstone_slab", Properties::from(SMOOTH_SANDSTONE));
     SMOOTH_QUARTZ_SLAB = createBlock<SlabBlock>("smooth_quartz_slab", Properties::from(SMOOTH_QUARTZ));
-//    GRANITE_SLAB = createBlock<SlabBlock>("granite_slab", Properties::from(GRANITE));
-//    ANDESITE_SLAB = createBlock<SlabBlock>("andesite_slab", Properties::from(ANDESITE));
+    GRANITE_SLAB = createBlock<SlabBlock>("granite_slab", Properties::from(GRANITE));
+    ANDESITE_SLAB = createBlock<SlabBlock>("andesite_slab", Properties::from(ANDESITE));
     RED_NETHER_BRICK_SLAB = createBlock<SlabBlock>("red_nether_brick_slab", Properties::from(RED_NETHER_BRICKS));
-//    POLISHED_ANDESITE_SLAB = createBlock<SlabBlock>("polished_andesite_slab", Properties::from(POLISHED_ANDESITE));
-//    DIORITE_SLAB = createBlock<SlabBlock>("diorite_slab", Properties::from(DIORITE));
+    POLISHED_ANDESITE_SLAB = createBlock<SlabBlock>("polished_andesite_slab", Properties::from(POLISHED_ANDESITE));
+    DIORITE_SLAB = createBlock<SlabBlock>("diorite_slab", Properties::from(DIORITE));
     BRICK_WALL = createBlock<WallBlock>("brick_wall", Properties::from(BRICKS));
     PRISMARINE_WALL = createBlock<WallBlock>("prismarine_wall", Properties::from(PRISMARINE));
     RED_SANDSTONE_WALL = createBlock<WallBlock>("red_sandstone_wall", Properties::from(RED_SANDSTONE));
-//    MOSSY_STONE_BRICK_WALL = createBlock<WallBlock>("mossy_stone_brick_wall", Properties::from(MOSSY_STONE_BRICKS));
-//    GRANITE_WALL = createBlock<WallBlock>("granite_wall", Properties::from(GRANITE));
-//    STONE_BRICK_WALL = createBlock<WallBlock>("stone_brick_wall", Properties::from(STONE_BRICKS));
+    MOSSY_STONE_BRICK_WALL = createBlock<WallBlock>("mossy_stone_brick_wall", Properties::from(MOSSY_STONE_BRICKS));
+    GRANITE_WALL = createBlock<WallBlock>("granite_wall", Properties::from(GRANITE));
+    STONE_BRICK_WALL = createBlock<WallBlock>("stone_brick_wall", Properties::from(STONE_BRICKS));
     NETHER_BRICK_WALL = createBlock<WallBlock>("nether_brick_wall", Properties::from(NETHER_BRICKS));
-//    ANDESITE_WALL = createBlock<WallBlock>("andesite_wall", Properties::from(ANDESITE));
+    ANDESITE_WALL = createBlock<WallBlock>("andesite_wall", Properties::from(ANDESITE));
     RED_NETHER_BRICK_WALL = createBlock<WallBlock>("red_nether_brick_wall", Properties::from(RED_NETHER_BRICKS));
     SANDSTONE_WALL = createBlock<WallBlock>("sandstone_wall", Properties::from(SANDSTONE));
     END_STONE_BRICK_WALL = createBlock<WallBlock>("end_stone_brick_wall", Properties::from(END_STONE_BRICKS));

@@ -26,6 +26,7 @@ struct BlockGraphics {
     void setTextureIsotropic(const nlohmann::json& data);
 
 public:
+    static BlockGraphics* mMissingTexture;
     static TextureAtlas* mTerrainTextureAtlas;
     static std::unordered_map<std::string, BlockGraphics*> mBlockLookupMap;
     static std::vector<std::unique_ptr<BlockGraphics>> mOwnedBlocks;

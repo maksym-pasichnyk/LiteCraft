@@ -4,6 +4,7 @@
 #include "RandomPatchFeature.hpp"
 #include "MultipleWithChanceRandomFeature.hpp"
 #include "DecoratedFeature.hpp"
+#include "OreFeature.hpp"
 
 std::map<std::string, std::unique_ptr<Feature>> Features::features;
 Feature* Features::NO_OP;
@@ -92,7 +93,7 @@ void Features::registerFeatures() {
 //    DISK = createFeature<SphereReplaceFeature>("disk");
 //    ICE_PATCH = createFeature<IcePathFeature>("ice_patch");
 //    LAKE = createFeature<LakesFeature>("lake");
-//    ORE = createFeature<OreFeature>("ore");
+    ORE = createFeature<OreFeature>("ore");
 //    END_SPIKE = createFeature<EndSpikeFeature>("end_spike");
 //    END_ISLAND = createFeature<EndIslandFeature>("end_island");
 //    END_GATEWAY = createFeature<EndGatewayFeature>("end_gateway");

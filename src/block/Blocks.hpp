@@ -427,8 +427,8 @@ struct Blocks {
     [[maybe_unused]] static Block* LILAC;
     [[maybe_unused]] static Block* ROSE_BUSH;
     [[maybe_unused]] static Block* PEONY;
-//    [[maybe_unused]] static Block* TALL_GRASS;
-//    [[maybe_unused]] static Block* LARGE_FERN;
+    [[maybe_unused]] static Block* TALL_GRASS;
+    [[maybe_unused]] static Block* LARGE_FERN;
     [[maybe_unused]] static Block* WHITE_BANNER;
     [[maybe_unused]] static Block* ORANGE_BANNER;
     [[maybe_unused]] static Block* MAGENTA_BANNER;

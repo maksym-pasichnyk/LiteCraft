@@ -6,9 +6,27 @@
 
 NetherCaveCarver::NetherCaveCarver() : CaveWorldCarver(128) {
     carvableBlocks = {
+        Blocks::STONE,
+        Blocks::GRANITE,
+        Blocks::DIORITE,
+        Blocks::ANDESITE,
+        Blocks::DIRT,
+        Blocks::COARSE_DIRT,
+        Blocks::PODZOL,
+        Blocks::GRASS_BLOCK,
+        Blocks::NETHERRACK,
+        Blocks::SOUL_SAND,
+        Blocks::SOUL_SOIL,
+        Blocks::CRIMSON_NYLIUM,
+        Blocks::WARPED_NYLIUM,
+        Blocks::NETHER_WART_BLOCK,
+        Blocks::WARPED_WART_BLOCK,
+        Blocks::BASALT,
+        Blocks::BLACKSTONE
     };
     carvableFluids = {
-
+        Blocks::WATER,
+        Blocks::LAVA,
     };
 }
 

@@ -46,24 +46,24 @@ struct DefaultBiomeFeatures {
     }
 
     static void withCommonOverworldBlocks(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_DIRT);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_GRAVEL);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_GRANITE);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_DIORITE);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_ANDESITE);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_DIRT);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_GRAVEL);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_GRANITE);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_DIORITE);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_ANDESITE);
     }
 
     static void withOverworldOres(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_COAL);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_IRON);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_GOLD);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_REDSTONE);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_DIAMOND);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_LAPIS);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_COAL);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_IRON);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_GOLD);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_REDSTONE);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_DIAMOND);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_LAPIS);
     }
 
     static void withExtraGoldOre(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_GOLD_EXTRA);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_GOLD_EXTRA);
     }
 
     static void withEmeraldOre(BiomeGenerationSettings::Builder& builder) {
@@ -170,15 +170,15 @@ struct DefaultBiomeFeatures {
     }
 
     static void withNormalGrassPatch(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_NORMAL);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_NORMAL);
     }
 
     static void withSavannaGrass(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_SAVANNA);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_SAVANNA);
     }
 
     static void withBadlandsGrassAndBush(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_BADLANDS);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_BADLANDS);
 //        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_DEAD_BUSH_BADLANDS);
     }
 
@@ -187,13 +187,13 @@ struct DefaultBiomeFeatures {
     }
 
     static void withForestGrass(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_FOREST);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_FOREST);
     }
 
     static void withSwampVegetation(BiomeGenerationSettings::Builder& builder) {
 //        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SWAMP_TREE);
 //        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FLOWER_SWAMP);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_NORMAL);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_NORMAL);
 //        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_DEAD_BUSH);
 //        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_WATERLILLY);
 //        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BROWN_MUSHROOM_SWAMP);
@@ -213,7 +213,7 @@ struct DefaultBiomeFeatures {
     }
 
     static void withDesertDeadBushes(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_DEAD_BUSH_2);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_DEAD_BUSH_2);
     }
 
     static void withGiantTaigaGrassVegetation(BiomeGenerationSettings::Builder& builder) {
@@ -232,7 +232,7 @@ struct DefaultBiomeFeatures {
     }
 
     static void withBadlandsGrass(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_BADLANDS);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_BADLANDS);
     }
 
     static void withTaigaGrassVegetation(BiomeGenerationSettings::Builder& builder) {

@@ -162,22 +162,22 @@ struct SwampSurfaceBuilder : public SurfaceBuilder {
 struct BadlandsSurfaceBuilder : public SurfaceBuilder {
     const BlockData AIR = Blocks::AIR->getDefaultState();
     const BlockData TERRACOTTA = Blocks::TERRACOTTA->getDefaultState();
-    const BlockData WHITE_TERRACOTTA = Blocks::TERRACOTTA->getStateWithMeta(0);
-    const BlockData ORANGE_TERRACOTTA = Blocks::TERRACOTTA->getStateWithMeta(1);
-    const BlockData MAGENTA_TERRACOTTA = Blocks::TERRACOTTA->getStateWithMeta(2);
-    const BlockData LIGHT_BLUE_TERRACOTTA = Blocks::TERRACOTTA->getStateWithMeta(3);
-    const BlockData YELLOW_TERRACOTTA = Blocks::TERRACOTTA->getStateWithMeta(4);
-    const BlockData LIME_TERRACOTTA = Blocks::TERRACOTTA->getStateWithMeta(5);
-    const BlockData PINK_TERRACOTTA = Blocks::TERRACOTTA->getStateWithMeta(6);
-    const BlockData GRAY_TERRACOTTA = Blocks::TERRACOTTA->getStateWithMeta(7);
-    const BlockData LIGHT_GRAY_TERRACOTTA = Blocks::TERRACOTTA->getStateWithMeta(8);
-    const BlockData CYAN_TERRACOTTA = Blocks::TERRACOTTA->getStateWithMeta(9);
-    const BlockData PURPLE_TERRACOTTA = Blocks::TERRACOTTA->getStateWithMeta(10);
-    const BlockData BLUE_TERRACOTTA = Blocks::TERRACOTTA->getStateWithMeta(11);
-    const BlockData BROWN_TERRACOTTA = Blocks::TERRACOTTA->getStateWithMeta(12);
-    const BlockData GREEN_TERRACOTTA = Blocks::TERRACOTTA->getStateWithMeta(13);
-    const BlockData RED_TERRACOTTA = Blocks::TERRACOTTA->getStateWithMeta(14);
-    const BlockData BLACK_TERRACOTTA = Blocks::TERRACOTTA->getStateWithMeta(15);
+    const BlockData WHITE_TERRACOTTA = Blocks::WHITE_TERRACOTTA->getDefaultState();
+    const BlockData ORANGE_TERRACOTTA = Blocks::ORANGE_TERRACOTTA->getDefaultState();
+    const BlockData MAGENTA_TERRACOTTA = Blocks::MAGENTA_TERRACOTTA->getDefaultState();
+    const BlockData LIGHT_BLUE_TERRACOTTA = Blocks::LIGHT_BLUE_TERRACOTTA->getDefaultState();
+    const BlockData YELLOW_TERRACOTTA = Blocks::YELLOW_TERRACOTTA->getDefaultState();
+    const BlockData LIME_TERRACOTTA = Blocks::LIME_TERRACOTTA->getDefaultState();
+    const BlockData PINK_TERRACOTTA = Blocks::PINK_TERRACOTTA->getDefaultState();
+    const BlockData GRAY_TERRACOTTA = Blocks::GRAY_TERRACOTTA->getDefaultState();
+    const BlockData LIGHT_GRAY_TERRACOTTA = Blocks::LIGHT_GRAY_TERRACOTTA->getDefaultState();
+    const BlockData CYAN_TERRACOTTA = Blocks::CYAN_TERRACOTTA->getDefaultState();
+    const BlockData PURPLE_TERRACOTTA = Blocks::PURPLE_TERRACOTTA->getDefaultState();
+    const BlockData BLUE_TERRACOTTA = Blocks::BLUE_TERRACOTTA->getDefaultState();
+    const BlockData BROWN_TERRACOTTA = Blocks::BROWN_TERRACOTTA->getDefaultState();
+    const BlockData GREEN_TERRACOTTA = Blocks::GREEN_TERRACOTTA->getDefaultState();
+    const BlockData RED_TERRACOTTA = Blocks::RED_TERRACOTTA->getDefaultState();
+    const BlockData BLACK_TERRACOTTA = Blocks::BLACK_TERRACOTTA->getDefaultState();
 
     std::optional<int64_t> seed = std::nullopt;
     std::optional<PerlinNoiseGenerator> noise1 = std::nullopt;
@@ -378,7 +378,7 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
 
 struct WoodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
     const BlockData GRASS_BLOCK = Blocks::GRASS_BLOCK->getDefaultState();
-    const BlockData COARSE_DIRT = Blocks::DIRT->getStateWithMeta(1);
+    const BlockData COARSE_DIRT = Blocks::COARSE_DIRT->getDefaultState();
 
     void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
         const int xpos = xStart & 15;
