@@ -28,6 +28,7 @@ void BlockGraphics::initBlocks(ResourcePackManager& resources) {
     mBlockLookupMap.insert_or_assign("void_air", mBlockLookupMap.at("air"));
     mBlockLookupMap.insert_or_assign("cave_air", mBlockLookupMap.at("air"));
     mBlockLookupMap.insert_or_assign("melon", mBlockLookupMap.at("melon_block"));
+    mBlockLookupMap.insert_or_assign("sugar_cane", mBlockLookupMap.at("reeds"));
     mBlockLookupMap.insert_or_assign("wet_sponge", mBlockLookupMap.at("sponge"));
     mBlockLookupMap.insert_or_assign("red_sand", mBlockLookupMap.at("sand"));
     mBlockLookupMap.insert_or_assign("granite", mBlockLookupMap.at("stone"));

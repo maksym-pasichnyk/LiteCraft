@@ -2,6 +2,8 @@
 #include "../../WorldGenRegion.hpp"
 #include "../../../block/Blocks.hpp"
 
+#include <cmath>
+
 bool OreFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Random &random, glm::ivec3 pos, const FeatureConfig &config) {
     const auto& cfg = std::get<OreFeatureConfig>(config);
     
@@ -22,7 +24,7 @@ bool OreFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Ran
 
     for(int l1 = k; l1 <= k + j1; ++l1) {
         for(int i2 = i1; i2 <= i1 + j1; ++i2) {
-            if (l <= reader.getHeight(/*Heightmap.Type.OCEAN_FLOOR_WG,*/ l1, i2)) {
+            if (l <= reader.getHeight(HeightmapType::OCEAN_FLOOR_WG, l1, i2)) {
                 return generateOre(reader, random, cfg, d0, d1, d2, d3, d4, d5, k, l, i1, j1, k1);
             }
         }

@@ -1,17 +1,13 @@
 #pragma once
 
 #include "../../biome/BiomeReadFn.hpp"
+#include "../feature/config/ProbabilityConfig.hpp"
 
 #include <cstdint>
 
 struct Chunk;
 struct Random;
 struct WorldCarver;
-
-struct ProbabilityConfig {
-    float probability;
-};
-
 struct ConfiguredCarver {
     WorldCarver* carver;
     ProbabilityConfig config;

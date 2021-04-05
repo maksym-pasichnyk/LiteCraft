@@ -2,6 +2,8 @@
 
 #include "../WorldGenRegion.hpp"
 #include "../chunk/Chunk.hpp"
+#include "../../block/Block.hpp"
+#include "../../block/Blocks.hpp"
 
 #include <tuple>
 #include <queue>
@@ -29,7 +31,8 @@ struct WorldLightManager {
 
         const auto new_light = src_light - 1;
 
-        if (!region.getData(x, y, z).isOpaque() && light < new_light) {
+        const auto state = region.getData(x, y, z);
+        if (!(/*state.isOpaque() &&*/ state.isSolid()) && light < new_light) {
             mask.set(region.toIndex(x >> 4, z >> 4), true);
 
             region.setLightFor(x, y, z, channel, new_light);
@@ -108,7 +111,8 @@ struct WorldLightManager {
             }
 
             if (sky) {
-                if (region.getData(x, y, z).isOpaque()) {
+                const auto state = region.getData(x, y, z);
+                if (/*state.isOpaque() &&*/ state.isSolid()) {
                     sources.emplace(x, y + 1, z, 3);
                     sky = false;
                 } else {
@@ -146,7 +150,7 @@ struct WorldLightManager {
     void update(WorldGenRegion& region, int32_t x, int32_t y, int32_t z, BlockData old, BlockData data) {
         std::bitset<9> mask{};
 
-        if (data.isOpaque()) {
+        if (/*data.isOpaque() &&*/ data.isSolid()) {
             removes.emplace(x, y, z, 3, region.getLightFor(x, y, z, 3));
             region.setLightFor(x, y, z, 3, 0);
 

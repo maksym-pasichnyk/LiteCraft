@@ -9,10 +9,10 @@
 struct ExampleStructurePiece : StructurePiece {
     ExampleStructurePiece(int32_t pos_x, int32_t pos_z) {
         coordBaseMode = SOUTH;
-        boundingBox = StructureBoundingBox::withSize(pos_x - 1, 6, pos_z - 1, 3, 10, 3);
+        boundingBox = BoundingBox::withSize(pos_x - 1, 6, pos_z - 1, 3, 10, 3);
     }
 
-    void place(WorldGenRegion& region, StructureBoundingBox sbb) override {
+    void place(WorldGenRegion& region, BoundingBox sbb) override {
 //        const auto wood = Blocks::WOOD->getDefaultState();
 //
 //        for (auto y = 0; y < 10; y++) {
@@ -49,7 +49,7 @@ void ChunkGenerator::generateStructures(WorldGenRegion &region, Chunk& chunk) {
 ChunkGenerator::ChunkGenerator(std::unique_ptr<BiomeProvider>&& biomeProvider) : biomeProvider(std::move(biomeProvider)) {}
 
 void ChunkGenerator::getStructureReferences(WorldGenRegion &region, Chunk& chunk) {
-    const auto sbb = StructureBoundingBox::fromChunkPos(chunk.pos.x, chunk.pos.z);
+    const auto sbb = BoundingBox::fromChunkPos(chunk.pos.x, chunk.pos.z);
 
     for (auto x = chunk.pos.x - 8; x <= chunk.pos.x + 8; x++) {
         for (auto z = chunk.pos.z - 8; z <= chunk.pos.z + 8; z++) {
@@ -87,13 +87,13 @@ void ChunkGenerator::generateCarvers(WorldGenRegion& region, int64_t seed, Chunk
     }
 }
 
-void placeBlock(IBlockWriter auto& blocks, int32_t x, int32_t y, int32_t z, const BlockData& data, const StructureBoundingBox& sbb) {
+void placeBlock(IBlockWriter auto& blocks, int32_t x, int32_t y, int32_t z, const BlockData& data, const BoundingBox& sbb) {
     if (sbb.contains(x, y, z)) {
         blocks.setData(x, y, z, data);
     }
 }
 
-void generateTree(IBlockWriter auto& blocks, int32_t x, int32_t height, int32_t z, Random& rand, const StructureBoundingBox& sbb) {
+void generateTree(IBlockWriter auto& blocks, int32_t x, int32_t height, int32_t z, Random& rand, const BoundingBox& sbb) {
 //    const auto treeHeight = 4 + rand.nextInt(0, 2);
 //
 //    const BlockData leaves = Blocks::LEAVES->getDefaultState();
@@ -124,7 +124,7 @@ void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
     const auto xStart = chunkPos.getStartX();
     const auto zStart = chunkPos.getStartZ();
     const auto seed = random.setDecorationSeed(region.getSeed(), xStart, zStart);
-//    const auto sbb = StructureBoundingBox::fromChunkPos(chunkPos.x, chunkPos.z);
+//    const auto sbb = BoundingBox::fromChunkPos(chunkPos.x, chunkPos.z);
 
 //    for (auto& structure : chunk.structureReferences) {
 //        for (auto& piece : structure->pieces) {

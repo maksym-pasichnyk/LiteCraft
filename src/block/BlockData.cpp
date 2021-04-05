@@ -4,6 +4,13 @@
 
 #include <algorithm>
 
+bool BlockData::isIn(const BlockTag &tag) const {
+    return getBlock()->isIn(tag);
+}
+
+bool BlockData::isAir() const {
+    return getBlock()->properties.isAir;
+}
 auto BlockData::getBlock() const -> Block* {
     return Blocks::blocks[static_cast<size_t>(id)];
 }
@@ -12,6 +19,9 @@ auto BlockData::getMaterial() const -> Material * {
 }
 auto BlockData::isOpaque() const -> bool {
     return getMaterial()->isOpaque;
+}
+auto BlockData::isSolid() const -> bool {
+    return getBlock()->properties.isSolid;
 }
 auto BlockData::getLightLevel() const -> int32_t {
     return getBlock()->getLightLevel(*this);

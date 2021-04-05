@@ -1,6 +1,8 @@
 #pragma once
 
 #include "WorldReader.hpp"
+#include "WorldWriter.hpp"
+#include "gen/Heightmap.hpp"
 #include "biome/BiomeMagnifier.hpp"
 #include "biome/FuzzedBiomeMagnifier.hpp"
 #include "../block/BlockData.hpp"
@@ -14,7 +16,7 @@
 
 struct ServerWorld;
 
-struct WorldGenRegion : WorldReader {
+struct WorldGenRegion : virtual WorldReader, virtual WorldWriter {
     WorldGenRegion(const WorldGenRegion&) = delete;
     WorldGenRegion& operator=(const WorldGenRegion&) = delete;
 
@@ -79,25 +81,25 @@ struct WorldGenRegion : WorldReader {
 
     auto getData(int32_t x, int32_t y, int32_t z) const -> BlockData;
 
-    auto getData(glm::ivec3 pos) const -> BlockData override {
+    auto getData(const glm::ivec3& pos) const -> BlockData override {
         return getData(pos.x, pos.y, pos.z);
     }
 
     void setData(int32_t x, int32_t y, int32_t z, BlockData blockData);
 
-    void setData(glm::ivec3 pos, BlockData blockData) {
+    void setData(const glm::ivec3& pos, BlockData blockData) override {
         setData(pos.x, pos.y, pos.z, blockData);
     }
 
     void setLightFor(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val);
 
-    void setLightFor(glm::ivec3 pos, int32_t channel, int32_t val) {
+    void setLightFor(const glm::ivec3& pos, int32_t channel, int32_t val) {
         setLightFor(pos.x, pos.y, pos.z, channel, val);
     }
 
     auto getLightFor(int32_t x, int32_t y, int32_t z, int32_t channel) const -> int32_t;
 
-    auto getLightFor(glm::ivec3 pos, int32_t channel) const -> int32_t {
+    auto getLightFor(const glm::ivec3& pos, int32_t channel) const -> int32_t {
         return getLightFor(pos.x, pos.y, pos.z, channel);
     }
 
@@ -123,6 +125,13 @@ struct WorldGenRegion : WorldReader {
 	    return seed;
 	}
 
+	int getSeaLevel() const {
+        return 63;
+    }
+	int getMaxBuildHeight() const {
+        return 256; // dimensionHeight
+    }
+
 //    auto getTopBlockY(/*type, */int32_t x, int32_t z) -> int32_t;
 
 //    auto getHeight(/*type, */int32_t x, int32_t z) -> int32_t;
@@ -133,9 +142,9 @@ struct WorldGenRegion : WorldReader {
 
     Biome *getNoiseBiomeRaw(int x, int y, int z) override;
 
-    int getHeight(/*Heightmap::Type heightmapType,*/ int x, int z);
-    glm::ivec3 getHeight(/*Heightmap::Type heightmapType,*/ const glm::ivec3& pos) {
-        return glm::ivec3(pos.x, getHeight(/*heightmapType,*/ pos.x, pos.z), pos.z);
+    int getHeight(HeightmapType type, int x, int z);
+    glm::ivec3 getHeight(HeightmapType type, const glm::ivec3& pos) {
+        return glm::ivec3(pos.x, getHeight(type, pos.x, pos.z), pos.z);
     }
-    auto getBlockLight(glm::ivec3 pos) const -> int32_t override;
+    int32_t getBlockLight(const glm::ivec3& pos) const override;
 };

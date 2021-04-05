@@ -2,6 +2,8 @@
 #include "../gen/ChunkGenerator.hpp"
 #include "../light/WorldLightManager.hpp"
 
+#include <algorithm>
+
 const ChunkStatus ChunkStatus::Empty = create(0, -1, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk* chunk, std::span<Chunk*> chunks, int64_t seed) {
 
 });
@@ -24,6 +26,8 @@ const ChunkStatus ChunkStatus::Noise = create(4, 0, [](ServerWorld* world, World
 });
 
 const ChunkStatus ChunkStatus::Surface = create(5, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk* chunk, std::span<Chunk*> chunks, int64_t seed) {
+    std::ranges::for_each(chunks, &Chunk::updateHeightmaps);
+
     WorldGenRegion region{world, chunks, 0, x, z, seed};
     generator.generateSurface(region, *chunk);
 });

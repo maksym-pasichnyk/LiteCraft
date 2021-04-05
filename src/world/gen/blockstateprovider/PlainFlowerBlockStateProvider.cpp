@@ -5,16 +5,16 @@
 
 PlainFlowerBlockStateProvider::PlainFlowerBlockStateProvider() {
     RARE_FLOWERS = {
-        Blocks::DANDELION->getDefaultState(), //Blocks::ORANGE_TULIP->getDefaultState(),
-        Blocks::DANDELION->getDefaultState(), //Blocks::RED_TULIP->getDefaultState(),
-        Blocks::DANDELION->getDefaultState(), //Blocks::PINK_TULIP->getDefaultState(),
-        Blocks::DANDELION->getDefaultState(), //Blocks::WHITE_TULIP->getDefaultState()
+        Blocks::ORANGE_TULIP->getDefaultState(),
+        Blocks::RED_TULIP->getDefaultState(),
+        Blocks::PINK_TULIP->getDefaultState(),
+        Blocks::WHITE_TULIP->getDefaultState(),
     };
     COMMON_FLOWERS = {
-        Blocks::DANDELION->getDefaultState(), //Blocks::POPPY->getDefaultState(),
-        Blocks::DANDELION->getDefaultState(), //Blocks::AZURE_BLUET->getDefaultState(),
-        Blocks::DANDELION->getDefaultState(), //Blocks::OXEYE_DAISY->getDefaultState(),
-        Blocks::DANDELION->getDefaultState(), //Blocks::CORNFLOWER->getDefaultState()
+        Blocks::POPPY->getDefaultState(),
+        Blocks::AZURE_BLUET->getDefaultState(),
+        Blocks::OXEYE_DAISY->getDefaultState(),
+        Blocks::CORNFLOWER->getDefaultState(),
     };
 }
 

@@ -1,5 +1,6 @@
 #include "CanyonWorldCarver.hpp"
 #include "../../../util/Random.hpp"
+#include <cmath>
 
 bool CanyonWorldCarver::carveRegion(Chunk &chunk, const BiomeReadFn &getBiome, Random &rand, int seaLevel, int xoffset, int zoffset, int chunkx, int chunkz) {
     const int i = (getRange() * 2 - 1) * 16;

@@ -29,8 +29,6 @@ public:
     double yCoord;
     double zCoord;
 
-//    ImprovedNoiseGenerator(const ImprovedNoiseGenerator&) = delete;
-//    ImprovedNoiseGenerator& operator=(const ImprovedNoiseGenerator&) = delete;
     explicit ImprovedNoiseGenerator(Random&& rand) : ImprovedNoiseGenerator(rand) {}
     explicit ImprovedNoiseGenerator(Random& rand) {
         xCoord = rand.nextDouble() * 256.0;
@@ -71,24 +69,24 @@ public:
     }
 
     double getNoiseValue(double x, double y, double z, double unk1, double unk2) const {
-        const double d0 = x + xCoord;
-        const double d1 = y + yCoord;
-        const double d2 = z + zCoord;
-        const int i = std::floor(d0);
-        const int j = std::floor(d1);
-        const int k = std::floor(d2);
-        const double d3 = d0 - (double)i;
-        const double d4 = d1 - (double)j;
-        const double d5 = d2 - (double)k;
-        const double d6 = perlinFade(d3);
-        const double d7 = perlinFade(d4);
-        const double d8 = perlinFade(d5);
+        const double x1 = x + xCoord;
+        const double y1 = y + yCoord;
+        const double z1 = z + zCoord;
+        const int ix = std::floor(x1);
+        const int iy = std::floor(y1);
+        const int iz = std::floor(z1);
+        const double dx = x1 - (double)ix;
+        const double dy = y1 - (double)iy;
+        const double dz = z1 - (double)iz;
+        const double xfade = perlinFade(dx);
+        const double yfade = perlinFade(dy);
+        const double zfade = perlinFade(dz);
 
         double d9 = 0.0;
         if (unk1 != 0.0) {
-            d9 = (double)std::floor(std::min(unk2, d4) / unk1) * unk1;
+            d9 = (double)std::floor(std::min(unk2, dy) / unk1) * unk1;
         }
-        return calcValue(i, j, k, d3, d4 - d9, d5, d6, d7, d8);
+        return calcValue(ix, iy, iz, dx, dy - d9, dz, xfade, yfade, zfade);
     }
 
 public:

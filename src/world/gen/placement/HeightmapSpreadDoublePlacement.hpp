@@ -3,7 +3,5 @@
 #include "Placement.hpp"
 
 struct HeightmapSpreadDoublePlacement : Placement {
-    void forEach(WorldGenRegion &region, Random &random, const PlacementConfig &config, glm::ivec3 pos,
-                 const std::function<void(glm::ivec3)> &fn) override;
-
+    void forEach(WorldGenRegion &region, Random &random, const PlacementConfig &config, glm::ivec3 pos, const std::function<void(glm::ivec3)> &fn) override;
 };

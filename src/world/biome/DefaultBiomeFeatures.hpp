@@ -33,12 +33,12 @@ struct DefaultBiomeFeatures {
     }
 
     static void withLavaAndWaterLakes(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::LAKES, ConfiguredFeatures::LAKE_WATER);
-//        builder.withFeature(GenerationStage::Decoration::LAKES, ConfiguredFeatures::LAKE_LAVA);
+        builder.withFeature(GenerationStage::Decoration::LAKES, ConfiguredFeatures::LAKE_WATER);
+        builder.withFeature(GenerationStage::Decoration::LAKES, ConfiguredFeatures::LAKE_LAVA);
     }
 
     static void withLavaLakes(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::LAKES, ConfiguredFeatures::LAKE_LAVA);
+        builder.withFeature(GenerationStage::Decoration::LAKES, ConfiguredFeatures::LAKE_LAVA);
     }
 
     static void withMonsterRoom(BiomeGenerationSettings::Builder& builder) {
@@ -101,11 +101,11 @@ struct DefaultBiomeFeatures {
     }
 
     static void withLightBambooVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BAMBOO_LIGHT);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BAMBOO_LIGHT);
     }
 
     static void withBambooVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BAMBOO);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BAMBOO);
 //        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BAMBOO_VEGETATION);
     }
 
@@ -154,7 +154,7 @@ struct DefaultBiomeFeatures {
     }
 
     static void withBadlandsOakTrees(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::OAK_BADLANDS);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::OAK_BADLANDS);
     }
 
     static void withSnowySpruces(BiomeGenerationSettings::Builder& builder) {
@@ -217,7 +217,7 @@ struct DefaultBiomeFeatures {
     }
 
     static void withGiantTaigaGrassVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_TAIGA);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_TAIGA);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_DEAD_BUSH);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BROWN_MUSHROOM_GIANT);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::RED_MUSHROOM_GIANT);
@@ -236,7 +236,7 @@ struct DefaultBiomeFeatures {
     }
 
     static void withTaigaGrassVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_TAIGA_2);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_TAIGA_2);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BROWN_MUSHROOM_TAIGA);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::RED_MUSHROOM_TAIGA);
     }
@@ -251,12 +251,12 @@ struct DefaultBiomeFeatures {
     }
 
     static void withSugarCaneAndPumpkins(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_SUGAR_CANE);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_SUGAR_CANE);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_PUMPKIN);
     }
 
     static void withBadlandsVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_SUGAR_CANE_BADLANDS);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_SUGAR_CANE_BADLANDS);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_PUMPKIN);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_CACTUS_DECORATED);
     }
@@ -267,13 +267,13 @@ struct DefaultBiomeFeatures {
     }
 
     static void withDesertVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_SUGAR_CANE_DESERT);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_SUGAR_CANE_DESERT);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_PUMPKIN);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_CACTUS_DESERT);
     }
 
     static void withSwampSugarcaneAndPumpkin(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_SUGAR_CANE_SWAMP);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_SUGAR_CANE_SWAMP);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_PUMPKIN);
     }
 

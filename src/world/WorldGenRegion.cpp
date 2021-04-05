@@ -54,9 +54,9 @@ auto WorldGenRegion::getLightPacked(int32_t x, int32_t y, int32_t z) const -> in
 Biome *WorldGenRegion::getNoiseBiomeRaw(int x, int y, int z) {
     return world->getNoiseBiomeRaw(x, y, z);
 }
-int WorldGenRegion::getHeight(int x, int z) {
-    return getChunk(x >> 4, z >> 4)->getTopBlockY(/*heightmapType,*/ x & 15, z & 15) + 1;
+int WorldGenRegion::getHeight(HeightmapType type, int x, int z) {
+    return getChunk(x >> 4, z >> 4)->getHeight(type, x & 15, z & 15);
 }
-int32_t WorldGenRegion::getBlockLight(glm::ivec3 pos) const {
+int32_t WorldGenRegion::getBlockLight(const glm::ivec3& pos) const {
     return getLightFor(pos, 0);
 }

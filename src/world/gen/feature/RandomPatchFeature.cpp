@@ -19,7 +19,7 @@ static bool hasNearByWater(WorldReader& reader, const glm::ivec3& pos) {
 bool RandomPatchFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Random &random, glm::ivec3 pos, const FeatureConfig &config) {
     const auto& cfg = std::get<BlockClusterFeatureConfig>(config);
     const auto blockstate = cfg.stateProvider->getBlockState(random, pos);
-    const auto projected = cfg.project ? reader.getHeight(/*Heightmap.Type.WORLD_SURFACE_WG,*/ pos) : pos;
+    const auto projected = cfg.project ? reader.getHeight(HeightmapType::WORLD_SURFACE_WG, pos) : pos;
 
     int i = 0;
 
@@ -44,8 +44,7 @@ bool RandomPatchFeature::generate(WorldGenRegion &reader, ChunkGenerator &genera
             if (cfg.requiresWater && !hasNearByWater(reader, underPos)) {
                 continue;
             }
-//            cfg.blockPlacer->place(reader, nearbypos, blockstate, random);
-            reader.setData(nearbypos, blockstate);
+            cfg.blockPlacer->place(reader, nearbypos, blockstate, random);
             ++i;
         }
     }

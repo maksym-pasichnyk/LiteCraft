@@ -6590,7 +6590,7 @@ static stbi_uc *stbi__gif_load_next(stbi__context *s, stbi__gif *g, int *comp, i
             // if the width of the specified rectangle is 0, that means
             // we may not see *any* pixels or the image is malformed;
             // to make sure this is caught, move the current y down to
-            // max_y (which is what out_gif_code checks).
+            // maxY (which is what out_gif_code checks).
             if (w == 0)
                g->cur_y = g->max_y;
 

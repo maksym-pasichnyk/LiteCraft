@@ -14,6 +14,10 @@ struct Block : AbstractBlock {
         return defaultState;
     }
 
+    bool isIn(const BlockTag &tag) const {
+        return tag.items.contains(this);
+    }
+
 //    auto getStateWithMeta(int meta) -> BlockData {
 //        return {static_cast<uint16_t>(id), static_cast<uint16_t>(meta)};
 //    }

@@ -5,6 +5,7 @@
 #include "../../block/BlockReader.hpp"
 #include "../../mesh.hpp"
 #include "../../util/math/ChunkPos.hpp"
+#include "../../util/math/BoundingBox.hpp"
 
 #include <glm/vec3.hpp>
 
@@ -13,7 +14,6 @@
 #include <cassert>
 #include <queue>
 #include <cstdint>
-
 
 struct WorldGenRegion;
 
@@ -146,38 +146,6 @@ struct ChunkSection {
     std::array<BlockData, 4096> blocks;
 };
 
-struct StructureBoundingBox {
-    int min_x;
-    int min_y;
-    int min_z;
-    int max_x;
-    int max_y;
-    int max_z;
-
-
-    constexpr bool contains(int x, int y, int z) const noexcept {
-        return min_x <= x && x <= max_x &&
-               min_y <= y && y <= max_y &&
-               min_z <= z && z <= max_z;
-    }
-
-    constexpr bool intersect(const StructureBoundingBox& boundingBox) const noexcept {
-        return min_x <= boundingBox.max_x && max_x >= boundingBox.min_x &&
-               min_y <= boundingBox.max_y && max_y >= boundingBox.min_y &&
-               min_z <= boundingBox.max_z && max_z >= boundingBox.min_z;
-    }
-
-    static constexpr StructureBoundingBox withSize(int x, int y, int z, int size_x, int size_y, int size_z) {
-        return StructureBoundingBox{x, y, z, x + size_x - 1, y + size_y - 1, z + size_z - 1};
-    }
-
-    static constexpr StructureBoundingBox fromChunkPos(int chunk_x, int chunk_z) {
-        const int pos_x = chunk_x << 4;
-        const int pos_z = chunk_z << 4;
-
-        return StructureBoundingBox{pos_x, 0, pos_z, pos_x + 15, 255, pos_z + 15};
-    }
-};
 
 enum DIRECTION {
     SOUTH = 0,
@@ -197,43 +165,43 @@ enum {
 
 struct StructurePiece {
     DIRECTION coordBaseMode;
-    StructureBoundingBox boundingBox;
+    BoundingBox boundingBox;
 
     virtual ~StructurePiece() = default;
 
-    virtual void place(WorldGenRegion& region, StructureBoundingBox bb) = 0;
+    virtual void place(WorldGenRegion& region, BoundingBox bb) = 0;
 
     int get_x_with_offset(int x, int z) {
         switch (coordBaseMode) {
             case SOUTH:
             case NORTH:
-                return boundingBox.min_x + x;
+                return boundingBox.minX + x;
             case WEST:
-                return boundingBox.max_x - z;
+                return boundingBox.maxX - z;
             case EAST:
-                return boundingBox.min_x + z;
+                return boundingBox.minX + z;
         }
         return x;
     }
 
     int get_y_with_offset(int y) {
-        return boundingBox.min_y + y;
+        return boundingBox.minY + y;
     }
 
     int get_z_with_offset(int x, int z) {
         switch (coordBaseMode) {
             case NORTH:
-                return boundingBox.max_z - z;
+                return boundingBox.maxZ - z;
             case SOUTH:
-                return boundingBox.min_z + z;
+                return boundingBox.minZ + z;
             case WEST:
             case EAST:
-                return boundingBox.min_z + x;
+                return boundingBox.minZ + x;
         }
         return z;
     }
 
-    auto setBlock(IBlockReader auto &blocks, StructureBoundingBox sbb, int x, int y, int z, BlockData blockData) {
+    auto setBlock(IBlockReader auto &blocks, BoundingBox sbb, int x, int y, int z, BlockData blockData) {
         glm::ivec3 blockpos{get_x_with_offset(x, z), get_y_with_offset(y), get_z_with_offset(x, z)};
 
         if (sbb.contains(blockpos.x, blockpos.y, blockpos.z)) {
@@ -277,27 +245,27 @@ struct StructurePiece {
 };
 
 struct StructureStart {
-    StructureBoundingBox boundingBox;
+    BoundingBox boundingBox;
     std::vector<std::unique_ptr<StructurePiece>> pieces;
 
     virtual ~StructureStart() = default;
     virtual void build(int pos_x, int pos_z) = 0;
 
     void updateBoundingBox() {
-        boundingBox.min_x = std::numeric_limits<int>::max();
-        boundingBox.min_y = std::numeric_limits<int>::max();
-        boundingBox.min_z = std::numeric_limits<int>::max();
-        boundingBox.max_x = std::numeric_limits<int>::min();
-        boundingBox.max_y = std::numeric_limits<int>::min();
-        boundingBox.max_z = std::numeric_limits<int>::min();
+        boundingBox.minX = std::numeric_limits<int>::max();
+        boundingBox.minY = std::numeric_limits<int>::max();
+        boundingBox.minZ = std::numeric_limits<int>::max();
+        boundingBox.maxX = std::numeric_limits<int>::min();
+        boundingBox.maxY = std::numeric_limits<int>::min();
+        boundingBox.maxZ = std::numeric_limits<int>::min();
 
         for (auto& piece : pieces) {
-            boundingBox.min_x = std::min(boundingBox.min_x, piece->boundingBox.min_x);
-            boundingBox.min_y = std::min(boundingBox.min_y, piece->boundingBox.min_y);
-            boundingBox.min_z = std::min(boundingBox.min_z, piece->boundingBox.min_z);
-            boundingBox.max_x = std::max(boundingBox.max_x, piece->boundingBox.max_x);
-            boundingBox.max_y = std::max(boundingBox.max_y, piece->boundingBox.max_y);
-            boundingBox.max_z = std::max(boundingBox.max_z, piece->boundingBox.max_z);
+            boundingBox.minX = std::min(boundingBox.minX, piece->boundingBox.minX);
+            boundingBox.minY = std::min(boundingBox.minY, piece->boundingBox.minY);
+            boundingBox.minZ = std::min(boundingBox.minZ, piece->boundingBox.minZ);
+            boundingBox.maxX = std::max(boundingBox.maxX, piece->boundingBox.maxX);
+            boundingBox.maxY = std::max(boundingBox.maxY, piece->boundingBox.maxY);
+            boundingBox.maxZ = std::max(boundingBox.maxZ, piece->boundingBox.maxZ);
         }
     }
 };
@@ -491,8 +459,27 @@ struct Chunk {
     	if (section == nullptr) {
     		section = std::make_unique<ChunkSection>();
     	}
-//        heightmap[(x & 15) + (z & 15) * 16] = -1;
-    	section->blocks[toIndex(x, y, z)] = data;
+    	section->blocks[toIndex(x & 15, y & 15  , z & 15)] = data;
+
+        updateHeightmap(x & 15, y, z & 15, data);
+    }
+
+    void updateHeightmap(int32_t x, int32_t y, int32_t z, BlockData data) {
+        const int32_t i = x | (z << 4);
+        const int32_t height = heightmap.getAt(i);
+
+        if (height == y + 1) {
+            for (y = y - 1; y >= 0; --y) {
+                if (!getData(x, y, z).isAir()) {
+                    break;
+                }
+            }
+            heightmap.setAt(i, y + 1);
+        } else if (height <= y) {
+            if (!data.isAir()) {
+                heightmap.setAt(i, y + 1);
+            }
+        }
     }
 
     auto getData(const glm::ivec3& pos) const -> BlockData {
@@ -504,7 +491,7 @@ struct Chunk {
     	if (section == nullptr) {
 			return {};
     	}
-        return section->blocks[toIndex(x, y, z)];
+        return section->blocks[toIndex(x & 15, y & 15, z & 15)];
     }
 
     auto getBlock(int32_t x, int32_t y, int32_t z) const -> Block* {
@@ -538,28 +525,30 @@ struct Chunk {
         }
     }
 
-    auto getHeight(int32_t x, int32_t z) -> int32_t {
-        const auto i = (x & 15) + (z & 15) * 16;
-        if (heightmap[i] == -1) {
-            for (int y = 255; y >= 0; y--) {
-                if (!getData(x, y, z).isAir()) {
-                    heightmap[i] = y + 1;
-                    break;
-                }
-            }
-        }
-        return heightmap[i];
+    auto getHeight(HeightmapType type, int32_t x, int32_t z) -> int32_t {
+        return heightmap.get(x, z);
     }
 
-    auto getTopBlockY(/*type, */int32_t x, int32_t z) -> int32_t {
-        return getHeight(x, z) - 1;
+    auto getTopBlockY(HeightmapType type, int32_t x, int32_t z) -> int32_t {
+        return getHeight(type, x, z) - 1;
     }
 
     static constexpr auto toIndex(int32_t x, int32_t y, int32_t z) noexcept -> int32_t {
-        const auto inner_x = x & 15;
-        const auto inner_y = y & 15;
-        const auto inner_z = z & 15;
+        return (x << 8) | (z << 4) | y;
+    }
 
-        return (inner_x << 8) | (inner_z << 4) | inner_y;
+    void updateHeightmaps() {
+        for (int z = 0; z < 16; z++) {
+            for (int x = 0; x < 16; x++) {
+                const int i = x | (z << 4);
+
+                for (int y = 255; y >= 0; y--) {
+                    if (!getData(x, y, z).isAir()) {
+                        heightmap.setAt(i, y + 1);
+                        break;
+                    }
+                }
+            }
+        }
     }
 };

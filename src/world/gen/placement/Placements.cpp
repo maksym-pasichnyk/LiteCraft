@@ -19,8 +19,8 @@
 #include "FirePlacement.hpp"
 #include "NetherMagmaPlacement.hpp"
 #include "Height4To32Placement.hpp"
-//#include "LakeLavaPlacement.hpp"
-//#include "LakeWaterPlacement.hpp"
+#include "LakeLavaPlacement.hpp"
+#include "LakeWaterPlacement.hpp"
 #include "GlowstonePlacement.hpp"
 #include "EndGatewayPlacement.hpp"
 #include "DarkOakTreePlacement.hpp"
@@ -88,8 +88,8 @@ void Placements::registerPlacements() {
     FIRE = createPlacement<FirePlacement>("fire");
     MAGMA = createPlacement<NetherMagmaPlacement>("magma");
     EMERALD_ORE = createPlacement<Height4To32Placement>("emerald_ore");
-//    LAVA_LAKE = createPlacement<LakeLavaPlacement>("lava_lake");
-//    WATER_LAKE = createPlacement<LakeWaterPlacement>("water_lake");
+    LAVA_LAKE = createPlacement<LakeLavaPlacement>("lava_lake");
+    WATER_LAKE = createPlacement<LakeWaterPlacement>("water_lake");
     GLOWSTONE = createPlacement<GlowstonePlacement>("glowstone");
     END_GATEWAY = createPlacement<EndGatewayPlacement>("end_gateway");
     DARK_OAK_TREE = createPlacement<DarkOakTreePlacement>("dark_oak_tree");

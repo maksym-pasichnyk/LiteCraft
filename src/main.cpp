@@ -603,6 +603,7 @@ struct App {
             Materials::registerMaterials();
             BlockGraphics::initBlocks(resources);
             Blocks::registerBlocks();
+            BlockTags::registerTags();
             SurfaceBuilder::registerBuilders();
             SurfaceBuilderConfig::registerConfigs();
             ConfiguredSurfaceBuilders::configureSurfaceBuilders();
@@ -726,9 +727,9 @@ struct App {
             ImGui::End();
             ImGui::Render();
 
-            std::array<float, 4> color{0, 0, 0, 0};
+            const glm::vec4 color{0, 0, 0, 0};
 
-            glClearNamedFramebufferfv(frames[frameIndex].framebuffer, GL_COLOR, 0, color.data());
+            glClearNamedFramebufferfv(frames[frameIndex].framebuffer, GL_COLOR, 0, glm::value_ptr(color));
             glClearNamedFramebufferfi(frames[frameIndex].framebuffer, GL_DEPTH_STENCIL, 0, 0, 0);
             glBindFramebuffer(GL_FRAMEBUFFER, frames[frameIndex].framebuffer);
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

@@ -4,6 +4,7 @@
 
 #include <glm/vec3.hpp>
 
+struct Block;
 struct Random;
 struct WorldGenRegion;
 struct ChunkGenerator;
@@ -18,4 +19,6 @@ struct Feature {
             .config = std::move(config)
         };
     }
+
+    static bool isDirt(Block* block);
 };

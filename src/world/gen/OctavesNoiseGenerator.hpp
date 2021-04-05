@@ -4,7 +4,7 @@
 #include "ImprovedNoiseGenerator.hpp"
 
 #include <memory>
-
+#include <vector>
 #include <fmt/format.h>
 
 namespace Math {

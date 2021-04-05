@@ -1,6 +1,8 @@
 #pragma once
 
-#include <random>
+#include <concepts>
+#include <cstdint>
+#include <span>
 
 struct Random {
 	inline static constexpr auto RANDOM_MULTIPLIER = 0x5DEECE66DULL;
@@ -110,6 +112,14 @@ struct Random {
 		setSeed(i);
 		return i;
 	}
+
+
+
+    template<typename Type, size_t Extent>
+    decltype(auto) nextElement(std::span<Type, Extent> elements) {
+	    return elements[nextInt(elements.size())];
+	}
+
 //private:
 	uint64_t seed = 0;
 };

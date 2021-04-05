@@ -31,7 +31,7 @@ struct ServerWorld {
 
     explicit ServerWorld(NetworkConnection connection) : connection{connection} {
 //        generator = std::make_unique<NoiseChunkGenerator>(seed, std::make_unique<OverworldBiomeProvider>(seed, false, false));
-        generator = std::make_unique<NoiseChunkGenerator>(seed, std::make_unique<SingleBiomeProvider>(Biomes::JUNGLE));
+        generator = std::make_unique<NoiseChunkGenerator>(seed, std::make_unique<SingleBiomeProvider>(Biomes::PLAINS));
 
         workers.emplace_back(std::bind_front(&ServerWorld::runWorker, this));
     }

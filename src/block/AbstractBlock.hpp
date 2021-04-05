@@ -2,6 +2,7 @@
 
 #include "material/Material.hpp"
 #include "material/DyeColors.hpp"
+#include "BlockData.hpp"
 
 #include <glm/vec3.hpp>
 #include <functional>
@@ -24,6 +25,7 @@ enum class RenderType {
     Torch,
     SnowLayer,
     Cactus,
+    BambooStem
 };
 
 enum class RenderLayer {
@@ -115,10 +117,10 @@ struct AbstractBlock {
         bool isSolid = true;
         bool isAir = false;
         IPositionPredicate isOpaque = [](BlockReader &reader, const BlockData &data, const glm::ivec3 &pos) -> bool {
-            return false;
+            return data.getMaterial()->isOpaque;// && data.hasOpaqueCollisionShape(reader, pos);
         };
         IPositionPredicate suffocates = [](BlockReader &reader, const BlockData &data, const glm::ivec3 &pos) -> bool {
-            return false;
+            return data.getMaterial()->isBlocksMovement;// && data.hasOpaqueCollisionShape(reader, pos);
         };
         IPositionPredicate blocksVision = suffocates;
         IPositionPredicate needsPostProcessing = [](BlockReader &reader, const BlockData &data, const glm::ivec3 &pos) -> bool {
@@ -303,6 +305,10 @@ struct AbstractBlock {
 
     std::span<BlockStateProperties> getBlockStateProperties() {
         return blockStateProperties;
+    }
+
+    bool isOpaque(BlockReader &reader, const BlockData &data, const glm::ivec3 &pos) const {
+        return properties.isOpaque(reader, data, pos);
     }
 
     virtual TintType getTintType() const {

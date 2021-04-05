@@ -19,6 +19,17 @@ struct BlockPos {
             (static_cast<int64_t>(z) & Z_MASK) << INVERSE_START_BITS_Z;
     }
 
+    template<typename Fn>
+    static constexpr void getAllInBoxMutable(const glm::ivec3& from, const glm::ivec3& to, Fn&& fn) {
+        for (int x = from.x; x <= to.x; x++) {
+            for (int y = from.y; x <= to.y; y++) {
+                for (int z = from.z; z <= to.z; z++) {
+                    fn(glm::ivec3(x, y, z));
+                }
+            }
+        }
+    }
+
     int32_t x;
     int32_t y;
     int32_t z;

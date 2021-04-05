@@ -30,4 +30,16 @@ struct Directions {
     static constexpr glm::ivec3 offset(const glm::ivec3& pos, Direction direction) {
         return pos + OFFSET[static_cast<int>(direction)];
     }
+
+    static constexpr int getXOffset(Direction direction) {
+        return OFFSET[static_cast<int>(direction)].x;
+    }
+
+    static constexpr int getYOffset(Direction direction) {
+        return OFFSET[static_cast<int>(direction)].y;
+    }
+
+    static constexpr int getZOffset(Direction direction) {
+        return OFFSET[static_cast<int>(direction)].z;
+    }
 };

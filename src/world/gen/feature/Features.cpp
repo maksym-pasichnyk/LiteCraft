@@ -1,10 +1,18 @@
 #include "Features.hpp"
-#include "IceAndSnowFeature.hpp"
-#include "DefaultFlowersFeature.hpp"
-#include "RandomPatchFeature.hpp"
-#include "MultipleWithChanceRandomFeature.hpp"
-#include "DecoratedFeature.hpp"
 #include "OreFeature.hpp"
+#include "TreeFeature.hpp"
+#include "LakesFeature.hpp"
+#include "BambooFeature.hpp"
+#include "BlockPileFeature.hpp"
+#include "DecoratedFeature.hpp"
+#include "IceAndSnowFeature.hpp"
+#include "RandomPatchFeature.hpp"
+#include "SingleRandomFeature.hpp"
+#include "DefaultFlowersFeature.hpp"
+#include "BigRedMushroomFeature.hpp"
+#include "BigBrownMushroomFeature.hpp"
+#include "TwoFeatureChoiceFeature.hpp"
+#include "MultipleWithChanceRandomFeature.hpp"
 
 std::map<std::string, std::unique_ptr<Feature>> Features::features;
 Feature* Features::NO_OP;
@@ -69,19 +77,19 @@ static T* createFeature(std::string name, Args&&... args) {
 
 void Features::registerFeatures() {
 //    NO_OP = createFeature<NoOpFeature>("no_op");
-//    TREE = createFeature<TreeFeature>("tree");
+    TREE = createFeature<TreeFeature>("tree");
     FLOWER = createFeature<DefaultFlowersFeature>("flower");
     NO_BONEMEAL_FLOWER = createFeature<DefaultFlowersFeature>("no_bonemeal_flower");
     RANDOM_PATCH = createFeature<RandomPatchFeature>("random_patch");
-//    BLOCK_PILE = createFeature<BlockPileFeature>("block_pile");
+    BLOCK_PILE = createFeature<BlockPileFeature>("block_pile");
 //    SPRING_FEATURE = createFeature<SpringFeature>("spring_feature");
 //    CHORUS_PLANT = createFeature<ChorusPlantFeature>("chorus_plant");
 //    EMERALD_ORE = createFeature<ReplaceBlockFeature>("emerald_ore");
 //    VOID_START_PLATFORM = createFeature<VoidStartPlatformFeature>("void_start_platform");
 //    DESERT_WELL = createFeature<DesertWellsFeature>("desert_well");
 //    FOSSIL = createFeature<FossilsFeature>("fossil");
-//    HUGE_RED_MUSHROOM = createFeature<BigRedMushroomFeature>("huge_red_mushroom");
-//    HUGE_BROWN_MUSHROOM = createFeature<BigBrownMushroomFeature>("huge_brown_mushroom");
+    HUGE_RED_MUSHROOM = createFeature<BigRedMushroomFeature>("huge_red_mushroom");
+    HUGE_BROWN_MUSHROOM = createFeature<BigBrownMushroomFeature>("huge_brown_mushroom");
 //    ICE_SPIKE = createFeature<IceSpikeFeature>("ice_spike");
 //    GLOWSTONE_BLOB = createFeature<GlowstoneBlobFeature>("glowstone_blob");
     FREEZE_TOP_LAYER = createFeature<IceAndSnowFeature>("freeze_top_layer");
@@ -92,7 +100,7 @@ void Features::registerFeatures() {
 //    FOREST_ROCK = createFeature<BlockBlobFeature>("forest_rock");
 //    DISK = createFeature<SphereReplaceFeature>("disk");
 //    ICE_PATCH = createFeature<IcePathFeature>("ice_patch");
-//    LAKE = createFeature<LakesFeature>("lake");
+    LAKE = createFeature<LakesFeature>("lake");
     ORE = createFeature<OreFeature>("ore");
 //    END_SPIKE = createFeature<EndSpikeFeature>("end_spike");
 //    END_ISLAND = createFeature<EndIslandFeature>("end_island");
@@ -104,7 +112,7 @@ void Features::registerFeatures() {
 //    CORAL_CLAW = createFeature<CoralClawFeature>("coral_claw");
 //    SEA_PICKLE = createFeature<SeaPickleFeature>("sea_pickle");
 //    SIMPLE_BLOCK = createFeature<BlockWithContextFeature>("simple_block");
-//    BAMBOO = createFeature<BambooFeature>("bamboo");
+    BAMBOO = createFeature<BambooFeature>("bamboo");
 //    HUGE_FUNGUS = createFeature<HugeFungusFeature>("huge_fungus");
 //    NETHER_FOREST_VEGETATION = createFeature<NetherVegetationFeature>("nether_forest_vegetation");
 //    WEEPING_VINES = createFeature<WeepingVineFeature>("weeping_vines");
@@ -117,7 +125,7 @@ void Features::registerFeatures() {
 //    BASALT_PILLAR = createFeature<BasaltPillarFeature>("basalt_pillar");
 //    NO_SURFACE_ORE = createFeature<NoExposedOreFeature>("no_surface_ore");
     RANDOM_SELECTOR = createFeature<MultipleWithChanceRandomFeature>("random_selector");
-//    SIMPLE_RANDOM_SELECTOR = createFeature<SingleRandomFeatureConfig>("simple_random_selector");
-//    RANDOM_BOOLEAN_SELECTOR = createFeature<TwoFeatureChoiceFeature>("random_boolean_selector");
+    SIMPLE_RANDOM_SELECTOR = createFeature<SingleRandomFeature>("simple_random_selector");
+    RANDOM_BOOLEAN_SELECTOR = createFeature<TwoFeatureChoiceFeature>("random_boolean_selector");
     DECORATED = createFeature<DecoratedFeature>("decorated");
 }

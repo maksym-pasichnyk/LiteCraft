@@ -44,15 +44,15 @@ void renderBlockWithAO(const glm::ivec3& pos, Block* block, RenderBuffer& rb, Ch
         const auto packedLight = blocks.getLightPacked(ix, iy, iz - 1);
         const auto coords = graphics.southTexture->get(val);
 
-        const auto uf = blocks.getData(ix, iy + 1, iz - 1).isOpaque();
-        const auto ub = blocks.getData(ix, iy - 1, iz - 1).isOpaque();
-        const auto ul = blocks.getData(ix - 1, iy, iz - 1).isOpaque();
-        const auto ur = blocks.getData(ix + 1, iy, iz - 1).isOpaque();
+        const auto uf = blocks.getData(ix, iy + 1, iz - 1).isSolid();
+        const auto ub = blocks.getData(ix, iy - 1, iz - 1).isSolid();
+        const auto ul = blocks.getData(ix - 1, iy, iz - 1).isSolid();
+        const auto ur = blocks.getData(ix + 1, iy, iz - 1).isSolid();
 
-        const int ao0 = vertexAO(ub, ul, blocks.getData(ix - 1, iy - 1, iz - 1).isOpaque());
-        const int ao1 = vertexAO(uf, ul, blocks.getData(ix - 1, iy + 1, iz - 1).isOpaque());
-        const int ao2 = vertexAO(uf, ur, blocks.getData(ix + 1, iy + 1, iz - 1).isOpaque());
-        const int ao3 = vertexAO(ub, ur, blocks.getData(ix + 1, iy - 1, iz - 1).isOpaque());
+        const int ao0 = vertexAO(ub, ul, blocks.getData(ix - 1, iy - 1, iz - 1).isSolid());
+        const int ao1 = vertexAO(uf, ul, blocks.getData(ix - 1, iy + 1, iz - 1).isSolid());
+        const int ao2 = vertexAO(uf, ur, blocks.getData(ix + 1, iy + 1, iz - 1).isSolid());
+        const int ao3 = vertexAO(ub, ur, blocks.getData(ix + 1, iy - 1, iz - 1).isSolid());
 
 		builder.quad();
 		builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 0.7f);
@@ -65,15 +65,15 @@ void renderBlockWithAO(const glm::ivec3& pos, Block* block, RenderBuffer& rb, Ch
         const auto packedLight = blocks.getLightPacked(ix + 1, iy, iz);
         const auto coords = graphics.eastTexture->get(val);
 
-        const auto uf = blocks.getData(ix + 1, iy - 1, iz).isOpaque();
-        const auto ub = blocks.getData(ix + 1, iy + 1, iz).isOpaque();
-        const auto ul = blocks.getData(ix + 1, iy, iz + 1).isOpaque();
-        const auto ur = blocks.getData(ix + 1, iy, iz - 1).isOpaque();
+        const auto uf = blocks.getData(ix + 1, iy - 1, iz).isSolid();
+        const auto ub = blocks.getData(ix + 1, iy + 1, iz).isSolid();
+        const auto ul = blocks.getData(ix + 1, iy, iz + 1).isSolid();
+        const auto ur = blocks.getData(ix + 1, iy, iz - 1).isSolid();
 
-        const int ao0 = vertexAO(uf, ur, blocks.getData(ix + 1, iy - 1, iz - 1).isOpaque());
-        const int ao1 = vertexAO(ub, ur, blocks.getData(ix + 1, iy + 1, iz - 1).isOpaque());
-        const int ao2 = vertexAO(ub, ul, blocks.getData(ix + 1, iy + 1, iz + 1).isOpaque());
-        const int ao3 = vertexAO(uf, ul, blocks.getData(ix + 1, iy - 1, iz + 1).isOpaque());
+        const int ao0 = vertexAO(uf, ur, blocks.getData(ix + 1, iy - 1, iz - 1).isSolid());
+        const int ao1 = vertexAO(ub, ur, blocks.getData(ix + 1, iy + 1, iz - 1).isSolid());
+        const int ao2 = vertexAO(ub, ul, blocks.getData(ix + 1, iy + 1, iz + 1).isSolid());
+        const int ao3 = vertexAO(uf, ul, blocks.getData(ix + 1, iy - 1, iz + 1).isSolid());
 
 		builder.quad();
 		builder.vertex(fx + 1, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 0.8f);
@@ -86,15 +86,15 @@ void renderBlockWithAO(const glm::ivec3& pos, Block* block, RenderBuffer& rb, Ch
         const auto packedLight = blocks.getLightPacked(ix, iy, iz + 1);
         const auto coords = graphics.northTexture->get(val);
 
-        const auto uf = blocks.getData(ix, iy - 1, iz + 1).isOpaque();
-        const auto ub = blocks.getData(ix, iy + 1, iz + 1).isOpaque();
-        const auto ul = blocks.getData(ix - 1, iy, iz + 1).isOpaque();
-        const auto ur = blocks.getData(ix + 1, iy, iz + 1).isOpaque();
+        const auto uf = blocks.getData(ix, iy - 1, iz + 1).isSolid();
+        const auto ub = blocks.getData(ix, iy + 1, iz + 1).isSolid();
+        const auto ul = blocks.getData(ix - 1, iy, iz + 1).isSolid();
+        const auto ur = blocks.getData(ix + 1, iy, iz + 1).isSolid();
 
-        const int ao0 = vertexAO(uf, ur, blocks.getData(ix + 1, iy - 1, iz + 1).isOpaque());
-        const int ao1 = vertexAO(ub, ur, blocks.getData(ix + 1, iy + 1, iz + 1).isOpaque());
-        const int ao2 = vertexAO(ub, ul, blocks.getData(ix - 1, iy + 1, iz + 1).isOpaque());
-        const int ao3 = vertexAO(uf, ul, blocks.getData(ix - 1, iy - 1, iz + 1).isOpaque());
+        const int ao0 = vertexAO(uf, ur, blocks.getData(ix + 1, iy - 1, iz + 1).isSolid());
+        const int ao1 = vertexAO(ub, ur, blocks.getData(ix + 1, iy + 1, iz + 1).isSolid());
+        const int ao2 = vertexAO(ub, ul, blocks.getData(ix - 1, iy + 1, iz + 1).isSolid());
+        const int ao3 = vertexAO(uf, ul, blocks.getData(ix - 1, iy - 1, iz + 1).isSolid());
 
 		builder.quad();
 		builder.vertex(fx + 1, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 0.8f);
@@ -107,15 +107,15 @@ void renderBlockWithAO(const glm::ivec3& pos, Block* block, RenderBuffer& rb, Ch
         const auto packedLight = blocks.getLightPacked(ix - 1, iy, iz);
         const auto coords = graphics.westTexture->get(val);
 
-        const auto uf = blocks.getData(ix - 1, iy - 1, iz).isOpaque();
-        const auto ub = blocks.getData(ix - 1, iy + 1, iz).isOpaque();
-        const auto ul = blocks.getData(ix - 1, iy, iz - 1).isOpaque();
-        const auto ur = blocks.getData(ix - 1, iy, iz + 1).isOpaque();
+        const auto uf = blocks.getData(ix - 1, iy - 1, iz).isSolid();
+        const auto ub = blocks.getData(ix - 1, iy + 1, iz).isSolid();
+        const auto ul = blocks.getData(ix - 1, iy, iz - 1).isSolid();
+        const auto ur = blocks.getData(ix - 1, iy, iz + 1).isSolid();
 
-        const int ao0 = vertexAO(uf, ur, blocks.getData(ix - 1, iy - 1, iz + 1).isOpaque());
-        const int ao1 = vertexAO(ub, ur, blocks.getData(ix - 1, iy + 1, iz + 1).isOpaque());
-        const int ao2 = vertexAO(ub, ul, blocks.getData(ix - 1, iy + 1, iz - 1).isOpaque());
-        const int ao3 = vertexAO(uf, ul, blocks.getData(ix - 1, iy - 1, iz - 1).isOpaque());
+        const int ao0 = vertexAO(uf, ur, blocks.getData(ix - 1, iy - 1, iz + 1).isSolid());
+        const int ao1 = vertexAO(ub, ur, blocks.getData(ix - 1, iy + 1, iz + 1).isSolid());
+        const int ao2 = vertexAO(ub, ul, blocks.getData(ix - 1, iy + 1, iz - 1).isSolid());
+        const int ao3 = vertexAO(uf, ul, blocks.getData(ix - 1, iy - 1, iz - 1).isSolid());
 
         builder.quad();
 		builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 0.7f);
@@ -128,15 +128,15 @@ void renderBlockWithAO(const glm::ivec3& pos, Block* block, RenderBuffer& rb, Ch
         const auto packedLight = blocks.getLightPacked(ix, iy + 1, iz);
 		const auto coords = graphics.topTexture->get(val);
 
-        const auto uf = blocks.getData(ix, iy + 1, iz + 1).isOpaque();
-        const auto ub = blocks.getData(ix, iy + 1, iz - 1).isOpaque();
-        const auto ul = blocks.getData(ix - 1, iy + 1, iz).isOpaque();
-        const auto ur = blocks.getData(ix + 1, iy + 1, iz).isOpaque();
+        const auto uf = blocks.getData(ix, iy + 1, iz + 1).isSolid();
+        const auto ub = blocks.getData(ix, iy + 1, iz - 1).isSolid();
+        const auto ul = blocks.getData(ix - 1, iy + 1, iz).isSolid();
+        const auto ur = blocks.getData(ix + 1, iy + 1, iz).isSolid();
 
-        const int ao0 = vertexAO(ub, ul, blocks.getData(ix - 1, iy + 1, iz - 1).isOpaque());
-        const int ao1 = vertexAO(uf, ul, blocks.getData(ix - 1, iy + 1, iz + 1).isOpaque());
-        const int ao2 = vertexAO(uf, ur, blocks.getData(ix + 1, iy + 1, iz + 1).isOpaque());
-        const int ao3 = vertexAO(ub, ur, blocks.getData(ix + 1, iy + 1, iz - 1).isOpaque());
+        const int ao0 = vertexAO(ub, ul, blocks.getData(ix - 1, iy + 1, iz - 1).isSolid());
+        const int ao1 = vertexAO(uf, ul, blocks.getData(ix - 1, iy + 1, iz + 1).isSolid());
+        const int ao2 = vertexAO(uf, ur, blocks.getData(ix + 1, iy + 1, iz + 1).isSolid());
+        const int ao3 = vertexAO(ub, ur, blocks.getData(ix + 1, iy + 1, iz - 1).isSolid());
 
 		builder.quad();
 		builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 1.0f);
@@ -149,15 +149,15 @@ void renderBlockWithAO(const glm::ivec3& pos, Block* block, RenderBuffer& rb, Ch
         const auto packedLight = blocks.getLightPacked(ix, iy - 1, iz);
         const auto coords = graphics.bottomTexture->get(val);
 
-        const auto df = blocks.getData(ix, iy - 1, iz + 1).isOpaque();
-        const auto db = blocks.getData(ix, iy - 1, iz - 1).isOpaque();
-        const auto dl = blocks.getData(ix - 1, iy - 1, iz).isOpaque();
-        const auto dr = blocks.getData(ix + 1, iy - 1, iz).isOpaque();
+        const auto df = blocks.getData(ix, iy - 1, iz + 1).isSolid();
+        const auto db = blocks.getData(ix, iy - 1, iz - 1).isSolid();
+        const auto dl = blocks.getData(ix - 1, iy - 1, iz).isSolid();
+        const auto dr = blocks.getData(ix + 1, iy - 1, iz).isSolid();
 
-        const int ao0 = vertexAO(df, dl, blocks.getData(ix - 1, iy - 1, iz + 1).isOpaque());
-        const int ao1 = vertexAO(db, dl, blocks.getData(ix - 1, iy - 1, iz - 1).isOpaque());
-        const int ao2 = vertexAO(db, dr, blocks.getData(ix + 1, iy - 1, iz - 1).isOpaque());
-        const int ao3 = vertexAO(df, dr, blocks.getData(ix + 1, iy - 1, iz + 1).isOpaque());
+        const int ao0 = vertexAO(df, dl, blocks.getData(ix - 1, iy - 1, iz + 1).isSolid());
+        const int ao1 = vertexAO(db, dl, blocks.getData(ix - 1, iy - 1, iz - 1).isSolid());
+        const int ao2 = vertexAO(db, dr, blocks.getData(ix + 1, iy - 1, iz - 1).isSolid());
+        const int ao3 = vertexAO(df, dr, blocks.getData(ix + 1, iy - 1, iz + 1).isSolid());
 
         if (block->getTintType() == TintType::Grass) {
             r = 0xFF;
@@ -571,6 +571,66 @@ void renderCactus(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRe
     builder.vertex(fx + max.x, fy + min.y, fz + max.z, tex5.getInterpolatedU(max.x), tex5.getInterpolatedV(max.z), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
 }
 
+void renderBambooStem(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
+    auto builder = rb.getForLayer(block->getRenderLayer());
+    auto& graphics = block->getGraphics();
+
+    const auto [fx, fy, fz] = glm::vec3(pos);
+
+    auto tex0 = graphics.northTexture->get(0);
+    auto tex1 = tex0;//graphics.eastTexture->get(0);
+    auto tex2 = tex0;//graphics.northTexture->get(0);
+    auto tex3 = tex0;//graphics.westTexture->get(0);
+    auto tex4 = tex0;//graphics.topTexture->get(0);
+    auto tex5 = tex0;//graphics.bottomTexture->get(0);
+
+    const glm::vec3 min{0.40625f, 0.0f, 0.40625f};
+    const glm::vec3 max{0.59375f, 1.0f, 0.59375f};
+
+    constexpr std::array uvs {
+        glm::vec2{0.0f, 0.1875},
+        glm::vec2{0.1875f, 0.375f},
+        glm::vec2{0.375f, 0.5625},
+        glm::vec2{0.5625f, 0.75f},
+    };
+
+    builder.quad();
+    builder.vertex(fx + min.x, fy + min.y, fz + min.z, tex0.getInterpolatedU(uvs[0].x), tex0.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + max.y, fz + min.z, tex0.getInterpolatedU(uvs[0].x), tex0.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + min.z, tex0.getInterpolatedU(uvs[0].y), tex0.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + min.y, fz + min.z, tex0.getInterpolatedU(uvs[0].y), tex0.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+
+    builder.quad();
+    builder.vertex(fx + max.x, fy + min.y, fz + min.z, tex1.getInterpolatedU(uvs[0].x), tex1.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + min.z, tex1.getInterpolatedU(uvs[0].x), tex1.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + max.z, tex1.getInterpolatedU(uvs[0].y), tex1.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + min.y, fz + max.z, tex1.getInterpolatedU(uvs[0].y), tex1.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+
+    builder.quad();
+    builder.vertex(fx + max.x, fy + min.y, fz + max.z, tex2.getInterpolatedU(uvs[0].y), tex2.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + max.z, tex2.getInterpolatedU(uvs[0].y), tex2.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + max.y, fz + max.z, tex2.getInterpolatedU(uvs[0].x), tex2.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + min.y, fz + max.z, tex2.getInterpolatedU(uvs[0].x), tex2.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+
+    builder.quad();
+    builder.vertex(fx + min.x, fy + min.y, fz + max.z, tex3.getInterpolatedU(uvs[0].y), tex3.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + max.y, fz + max.z, tex3.getInterpolatedU(uvs[0].y), tex3.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + max.y, fz + min.z, tex3.getInterpolatedU(uvs[0].x), tex3.getInterpolatedV(max.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + min.y, fz + min.z, tex3.getInterpolatedU(uvs[0].x), tex3.getInterpolatedV(min.y), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+
+    builder.quad();
+    builder.vertex(fx + min.x, fy + max.y, fz + min.z, tex4.getInterpolatedU(0.8125f), tex4.getInterpolatedV(0.8125f), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + max.y, fz + max.z, tex4.getInterpolatedU(0.8125f), tex4.getInterpolatedV(1.0f), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + max.z, tex4.getInterpolatedU(1.0f), tex4.getInterpolatedV(1.0f), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + max.y, fz + min.z, tex4.getInterpolatedU(1.0f), tex4.getInterpolatedV(0.8125f), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+
+    builder.quad();
+    builder.vertex(fx + min.x, fy + min.y, fz + max.z, tex5.getInterpolatedU(0.8125f), tex5.getInterpolatedV(1.0f), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + min.x, fy + min.y, fz + min.z, tex5.getInterpolatedU(0.8125f), tex5.getInterpolatedV(0.8125f), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + min.y, fz + min.z, tex5.getInterpolatedU(1.0f), tex5.getInterpolatedV(0.8125f), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    builder.vertex(fx + max.x, fy + min.y, fz + max.z, tex5.getInterpolatedU(1.0f), tex5.getInterpolatedV(1.0f), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+}
+
 void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
 	rb.clear();
 
@@ -610,6 +670,9 @@ void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
                     break;
                 case RenderType::Cactus:
                     renderCactus(pos, block, rb, blocks);
+                    break;
+                case RenderType::BambooStem:
+                    renderBambooStem(pos, block, rb, blocks);
                     break;
 				}
             }
