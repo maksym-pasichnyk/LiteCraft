@@ -8,5 +8,5 @@ class ForestFlowerBlockStateProvider : BlockStateProvider {
     std::array<BlockData, 11> STATES;
 
     ForestFlowerBlockStateProvider();
-    BlockData getBlockState(Random &random, glm::ivec3 pos) override;
+    BlockData getBlockState(Random &random, BlockPos pos) override;
 };

@@ -6,51 +6,51 @@
 #include "../../../block/material/Materials.hpp"
 #include "../../../util/math/BoundingBox.hpp"
 
-bool TreeFeature::isVineAt(WorldReader &reader, const glm::ivec3 &pos) {
+bool TreeFeature::isVineAt(WorldReader &reader, const BlockPos &pos) {
     return reader.getData(pos).isIn(Blocks::VINE);
 }
 
-bool TreeFeature::isWaterAt(WorldReader &reader, const glm::ivec3 &pos) {
+bool TreeFeature::isWaterAt(WorldReader &reader, const BlockPos &pos) {
     return reader.getData(pos).isIn(Blocks::WATER);
 }
 
-bool TreeFeature::isTallPlantAt(WorldReader &reader, const glm::ivec3 &pos) {
+bool TreeFeature::isTallPlantAt(WorldReader &reader, const BlockPos &pos) {
     return reader.getData(pos).getMaterial() == Materials::TALL_PLANTS;
 }
 
-bool TreeFeature::isAirOrLeavesAt(WorldReader &reader, const glm::ivec3 &pos) {
+bool TreeFeature::isAirOrLeavesAt(WorldReader &reader, const BlockPos &pos) {
     const auto state = reader.getData(pos);
     return state.isAir() || state.isIn(BlockTags::LEAVES);
 }
 
-bool TreeFeature::isReplaceableAt(WorldReader& reader, const glm::ivec3& pos) {
+bool TreeFeature::isReplaceableAt(WorldReader& reader, const BlockPos& pos) {
     return isAirOrLeavesAt(reader, pos) || isTallPlantAt(reader, pos) || isWaterAt(reader, pos);
 }
 
-bool TreeFeature::isDirtOrFarmlandAt(WorldReader& reader, const glm::ivec3& pos) {
+bool TreeFeature::isDirtOrFarmlandAt(WorldReader& reader, const BlockPos& pos) {
     auto block = reader.getData(pos).getBlock();
     return isDirt(block) || block == Blocks::FARMLAND;
 }
 
-bool TreeFeature::isReplaceableOrLogAt(WorldReader& reader, const glm::ivec3& pos) {
+bool TreeFeature::isReplaceableOrLogAt(WorldReader& reader, const BlockPos& pos) {
     return isReplaceableAt(reader, pos) || reader.getData(pos).isIn(BlockTags::LOGS);
 }
 
-void TreeFeature::placeBlockState(WorldWriter &writer, const glm::ivec3 &pos, BlockData state) {
+void TreeFeature::placeBlockState(WorldWriter &writer, const BlockPos &pos, BlockData state) {
     writer.setData(pos, state/*, 19*/);
 }
 
-bool TreeFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Random &random, glm::ivec3 pos, const FeatureConfig &config) {
+bool TreeFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Random &random, BlockPos pos, const FeatureConfig &config) {
     const auto& cfg = std::get<BaseTreeFeatureConfig>(config);
-    std::set<glm::ivec3> set{};
-    std::set<glm::ivec3> set1{};
-    std::set<glm::ivec3> set2{};
+    std::set<BlockPos> set{};
+    std::set<BlockPos> set1{};
+    std::set<BlockPos> set2{};
     auto mutableboundingbox = BoundingBox::getNewBoundingBox();
     const bool flag = place(reader, random, pos, set, set1, mutableboundingbox, cfg);
     if (mutableboundingbox.minX <= mutableboundingbox.maxX && flag && !set.empty()) {
         if (!cfg.decorators.empty()) {
-            std::list<glm::ivec3> list{set.begin(), set.end()};
-            std::list<glm::ivec3> list1{set1.begin(), set1.end()};
+            std::list<BlockPos> list{set.begin(), set.end()};
+            std::list<BlockPos> list1{set1.begin(), set1.end()};
 //            list.sort(Comparator.comparingInt(Vector3i::getY));
 //            list1.sort(Comparator.comparingInt(Vector3i::getY));
 //            cfg.decorators.forEach((decorator) -> decorator.decorate(reader, random, list, list1, set2, mutableboundingbox));
@@ -63,12 +63,12 @@ bool TreeFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Ra
     return false;
 }
 
-bool TreeFeature::place(WorldGenRegion &reader, Random &random, const glm::ivec3 &pos, std::set<glm::ivec3> &set1, std::set<glm::ivec3> &set2, BoundingBox &boundingBoxIn, const BaseTreeFeatureConfig &config) {
+bool TreeFeature::place(WorldGenRegion &reader, Random &random, const BlockPos &pos, std::set<BlockPos> &set1, std::set<BlockPos> &set2, BoundingBox &boundingBoxIn, const BaseTreeFeatureConfig &config) {
     const int trunkHeight = config.trunkPlacer->getRandomHeight(random);
     const int j = config.foliagePlacer->getHeight(random, trunkHeight, config);
     const int k = trunkHeight - j;
     const int l = config.foliagePlacer->getRadius(random, k);
-    glm::ivec3 blockpos = pos;
+    BlockPos blockpos = pos;
     if (!config.forcePlacement) {
         const int i1 = reader.getHeight(HeightmapType::OCEAN_FLOOR, pos).y;
         const int j1 = reader.getHeight(HeightmapType::WORLD_SURFACE, pos).y;
@@ -89,7 +89,7 @@ bool TreeFeature::place(WorldGenRegion &reader, Random &random, const glm::ivec3
     }
 
     if (blockpos.y >= 1 && blockpos.y + trunkHeight + 1 <= 256) {
-        if (!isDirtOrFarmlandAt(reader, blockpos - glm::ivec3(0, 1, 0))) {
+        if (!isDirtOrFarmlandAt(reader, blockpos.down())) {
             return false;
         }
         const auto min_clipped_height = config.minimumSize.min_clipped_height();
@@ -104,13 +104,13 @@ bool TreeFeature::place(WorldGenRegion &reader, Random &random, const glm::ivec3
     return false;
 }
 
-int TreeFeature::func_241521_a_(WorldGenRegion &reader, int p_241521_2_, const glm::ivec3 &pos, const BaseTreeFeatureConfig &config) {
+int TreeFeature::func_241521_a_(WorldGenRegion &reader, int p_241521_2_, const BlockPos &pos, const BaseTreeFeatureConfig &config) {
     for (int i = 0; i <= p_241521_2_ + 1; ++i) {
         const int j = config.minimumSize.func_230369_a_(p_241521_2_, i);
 
         for (int k = -j; k <= j; ++k) {
             for (int l = -j; l <= j; ++l) {
-                const auto blockpos = pos + glm::ivec3(k, i, l);
+                const auto blockpos = pos + BlockPos(k, i, l);
                 if (!isReplaceableOrLogAt(reader, blockpos) || !config.ignoreVines && isVineAt(reader, blockpos)) {
                     return i - 2;
                 }

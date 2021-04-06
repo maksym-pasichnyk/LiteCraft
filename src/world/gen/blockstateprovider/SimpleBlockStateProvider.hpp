@@ -7,7 +7,7 @@ struct SimpleBlockStateProvider : BlockStateProvider {
 
     explicit SimpleBlockStateProvider(BlockData data) : data(data) {}
 
-    BlockData getBlockState(Random &random, glm::ivec3 pos) override {
+    BlockData getBlockState(Random &random, BlockPos pos) override {
         return data;
     }
 };

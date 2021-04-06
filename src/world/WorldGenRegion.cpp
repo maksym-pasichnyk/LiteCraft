@@ -13,12 +13,12 @@ auto WorldGenRegion::getData(int32_t x, int32_t y, int32_t z) const -> BlockData
     return getChunk(x >> 4, z >> 4)->getData(x, y, z);
 }
 
-void WorldGenRegion::setData(int32_t x, int32_t y, int32_t z, BlockData blockData) {
+void WorldGenRegion::setData(int32_t x, int32_t y, int32_t z, BlockData data) {
     if (y < 0 || y > 255) {
         return;
     }
 
-    getChunk(x >> 4, z >> 4)->setData(x, y, z, blockData);
+    getChunk(x >> 4, z >> 4)->setData(x, y, z, data);
 }
 
 void WorldGenRegion::setLightFor(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val) {
@@ -57,6 +57,6 @@ Biome *WorldGenRegion::getNoiseBiomeRaw(int x, int y, int z) {
 int WorldGenRegion::getHeight(HeightmapType type, int x, int z) {
     return getChunk(x >> 4, z >> 4)->getHeight(type, x & 15, z & 15);
 }
-int32_t WorldGenRegion::getBlockLight(const glm::ivec3& pos) const {
+int32_t WorldGenRegion::getBlockLight(const BlockPos& pos) const {
     return getLightFor(pos, 0);
 }

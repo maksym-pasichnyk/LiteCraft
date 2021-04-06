@@ -106,7 +106,7 @@ struct DefaultBiomeFeatures {
 
     static void withBambooVegetation(BiomeGenerationSettings::Builder& builder) {
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BAMBOO);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BAMBOO_VEGETATION);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BAMBOO_VEGETATION);
     }
 
     static void withTaigaVegetation(BiomeGenerationSettings::Builder& builder) {
@@ -146,11 +146,11 @@ struct DefaultBiomeFeatures {
     }
 
     static void withJungleTrees(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_JUNGLE);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_JUNGLE);
     }
 
     static void withJungleEdgeTrees(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_JUNGLE_EDGE);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_JUNGLE_EDGE);
     }
 
     static void withBadlandsOakTrees(BiomeGenerationSettings::Builder& builder) {
@@ -162,11 +162,11 @@ struct DefaultBiomeFeatures {
     }
 
     static void withJungleGrass(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_JUNGLE);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_JUNGLE);
     }
 
     static void withTallGrass(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_TALL_GRASS);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_TALL_GRASS);
     }
 
     static void withNormalGrassPatch(BiomeGenerationSettings::Builder& builder) {
@@ -191,23 +191,23 @@ struct DefaultBiomeFeatures {
     }
 
     static void withSwampVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SWAMP_TREE);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SWAMP_TREE);
 //        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FLOWER_SWAMP);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_NORMAL);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_DEAD_BUSH);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_WATERLILLY);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_WATERLILLY);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BROWN_MUSHROOM_SWAMP);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::RED_MUSHROOM_SWAMP);
     }
 
     static void withMushroomBiomeVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::MUSHROOM_FIELD_VEGETATION);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::MUSHROOM_FIELD_VEGETATION);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BROWN_MUSHROOM_TAIGA);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::RED_MUSHROOM_TAIGA);
     }
 
     static void withPlainGrassVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PLAIN_VEGETATION);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PLAIN_VEGETATION);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FLOWER_PLAIN_DECORATED);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_PLAIN);
     }
@@ -242,7 +242,7 @@ struct DefaultBiomeFeatures {
     }
 
     static void withNoiseTallGrass(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_TALL_GRASS_2);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_TALL_GRASS_2);
     }
 
     static void withNormalMushroomGeneration(BiomeGenerationSettings::Builder& builder) {
@@ -263,7 +263,7 @@ struct DefaultBiomeFeatures {
 
     static void withMelonPatchesAndVines(BiomeGenerationSettings::Builder& builder) {
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_MELON);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::VINES);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::VINES);
     }
 
     static void withDesertVegetation(BiomeGenerationSettings::Builder& builder) {

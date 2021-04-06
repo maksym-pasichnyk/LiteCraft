@@ -261,6 +261,7 @@ void renderBlock(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRen
 }
 
 void renderCross(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
+    const auto [ix, iy, iz] = pos;
     const auto [fx, fy, fz] = glm::vec3(pos);
 
     auto& graphics = block->getGraphics();
@@ -273,19 +274,42 @@ void renderCross(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRen
 	constexpr float f = 0.146446609f;
 	constexpr float s = 0.853553391f;
 
-	builder.quad();
-	builder.quadInv();
-	builder.vertex(fx + f, fy + 0, fz + f, coords.minU, coords.minV, r, g, b, 0xFFFF, 1.0f);
-	builder.vertex(fx + f, fy + 1, fz + f, coords.minU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
-	builder.vertex(fx + s, fy + 1, fz + s, coords.maxU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
-	builder.vertex(fx + s, fy + 0, fz + s, coords.maxU, coords.minV, r, g, b, 0xFFFF, 1.0f);
+    const auto packedLight = blocks.getLightPacked(ix, iy, iz);
 
 	builder.quad();
 	builder.quadInv();
-	builder.vertex(fx + f, fy + 0, fz + s, coords.minU, coords.minV, r, g, b, 0xFFFF, 1.0f);
-	builder.vertex(fx + f, fy + 1, fz + s, coords.minU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
-	builder.vertex(fx + s, fy + 1, fz + f, coords.maxU, coords.maxV, r, g, b, 0xFFFF, 1.0f);
-	builder.vertex(fx + s, fy + 0, fz + f, coords.maxU, coords.minV, r, g, b, 0xFFFF, 1.0f);
+	builder.vertex(fx + f, fy + 0, fz + f, coords.minU, coords.minV, r, g, b, packedLight, 1.0f);
+	builder.vertex(fx + f, fy + 1, fz + f, coords.minU, coords.maxV, r, g, b, packedLight, 1.0f);
+	builder.vertex(fx + s, fy + 1, fz + s, coords.maxU, coords.maxV, r, g, b, packedLight, 1.0f);
+	builder.vertex(fx + s, fy + 0, fz + s, coords.maxU, coords.minV, r, g, b, packedLight, 1.0f);
+
+	builder.quad();
+	builder.quadInv();
+	builder.vertex(fx + f, fy + 0, fz + s, coords.minU, coords.minV, r, g, b, packedLight, 1.0f);
+	builder.vertex(fx + f, fy + 1, fz + s, coords.minU, coords.maxV, r, g, b, packedLight, 1.0f);
+	builder.vertex(fx + s, fy + 1, fz + f, coords.maxU, coords.maxV, r, g, b, packedLight, 1.0f);
+	builder.vertex(fx + s, fy + 0, fz + f, coords.maxU, coords.minV, r, g, b, packedLight, 1.0f);
+}
+
+void renderLilyPad(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
+    const auto [ix, iy, iz] = pos;
+    const auto [fx, fy, fz] = glm::vec3(pos);
+
+    auto& graphics = block->getGraphics();
+    auto coords = graphics.southTexture->get(0);
+
+    auto [r, g, b] = getTintColor(block->getTintType());
+
+    auto builder = rb.getForLayer(block->getRenderLayer());
+
+    const auto packedLight = blocks.getLightPacked(ix, iy, iz);
+
+    builder.quad();
+    builder.quadInv();
+    builder.vertex(fx + 0, fy + 0.0625f, fz + 0, coords.minU, coords.minV, r, g, b, packedLight, 1.0f);
+    builder.vertex(fx + 0, fy + 0.0625f, fz + 1, coords.minU, coords.maxV, r, g, b, packedLight, 1.0f);
+    builder.vertex(fx + 1, fy + 0.0625f, fz + 1, coords.maxU, coords.maxV, r, g, b, packedLight, 1.0f);
+    builder.vertex(fx + 1, fy + 0.0625f, fz + 0, coords.maxU, coords.minV, r, g, b, packedLight, 1.0f);
 }
 
 void renderLiquid(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
@@ -673,6 +697,9 @@ void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
                     break;
                 case RenderType::BambooStem:
                     renderBambooStem(pos, block, rb, blocks);
+                    break;
+                case RenderType::LilyPad:
+                    renderLilyPad(pos, block, rb, blocks);
                     break;
 				}
             }

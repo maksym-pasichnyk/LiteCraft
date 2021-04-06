@@ -3,7 +3,7 @@
 #include "../../WorldGenRegion.hpp"
 #include "../../../block/Block.hpp"
 
-bool AbstractBigMushroomFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Random &random, glm::ivec3 pos, const FeatureConfig &config) {
+bool AbstractBigMushroomFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Random &random, BlockPos pos, const FeatureConfig &config) {
     const auto& cfg = std::get<BigMushroomFeatureConfig>(config);
 
     const int height = getStemHeight(random);
@@ -15,9 +15,9 @@ bool AbstractBigMushroomFeature::generate(WorldGenRegion &reader, ChunkGenerator
     return true;
 }
 
-void AbstractBigMushroomFeature::generateStem(WorldGenRegion &world, Random &random, const glm::ivec3 &pos, const BigMushroomFeatureConfig &config, int height) {
+void AbstractBigMushroomFeature::generateStem(WorldGenRegion &world, Random &random, const BlockPos &pos, const BigMushroomFeatureConfig &config, int height) {
     for (int i = 0; i < height; ++i) {
-        const auto blockpos = pos + glm::ivec3(0, i, 0);
+        const auto blockpos = pos + BlockPos(0, i, 0);
         if (!world.getData(blockpos).isOpaque() /*isOpaqueCube(world, mutpos)*/) {
             world.setData(blockpos, config.stemProvider->getBlockState(random, pos)/*, 3*/);
         }
@@ -32,10 +32,10 @@ int AbstractBigMushroomFeature::getStemHeight(Random &random) {
     return i;
 }
 
-bool AbstractBigMushroomFeature::checkPosition(WorldGenRegion &world, const glm::ivec3 &pos, int height, const BigMushroomFeatureConfig &config) {
+bool AbstractBigMushroomFeature::checkPosition(WorldGenRegion &world, const BlockPos &pos, int height, const BigMushroomFeatureConfig &config) {
     const int starty = pos.y;
     if (starty >= 1 && starty + height + 1 < 256) {
-        auto block = world.getData(pos - glm::ivec3(0, 1, 0)).getBlock();
+        auto block = world.getData(pos.down()).getBlock();
         if (!isDirt(block) && !block->isIn(BlockTags::MUSHROOM_GROW_BLOCK)) {
             return false;
         }
@@ -44,7 +44,7 @@ bool AbstractBigMushroomFeature::checkPosition(WorldGenRegion &world, const glm:
 
             for (int l = -k; l <= k; ++l) {
                 for (int i1 = -k; i1 <= k; ++i1) {
-                    const auto state = world.getData(pos + glm::ivec3(l, j, i1));
+                    const auto state = world.getData(pos + BlockPos(l, j, i1));
                     if (!state.isAir() && !state.isIn(BlockTags::LEAVES)) {
                         return false;
                     }

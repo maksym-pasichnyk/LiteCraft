@@ -1,7 +1,7 @@
 #include "FlowersFeature.hpp"
 #include "../../WorldGenRegion.hpp"
 
-bool FlowersFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Random &rand, glm::ivec3 pos, const FeatureConfig &config) {
+bool FlowersFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Random &rand, BlockPos pos, const FeatureConfig &config) {
     const auto& cfg = std::get<BlockClusterFeatureConfig>(config);
     const auto flower = getFlowerToPlace(rand, pos, cfg);
     const int count = getFlowerCount(cfg);

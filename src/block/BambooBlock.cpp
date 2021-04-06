@@ -2,8 +2,8 @@
 #include "Blocks.hpp"
 #include "../world/WorldReader.hpp"
 
-bool BambooBlock::isValidPosition(const BlockData &data, WorldReader &reader, const glm::ivec3 &pos) {
-    auto block = reader.getData(pos - glm::ivec3(0, 1, 0)).getBlock();
+bool BambooBlock::isValidPosition(const BlockData &data, WorldReader &reader, const BlockPos &pos) {
+    auto block = reader.getData(pos.down()).getBlock();
     return block == Blocks::SAND
         || block == Blocks::RED_SAND
         || block == Blocks::BAMBOO_SAPLING

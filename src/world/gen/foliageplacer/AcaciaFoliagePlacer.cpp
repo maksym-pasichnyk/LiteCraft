@@ -12,10 +12,11 @@ bool AcaciaFoliagePlacer::func_230373_a_(Random &random, int p_230373_2_, int p_
     };
 }
 
-void AcaciaFoliagePlacer::func_230372_a_(WorldGenRegion &reader, Random &random, const BaseTreeFeatureConfig &config, int p_230372_4_, const FoliagePlacer::Foliage &foliage, int p_230372_6_, int p_230372_7_, std::set<glm::ivec3> &set1, int p_230372_9_, BoundingBox &boundingBox) {
+void AcaciaFoliagePlacer::func_230372_a_(WorldGenRegion &reader, Random &random, const BaseTreeFeatureConfig &config, int p_230372_4_, const FoliagePlacer::Foliage &foliage, int p_230372_6_, int p_230372_7_, std::set<BlockPos> &set1, int p_230372_9_, BoundingBox &boundingBox) {
     const bool flag = foliage.persistence;
-    const auto blockpos = foliage.position + glm::ivec3(0, p_230372_9_, 0);
-    func_236753_a_(reader, random, config, blockpos, p_230372_7_ + foliage.distance, set1, -1 - p_230372_6_, flag, boundingBox);
-    func_236753_a_(reader, random, config, blockpos, p_230372_7_ - 1, set1, -p_230372_6_, flag, boundingBox);
-    func_236753_a_(reader, random, config, blockpos, p_230372_7_ + foliage.distance - 1, set1, 0, flag, boundingBox);
+    const auto blockpos = foliage.position + BlockPos(0, p_230372_9_, 0);
+    placeLeaves(reader, random, config, blockpos, p_230372_7_ + foliage.distance, set1, -1 - p_230372_6_, flag,
+                boundingBox);
+    placeLeaves(reader, random, config, blockpos, p_230372_7_ - 1, set1, -p_230372_6_, flag, boundingBox);
+    placeLeaves(reader, random, config, blockpos, p_230372_7_ + foliage.distance - 1, set1, 0, flag, boundingBox);
 }

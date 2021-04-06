@@ -54,7 +54,7 @@ struct Biome {
         return climate.temperature;
     }
 
-    float getTemperatureAtPosition(glm::ivec3 pos) const {
+    float getTemperatureAtPosition(BlockPos pos) const {
         const float f = climate.temperatureModifier(pos, climate.temperature);
         if (pos.y > 64) {
             const auto f1 = static_cast<float>(TEMPERATURE_NOISE.noiseAt(
@@ -66,7 +66,7 @@ struct Biome {
         return f;
     }
 
-    float getTemperature(glm::ivec3 pos) /*const*/ {
+    float getTemperature(BlockPos pos) /*const*/ {
         const auto i = BlockPos::pack(pos.x, pos.y, pos.z);
         if (temperatureCache.contains(i)) {
             return temperatureCache.at(i);
@@ -90,8 +90,8 @@ struct Biome {
         biomeGenerationSettings.surfaceBuilder.buildSurface(rand, chunk, *this, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, sealevel);
     }
 
-    void decorate(ChunkGenerator& generator, WorldGenRegion& region, int64_t seed, Random& rand, glm::ivec3 pos);
+    void decorate(ChunkGenerator& generator, WorldGenRegion& region, int64_t seed, Random& random, BlockPos pos);
 
-    bool doesWaterFreeze(WorldReader& world, const glm::ivec3& pos, bool mustBeAtEdge = true);
-    bool doesSnowGenerate(WorldReader& world, const glm::ivec3& pos);
+    bool doesWaterFreeze(WorldReader& world, const BlockPos& pos, bool mustBeAtEdge = true);
+    bool doesSnowGenerate(WorldReader& world, const BlockPos& pos);
 };

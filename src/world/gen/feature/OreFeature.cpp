@@ -4,7 +4,7 @@
 
 #include <cmath>
 
-bool OreFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Random &random, glm::ivec3 pos, const FeatureConfig &config) {
+bool OreFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Random &random, BlockPos pos, const FeatureConfig &config) {
     const auto& cfg = std::get<OreFeatureConfig>(config);
     
     const float f = random.nextFloat() * static_cast<float>(M_PI);

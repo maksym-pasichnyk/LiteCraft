@@ -19,5 +19,20 @@ struct BaseTreeFeatureConfig {
     FeatureSizeType minimumSize;
     int maxWaterDepth = 0;
     bool ignoreVines = false;
-    HeightmapType heightmap;
+    HeightmapType heightmap = HeightmapType::OCEAN_FLOOR;
+
+    BaseTreeFeatureConfig withDecorators(std::vector<TreeDecorator*> _decorators) const {
+        return {
+            trunkProvider,
+            leavesProvider,
+            std::move(_decorators),
+            forcePlacement,
+            foliagePlacer,
+            trunkPlacer,
+            minimumSize,
+            maxWaterDepth,
+            ignoreVines,
+            heightmap
+        };
+    }
 };

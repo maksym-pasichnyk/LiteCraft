@@ -3,8 +3,8 @@
 #include "FlowersFeature.hpp"
 
 struct DefaultFlowersFeature : FlowersFeature {
-    bool isValidPosition(WorldGenRegion &reader, glm::ivec3 pos, const BlockClusterFeatureConfig &config) override;
+    bool isValidPosition(WorldGenRegion &reader, BlockPos pos, const BlockClusterFeatureConfig &config) override;
     int getFlowerCount(const BlockClusterFeatureConfig &config) override;
-    glm::ivec3 getNearbyPos(Random &rand, glm::ivec3 pos, const BlockClusterFeatureConfig &config) override;
-    BlockData getFlowerToPlace(Random &rand, glm::ivec3 pos, const BlockClusterFeatureConfig &config) override;
+    BlockPos getNearbyPos(Random &rand, BlockPos pos, const BlockClusterFeatureConfig &config) override;
+    BlockData getFlowerToPlace(Random &rand, BlockPos pos, const BlockClusterFeatureConfig &config) override;
 };

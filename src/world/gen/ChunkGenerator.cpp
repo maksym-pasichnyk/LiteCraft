@@ -1,5 +1,7 @@
 #include "ChunkGenerator.hpp"
 
+#include "feature/ConfiguredFeature.hpp"
+#include "feature/ConfiguredFeatures.hpp"
 #include "../WorldGenRegion.hpp"
 #include "../biome/Biome.hpp"
 #include "../biome/provider/BiomeProvider.hpp"
@@ -65,7 +67,7 @@ void ChunkGenerator::getStructureReferences(WorldGenRegion &region, Chunk& chunk
 void ChunkGenerator::generateCarvers(WorldGenRegion& region, int64_t seed, Chunk& chunk, GenerationStage::Carving carving) {
     const auto [xpos, zpos] = chunk.pos;
 
-    const auto getBiome = [&region] (glm::ivec3 pos) {
+    const auto getBiome = [&region] (BlockPos pos) {
         return region.getBiome(pos);
     };
 
@@ -124,43 +126,9 @@ void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
     const auto xStart = chunkPos.getStartX();
     const auto zStart = chunkPos.getStartZ();
     const auto seed = random.setDecorationSeed(region.getSeed(), xStart, zStart);
-//    const auto sbb = BoundingBox::fromChunkPos(chunkPos.x, chunkPos.z);
-
-//    for (auto& structure : chunk.structureReferences) {
-//        for (auto& piece : structure->pieces) {
-//            piece->place(region, sbb);
-//        }
-//    }
-
-//    const BlockData red_flower = Blocks::RED_FLOWER->getDefaultState();
-//    const BlockData yellow_flower = Blocks::YELLOW_FLOWER->getDefaultState();
 
     auto biome = biomeProvider->getNoiseBiome((chunkPos.x << 2) + 2, 2, (chunkPos.z << 2) + 2);
-    biome->decorate(*this, region, seed, random, glm::ivec3(xStart, 0, zStart));
+    biome->decorate(*this, region, seed, random, BlockPos(xStart, 0, zStart));
 
-//    for (int32_t x = 0; x < 16; x++) {
-//        const auto xpos = x + xStart;
-//        for (int32_t z = 0; z < 16; z++) {
-//            const auto zpos = z + zStart;
-//			random.setFeatureSeed(seed, xpos, zpos);
-
-//            const int32_t ypos = region.getHeight(xpos, zpos);
-//            if (!region.getData(xpos, ypos - 1, zpos).isIn(Blocks2::water)) {
-//                int32_t n = random.nextInt(0, 3000);
-//
-//                if (n < 15) {
-//                    generateTree(region, xpos, ypos, zpos, random, sbb);
-//                } else if (n < 40) {
-//                    placeBlock(region, xpos, ypos, zpos, red_flower, sbb);
-//                } else if (n < 80) {
-//                    placeBlock(region, xpos, ypos, zpos, yellow_flower, sbb);
-//                } else if (n < 200) {
-////                    region.setData(xpos, ypos, zpos, {
-////                            BlockData{pallete.getId("tallgrass"), 0},
-////                            BlockData{BlockID::AIR, 0}
-////                    });
-//                }
-//            }
-//        }
-//    }
+//    ConfiguredFeatures::TREES_JUNGLE->generate(region, *this, random, BlockPos(xStart, 0, zStart));
 }

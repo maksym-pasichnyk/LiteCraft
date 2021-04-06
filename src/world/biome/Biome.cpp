@@ -12,19 +12,19 @@ const PerlinNoiseGenerator Biome::TEMPERATURE_NOISE = PerlinNoiseGenerator(Rando
 const PerlinNoiseGenerator Biome::FROZEN_TEMPERATURE_NOISE = PerlinNoiseGenerator(Random::from(3456), std::views::iota(-2, 0 + 1));
 const PerlinNoiseGenerator Biome::INFO_NOISE = PerlinNoiseGenerator(Random::from(2345), std::views::single(0));
 
-void Biome::decorate(ChunkGenerator &generator, WorldGenRegion &region, int64_t seed, Random &rand, glm::ivec3 pos) {
+void Biome::decorate(ChunkGenerator &generator, WorldGenRegion &region, int64_t seed, Random &random, BlockPos pos) {
     for (int i = 0; i < 10; i++) {
         int k = 0;
 
         for (auto feature : biomeGenerationSettings.features[i]) {
-            rand.setFeatureSeed(seed, k, i);
-            feature->generate(region, generator, rand, pos);
+            random.setFeatureSeed(seed, k, i);
+            feature->generate(region, generator, random, pos);
             ++k;
         }
     }
 }
 
-bool Biome::doesSnowGenerate(WorldReader &world, const glm::ivec3 &pos) {
+bool Biome::doesSnowGenerate(WorldReader &world, const BlockPos &pos) {
     if (getTemperature(pos) >= 0.15F) {
         return false;
     }
@@ -35,7 +35,7 @@ bool Biome::doesSnowGenerate(WorldReader &world, const glm::ivec3 &pos) {
 
     return false;
 }
-bool Biome::doesWaterFreeze(WorldReader &world, const glm::ivec3 &pos, bool mustBeAtEdge) {
+bool Biome::doesWaterFreeze(WorldReader &world, const BlockPos &pos, bool mustBeAtEdge) {
     if (getTemperature(pos) >= 0.15F) {
         return false;
     }
@@ -45,10 +45,10 @@ bool Biome::doesWaterFreeze(WorldReader &world, const glm::ivec3 &pos, bool must
             if (!mustBeAtEdge) {
                 return true;
             }
-            bool flag = world.hasWater(pos - glm::ivec3(1, 0, 0)) &&
-                        world.hasWater(pos + glm::ivec3(1, 0, 0)) &&
-                        world.hasWater(pos - glm::ivec3(0, 0, 1)) &&
-                        world.hasWater(pos + glm::ivec3(0, 0, 1));
+            bool flag = world.hasWater(pos.west()) &&
+                        world.hasWater(pos.east()) &&
+                        world.hasWater(pos.north()) &&
+                        world.hasWater(pos.south());
             return !flag;
         }
 //        FluidState fluidstate = worldIn.getFluidState(pos);

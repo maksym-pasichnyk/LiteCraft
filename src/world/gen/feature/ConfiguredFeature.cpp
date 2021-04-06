@@ -8,7 +8,7 @@
 #include "../placement/Placements.hpp"
 #include "../../WorldGenRegion.hpp"
 
-bool ConfiguredFeature::generate(WorldGenRegion &region, ChunkGenerator &generator, Random &random, glm::ivec3 pos) {
+bool ConfiguredFeature::generate(WorldGenRegion &region, ChunkGenerator &generator, Random &random, BlockPos pos) {
     return feature->generate(region, generator, random, pos, config);
 }
 

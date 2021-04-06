@@ -9,7 +9,7 @@ struct AxisRotatingBlockStateProvider : BlockStateProvider {
 
     explicit AxisRotatingBlockStateProvider(Block* block) : block(block) {}
 
-    BlockData getBlockState(Random &random, glm::ivec3 pos) override {
+    BlockData getBlockState(Random &random, BlockPos pos) override {
         return block->getDefaultState();
     }
 };

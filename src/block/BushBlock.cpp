@@ -2,7 +2,7 @@
 #include "Blocks.hpp"
 #include "../world/WorldReader.hpp"
 
-bool BushBlock::isValidGround(const BlockData &data, WorldReader &reader, const glm::ivec3 &pos) {
+bool BushBlock::isValidGround(const BlockData &data, WorldReader &reader, const BlockPos &pos) {
     return data.isIn(Blocks::GRASS_BLOCK)
         || data.isIn(Blocks::DIRT)
 //        || data.isIn(Blocks::COARSE_DIRT)
@@ -10,7 +10,7 @@ bool BushBlock::isValidGround(const BlockData &data, WorldReader &reader, const 
         || data.isIn(Blocks::FARMLAND);
 }
 
-bool BushBlock::isValidPosition(const BlockData &data, WorldReader &reader, const glm::ivec3 &pos) {
-    const auto down = pos - glm::ivec3(0, 1, 0);
+bool BushBlock::isValidPosition(const BlockData &data, WorldReader &reader, const BlockPos &pos) {
+    const auto down = pos.down();
     return isValidGround(reader.getData(down), reader, down);
 }

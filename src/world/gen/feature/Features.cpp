@@ -2,6 +2,7 @@
 #include "OreFeature.hpp"
 #include "TreeFeature.hpp"
 #include "LakesFeature.hpp"
+#include "VinesFeature.hpp"
 #include "BambooFeature.hpp"
 #include "BlockPileFeature.hpp"
 #include "DecoratedFeature.hpp"
@@ -93,7 +94,7 @@ void Features::registerFeatures() {
 //    ICE_SPIKE = createFeature<IceSpikeFeature>("ice_spike");
 //    GLOWSTONE_BLOB = createFeature<GlowstoneBlobFeature>("glowstone_blob");
     FREEZE_TOP_LAYER = createFeature<IceAndSnowFeature>("freeze_top_layer");
-//    VINES = createFeature<VinesFeature>("vines");
+    VINES = createFeature<VinesFeature>("vines");
 //    MONSTER_ROOM = createFeature<DungeonsFeature>("monster_room");
 //    BLUE_ICE = createFeature<BlueIceFeature>("blue_ice");
 //    ICEBERG = createFeature<IcebergFeature>("iceberg");

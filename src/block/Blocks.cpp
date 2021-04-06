@@ -995,31 +995,31 @@ static auto getMaterialColor(const MaterialColor &value) {
     return [value](const BlockData &data) -> MaterialColor { return value; };
 }
 
-static bool neverAllowSpawn(BlockReader &reader, const BlockData &data, const glm::ivec3 &pos, const EntityType &type) {
+static bool neverAllowSpawn(BlockReader &reader, const BlockData &data, const BlockPos &pos, const EntityType &type) {
     return false;
 }
 
-static bool alwaysAllowSpawn(BlockReader &reader, const BlockData &data, const glm::ivec3 &pos, const EntityType &type) {
+static bool alwaysAllowSpawn(BlockReader &reader, const BlockData &data, const BlockPos &pos, const EntityType &type) {
     return true;
 }
 
-static bool allowsSpawnOnLeaves(BlockReader &reader, const BlockData &data, const glm::ivec3 &pos, const EntityType &type) {
+static bool allowsSpawnOnLeaves(BlockReader &reader, const BlockData &data, const BlockPos &pos, const EntityType &type) {
     return false;// entity == EntityType.OCELOT || entity == EntityType.PARROT;
 }
 
-static bool allowsSpawnImmuneToFire(BlockReader &reader, const BlockData &data, const glm::ivec3 &pos, const EntityType &type) {
+static bool allowsSpawnImmuneToFire(BlockReader &reader, const BlockData &data, const BlockPos &pos, const EntityType &type) {
     return false;// entity.isImmuneToFire();
 }
 
-static bool needsPostProcessing(BlockReader &reader, const BlockData &data, const glm::ivec3 &pos) {
+static bool needsPostProcessing(BlockReader &reader, const BlockData &data, const BlockPos &pos) {
     return true;
 }
 
-static bool isntSolid(BlockReader &reader, const BlockData &data, const glm::ivec3 &pos) {
+static bool isntSolid(BlockReader &reader, const BlockData &data, const BlockPos &pos) {
     return false;
 }
 
-static bool isntExtended(BlockReader &reader, const BlockData &data, const glm::ivec3 &pos) {
+static bool isntExtended(BlockReader &reader, const BlockData &data, const BlockPos &pos) {
     return true;//!data.get(PistonBlock::EXTENDED);
 };
 
@@ -1091,7 +1091,7 @@ static Block *createStainedGlass(std::string name, DyeColors color) {
 }
 
 static Block *createShulkerBox(std::string name, std::optional<DyeColors> color, Properties properties) {
-    static constexpr auto isBlocksVision = [](BlockReader &reader, const BlockData &data, const glm::ivec3 &pos) -> bool {
+    static constexpr auto isBlocksVision = [](BlockReader &reader, const BlockData &data, const BlockPos &pos) -> bool {
 //        TileEntity tileentity = p_235444_1_.getTileEntity(p_235444_2_);
 //        if (!(tileentity instanceof ShulkerBoxTileEntity)) {
 //            return true;
@@ -1707,7 +1707,7 @@ void Blocks::registerBlocks() {
         .setHardnessAndResistance(0.5F)
         .setSound(SoundType::GLASS)
         .notSolid()
-        .setAllowsSpawn([](BlockReader &reader, const BlockData &data, const glm::ivec3 &pos, const EntityType &type) -> bool {
+        .setAllowsSpawn([](BlockReader &reader, const BlockData &data, const BlockPos &pos, const EntityType &type) -> bool {
             return false;//p_235450_3_ == EntityType.POLAR_BEAR;
         }));
     SNOW_BLOCK = createBlock<Block>("snow_block", Properties::create(Materials::SNOW_BLOCK)
@@ -2716,7 +2716,7 @@ void Blocks::registerBlocks() {
         .setHardnessAndResistance(0.5F)
         .setSound(SoundType::GLASS)
         .notSolid()
-        .setAllowsSpawn([](BlockReader &reader, const BlockData &data, const glm::ivec3 &pos, const EntityType &type) -> bool {
+        .setAllowsSpawn([](BlockReader &reader, const BlockData &data, const BlockPos &pos, const EntityType &type) -> bool {
             return false;//p_235448_3_ == EntityType.POLAR_BEAR;
         }));
     MAGMA_BLOCK = createBlock<MagmaBlock>("magma_block", Properties::create(Materials::ROCK, MaterialColors::NETHERRACK)

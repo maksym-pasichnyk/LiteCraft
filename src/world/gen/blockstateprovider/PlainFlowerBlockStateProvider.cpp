@@ -18,7 +18,7 @@ PlainFlowerBlockStateProvider::PlainFlowerBlockStateProvider() {
     };
 }
 
-BlockData PlainFlowerBlockStateProvider::getBlockState(Random &random, glm::ivec3 pos) {
+BlockData PlainFlowerBlockStateProvider::getBlockState(Random &random, BlockPos pos) {
     const double noise = Biome::INFO_NOISE.noiseAt((double)pos.x / 200.0, (double)pos.z / 200.0, false);
     if (noise < -0.8) {
         return RARE_FLOWERS[random.nextInt(RARE_FLOWERS.size())];

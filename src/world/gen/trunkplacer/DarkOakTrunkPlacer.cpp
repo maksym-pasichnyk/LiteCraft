@@ -3,13 +3,13 @@
 #include "../../WorldGenRegion.hpp"
 #include "../../../util/Direction.hpp"
 
-std::list<FoliagePlacer::Foliage> DarkOakTrunkPlacer::getFoliages(WorldGenRegion &reader, Random &random, int heightIn, const glm::ivec3 &pos, std::set<glm::ivec3> &set1, BoundingBox &boundingBox, const BaseTreeFeatureConfig &config) {
+std::list<FoliagePlacer::Foliage> DarkOakTrunkPlacer::getFoliages(WorldGenRegion &reader, Random &random, int heightIn, const BlockPos &pos, std::set<BlockPos> &set1, BoundingBox &boundingBox, const BaseTreeFeatureConfig &config) {
     std::list<FoliagePlacer::Foliage> list{};
-    const auto blockpos = pos - glm::ivec3(0, 1, 0);
+    const auto blockpos = pos.down();
     placeDirt(reader, blockpos);
-    placeDirt(reader, blockpos + glm::ivec3(1, 0, 0));
-    placeDirt(reader, blockpos + glm::ivec3(0, 0, 1));
-    placeDirt(reader, blockpos + glm::ivec3(1, 0, 1));
+    placeDirt(reader, blockpos.east());
+    placeDirt(reader, blockpos.south());
+    placeDirt(reader, blockpos.south().east());
     const auto direction = random.nextElement(std::span(Directions::Plane::HORIZONTAL));
     const int i = heightIn - random.nextInt(4);
     int j = 2 - random.nextInt(3);
@@ -27,16 +27,16 @@ std::list<FoliagePlacer::Foliage> DarkOakTrunkPlacer::getFoliages(WorldGenRegion
             --j;
         }
 
-        const glm::ivec3 blockpos1{xPos, yStart + i2, zPos};
+        const BlockPos blockpos1{xPos, yStart + i2, zPos};
         if (TreeFeature::isAirOrLeavesAt(reader, blockpos1)) {
             placeTrunk(reader, random, blockpos1, set1, boundingBox, config);
-            placeTrunk(reader, random, blockpos1 + glm::ivec3(1, 0, 0), set1, boundingBox, config);
-            placeTrunk(reader, random, blockpos1 + glm::ivec3(0, 0, 1), set1, boundingBox, config);
-            placeTrunk(reader, random, blockpos1 + glm::ivec3(1, 0, 1), set1, boundingBox, config);
+            placeTrunk(reader, random, blockpos1.east(), set1, boundingBox, config);
+            placeTrunk(reader, random, blockpos1.south(), set1, boundingBox, config);
+            placeTrunk(reader, random, blockpos1.south().east(), set1, boundingBox, config);
         }
     }
 
-    list.emplace_back(glm::ivec3(xPos, yPos, zPos), 0, true);
+    list.emplace_back(BlockPos(xPos, yPos, zPos), 0, true);
 
     for(int x = -1; x <= 2; ++x) {
         for(int z = -1; z <= 2; ++z) {
@@ -44,10 +44,10 @@ std::list<FoliagePlacer::Foliage> DarkOakTrunkPlacer::getFoliages(WorldGenRegion
                 const int randHeight = random.nextInt(3) + 2;
 
                 for(int y = 0; y < randHeight; ++y) {
-                    placeTrunk(reader, random, glm::ivec3(xStart + x, yPos - y - 1, zStart + z), set1, boundingBox, config);
+                    placeTrunk(reader, random, BlockPos(xStart + x, yPos - y - 1, zStart + z), set1, boundingBox, config);
                 }
 
-                list.emplace_back(glm::ivec3(xPos + x, yPos, zPos + z), 0, false);
+                list.emplace_back(BlockPos(xPos + x, yPos, zPos + z), 0, false);
             }
         }
     }

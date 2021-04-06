@@ -17,7 +17,7 @@ struct MegaPineFoliagePlacer : FoliagePlacer {
         return (p_230373_2_ * p_230373_2_ + p_230373_4_ * p_230373_4_) > radius * radius;
     }
 
-    void func_230372_a_(WorldGenRegion &reader, Random &random, const BaseTreeFeatureConfig &config, int p_230372_4_, const Foliage &foliage, int p_230372_6_, int p_230372_7_, std::set<glm::ivec3> &set1, int p_230372_9_, BoundingBox &boundingBox) override {
+    void func_230372_a_(WorldGenRegion &reader, Random &random, const BaseTreeFeatureConfig &config, int p_230372_4_, const Foliage &foliage, int p_230372_6_, int p_230372_7_, std::set<BlockPos> &set1, int p_230372_9_, BoundingBox &boundingBox) override {
         const auto blockpos = foliage.position;
         int i = 0;
 
@@ -26,7 +26,8 @@ struct MegaPineFoliagePlacer : FoliagePlacer {
             const int l = p_230372_7_ + foliage.distance + static_cast<int>(std::floor((float)k / (float)p_230372_6_ * 3.5F));
             const int i1 = k > 0 && l == i && (j & 1) == 0 ? (l + 1) : l;
 
-            func_236753_a_(reader, random, config, glm::ivec3(blockpos.x, j, blockpos.z), i1, set1, 0, foliage.persistence, boundingBox);
+            placeLeaves(reader, random, config, BlockPos(blockpos.x, j, blockpos.z), i1, set1, 0, foliage.persistence,
+                        boundingBox);
             i = l;
         }
     }

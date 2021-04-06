@@ -1,8 +1,8 @@
 #pragma once
 
-#include <glm/vec3.hpp>
+#include "../../util/math/BlockPos.hpp"
 
 struct TemperatureModifiers {
-    static float none(glm::ivec3 pos, float temperature);
-    static float frozen(glm::ivec3 pos, float temperature);
+    static float none(BlockPos pos, float temperature);
+    static float frozen(BlockPos pos, float temperature);
 };

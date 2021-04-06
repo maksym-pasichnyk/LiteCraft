@@ -143,9 +143,8 @@ struct ChunkLayer {
 };*/
 
 struct ChunkSection {
-    std::array<BlockData, 4096> blocks;
+    std::array<BlockData, 4096> blocks{};
 };
-
 
 enum DIRECTION {
     SOUTH = 0,
@@ -202,7 +201,7 @@ struct StructurePiece {
     }
 
     auto setBlock(IBlockReader auto &blocks, BoundingBox sbb, int x, int y, int z, BlockData blockData) {
-        glm::ivec3 blockpos{get_x_with_offset(x, z), get_y_with_offset(y), get_z_with_offset(x, z)};
+        BlockPos blockpos{get_x_with_offset(x, z), get_y_with_offset(y), get_z_with_offset(x, z)};
 
         if (sbb.contains(blockpos.x, blockpos.y, blockpos.z)) {
             if (coordBaseMode == EAST || coordBaseMode == NORTH) {
@@ -268,11 +267,6 @@ struct StructureStart {
             boundingBox.maxZ = std::max(boundingBox.maxZ, piece->boundingBox.maxZ);
         }
     }
-};
-
-struct Light {
-    uint8_t block : 4;
-    uint8_t sky : 4;
 };
 
 struct LightSection {
@@ -424,7 +418,7 @@ struct Chunk {
 //    }
 
     void setLight(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val) {
-        auto& section = lightSections.at(y >> 4);
+        auto& section = lightSections[y >> 4];
         if (section == nullptr) {
             if (val == 0) {
                 return;
@@ -435,7 +429,7 @@ struct Chunk {
     }
 
     auto getLight(int32_t x, int32_t y, int32_t z, int32_t channel) const -> int32_t {
-        auto& section = lightSections.at(y >> 4);
+        auto& section = lightSections[y >> 4];
         if (section == nullptr) {
             return 0;
         }
@@ -443,51 +437,56 @@ struct Chunk {
     }
 
     auto getLightPacked(int32_t x, int32_t y, int32_t z) const -> int32_t {
-        auto& section = lightSections.at(y >> 4);
+        auto& section = lightSections[y >> 4];
         if (section == nullptr) {
             return 0;
         }
         return section->getLightPacked(x & 15, y & 15, z & 15);
     }
 
-    void setData(const glm::ivec3& pos, BlockData data) {
+    void setData(const BlockPos& pos, BlockData data) {
         setData(pos.x, pos.y, pos.z, data);
     }
 
     void setData(int32_t x, int32_t y, int32_t z, BlockData data) {
-    	auto& section = sections.at(y >> 4);
+    	auto& section = sections[y >> 4];
     	if (section == nullptr) {
+    	    if (data.isAir()) {
+    	        return;
+    	    }
     		section = std::make_unique<ChunkSection>();
     	}
-    	section->blocks[toIndex(x & 15, y & 15  , z & 15)] = data;
-
         updateHeightmap(x & 15, y, z & 15, data);
+    	section->blocks[toIndex(x & 15, y & 15, z & 15)] = data;
     }
 
     void updateHeightmap(int32_t x, int32_t y, int32_t z, BlockData data) {
         const int32_t i = x | (z << 4);
         const int32_t height = heightmap.getAt(i);
 
-        if (height == y + 1) {
-            for (y = y - 1; y >= 0; --y) {
-                if (!getData(x, y, z).isAir()) {
-                    break;
-                }
-            }
-            heightmap.setAt(i, y + 1);
-        } else if (height <= y) {
+        if (y > height - 2) {
             if (!data.isAir()) {
-                heightmap.setAt(i, y + 1);
+                if (y >= height) {
+                    heightmap.setAt(i, y + 1);
+                }
+            } else if (height - 1 == y) {
+                for (int y1 = y - 1; y1 >= 0; --y1) {
+                    if (!getData(x, y1, z).isAir()) {
+                        heightmap.setAt(i, y1 + 1);
+                        break;
+                    }
+                }
+                heightmap.setAt(i, 0);
             }
         }
     }
 
-    auto getData(const glm::ivec3& pos) const -> BlockData {
+    auto getData(const BlockPos& pos) const -> BlockData {
         return getData(pos.x, pos.y, pos.z);
     }
 
     auto getData(int32_t x, int32_t y, int32_t z) const -> BlockData {
-    	auto& section = sections.at(y >> 4);
+    	auto& section = sections[y >> 4];
     	if (section == nullptr) {
 			return {};
     	}

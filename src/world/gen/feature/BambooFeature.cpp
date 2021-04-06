@@ -11,7 +11,7 @@ BambooFeature::BambooFeature() {
     BAMBOO_SMALL_LEAVES = BAMBOO_BASE;//.with(PROPERTY_BAMBOO_LEAVES, BambooLeaves.SMALL);
 }
 
-bool BambooFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Random &random, glm::ivec3 pos, const FeatureConfig &config) {
+bool BambooFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Random &random, BlockPos pos, const FeatureConfig &config) {
     if (!reader.isAirBlock(pos)) {
         return false;
     }
@@ -31,7 +31,7 @@ bool BambooFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, 
                 const int k1 = i1 - pos.z;
                 if (j1 * j1 + k1 * k1 <= k * k) {
                     const auto y = reader.getHeight(HeightmapType::WORLD_SURFACE, l, i1);
-                    const glm::ivec3 blockpos(l, y, i1);
+                    const BlockPos blockpos(l, y, i1);
                     if (isDirt(reader.getData(blockpos).getBlock())) {
                         reader.setData(blockpos, Blocks::PODZOL->getDefaultState()/*, 2*/);
                     }
@@ -40,7 +40,7 @@ bool BambooFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, 
         }
     }
 
-    glm::ivec3 blockpos = pos;
+    BlockPos blockpos = pos;
     for (int l1 = 0; l1 < height && reader.isAirBlock(blockpos); ++l1) {
         reader.setData(blockpos, BAMBOO_BASE/*, 2*/);
         blockpos.y += 1;

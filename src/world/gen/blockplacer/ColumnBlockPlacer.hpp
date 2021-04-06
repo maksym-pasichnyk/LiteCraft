@@ -11,7 +11,7 @@ struct ColumnBlockPlacer : public BlockPlacer {
 
     ColumnBlockPlacer(int minSize, int extraSize) : minSize(minSize), extraSize(extraSize) {}
 
-    void place(WorldGenRegion &world, glm::ivec3 pos, BlockData state, Random &random) override {
+    void place(WorldGenRegion &world, BlockPos pos, BlockData state, Random &random) override {
         const int height = minSize + random.nextInt(random.nextInt(extraSize + 1) + 1);
         for (int y = 0; y < height; ++y) {
             world.setData(pos.x, pos.y + y, pos.z, state/*, 2*/);

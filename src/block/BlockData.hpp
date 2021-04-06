@@ -1,10 +1,10 @@
 #pragma once
 
 #include "../tags/BlockTags.hpp"
+#include "../util/math/BlockPos.hpp"
 
 #include <cstdint>
 #include <compare>
-#include <glm/vec3.hpp>
 
 enum class BlockStateProperties;
 

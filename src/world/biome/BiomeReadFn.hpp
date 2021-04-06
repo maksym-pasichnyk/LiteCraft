@@ -1,7 +1,8 @@
 #pragma once
 
+#include "../../util/math/BlockPos.hpp"
+
 #include <functional>
-#include <glm/vec3.hpp>
 
 struct Biome;
-using BiomeReadFn = std::function<Biome*(glm::ivec3)>;
+using BiomeReadFn = std::function<Biome*(BlockPos)>;

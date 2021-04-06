@@ -3,9 +3,9 @@
 #include "Placement.hpp"
 
 struct IcebergPlacement : Placement {
-    void forEach(WorldGenRegion &region, Random &random, const PlacementConfig &config, glm::ivec3 pos, const std::function<void(glm::ivec3)> &fn) override {
+    void forEach(WorldGenRegion &region, Random &random, const PlacementConfig &config, BlockPos pos, const std::function<void(BlockPos)> &fn) override {
         const int x = random.nextInt(8) + 4 + pos.x;
         const int y = random.nextInt(8) + 4 + pos.z;
-        fn(glm::ivec3(x, pos.y, y));
+        fn(BlockPos(x, pos.y, y));
     }
 };

@@ -60,7 +60,7 @@ struct DefaultSurfaceBuilder : public SurfaceBuilder {
                     }
 
                     if (yPos < sealevel && blockstate.isAir()) {
-                        if (biome.getTemperature(glm::ivec3{xStart, yPos, zStart}) < 0.15F) {
+                        if (biome.getTemperature(BlockPos{xStart, yPos, zStart}) < 0.15F) {
                             blockstate = ICE;
                         } else {
                             blockstate = defaultFluid;
@@ -202,7 +202,7 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
 
         for(int j1 = startHeight; j1 >= 0; --j1) {
             if (i1 < 15) {
-                const glm::ivec3 blockpos{xpos, j1, zpos};
+                const BlockPos blockpos{xpos, j1, zpos};
                 const auto data = chunk.getData(blockpos);
                 if (data.isAir()) {
                     l = -1;
@@ -396,7 +396,7 @@ struct WoodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
 
         for (int j1 = startHeight; j1 >= 0; --j1) {
             if (i1 < 15) {
-                const glm::ivec3 blockpos{xpos, j1, zpos};
+                const BlockPos blockpos{xpos, j1, zpos};
                 const auto data = chunk.getData(blockpos);
                 if (data.isAir()) {
                     l = -1;
@@ -489,7 +489,7 @@ struct ErodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
         bool flag1 = false;
 
         for(int l = std::max(startHeight, static_cast<int>(d0) + 1); l >= 0; --l) {
-            const glm::ivec3 blockpos{xpos, l, zpos};
+            const BlockPos blockpos{xpos, l, zpos};
             const auto data = chunk.getData(blockpos);
             if (data.isAir() && l < static_cast<int>(d0)) {
                 chunk.setData(blockpos, defaultBlock/*, false*/);
@@ -609,7 +609,7 @@ struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
     void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
         double d0 = 0.0;
         double d1 = 0.0;
-        const float temperature = biome.getTemperature(glm::ivec3{xStart, 63, zStart});
+        const float temperature = biome.getTemperature(BlockPos{xStart, 63, zStart});
         const double d2 = std::min(std::abs(noise), noise1->noiseAt(static_cast<double>(xStart) * 0.1, static_cast<double>(zStart) * 0.1, false) * 15.0);
 
         if (d2 > 1.8) {
@@ -647,7 +647,7 @@ struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
         const int j1 = seaLevel + 18 + rand.nextInt(10);
 
         for (int k1 = std::max(startHeight, static_cast<int>(d0) + 1); k1 >= 0; --k1) {
-            const glm::ivec3 blockpos{xpos, k1, zpos};
+            const BlockPos blockpos{xpos, k1, zpos};
             auto data = chunk.getData(blockpos);
             if (data.isAir() && k1 < static_cast<int>(d0) && rand.nextDouble() > 0.01) {
                 chunk.setData(blockpos, PACKED_ICE/*, false*/);
@@ -672,7 +672,7 @@ struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
                 }
 
                 if (k1 < seaLevel && blockstate2.isAir()) {
-                    if (biome.getTemperature(glm::ivec3{xStart, k1, zStart}) < 0.15F) {
+                    if (biome.getTemperature(BlockPos{xStart, k1, zStart}) < 0.15F) {
                         blockstate2 = ICE;
                     } else {
                         blockstate2 = defaultFluid;

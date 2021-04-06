@@ -15,7 +15,7 @@ struct ConfiguredFeature {
     Feature* feature;
     FeatureConfig config;
 
-    bool generate(WorldGenRegion &region, ChunkGenerator &generator, Random &random, glm::ivec3 vec);
+    bool generate(WorldGenRegion &region, ChunkGenerator &generator, Random &random, BlockPos vec);
 
     ConfiguredFeature* withPlacement(ConfiguredPlacement* placement);
     ConfiguredFeature* chance(int chance);

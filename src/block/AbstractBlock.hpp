@@ -25,7 +25,8 @@ enum class RenderType {
     Torch,
     SnowLayer,
     Cactus,
-    BambooStem
+    BambooStem,
+    LilyPad
 };
 
 enum class RenderLayer {
@@ -95,8 +96,8 @@ enum class BlockStateProperties;
 struct AbstractBlock {
     using IBlockColor = std::function<MaterialColor(const BlockData& data)>;
     using ILightLevel = std::function<int32_t(const BlockData& data)>;
-    using IPositionPredicate = std::function<bool(BlockReader& reader, const BlockData& data, const glm::ivec3& pos)>;
-    using IExtendedPositionPredicate = std::function<bool(BlockReader& reader, const BlockData& data, const glm::ivec3& pos, const EntityType& type)>;
+    using IPositionPredicate = std::function<bool(BlockReader& reader, const BlockData& data, const BlockPos& pos)>;
+    using IExtendedPositionPredicate = std::function<bool(BlockReader& reader, const BlockData& data, const BlockPos& pos, const EntityType& type)>;
 
     struct Properties {
         Material *material = nullptr;
@@ -116,17 +117,17 @@ struct AbstractBlock {
         /*ResourceLocation lootTable;*/
         bool isSolid = true;
         bool isAir = false;
-        IPositionPredicate isOpaque = [](BlockReader &reader, const BlockData &data, const glm::ivec3 &pos) -> bool {
+        IPositionPredicate isOpaque = [](BlockReader &reader, const BlockData &data, const BlockPos &pos) -> bool {
             return data.getMaterial()->isOpaque;// && data.hasOpaqueCollisionShape(reader, pos);
         };
-        IPositionPredicate suffocates = [](BlockReader &reader, const BlockData &data, const glm::ivec3 &pos) -> bool {
+        IPositionPredicate suffocates = [](BlockReader &reader, const BlockData &data, const BlockPos &pos) -> bool {
             return data.getMaterial()->isBlocksMovement;// && data.hasOpaqueCollisionShape(reader, pos);
         };
         IPositionPredicate blocksVision = suffocates;
-        IPositionPredicate needsPostProcessing = [](BlockReader &reader, const BlockData &data, const glm::ivec3 &pos) -> bool {
+        IPositionPredicate needsPostProcessing = [](BlockReader &reader, const BlockData &data, const BlockPos &pos) -> bool {
             return false;
         };
-        IPositionPredicate emmissiveRendering = [](BlockReader &reader, const BlockData &data, const glm::ivec3 &pos) -> bool {
+        IPositionPredicate emmissiveRendering = [](BlockReader &reader, const BlockData &data, const BlockPos &pos) -> bool {
             return false;
         };
         bool variableOpacity = false;
@@ -307,7 +308,7 @@ struct AbstractBlock {
         return blockStateProperties;
     }
 
-    bool isOpaque(BlockReader &reader, const BlockData &data, const glm::ivec3 &pos) const {
+    bool isOpaque(BlockReader &reader, const BlockData &data, const BlockPos &pos) const {
         return properties.isOpaque(reader, data, pos);
     }
 
@@ -323,7 +324,7 @@ struct AbstractBlock {
         return RenderLayer::Opaque;
     }
 
-    virtual bool isValidPosition(const BlockData& data, WorldReader &reader, const glm::ivec3 &pos) {
+    virtual bool isValidPosition(const BlockData& data, WorldReader &reader, const BlockPos &pos) {
         return true;
     }
 };

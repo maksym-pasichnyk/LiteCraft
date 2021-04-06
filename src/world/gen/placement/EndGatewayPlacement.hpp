@@ -3,5 +3,5 @@
 #include "Placement.hpp"
 
 struct EndGatewayPlacement : Placement {
-    void forEach(WorldGenRegion &region, Random &random, const PlacementConfig &config, glm::ivec3 pos, const std::function<void(glm::ivec3)> &fn) override;
+    void forEach(WorldGenRegion &region, Random &random, const PlacementConfig &config, BlockPos pos, const std::function<void(BlockPos)> &fn) override;
 };

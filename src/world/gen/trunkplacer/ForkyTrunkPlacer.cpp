@@ -1,8 +1,8 @@
 #include "ForkyTrunkPlacer.hpp"
 #include "../../../util/Direction.hpp"
 
-std::list<FoliagePlacer::Foliage> ForkyTrunkPlacer::getFoliages(WorldGenRegion &reader, Random &random, int height, const glm::ivec3 &pos, std::set<glm::ivec3> &set1, BoundingBox &boundingBox, const BaseTreeFeatureConfig &config) {
-    placeDirt(reader, pos - glm::ivec3(0, 1, 0));
+std::list<FoliagePlacer::Foliage> ForkyTrunkPlacer::getFoliages(WorldGenRegion &reader, Random &random, int height, const BlockPos &pos, std::set<BlockPos> &set1, BoundingBox &boundingBox, const BaseTreeFeatureConfig &config) {
+    placeDirt(reader, pos.down());
     std::list<FoliagePlacer::Foliage> foliages{};
     const auto direction = random.nextElement(std::span(Directions::Plane::HORIZONTAL));
     const int i = height - random.nextInt(4) - 1;
@@ -20,12 +20,12 @@ std::list<FoliagePlacer::Foliage> ForkyTrunkPlacer::getFoliages(WorldGenRegion &
                 --j;
             }
 
-            if (placeTrunk(reader, random, glm::ivec3(k, k1, l), set1, boundingBox, config)) {
+            if (placeTrunk(reader, random, BlockPos(k, k1, l), set1, boundingBox, config)) {
                 i1 = k1 + 1;
             }
         }
 
-        foliages.emplace_back(glm::ivec3(k, i1, l), 1, false);
+        foliages.emplace_back(BlockPos(k, i1, l), 1, false);
     }
 
     const auto direction1 = random.nextElement(std::span(Directions::Plane::HORIZONTAL));
@@ -40,7 +40,7 @@ std::list<FoliagePlacer::Foliage> ForkyTrunkPlacer::getFoliages(WorldGenRegion &
                 const int j2 = pos.y + i2;
                 k += Directions::getXOffset(direction1);
                 l += Directions::getZOffset(direction1);
-                if (placeTrunk(reader, random, glm::ivec3(k, j2, l), set1, boundingBox, config)) {
+                if (placeTrunk(reader, random, BlockPos(k, j2, l), set1, boundingBox, config)) {
                     i1 = j2 + 1;
                 }
             }
@@ -49,7 +49,7 @@ std::list<FoliagePlacer::Foliage> ForkyTrunkPlacer::getFoliages(WorldGenRegion &
         }
 
         if (i1 > 1) {
-            foliages.emplace_back(glm::ivec3(k, i1, l), 0, false);
+            foliages.emplace_back(BlockPos(k, i1, l), 0, false);
         }
     }
 

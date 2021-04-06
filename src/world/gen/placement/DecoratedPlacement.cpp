@@ -1,10 +1,10 @@
 #include "DecoratedPlacement.hpp"
 #include "ConfiguredPlacement.hpp"
 
-void DecoratedPlacement::forEach(WorldGenRegion &region, Random &random, const PlacementConfig &config, glm::ivec3 pos, const std::function<void(glm::ivec3)> &fn) {
+void DecoratedPlacement::forEach(WorldGenRegion &region, Random &random, const PlacementConfig &config, BlockPos pos, const std::function<void(BlockPos)> &fn) {
     const auto& cfg = std::get<DecoratedPlacementConfig>(config);
 
-    cfg.outer->forEach(region, random, pos, [&cfg, &region, &random, &fn](glm::ivec3 pos) {
+    cfg.outer->forEach(region, random, pos, [&cfg, &region, &random, &fn](BlockPos pos) {
         cfg.inner->forEach(region, random, pos, fn);
     });
 }

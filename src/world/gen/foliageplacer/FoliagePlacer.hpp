@@ -1,10 +1,10 @@
 #pragma once
 
 #include "../feature/FeatureSpread.hpp"
+#include "../../../util/math/BlockPos.hpp"
 
 #include <set>
 #include <cmath>
-#include <glm/vec3.hpp>
 
 struct Random;
 struct BoundingBox;
@@ -12,11 +12,11 @@ struct WorldGenRegion;
 struct BaseTreeFeatureConfig;
 struct FoliagePlacer {
     struct Foliage {
-        glm::ivec3 position;
+        BlockPos position;
         int distance;
         bool persistence;
 
-        Foliage(const glm::ivec3& position, int distance, bool persistence) : position(position), distance(distance), persistence(persistence) {}
+        Foliage(const BlockPos& position, int distance, bool persistence) : position(position), distance(distance), persistence(persistence) {}
     };
 
     FeatureSpread radius;
@@ -25,11 +25,11 @@ struct FoliagePlacer {
     FoliagePlacer(FeatureSpread radius, FeatureSpread offset) : radius(radius), offset(offset) {}
     virtual ~FoliagePlacer() = default;
 
-    void func_236752_a_(WorldGenRegion& reader, Random& random, const BaseTreeFeatureConfig& config, int p_236752_4_, const Foliage& foliage, int p_236752_6_, int p_236752_7_, std::set<glm::ivec3>& set1, BoundingBox& boundingBox) {
+    void func_236752_a_(WorldGenRegion& reader, Random& random, const BaseTreeFeatureConfig& config, int p_236752_4_, const Foliage& foliage, int p_236752_6_, int p_236752_7_, std::set<BlockPos>& set1, BoundingBox& boundingBox) {
         func_230372_a_(reader, random, config, p_236752_4_, foliage, p_236752_6_, p_236752_7_, set1, getOffset(random), boundingBox);
     }
 
-    void func_236753_a_(WorldGenRegion& reader, Random& random, const BaseTreeFeatureConfig& config, const glm::ivec3& p_236753_4_, int p_236753_5_, std::set<glm::ivec3>& set1, int p_236753_7_, bool p_236753_8_, BoundingBox& boundingBox);
+    void placeLeaves(WorldGenRegion& reader, Random& random, const BaseTreeFeatureConfig& config, const BlockPos& pos, int p_236753_5_, std::set<BlockPos>& set1, int height, bool p_236753_8_, BoundingBox& boundingBox);
 
     virtual int getRadius(Random& random, int p_230376_2_) {
         return radius.getCount(random);
@@ -55,5 +55,5 @@ struct FoliagePlacer {
 
     virtual int getHeight(Random& random, int heightIn, const BaseTreeFeatureConfig& config) = 0;
     virtual bool func_230373_a_(Random& random, int p_230373_2_, int p_230373_3_, int p_230373_4_, int radius, bool p_230373_6_) = 0;
-    virtual void func_230372_a_(WorldGenRegion& reader, Random& random, const BaseTreeFeatureConfig& config, int p_230372_4_, const Foliage& foliage, int p_230372_6_, int p_230372_7_, std::set<glm::ivec3>& set1, int p_230372_9_, BoundingBox& boundingBox) = 0;
+    virtual void func_230372_a_(WorldGenRegion& reader, Random& random, const BaseTreeFeatureConfig& config, int p_230372_4_, const Foliage& foliage, int p_230372_6_, int p_230372_7_, std::set<BlockPos>& set1, int p_230372_9_, BoundingBox& boundingBox) = 0;
 };

@@ -3,5 +3,5 @@
 #include "../block/BlockData.hpp"
 
 struct WorldWriter {
-    virtual void setData(const glm::ivec3& pos, BlockData state) = 0;
+    virtual void setData(const BlockPos& pos, BlockData state) = 0;
 };

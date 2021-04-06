@@ -19,7 +19,7 @@ ForestFlowerBlockStateProvider::ForestFlowerBlockStateProvider() {
     };
 }
 
-BlockData ForestFlowerBlockStateProvider::getBlockState(Random &random, glm::ivec3 pos) {
+BlockData ForestFlowerBlockStateProvider::getBlockState(Random &random, BlockPos pos) {
     const double noise = (1.0 + Biome::INFO_NOISE.noiseAt(static_cast<double>(pos.x) / 48.0, static_cast<double>(pos.z) / 48.0, false)) / 2.0;
     return STATES[static_cast<int>(std::clamp(noise, 0.0, 0.9999) * static_cast<double>(STATES.size()))];
 }

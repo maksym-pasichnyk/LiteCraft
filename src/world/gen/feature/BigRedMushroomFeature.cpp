@@ -13,7 +13,7 @@ int BigRedMushroomFeature::func_225563_a_(int p_225563_1_, int p_225563_2_, int 
     return i;
 }
 
-void BigRedMushroomFeature::generateCap(WorldGenRegion &reader, Random &random, const glm::ivec3 &pos, int height, const BigMushroomFeatureConfig &config) {
+void BigRedMushroomFeature::generateCap(WorldGenRegion &reader, Random &random, const BlockPos &pos, int height, const BigMushroomFeatureConfig &config) {
     const int k = config.foliageRadius - 2;
     for (int i = height - 3; i <= height; ++i) {
         const int j = i < height ? config.foliageRadius : config.foliageRadius - 1;
@@ -27,7 +27,7 @@ void BigRedMushroomFeature::generateCap(WorldGenRegion &reader, Random &random, 
                 const bool flag4 = flag || flag1;
                 const bool flag5 = flag2 || flag3;
                 if (i >= height || flag4 != flag5) {
-                    const auto blockpos = pos + glm::ivec3(l, i, i1);
+                    const auto blockpos = pos + BlockPos(l, i, i1);
                     if (!reader.getData(blockpos).isOpaque()/*isOpaqueCube(reader, blockpos)*/) {
                         const auto state = config.capProvider->getBlockState(random, pos);
 //                        .with(HugeMushroomBlock.UP, i >= height - 1)

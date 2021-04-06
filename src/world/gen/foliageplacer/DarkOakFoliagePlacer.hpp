@@ -19,19 +19,19 @@ struct DarkOakFoliagePlacer : FoliagePlacer {
         return false;
     }
 
-    void func_230372_a_(WorldGenRegion &reader, Random &random, const BaseTreeFeatureConfig &config, int p_230372_4_, const Foliage &foliage, int p_230372_6_, int p_230372_7_, std::set<glm::ivec3> &set1, int p_230372_9_, BoundingBox &boundingBox) override {
-        const auto blockpos = foliage.position + glm::ivec3(0, p_230372_9_, 0);
+    void func_230372_a_(WorldGenRegion &reader, Random &random, const BaseTreeFeatureConfig &config, int p_230372_4_, const Foliage &foliage, int p_230372_6_, int p_230372_7_, std::set<BlockPos> &set1, int p_230372_9_, BoundingBox &boundingBox) override {
+        const auto blockpos = foliage.position + BlockPos(0, p_230372_9_, 0);
         bool flag = foliage.persistence;
         if (flag) {
-            func_236753_a_(reader, random, config, blockpos, p_230372_7_ + 2, set1, -1, flag, boundingBox);
-            func_236753_a_(reader, random, config, blockpos, p_230372_7_ + 3, set1, 0, flag, boundingBox);
-            func_236753_a_(reader, random, config, blockpos, p_230372_7_ + 2, set1, 1, flag, boundingBox);
+            placeLeaves(reader, random, config, blockpos, p_230372_7_ + 2, set1, -1, flag, boundingBox);
+            placeLeaves(reader, random, config, blockpos, p_230372_7_ + 3, set1, 0, flag, boundingBox);
+            placeLeaves(reader, random, config, blockpos, p_230372_7_ + 2, set1, 1, flag, boundingBox);
             if (random.nextBoolean()) {
-                func_236753_a_(reader, random, config, blockpos, p_230372_7_, set1, 2, flag, boundingBox);
+                placeLeaves(reader, random, config, blockpos, p_230372_7_, set1, 2, flag, boundingBox);
             }
         } else {
-            func_236753_a_(reader, random, config, blockpos, p_230372_7_ + 2, set1, -1, flag, boundingBox);
-            func_236753_a_(reader, random, config, blockpos, p_230372_7_ + 1, set1, 0, flag, boundingBox);
+            placeLeaves(reader, random, config, blockpos, p_230372_7_ + 2, set1, -1, flag, boundingBox);
+            placeLeaves(reader, random, config, blockpos, p_230372_7_ + 1, set1, 0, flag, boundingBox);
         }
     }
 

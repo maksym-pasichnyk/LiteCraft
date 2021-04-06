@@ -3,8 +3,8 @@
 #include "../world/WorldReader.hpp"
 #include "../util/Direction.hpp"
 
-bool SugarCaneBlock::isValidPosition(const BlockData &data, WorldReader &reader, const glm::ivec3 &pos) {
-    const auto blockpos = pos - glm::ivec3(0, 1, 0);
+bool SugarCaneBlock::isValidPosition(const BlockData &data, WorldReader &reader, const BlockPos &pos) {
+    const auto blockpos = pos.down();
     auto block = reader.getData(blockpos).getBlock();
     if (block == this) {
         return true;

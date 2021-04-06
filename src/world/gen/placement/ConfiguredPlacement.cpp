@@ -3,7 +3,7 @@
 #include "Placements.hpp"
 #include "config/DecoratedPlacementConfig.hpp"
 
-void ConfiguredPlacement::forEach(WorldGenRegion &region, Random &random, glm::ivec3 pos, const std::function<void(glm::ivec3)>& fn) {
+void ConfiguredPlacement::forEach(WorldGenRegion &region, Random &random, BlockPos pos, const std::function<void(BlockPos)>& fn) {
     placement->forEach(region, random, config, pos, fn);
 }
 

@@ -166,7 +166,7 @@ struct App {
     Transform transform {
         .yaw = 0,
         .pitch = 0,
-        .position = {86, 83, 271}
+        .position = {265, 83, -4932}
     };
 
     int32_t last_center_x = -9999;
@@ -305,7 +305,8 @@ struct App {
 
 		RayTraceContext ray_trace_context {
 			.position = transform.position + glm::vec3(0, 1.68, 0),
-			.direction = transform.forward()
+			.direction = transform.forward(),
+			.ignoreLiquid = true
 		};
 
 		rayTraceResult = rayTraceBlocks(*clientWorld, ray_trace_context);

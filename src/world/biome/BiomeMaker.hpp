@@ -37,7 +37,11 @@ struct BiomeMaker {
         DefaultBiomeFeatures::withCommonOverworldBlocks(generation);
         DefaultBiomeFeatures::withOverworldOres(generation);
         DefaultBiomeFeatures::withDisks(generation);
-//        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, isSpruceVariant ? Features::TREES_GIANT_SPRUCE : Features::TREES_GIANT);
+        if (isSpruceVariant) {
+            generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_GIANT_SPRUCE);
+        } else {
+            generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_GIANT);
+        }
         DefaultBiomeFeatures::withDefaultFlowers(generation);
         DefaultBiomeFeatures::withGiantTaigaGrassVegetation(generation);
         DefaultBiomeFeatures::withNormalMushroomGeneration(generation);

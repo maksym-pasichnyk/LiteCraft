@@ -4,5 +4,6 @@
 
 struct Random;
 struct BlockStateProvider {
-    virtual BlockData getBlockState(Random& random, glm::ivec3 pos) = 0;
+    virtual ~BlockStateProvider() = default;
+    virtual BlockData getBlockState(Random& random, BlockPos pos) = 0;
 };

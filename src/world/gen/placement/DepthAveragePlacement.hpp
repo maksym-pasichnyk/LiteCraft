@@ -3,9 +3,9 @@
 #include "Placement.hpp"
 
 struct DepthAveragePlacement : Placement {
-    void forEach(WorldGenRegion &region, Random &random, const PlacementConfig &config, glm::ivec3 pos, const std::function<void(glm::ivec3)> &fn) override {
+    void forEach(WorldGenRegion &region, Random &random, const PlacementConfig &config, BlockPos pos, const std::function<void(BlockPos)> &fn) override {
         const auto& cfg = std::get<DepthAverageConfig>(config);
         const int y = random.nextInt(cfg.spread) + random.nextInt(cfg.spread) - cfg.spread + cfg.baseline;
-        fn(glm::ivec3(pos.x, y, pos.z));
+        fn(BlockPos(pos.x, y, pos.z));
     }
 };

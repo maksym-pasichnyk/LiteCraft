@@ -9,5 +9,5 @@ struct PlainFlowerBlockStateProvider : BlockStateProvider {
     std::array<BlockData, 4> COMMON_FLOWERS;
 
     PlainFlowerBlockStateProvider();
-    BlockData getBlockState(Random &random, glm::ivec3 pos) override;
+    BlockData getBlockState(Random &random, BlockPos pos) override;
 };

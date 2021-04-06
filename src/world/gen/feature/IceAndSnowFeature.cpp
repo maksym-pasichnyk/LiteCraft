@@ -5,14 +5,14 @@
 #include "../../../block/Blocks.hpp"
 #include "../../../block/SnowyDirtBlock.hpp"
 
-bool IceAndSnowFeature::generate(WorldGenRegion& region, ChunkGenerator &generator, Random &random, glm::ivec3 pos, const FeatureConfig &config) {
+bool IceAndSnowFeature::generate(WorldGenRegion& region, ChunkGenerator &generator, Random &random, BlockPos pos, const FeatureConfig &config) {
     for (int x = 0; x < 16; x++) {
         for (int z = 0; z < 16; z++) {
             const int xpos = pos.x + x;
             const int zpos = pos.z + z;
             const int ypos = region.getHeight(HeightmapType::MOTION_BLOCKING, xpos, zpos);
-            const glm::ivec3 blockpos1{xpos, ypos, zpos};
-            const glm::ivec3 blockpos2{xpos, ypos - 1, zpos};
+            const BlockPos blockpos1{xpos, ypos, zpos};
+            const BlockPos blockpos2{xpos, ypos - 1, zpos};
             auto biome = region.getBiome(blockpos1);
             if (biome->doesWaterFreeze(region, blockpos2, false)) {
                 region.setData(blockpos2, Blocks::ICE->getDefaultState()/*, 2*/);

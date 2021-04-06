@@ -1,9 +1,9 @@
 #pragma once
 
-#include "src/world/gen/placement/config/PlacementConfig.hpp"
+#include "config/PlacementConfig.hpp"
+#include "../../../util/math/BlockPos.hpp"
 
 #include <functional>
-#include <glm/vec3.hpp>
 
 struct Random;
 struct Placement;
@@ -13,7 +13,7 @@ struct ConfiguredPlacement {
     Placement* placement;
     PlacementConfig config;
 
-    void forEach(WorldGenRegion& region, Random& random, glm::ivec3 pos, const std::function<void(glm::ivec3)>& fn);
+    void forEach(WorldGenRegion& region, Random& random, BlockPos pos, const std::function<void(BlockPos)>& fn);
 
     ConfiguredPlacement* withPlacement(ConfiguredPlacement* placement);
     ConfiguredPlacement* chance(int chance);

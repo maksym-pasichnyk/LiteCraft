@@ -81,31 +81,31 @@ struct WorldGenRegion : virtual WorldReader, virtual WorldWriter {
 
     auto getData(int32_t x, int32_t y, int32_t z) const -> BlockData;
 
-    auto getData(const glm::ivec3& pos) const -> BlockData override {
+    auto getData(const BlockPos& pos) const -> BlockData override {
         return getData(pos.x, pos.y, pos.z);
     }
 
-    void setData(int32_t x, int32_t y, int32_t z, BlockData blockData);
+    void setData(int32_t x, int32_t y, int32_t z, BlockData data);
 
-    void setData(const glm::ivec3& pos, BlockData blockData) override {
-        setData(pos.x, pos.y, pos.z, blockData);
+    void setData(const BlockPos& pos, BlockData data) override {
+        setData(pos.x, pos.y, pos.z, data);
     }
 
     void setLightFor(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val);
 
-    void setLightFor(const glm::ivec3& pos, int32_t channel, int32_t val) {
+    void setLightFor(const BlockPos& pos, int32_t channel, int32_t val) {
         setLightFor(pos.x, pos.y, pos.z, channel, val);
     }
 
     auto getLightFor(int32_t x, int32_t y, int32_t z, int32_t channel) const -> int32_t;
 
-    auto getLightFor(const glm::ivec3& pos, int32_t channel) const -> int32_t {
+    auto getLightFor(const BlockPos& pos, int32_t channel) const -> int32_t {
         return getLightFor(pos.x, pos.y, pos.z, channel);
     }
 
     auto getLightPacked(int32_t x, int32_t y, int32_t z) const -> int32_t;
 
-    auto getLightPacked(glm::ivec3 pos) const -> int32_t {
+    auto getLightPacked(BlockPos pos) const -> int32_t {
         return getLightPacked(pos.x, pos.y, pos.z);
     }
 
@@ -113,7 +113,7 @@ struct WorldGenRegion : virtual WorldReader, virtual WorldWriter {
 		return chunks[(radius * (radius + 1)) << 1];
     }
 
-    auto getBiome(glm::ivec3 pos) -> Biome* {
+    auto getBiome(BlockPos pos) -> Biome* {
         return getBiome(pos.x, pos.y, pos.z);
     }
 
@@ -143,8 +143,8 @@ struct WorldGenRegion : virtual WorldReader, virtual WorldWriter {
     Biome *getNoiseBiomeRaw(int x, int y, int z) override;
 
     int getHeight(HeightmapType type, int x, int z);
-    glm::ivec3 getHeight(HeightmapType type, const glm::ivec3& pos) {
-        return glm::ivec3(pos.x, getHeight(type, pos.x, pos.z), pos.z);
+    BlockPos getHeight(HeightmapType type, const BlockPos& pos) {
+        return BlockPos(pos.x, getHeight(type, pos.x, pos.z), pos.z);
     }
-    int32_t getBlockLight(const glm::ivec3& pos) const override;
+    int32_t getBlockLight(const BlockPos& pos) const override;
 };

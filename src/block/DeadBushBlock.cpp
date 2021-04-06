@@ -1,7 +1,7 @@
 #include "DeadBushBlock.hpp"
 #include "Blocks.hpp"
 
-bool DeadBushBlock::isValidGround(const BlockData &data, WorldReader &reader, const glm::ivec3 &pos) {
+bool DeadBushBlock::isValidGround(const BlockData &data, WorldReader &reader, const BlockPos &pos) {
     const auto block = data.getBlock();
     return block == Blocks::SAND
            || block == Blocks::RED_SAND
