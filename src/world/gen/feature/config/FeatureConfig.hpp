@@ -4,6 +4,7 @@
 #include "OreFeatureConfig.hpp"
 #include "ProbabilityConfig.hpp"
 #include "BaseTreeFeatureConfig.hpp"
+#include "BlockWithContextConfig.hpp"
 #include "DecoratedFeatureConfig.hpp"
 #include "TwoFeatureChoiceConfig.hpp"
 #include "BlockStateFeatureConfig.hpp"
@@ -20,6 +21,7 @@ using FeatureConfig = std::variant<
     OreFeatureConfig,
     ProbabilityConfig,
     BaseTreeFeatureConfig,
+    BlockWithContextConfig,
     DecoratedFeatureConfig,
     TwoFeatureChoiceConfig,
     BlockStateFeatureConfig,

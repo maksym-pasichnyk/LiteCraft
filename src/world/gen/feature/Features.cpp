@@ -13,6 +13,7 @@
 #include "DefaultFlowersFeature.hpp"
 #include "BigRedMushroomFeature.hpp"
 #include "BigBrownMushroomFeature.hpp"
+#include "BlockWithContextFeature.hpp"
 #include "TwoFeatureChoiceFeature.hpp"
 #include "MultipleWithChanceRandomFeature.hpp"
 
@@ -113,7 +114,7 @@ void Features::registerFeatures() {
 //    CORAL_MUSHROOM = createFeature<CoralMushroomFeature>("coral_mushroom");
 //    CORAL_CLAW = createFeature<CoralClawFeature>("coral_claw");
 //    SEA_PICKLE = createFeature<SeaPickleFeature>("sea_pickle");
-//    SIMPLE_BLOCK = createFeature<BlockWithContextFeature>("simple_block");
+    SIMPLE_BLOCK = createFeature<BlockWithContextFeature>("simple_block");
     BAMBOO = createFeature<BambooFeature>("bamboo");
 //    HUGE_FUNGUS = createFeature<HugeFungusFeature>("huge_fungus");
 //    NETHER_FOREST_VEGETATION = createFeature<NetherVegetationFeature>("nether_forest_vegetation");
