@@ -2,7 +2,7 @@
 
 #include <ranges>
 #include <cstdint>
-#include <glm/vec3.hpp>
+#include <glm/glm.hpp>
 
 struct BlockPos : glm::ivec3 {
     using glm::ivec3::ivec3;
@@ -59,5 +59,18 @@ struct BlockPos : glm::ivec3 {
 
     constexpr auto west(int n = 1) const noexcept {
         return BlockPos{x - n, y, z};
+    }
+
+    double distanceSq(const glm::ivec3& to) {
+        return distanceSq(glm::dvec3(to), true);
+    }
+
+//    double distanceSq(IPosition position, bool useCenter) {
+//        return distanceSq(position.x, position.y, position.z, useCenter);
+//    }
+
+    double distanceSq(const glm::dvec3& to, bool useCenter) {
+        const auto delta = glm::dvec3(*this) + glm::dvec3(useCenter ? 0.5 : 0.0) - to;
+        return glm::dot(delta, delta);
     }
 };

@@ -4,6 +4,7 @@
 #include "LakesFeature.hpp"
 #include "VinesFeature.hpp"
 #include "BambooFeature.hpp"
+#include "BlockBlobFeature.hpp"
 #include "BlockPileFeature.hpp"
 #include "DecoratedFeature.hpp"
 #include "IceAndSnowFeature.hpp"
@@ -98,7 +99,7 @@ void Features::registerFeatures() {
 //    MONSTER_ROOM = createFeature<DungeonsFeature>("monster_room");
 //    BLUE_ICE = createFeature<BlueIceFeature>("blue_ice");
 //    ICEBERG = createFeature<IcebergFeature>("iceberg");
-//    FOREST_ROCK = createFeature<BlockBlobFeature>("forest_rock");
+    FOREST_ROCK = createFeature<BlockBlobFeature>("forest_rock");
 //    DISK = createFeature<SphereReplaceFeature>("disk");
 //    ICE_PATCH = createFeature<IcePathFeature>("ice_patch");
     LAKE = createFeature<LakesFeature>("lake");

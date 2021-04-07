@@ -4,7 +4,7 @@
 
 #include <array>
 
-class ForestFlowerBlockStateProvider : BlockStateProvider {
+struct ForestFlowerBlockStateProvider : BlockStateProvider {
     std::array<BlockData, 11> STATES;
 
     ForestFlowerBlockStateProvider();

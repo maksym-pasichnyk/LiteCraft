@@ -932,7 +932,7 @@ struct BiomeMaker {
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
         DefaultBiomeFeatures::withMonsterRoom(generation);
         if (isFlowerForestVariant) {
-//            generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::FOREST_FLOWER_VEGETATION_COMMON);
+            generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FOREST_FLOWER_VEGETATION_COMMON);
         } else {
             DefaultBiomeFeatures::withAllForestFlowerGeneration(generation);
         }
@@ -941,8 +941,8 @@ struct BiomeMaker {
         DefaultBiomeFeatures::withOverworldOres(generation);
         DefaultBiomeFeatures::withDisks(generation);
         if (isFlowerForestVariant) {
-//            generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::FOREST_FLOWER_TREES);
-//            generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::FLOWER_FOREST);
+            generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FOREST_FLOWER_TREES);
+            generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FLOWER_FOREST);
             DefaultBiomeFeatures::withBadlandsGrass(generation);
         } else {
             DefaultBiomeFeatures::withForestBirchTrees(generation);
@@ -1090,7 +1090,11 @@ struct BiomeMaker {
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
         DefaultBiomeFeatures::withMonsterRoom(generation);
-//        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, isHillsVariant ? Features::DARK_FOREST_VEGETATION_RED : Features::DARK_FOREST_VEGETATION_BROWN);
+        if (isHillsVariant) {
+            generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::DARK_FOREST_VEGETATION_RED);
+        } else {
+            generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::DARK_FOREST_VEGETATION_BROWN);
+        }
         DefaultBiomeFeatures::withAllForestFlowerGeneration(generation);
         DefaultBiomeFeatures::withCommonOverworldBlocks(generation);
         DefaultBiomeFeatures::withOverworldOres(generation);

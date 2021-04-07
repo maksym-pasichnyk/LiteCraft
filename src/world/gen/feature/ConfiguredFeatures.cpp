@@ -12,6 +12,7 @@
 #include "../blockstateprovider/SimpleBlockStateProvider.hpp"
 #include "../blockstateprovider/WeightedBlockStateProvider.hpp"
 #include "../blockstateprovider/PlainFlowerBlockStateProvider.hpp"
+#include "../blockstateprovider/ForestFlowerBlockStateProvider.hpp"
 #include "../blockstateprovider/AxisRotatingBlockStateProvider.hpp"
 #include "../foliageplacer/BlobFoliagePlacer.hpp"
 #include "../foliageplacer/PineFoliagePlacer.hpp"
@@ -275,14 +276,40 @@ void ConfiguredFeatures::configureFeatures() {
         .blockPlacer = new SimpleBlockPlacer(),
         .tries = 64
     };
+    static BlockClusterFeatureConfig FLOWER_FOREST_CONFIG {
+        .stateProvider = new ForestFlowerBlockStateProvider(),
+        .blockPlacer = new SimpleBlockPlacer(),
+        .tries = 64
+    };
+    static BlockClusterFeatureConfig FLOWER_SWAMP_CONFIG {
+        .stateProvider = new SimpleBlockStateProvider(Blocks::BLUE_ORCHID->getDefaultState()),
+        .blockPlacer = new SimpleBlockPlacer(),
+        .tries = 64
+    };
     static BlockClusterFeatureConfig DEAD_BUSH_CONFIG {
         .stateProvider = new SimpleBlockStateProvider(Blocks::DEAD_BUSH->getDefaultState()),
         .blockPlacer = new SimpleBlockPlacer(),
         .tries = 4
     };
-//static BlockClusterFeatureConfig BERRY_BUSH_PATCH_CONFIG = (new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.SWEET_BERRY_BUSH), SimpleBlockPlacer.PLACER)).tries(64).whitelist(ImmutableSet.of(Features.States.GRASS_BLOCK.getBlock())).project().build();
-//static BlockClusterFeatureConfig TALL_GRASS_CONFIG = (new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.TALL_GRASS), new DoublePlantBlockPlacer())).tries(64).project().build();
-
+    static BlockClusterFeatureConfig BERRY_BUSH_PATCH_CONFIG {
+        .whitelist = {Blocks::GRASS_BLOCK},
+        .stateProvider = new SimpleBlockStateProvider(Blocks::SWEET_BERRY_BUSH->getDefaultState()),
+        .blockPlacer = new SimpleBlockPlacer(),
+        .tries = 64,
+        .project = false
+    };
+    static BlockClusterFeatureConfig TALL_GRASS_CONFIG {
+        .stateProvider = new SimpleBlockStateProvider(Blocks::TALL_GRASS->getDefaultState()),
+        .blockPlacer = new DoublePlantBlockPlacer(),
+        .tries = 64,
+        .project = false
+    };
+    static BlockClusterFeatureConfig LARGE_FERN_CONFIG {
+        .stateProvider = new SimpleBlockStateProvider(Blocks::LARGE_FERN->getDefaultState()),
+        .blockPlacer = new DoublePlantBlockPlacer(),
+        .tries = 64,
+        .project = false
+    };
     static BlockClusterFeatureConfig SUGAR_CANE_PATCH_CONFIG {
         .stateProvider = new SimpleBlockStateProvider(Blocks::SUGAR_CANE->getDefaultState()),
         .blockPlacer = new ColumnBlockPlacer(2, 2),
@@ -340,12 +367,6 @@ void ConfiguredFeatures::configureFeatures() {
         .blockPlacer = new SimpleBlockPlacer(),
         .tries = 64,
         .can_replace = true,
-        .project = false
-    };
-    static BlockClusterFeatureConfig TALL_GRASS_CONFIG {
-        .stateProvider = new SimpleBlockStateProvider(Blocks::TALL_GRASS->getDefaultState()),
-        .blockPlacer = new DoublePlantBlockPlacer(),
-        .tries = 64,
         .project = false
     };
     static BigMushroomFeatureConfig HUGE_BROWN_MUSHROOM_CONFIG {
@@ -575,7 +596,7 @@ void ConfiguredFeatures::configureFeatures() {
 // SEA_PICKLE = registerFeature("sea_pickle", Features::SEA_PICKLE->withConfiguration(new FeatureSpreadConfig(20))->withPlacement(SEAGRASS_DISK_PLACEMENT)->chance(16));
 // ICE_SPIKE = registerFeature("ice_spike", Features::ICE_SPIKE->withConfiguration(NoFeatureConfig{})->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(3));
 // ICE_PATCH = registerFeature("ice_patch", Features::ICE_PATCH->withConfiguration(new SphereReplaceConfig(Features.States.PACKED_ICE, FeatureSpread.create(2, 1), 1, ImmutableList.of(Features.States.DIRT, Features.States.GRASS_BLOCK, Features.States.PODZOL, Features.States.COARSE_DIRT, Features.States.MYCELIUM, Features.States.SNOW_BLOCK, Features.States.ICE)))->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(2));
-// FOREST_ROCK = registerFeature("forest_rock", Features::FOREST_ROCK->withConfiguration(new BlockStateFeatureConfig(Features.States.MOSSY_COBBLESTONE))->withPlacement(HEIGHTMAP_PLACEMENT).func_242732_c(2));
+    FOREST_ROCK = registerFeature("forest_rock", Features::FOREST_ROCK->withConfiguration(BlockStateFeatureConfig{Blocks::MOSSY_COBBLESTONE->getDefaultState()})->withPlacement(HEIGHTMAP_PLACEMENT)->func_242732_c(2));
 // SEAGRASS_SIMPLE = registerFeature("seagrass_simple", Features::SIMPLE_BLOCK->withConfiguration(new BlockWithContextConfig(Features.States.SEAGRASS, ImmutableList.of(Features.States.STONE), ImmutableList.of(Features.States.WATER_BLOCK), ImmutableList.of(Features.States.WATER_BLOCK)))->withPlacement(Placements::CARVING_MASK->withConfiguration(new CaveEdgeConfig(GenerationStage.Carving.LIQUID, 0.1F))));
 // ICEBERG_PACKED = registerFeature("iceberg_packed", Features::ICEBERG->withConfiguration(new BlockStateFeatureConfig(Features.States.PACKED_ICE))->withPlacement(Placements::ICEBERG->withConfiguration(NoPlacementConfig.INSTANCE))->chance(16));
 // ICEBERG_BLUE = registerFeature("iceberg_blue", Features::ICEBERG->withConfiguration(new BlockStateFeatureConfig(Features.States.BLUE_ICE))->withPlacement(Placements::ICEBERG->withConfiguration(NoPlacementConfig.INSTANCE))->chance(200));
@@ -616,7 +637,7 @@ void ConfiguredFeatures::configureFeatures() {
 // PATCH_SUNFLOWER = registerFeature("patch_sunflower", Features::RANDOM_PATCH->withConfiguration((new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.SUNFLOWER), new DoublePlantBlockPlacer())).tries(64).project().build())->withPlacement( VEGETATION_PLACEMENT)->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(10));
     PATCH_PUMPKIN = registerFeature("patch_pumpkin", Features::RANDOM_PATCH->withConfiguration(PATCH_PUMKIN_CONFIG)->withPlacement(PATCH_PLACEMENT)->chance(32));
     PATCH_TAIGA_GRASS = registerFeature("patch_taiga_grass", Features::RANDOM_PATCH->withConfiguration(TAIGA_GRASS_CONFIG));
-// PATCH_BERRY_BUSH = registerFeature("patch_berry_bush", Features::RANDOM_PATCH->withConfiguration(BERRY_BUSH_PATCH_CONFIG));
+    PATCH_BERRY_BUSH = registerFeature("patch_berry_bush", Features::RANDOM_PATCH->withConfiguration(BERRY_BUSH_PATCH_CONFIG));
     PATCH_GRASS_PLAIN = registerFeature("patch_grass_plain", Features::RANDOM_PATCH->withConfiguration(GRASS_PATCH_CONFIG)->withPlacement(PATCH_PLACEMENT)->withPlacement(Placements::COUNT_NOISE->withConfiguration(NoiseDependantConfig{-0.8, 5, 10})));
     PATCH_GRASS_FOREST = registerFeature("patch_grass_forest", Features::RANDOM_PATCH->withConfiguration(GRASS_PATCH_CONFIG)->withPlacement(PATCH_PLACEMENT)->withSpreadPlacement(2));
     PATCH_GRASS_BADLANDS = registerFeature("patch_grass_badlands", Features::RANDOM_PATCH->withConfiguration(GRASS_PATCH_CONFIG)->withPlacement(PATCH_PLACEMENT));
@@ -629,12 +650,12 @@ void ConfiguredFeatures::configureFeatures() {
     PATCH_DEAD_BUSH = registerFeature("patch_dead_bush", Features::RANDOM_PATCH->withConfiguration(DEAD_BUSH_CONFIG)->withPlacement(PATCH_PLACEMENT));
     PATCH_DEAD_BUSH_BADLANDS = registerFeature("patch_dead_bush_badlands", Features::RANDOM_PATCH->withConfiguration(DEAD_BUSH_CONFIG)->withPlacement(PATCH_PLACEMENT)->withSpreadPlacement(20));
     PATCH_MELON = registerFeature("patch_melon", Features::RANDOM_PATCH->withConfiguration(PATCH_MELON_CONFIG)->withPlacement(PATCH_PLACEMENT));
-// PATCH_BERRY_SPARSE = registerFeature("patch_berry_sparse", PATCH_BERRY_BUSH->withPlacement(PATCH_PLACEMENT));
-// PATCH_BERRY_DECORATED = registerFeature("patch_berry_decorated", PATCH_BERRY_BUSH->withPlacement(PATCH_PLACEMENT)->chance(12));
+    PATCH_BERRY_SPARSE = registerFeature("patch_berry_sparse", PATCH_BERRY_BUSH->withPlacement(PATCH_PLACEMENT));
+    PATCH_BERRY_DECORATED = registerFeature("patch_berry_decorated", PATCH_BERRY_BUSH->withPlacement(PATCH_PLACEMENT)->chance(12));
     PATCH_WATERLILLY = registerFeature("patch_waterlilly", Features::RANDOM_PATCH->withConfiguration(PATCH_WATERLILLY_CONFIG)->withPlacement(PATCH_PLACEMENT)->withSpreadPlacement(4));
     PATCH_TALL_GRASS_2 = registerFeature("patch_tall_grass_2", Features::RANDOM_PATCH->withConfiguration(TALL_GRASS_CONFIG)->withPlacement(VEGETATION_PLACEMENT)->withPlacement(FLOWER_TALL_GRASS_PLACEMENT)->square()->withPlacement(Placements::COUNT_NOISE->withConfiguration(NoiseDependantConfig{-0.8, 0, 7})));
     PATCH_TALL_GRASS = registerFeature("patch_tall_grass", Features::RANDOM_PATCH->withConfiguration(TALL_GRASS_CONFIG)->withPlacement(VEGETATION_PLACEMENT)->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(7));
-// PATCH_LARGE_FERN = registerFeature("patch_large_fern", Features::RANDOM_PATCH->withConfiguration((new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.LARGE_FERN), new DoublePlantBlockPlacer())).tries(64).project().build())->withPlacement(VEGETATION_PLACEMENT)->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(7));
+    PATCH_LARGE_FERN = registerFeature("patch_large_fern", Features::RANDOM_PATCH->withConfiguration(LARGE_FERN_CONFIG)->withPlacement(VEGETATION_PLACEMENT)->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(7));
     PATCH_CACTUS = registerFeature("patch_cactus", Features::RANDOM_PATCH->withConfiguration(PATCH_CACTUS_CONFIG));
     PATCH_CACTUS_DESERT = registerFeature("patch_cactus_desert", PATCH_CACTUS->withPlacement(PATCH_PLACEMENT)->withSpreadPlacement(10));
     PATCH_CACTUS_DECORATED = registerFeature("patch_cactus_decorated", PATCH_CACTUS->withPlacement(PATCH_PLACEMENT)->withSpreadPlacement(5));
@@ -707,31 +728,42 @@ void ConfiguredFeatures::configureFeatures() {
     FANCY_OAK_BEES_002 = registerFeature("fancy_oak_bees_002", Features::TREE->withConfiguration(FANCY_OAK_CONFIG.withDecorators({BEES_002_PLACEMENT})));
     FANCY_OAK_BEES_005 = registerFeature("fancy_oak_bees_005", Features::TREE->withConfiguration(FANCY_OAK_CONFIG.withDecorators({BEES_005_PLACEMENT})));
     OAK_BADLANDS = registerFeature("oak_badlands", OAK->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(AtSurfaceWithExtraConfig{5, 0.1F, 1})));
-// SPRUCE_SNOWY = registerFeature("spruce_snowy", SPRUCE->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(new AtSurfaceWithExtraConfig(0, 0.1F, 1))));
+    SPRUCE_SNOWY = registerFeature("spruce_snowy", SPRUCE->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(AtSurfaceWithExtraConfig{0, 0.1F, 1})));
     FLOWER_WARM = registerFeature("flower_warm", Features::FLOWER->withConfiguration(NORMAL_FLOWER_CONFIG)->withPlacement(VEGETATION_PLACEMENT)->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(4));
     FLOWER_DEFAULT = registerFeature("flower_default", Features::FLOWER->withConfiguration(NORMAL_FLOWER_CONFIG)->withPlacement(VEGETATION_PLACEMENT)->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(2));
-// FLOWER_FOREST = registerFeature("flower_forest", Features::FLOWER->withConfiguration((new BlockClusterFeatureConfig.Builder(ForestFlowerBlockStateProvider.PROVIDER, SimpleBlockPlacer.PLACER)).tries(64).build())->withPlacement(VEGETATION_PLACEMENT)->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(100));
-// FLOWER_SWAMP = registerFeature("flower_swamp", Features::FLOWER->withConfiguration((new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.BLUE_ORCHID), SimpleBlockPlacer.PLACER)).tries(64).build())->withPlacement(VEGETATION_PLACEMENT)->withPlacement(HEIGHTMAP_PLACEMENT));
+    FLOWER_FOREST = registerFeature("flower_forest", Features::FLOWER->withConfiguration(FLOWER_FOREST_CONFIG)->withPlacement(VEGETATION_PLACEMENT)->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(100));
+    FLOWER_SWAMP = registerFeature("flower_swamp", Features::FLOWER->withConfiguration(FLOWER_SWAMP_CONFIG)->withPlacement(VEGETATION_PLACEMENT)->withPlacement(HEIGHTMAP_PLACEMENT));
     FLOWER_PLAIN = registerFeature("flower_plain", Features::FLOWER->withConfiguration(PLAINS_FLOWER_CONFIG));
     FLOWER_PLAIN_DECORATED = registerFeature("flower_plain_decorated", FLOWER_PLAIN->withPlacement(VEGETATION_PLACEMENT)->withPlacement(FLOWER_TALL_GRASS_PLACEMENT)->square()->withPlacement(Placements::COUNT_NOISE->withConfiguration(NoiseDependantConfig{-0.8, 15, 4})));
-//    std::vector<ConfiguredFeature*> FOREST_FLOWER_VEGETATION_LIST {
-//        Features::RANDOM_PATCH->withConfiguration(
-//                (new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.LILAC),
-//                                                       new DoublePlantBlockPlacer())).tries(64).project().build()),
-//        Features::RANDOM_PATCH->withConfiguration(
-//                (new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.ROSE_BUSH),
-//                                                       new DoublePlantBlockPlacer())).tries(64).project().build()),
-//        Features::RANDOM_PATCH->withConfiguration(
-//                (new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.PEONY),
-//                                                       new DoublePlantBlockPlacer())).tries(64).project().build()),
-//        Features::NO_BONEMEAL_FLOWER->withConfiguration(
-//                (new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Features.States.LILY_OF_THE_VALLEY),
-//                                                       SimpleBlockPlacer.PLACER)).tries(64).build())
-//    };
-// FOREST_FLOWER_VEGETATION_COMMON = registerFeature("forest_flower_vegetation_common", Features::SIMPLE_RANDOM_SELECTOR->withConfiguration(new SingleRandomFeature(FOREST_FLOWER_VEGETATION_LIST))->withSpreadPlacement(FeatureSpread.create(-1, 4))->withPlacement(VEGETATION_PLACEMENT)->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(5));
-// FOREST_FLOWER_VEGETATION = registerFeature("forest_flower_vegetation", Features::SIMPLE_RANDOM_SELECTOR->withConfiguration(new SingleRandomFeature(FOREST_FLOWER_VEGETATION_LIST))->withSpreadPlacement(FeatureSpread.create(-3, 4))->withPlacement(VEGETATION_PLACEMENT)->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(5));
-// DARK_FOREST_VEGETATION_BROWN = registerFeature("dark_forest_vegetation_brown", Features::RANDOM_SELECTOR->withConfiguration(new MultipleRandomFeatureConfig(ImmutableList.of(HUGE_BROWN_MUSHROOM->withChance(0.025F), HUGE_RED_MUSHROOM->withChance(0.05F), DARK_OAK->withChance(0.6666667F), BIRCH->withChance(0.2F), FANCY_OAK->withChance(0.1F)), OAK))->withPlacement(Placements::DARK_OAK_TREE->withConfiguration(IPlacementConfig.NO_PLACEMENT_CONFIG)));
-// DARK_FOREST_VEGETATION_RED = registerFeature("dark_forest_vegetation_red", Features::RANDOM_SELECTOR->withConfiguration(new MultipleRandomFeatureConfig(ImmutableList.of(HUGE_RED_MUSHROOM->withChance(0.025F), HUGE_BROWN_MUSHROOM->withChance(0.05F), DARK_OAK->withChance(0.6666667F), BIRCH->withChance(0.2F), FANCY_OAK->withChance(0.1F)), OAK))->withPlacement(Placements::DARK_OAK_TREE->withConfiguration(IPlacementConfig.NO_PLACEMENT_CONFIG)));
+    std::vector<ConfiguredFeature*> FOREST_FLOWER_VEGETATION_LIST {
+        Features::RANDOM_PATCH->withConfiguration(BlockClusterFeatureConfig{
+            .stateProvider = new SimpleBlockStateProvider(Blocks::LILAC->getDefaultState()),
+            .blockPlacer = new DoublePlantBlockPlacer(),
+            .tries = 64,
+            .project = false,
+        }),
+        Features::RANDOM_PATCH->withConfiguration(BlockClusterFeatureConfig{
+            .stateProvider = new SimpleBlockStateProvider(Blocks::ROSE_BUSH->getDefaultState()),
+            .blockPlacer = new DoublePlantBlockPlacer(),
+            .tries = 64,
+            .project = false,
+        }),
+        Features::RANDOM_PATCH->withConfiguration(BlockClusterFeatureConfig{
+            .stateProvider = new SimpleBlockStateProvider(Blocks::PEONY->getDefaultState()),
+            .blockPlacer = new DoublePlantBlockPlacer(),
+            .tries = 64,
+            .project = false,
+        }),
+        Features::NO_BONEMEAL_FLOWER->withConfiguration(BlockClusterFeatureConfig{
+            .stateProvider = new SimpleBlockStateProvider(Blocks::LILY_OF_THE_VALLEY->getDefaultState()),
+            .blockPlacer = new SimpleBlockPlacer(),
+            .tries = 64
+        })
+    };
+    FOREST_FLOWER_VEGETATION_COMMON = registerFeature("forest_flower_vegetation_common", Features::SIMPLE_RANDOM_SELECTOR->withConfiguration(SingleRandomFeatureConfig{FOREST_FLOWER_VEGETATION_LIST})->withSpreadPlacement(FeatureSpread{-1, 4})->withPlacement(VEGETATION_PLACEMENT)->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(5));
+    FOREST_FLOWER_VEGETATION = registerFeature("forest_flower_vegetation", Features::SIMPLE_RANDOM_SELECTOR->withConfiguration(SingleRandomFeatureConfig{FOREST_FLOWER_VEGETATION_LIST})->withSpreadPlacement(FeatureSpread{-3, 4})->withPlacement(VEGETATION_PLACEMENT)->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(5));
+    DARK_FOREST_VEGETATION_BROWN = registerFeature("dark_forest_vegetation_brown", Features::RANDOM_SELECTOR->withConfiguration(MultipleRandomFeatureConfig{{HUGE_BROWN_MUSHROOM->withChance(0.025F), HUGE_RED_MUSHROOM->withChance(0.05F), DARK_OAK->withChance(0.6666667F), BIRCH->withChance(0.2F), FANCY_OAK->withChance(0.1F)}, OAK})->withPlacement(Placements::DARK_OAK_TREE->withConfiguration(NoPlacementConfig{})));
+    DARK_FOREST_VEGETATION_RED = registerFeature("dark_forest_vegetation_red", Features::RANDOM_SELECTOR->withConfiguration(MultipleRandomFeatureConfig{{HUGE_RED_MUSHROOM->withChance(0.025F), HUGE_BROWN_MUSHROOM->withChance(0.05F), DARK_OAK->withChance(0.6666667F), BIRCH->withChance(0.2F), FANCY_OAK->withChance(0.1F)}, OAK})->withPlacement(Placements::DARK_OAK_TREE->withConfiguration(NoPlacementConfig{})));
 // WARM_OCEAN_VEGETATION = registerFeature("warm_ocean_vegetation", Features::SIMPLE_RANDOM_SELECTOR->withConfiguration(new SingleRandomFeature(ImmutableList.of(() -> {
 //    return Features::CORAL_TREE->withConfiguration(NoFeatureConfig{});
 // }, () -> {
@@ -739,16 +771,16 @@ void ConfiguredFeatures::configureFeatures() {
 // }, () -> {
 //    return Features::CORAL_MUSHROOM->withConfiguration(NoFeatureConfig{});
 // })))->withPlacement(KELP_PLACEMENT)->square()->withPlacement(Placements::COUNT_NOISE_BIASED->withConfiguration(new TopSolidWithNoiseConfig(20, 400.0D, 0.0D))));
-// FOREST_FLOWER_TREES = registerFeature("forest_flower_trees", Features::RANDOM_SELECTOR->withConfiguration(new MultipleRandomFeatureConfig(ImmutableList.of(BIRCH_BEES_002->withChance(0.2F), FANCY_OAK_BEES_002->withChance(0.1F)), OAK_BEES_002))->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(new AtSurfaceWithExtraConfig(6, 0.1F, 1))));
-// TAIGA_VEGETATION = registerFeature("taiga_vegetation", Features::RANDOM_SELECTOR->withConfiguration(new MultipleRandomFeatureConfig(ImmutableList.of(PINE->withChance(0.33333334F)), SPRUCE))->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(new AtSurfaceWithExtraConfig(10, 0.1F, 1))));
-// TREES_SHATTERED_SAVANNA = registerFeature("trees_shattered_savanna", Features::RANDOM_SELECTOR->withConfiguration(new MultipleRandomFeatureConfig(ImmutableList.of(ACACIA->withChance(0.8F)), OAK))->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(new AtSurfaceWithExtraConfig(2, 0.1F, 1))));
-// TREES_SAVANNA = registerFeature("trees_savanna", Features::RANDOM_SELECTOR->withConfiguration(new MultipleRandomFeatureConfig(ImmutableList.of(ACACIA->withChance(0.8F)), OAK))->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(new AtSurfaceWithExtraConfig(1, 0.1F, 1))));
-// BIRCH_TALL = registerFeature("birch_tall", Features::RANDOM_SELECTOR->withConfiguration(new MultipleRandomFeatureConfig(ImmutableList.of(SUPER_BIRCH_BEES_0002->withChance(0.5F)), BIRCH_BEES_0002))->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(new AtSurfaceWithExtraConfig(10, 0.1F, 1))));
-// TREES_BIRCH = registerFeature("trees_birch", BIRCH_BEES_0002->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(new AtSurfaceWithExtraConfig(10, 0.1F, 1))));
-// TREES_MOUNTAIN_EDGE = registerFeature("trees_mountain_edge", Features::RANDOM_SELECTOR->withConfiguration(new MultipleRandomFeatureConfig(ImmutableList.of(SPRUCE->withChance(0.666F), FANCY_OAK->withChance(0.1F)), OAK))->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(new AtSurfaceWithExtraConfig(3, 0.1F, 1))));
-// TREES_MOUNTAIN = registerFeature("trees_mountain", Features::RANDOM_SELECTOR->withConfiguration(new MultipleRandomFeatureConfig(ImmutableList.of(SPRUCE->withChance(0.666F), FANCY_OAK->withChance(0.1F)), OAK))->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(new AtSurfaceWithExtraConfig(0, 0.1F, 1))));
-// TREES_WATER = registerFeature("trees_water", Features::RANDOM_SELECTOR->withConfiguration(new MultipleRandomFeatureConfig(ImmutableList.of(FANCY_OAK->withChance(0.1F)), OAK))->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(new AtSurfaceWithExtraConfig(0, 0.1F, 1))));
-// BIRCH_OTHER = registerFeature("birch_other", Features::RANDOM_SELECTOR->withConfiguration(new MultipleRandomFeatureConfig(ImmutableList.of(BIRCH_BEES_0002->withChance(0.2F), FANCY_OAK_BEES_0002->withChance(0.1F)), OAK_BEES_0002))->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(new AtSurfaceWithExtraConfig(10, 0.1F, 1))));
+    FOREST_FLOWER_TREES = registerFeature("forest_flower_trees", Features::RANDOM_SELECTOR->withConfiguration(MultipleRandomFeatureConfig{{BIRCH_BEES_002->withChance(0.2F), FANCY_OAK_BEES_002->withChance(0.1F)}, OAK_BEES_002})->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(AtSurfaceWithExtraConfig{6, 0.1F, 1})));
+    TAIGA_VEGETATION = registerFeature("taiga_vegetation", Features::RANDOM_SELECTOR->withConfiguration(MultipleRandomFeatureConfig{{PINE->withChance(0.33333334F)}, SPRUCE})->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(AtSurfaceWithExtraConfig{10, 0.1F, 1})));
+    TREES_SHATTERED_SAVANNA = registerFeature("trees_shattered_savanna", Features::RANDOM_SELECTOR->withConfiguration(MultipleRandomFeatureConfig{{ACACIA->withChance(0.8F)}, OAK})->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(AtSurfaceWithExtraConfig{2, 0.1F, 1})));
+    TREES_SAVANNA = registerFeature("trees_savanna", Features::RANDOM_SELECTOR->withConfiguration(MultipleRandomFeatureConfig{{ACACIA->withChance(0.8F)}, OAK})->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(AtSurfaceWithExtraConfig{1, 0.1F, 1})));
+    BIRCH_TALL = registerFeature("birch_tall", Features::RANDOM_SELECTOR->withConfiguration(MultipleRandomFeatureConfig{{SUPER_BIRCH_BEES_0002->withChance(0.5F)}, BIRCH_BEES_0002})->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(AtSurfaceWithExtraConfig{10, 0.1F, 1})));
+    TREES_BIRCH = registerFeature("trees_birch", BIRCH_BEES_0002->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(AtSurfaceWithExtraConfig{10, 0.1F, 1})));
+    TREES_MOUNTAIN_EDGE = registerFeature("trees_mountain_edge", Features::RANDOM_SELECTOR->withConfiguration(MultipleRandomFeatureConfig{{SPRUCE->withChance(0.666F), FANCY_OAK->withChance(0.1F)}, OAK})->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(AtSurfaceWithExtraConfig{3, 0.1F, 1})));
+    TREES_MOUNTAIN = registerFeature("trees_mountain", Features::RANDOM_SELECTOR->withConfiguration(MultipleRandomFeatureConfig{{SPRUCE->withChance(0.666F), FANCY_OAK->withChance(0.1F)}, OAK})->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(AtSurfaceWithExtraConfig{0, 0.1F, 1})));
+    TREES_WATER = registerFeature("trees_water", Features::RANDOM_SELECTOR->withConfiguration(MultipleRandomFeatureConfig{{FANCY_OAK->withChance(0.1F)}, OAK})->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(AtSurfaceWithExtraConfig{0, 0.1F, 1})));
+    BIRCH_OTHER = registerFeature("birch_other", Features::RANDOM_SELECTOR->withConfiguration(MultipleRandomFeatureConfig{{BIRCH_BEES_0002->withChance(0.2F), FANCY_OAK_BEES_0002->withChance(0.1F)}, OAK_BEES_0002})->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(AtSurfaceWithExtraConfig{10, 0.1F, 1})));
     PLAIN_VEGETATION = registerFeature("plain_vegetation", Features::RANDOM_SELECTOR->withConfiguration(MultipleRandomFeatureConfig{{FANCY_OAK_BEES_005->withChance(0.33333334F)}, OAK_BEES_005})->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(AtSurfaceWithExtraConfig{0, 0.05F, 1})));
     TREES_JUNGLE_EDGE = registerFeature("trees_jungle_edge", Features::RANDOM_SELECTOR->withConfiguration(MultipleRandomFeatureConfig{{FANCY_OAK->withChance(0.1F), JUNGLE_BUSH->withChance(0.5F)}, JUNGLE_TREE})->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(AtSurfaceWithExtraConfig{2, 0.1F, 1})));
     TREES_GIANT_SPRUCE = registerFeature("trees_giant_spruce", Features::RANDOM_SELECTOR->withConfiguration(MultipleRandomFeatureConfig{{MEGA_SPRUCE->withChance(0.33333334F), PINE->withChance(0.33333334F)}, SPRUCE})->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(AtSurfaceWithExtraConfig{10, 0.1F, 1})));

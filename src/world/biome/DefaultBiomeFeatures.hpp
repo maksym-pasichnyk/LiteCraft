@@ -85,19 +85,19 @@ struct DefaultBiomeFeatures {
     }
 
     static void withForestRocks(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::LOCAL_MODIFICATIONS, ConfiguredFeatures::FOREST_ROCK);
+        builder.withFeature(GenerationStage::Decoration::LOCAL_MODIFICATIONS, ConfiguredFeatures::FOREST_ROCK);
     }
 
     static void withLargeFern(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_LARGE_FERN);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_LARGE_FERN);
     }
 
     static void withChanceBerries(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_BERRY_DECORATED);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_BERRY_DECORATED);
     }
 
     static void withSparseBerries(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_BERRY_SPARSE);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_BERRY_SPARSE);
     }
 
     static void withLightBambooVegetation(BiomeGenerationSettings::Builder& builder) {
@@ -110,39 +110,39 @@ struct DefaultBiomeFeatures {
     }
 
     static void withTaigaVegetation(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TAIGA_VEGETATION);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TAIGA_VEGETATION);
     }
 
     static void withTreesInWater(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_WATER);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_WATER);
     }
 
     static void withBirchTrees(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_BIRCH);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_BIRCH);
     }
 
     static void withForestBirchTrees(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BIRCH_OTHER);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BIRCH_OTHER);
     }
 
     static void withTallBirches(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BIRCH_TALL);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::BIRCH_TALL);
     }
 
     static void withSavannaTrees(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_SAVANNA);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_SAVANNA);
     }
 
     static void withShatteredSavannaTrees(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_SHATTERED_SAVANNA);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_SHATTERED_SAVANNA);
     }
 
     static void withMountainTrees(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_MOUNTAIN);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_MOUNTAIN);
     }
 
     static void withMountainEdgeTrees(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_MOUNTAIN_EDGE);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TREES_MOUNTAIN_EDGE);
     }
 
     static void withJungleTrees(BiomeGenerationSettings::Builder& builder) {
@@ -158,7 +158,7 @@ struct DefaultBiomeFeatures {
     }
 
     static void withSnowySpruces(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRUCE_SNOWY);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRUCE_SNOWY);
     }
 
     static void withJungleGrass(BiomeGenerationSettings::Builder& builder) {
@@ -183,7 +183,7 @@ struct DefaultBiomeFeatures {
     }
 
     static void withAllForestFlowerGeneration(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FOREST_FLOWER_VEGETATION);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FOREST_FLOWER_VEGETATION);
     }
 
     static void withForestGrass(BiomeGenerationSettings::Builder& builder) {
@@ -192,7 +192,7 @@ struct DefaultBiomeFeatures {
 
     static void withSwampVegetation(BiomeGenerationSettings::Builder& builder) {
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SWAMP_TREE);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FLOWER_SWAMP);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::FLOWER_SWAMP);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_NORMAL);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_DEAD_BUSH);
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_WATERLILLY);

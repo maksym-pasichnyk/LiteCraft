@@ -21,6 +21,7 @@ struct Feature {
         };
     }
 
+    static bool isStone(Block* block);
     static bool isDirt(Block* block);
     static bool isDirtAt(WorldReader& reader, const BlockPos& pos);
     static bool isAirAt(WorldReader& reader, const BlockPos& pos);

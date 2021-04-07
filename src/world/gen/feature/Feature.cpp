@@ -2,6 +2,13 @@
 #include "../../WorldReader.hpp"
 #include "../../../block/Blocks.hpp"
 
+bool Feature::isStone(Block* block) {
+    return block == Blocks::STONE
+        || block == Blocks::GRANITE
+        || block == Blocks::DIORITE
+        || block == Blocks::ANDESITE;
+}
+
 bool Feature::isDirt(Block* block) {
     return block == Blocks::DIRT
         || block == Blocks::GRASS_BLOCK
