@@ -14,15 +14,17 @@
 #include "input.hpp"
 #include "camera.hpp"
 #include "transform.hpp"
-#include "world/chunk/Chunk.hpp"
 #include "block/BlockReader.hpp"
 #include "TextureAtlas.hpp"
 #include "raytrace.hpp"
 #include "shader.hpp"
 #include "NetworkManager.hpp"
+#include "CraftServer.hpp"
+#include "world/ChunkManager.hpp"
 #include "world/ServerWorld.hpp"
 #include "world/biome/Biome.hpp"
 #include "world/biome/Biomes.hpp"
+#include "world/chunk/Chunk.hpp"
 #include "world/gen/surface/SurfaceBuilder.hpp"
 #include "world/gen/surface/ConfiguredSurfaceBuilders.hpp"
 #include "world/gen/carver/Carvers.hpp"
@@ -187,7 +189,7 @@ struct App {
 
     SimpleVBuffer lineCache{};
     std::unique_ptr<Mesh> lineMesh{nullptr};
-    std::unique_ptr<ServerWorld> serverWorld{nullptr};
+    std::unique_ptr<CraftServer> server{nullptr};
     std::unique_ptr<ClientWorld> clientWorld{nullptr};
 
     std::optional<RayTraceResult> rayTraceResult{std::nullopt};
@@ -623,7 +625,7 @@ struct App {
         connection = nm.client();
 
         clientWorld = std::make_unique<ClientWorld>();
-        serverWorld = std::make_unique<ServerWorld>(nm.server());
+        server = std::make_unique<CraftServer>(nm.server());
     }
 
     void sendSpawnPacket() {
@@ -691,7 +693,7 @@ struct App {
         ImGui::Begin("Debug panel", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoSavedSettings);
         ImGui::Text("FPS: %d", FPS);
         ImGui::Text("Position: %.2f, %.2f, %.2f", transform.position.x, transform.position.y, transform.position.z);
-        ImGui::Text("Server chunks: %d", static_cast<int>(serverWorld->chunks.size()));
+        ImGui::Text("Server chunks: %d", static_cast<int>(server->world->manager->chunks.size()));
         ImGui::Text("Client chunks: %d", clientWorld->provider->chunkArray.getLoaded());
         ImGui::Text("Render chunks: %zu", chunkToRenders.size());
         ImGui::Text("Debug camera: %s", debugCamera ? "true" : "false");
@@ -743,9 +745,9 @@ struct App {
         createWorld();
         sendSpawnPacket();
 
-        while (clientWorld->provider->chunkArray.getLoaded() != 289) {
-            executor_execute();
-        }
+//        while (clientWorld->provider->chunkArray.getLoaded() != 289) {
+//            executor_execute();
+//        }
 
         // todo: game loop
 

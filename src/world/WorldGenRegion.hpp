@@ -85,10 +85,10 @@ struct WorldGenRegion : virtual WorldReader, virtual WorldWriter {
         return getData(pos.x, pos.y, pos.z);
     }
 
-    void setData(int32_t x, int32_t y, int32_t z, BlockData data);
+    bool setData(int32_t x, int32_t y, int32_t z, BlockData data);
 
-    void setData(const BlockPos& pos, BlockData data) override {
-        setData(pos.x, pos.y, pos.z, data);
+    bool setData(const BlockPos& pos, BlockData data) override {
+        return setData(pos.x, pos.y, pos.z, data);
     }
 
     void setLightFor(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val);

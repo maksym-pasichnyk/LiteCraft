@@ -2,6 +2,7 @@
 
 #include <compare>
 #include <cstdint>
+#include <glm/vec3.hpp>
 
 enum class Dimension {
     Overworld = 0,
@@ -22,6 +23,10 @@ struct ChunkPos {
     int32_t x;
     int32_t z;
 //    Dimension dimension;
+
+    constexpr static auto from(const glm::ivec3& pos) noexcept -> ChunkPos {
+        return {pos.x >> 4, pos.z >> 4};
+    }
 
     constexpr static auto from(int32_t x, int32_t z) noexcept -> ChunkPos {
         return {x, z};

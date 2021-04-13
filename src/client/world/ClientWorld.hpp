@@ -37,18 +37,6 @@ struct ClientWorld {
         return {};
     }
 
-    void setData(glm::ivec3 pos, BlockData blockData) {
-        setData(pos.x, pos.y, pos.z, blockData);
-    }
-
-    void setData(int32_t x, int32_t y, int32_t z, BlockData blockData) {
-        if (y >= 0 && y < 256) {
-            if (auto chunk = getChunk(x >> 4, z >> 4)) {
-                chunk->setData(x, y, z, blockData);
-            }
-        }
-    }
-
     auto getBlock(glm::ivec3 pos) const -> Block* {
         return getBlock(pos.x, pos.y, pos.z);
     }

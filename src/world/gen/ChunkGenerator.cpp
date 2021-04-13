@@ -64,25 +64,27 @@ void ChunkGenerator::getStructureReferences(WorldGenRegion &region, Chunk& chunk
     }
 }
 
-void ChunkGenerator::generateCarvers(WorldGenRegion& region, int64_t seed, Chunk& chunk, GenerationStage::Carving carving) {
+void ChunkGenerator::generateCarvers(WorldGenRegion& region, int64_t seed, Chunk& chunk/*, GenerationStage::Carving carving*/) {
     const auto [xpos, zpos] = chunk.pos;
 
     const auto getBiome = [&region] (BlockPos pos) {
         return region.getBiome(pos);
     };
 
-    Random rand;
+    Random random;
 
     auto biome = biomeProvider->getNoiseBiome(xpos << 2, 0, zpos << 2);
 
-    for (int32_t xoffset = xpos - 8; xoffset <= xpos + 8; ++xoffset) {
-        for (int32_t zoffset = zpos - 8; zoffset <= zpos + 8; ++zoffset) {
-            std::span carvers = biome->biomeGenerationSettings.carvers[static_cast<size_t>(carving)];
+    for (auto carvers : std::span(biome->biomeGenerationSettings.carvers)) {
+        for (int32_t xoffset = xpos - 8; xoffset <= xpos + 8; ++xoffset) {
+            for (int32_t zoffset = zpos - 8; zoffset <= zpos + 8; ++zoffset) {
+//                std::span carvers = biome->biomeGenerationSettings.carvers[static_cast<size_t>(carving)];
 
-            for (size_t i = 0; i < carvers.size(); ++i) {
-                rand.setLargeFeatureSeed(seed + static_cast<int64_t>(i), xoffset, zoffset);
-                if (carvers[i].shouldCarve(rand, xoffset, zoffset)) {
-                    carvers[i].carveRegion(chunk, getBiome, rand, /*seaLevel*/63, xoffset, zoffset, xpos, zpos/*, carvingMask*/);
+                for (size_t i = 0; i < carvers.size(); ++i) {
+                    random.setLargeFeatureSeed(seed + static_cast<int64_t>(i), xoffset, zoffset);
+                    if (carvers[i].shouldCarve(random, xoffset, zoffset)) {
+                        carvers[i].carveRegion(chunk, getBiome, random, /*seaLevel*/63, xoffset, zoffset, xpos, zpos/*, carvingMask*/);
+                    }
                 }
             }
         }
@@ -129,6 +131,4 @@ void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
 
     auto biome = biomeProvider->getNoiseBiome((chunkPos.x << 2) + 2, 2, (chunkPos.z << 2) + 2);
     biome->decorate(*this, region, seed, random, BlockPos(xStart, 0, zStart));
-
-//    ConfiguredFeatures::TREES_JUNGLE->generate(region, *this, random, BlockPos(xStart, 0, zStart));
 }

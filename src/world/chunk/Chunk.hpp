@@ -14,6 +14,7 @@
 #include <cassert>
 #include <queue>
 #include <cstdint>
+#include <functional>
 
 struct WorldGenRegion;
 
@@ -47,9 +48,9 @@ struct RenderLayerBuilder {
             .color{r, g, b, ao * 255},
             .light{
                 ((packedLight >> 0) & 0xF) * 17,
-                ((packedLight >> 4) & 0xF) * 17,
-                ((packedLight >> 8) & 0xF) * 17,
-                ((packedLight >> 12) & 0xF) * 17
+                0,
+                0,
+                ((packedLight >> 4) & 0xF) * 17
             }
         });
     }
@@ -294,57 +295,30 @@ private:
 };
 
 struct Lightmap {
-    std::array<uint16_t, 4096> lights;
+    std::array<uint8_t, 4096> lights;
 
-    auto getLightR(int32_t x, int32_t y, int32_t z) -> int32_t {
+    auto getBlockLight(int32_t x, int32_t y, int32_t z) -> int32_t {
         return static_cast<int32_t>((lights[toIndex(x, y, z)] >> 0) & 0xF);
     }
 
-    auto getLightG(int32_t x, int32_t y, int32_t z) -> int32_t {
+    auto getSkyLight(int32_t x, int32_t y, int32_t z) -> int32_t {
         return static_cast<int32_t>((lights[toIndex(x, y, z)] >> 4) & 0xF);
     }
 
-    auto getLightB(int32_t x, int32_t y, int32_t z) -> int32_t {
-        return static_cast<int32_t>((lights[toIndex(x, y, z)] >> 8) & 0xF);
-    }
-
-    auto getLightS(int32_t x, int32_t y, int32_t z) -> int32_t {
-        return static_cast<int32_t>((lights[toIndex(x, y, z)] >> 12) & 0xF);
-    }
-
-    void setLightR(int32_t x, int32_t y, int32_t z, int32_t val) {
+    void setBlockLight(int32_t x, int32_t y, int32_t z, int32_t val) {
         lights[toIndex(x, y, z)] = (lights[toIndex(x, y, z)] & 0xFFF0) | ((val & 0xF) << 0);
     }
 
-    void setLightG(int32_t x, int32_t y, int32_t z, int32_t val) {
+    void setSkyLight(int32_t x, int32_t y, int32_t z, int32_t val) {
         lights[toIndex(x, y, z)] = (lights[toIndex(x, y, z)] & 0xFF0F) | ((val & 0xF) << 4);
     }
 
-    void setLightB(int32_t x, int32_t y, int32_t z, int32_t val) {
-        lights[toIndex(x, y, z)] = (lights[toIndex(x, y, z)] & 0xF0FF) | ((val & 0xF) << 8);
-    }
-
-    void setLightS(int32_t x, int32_t y, int32_t z, int32_t val) {
-        lights[toIndex(x, y, z)] = (lights[toIndex(x, y, z)] & 0x0FFF) | ((val & 0xF) << 12);
-    }
-
     void setLight(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val) {
-        switch (channel) {
-            case 0: setLightR(x, y, z, val); break;
-            case 1: setLightG(x, y, z, val); break;
-            case 2: setLightB(x, y, z, val); break;
-            case 3: setLightS(x, y, z, val); break;
-        }
+        std::invoke(channel == 0 ? &Lightmap::setBlockLight : &Lightmap::setSkyLight, *this, x, y, z, val);
     }
 
     auto getLight(int32_t x, int32_t y, int32_t z, int32_t channel) -> int32_t {
-        switch (channel) {
-            case 0: return getLightR(x, y, z);
-            case 1: return getLightG(x, y, z);
-            case 2: return getLightB(x, y, z);
-            case 3: return getLightS(x, y, z);
-        }
-        return 0;
+        return std::invoke(channel == 0 ? &Lightmap::getBlockLight : &Lightmap::getSkyLight, *this, x, y, z);
     }
 
     auto getLightPacked(int32_t x, int32_t y, int32_t z) -> int32_t {
@@ -366,7 +340,7 @@ struct Chunk {
     std::array<std::unique_ptr<LightSection>, 16> skyLightSections{};
     std::array<std::unique_ptr<LightSection>, 16> blockLightSections{};
 
-    std::array<std::unique_ptr<Lightmap>, 16> lightSections{};
+    std::array<std::unique_ptr<Lightmap>, 18> lightSections{};
 
     Heightmap heightmap{};
 
@@ -418,7 +392,7 @@ struct Chunk {
 //    }
 
     void setLight(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val) {
-        auto& section = lightSections[y >> 4];
+        auto& section = lightSections[(y >> 4) + 1];
         if (section == nullptr) {
             if (val == 0) {
                 return;
@@ -429,7 +403,7 @@ struct Chunk {
     }
 
     auto getLight(int32_t x, int32_t y, int32_t z, int32_t channel) const -> int32_t {
-        auto& section = lightSections[y >> 4];
+        auto& section = lightSections[(y >> 4) + 1];
         if (section == nullptr) {
             return 0;
         }
@@ -437,7 +411,7 @@ struct Chunk {
     }
 
     auto getLightPacked(int32_t x, int32_t y, int32_t z) const -> int32_t {
-        auto& section = lightSections[y >> 4];
+        auto& section = lightSections[(y >> 4) + 1];
         if (section == nullptr) {
             return 0;
         }

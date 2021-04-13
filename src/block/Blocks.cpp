@@ -983,7 +983,7 @@ Block *Blocks::QUARTZ_BRICKS;
 
 static auto getLightValueLit(int value) {
     return [value](const BlockData &data) -> int32_t {
-        return value;// data.get(BlockStateProperties::LIT) ? lightValue : 0;
+        return value;// data.get(BlockStateProperty::LIT) ? lightValue : 0;
     };
 }
 
@@ -1862,6 +1862,7 @@ void Blocks::registerBlocks() {
     BROWN_MUSHROOM_BLOCK = createBlock<HugeMushroomBlock>("brown_mushroom_block", Properties::create(Materials::WOOD, MaterialColors::DIRT)
         .setHardnessAndResistance(0.2F)
         .setSound(SoundType::WOOD));
+
     RED_MUSHROOM_BLOCK = createBlock<HugeMushroomBlock>("red_mushroom_block", Properties::create(Materials::WOOD, MaterialColors::RED)
         .setHardnessAndResistance(0.2F)
         .setSound(SoundType::WOOD));

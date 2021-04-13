@@ -1,5 +1,6 @@
 #include "Feature.hpp"
 #include "../../WorldReader.hpp"
+#include "../../WorldWriter.hpp"
 #include "../../../block/Blocks.hpp"
 
 bool Feature::isStone(Block* block) {
@@ -23,4 +24,8 @@ bool Feature::isDirtAt(WorldReader &reader, const BlockPos& pos) {
 
 bool Feature::isAirAt(WorldReader &reader, const BlockPos &pos) {
     return reader.getData(pos).isAir();
+}
+
+void Feature::setBlockState(WorldWriter &world, const BlockPos &pos, BlockData state) {
+    world.setData(pos, state/*, 3*/);
 }

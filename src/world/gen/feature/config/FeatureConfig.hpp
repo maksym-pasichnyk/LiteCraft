@@ -3,6 +3,7 @@
 #include "NoFeatureConfig.hpp"
 #include "OreFeatureConfig.hpp"
 #include "ProbabilityConfig.hpp"
+#include "SphereReplaceConfig.hpp"
 #include "BaseTreeFeatureConfig.hpp"
 #include "BlockWithContextConfig.hpp"
 #include "DecoratedFeatureConfig.hpp"
@@ -20,6 +21,7 @@ using FeatureConfig = std::variant<
     NoFeatureConfig,
     OreFeatureConfig,
     ProbabilityConfig,
+    SphereReplaceConfig,
     BaseTreeFeatureConfig,
     BlockWithContextConfig,
     DecoratedFeatureConfig,

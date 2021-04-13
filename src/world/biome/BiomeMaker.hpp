@@ -1220,8 +1220,8 @@ struct BiomeMaker {
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
         DefaultBiomeFeatures::withMonsterRoom(generation);
         if (isIceSpikesBiome) {
-//            generation.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, Features::ICE_SPIKE);
-//            generation.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, Features::ICE_PATCH);
+            generation.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, ConfiguredFeatures::ICE_SPIKE);
+            generation.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, ConfiguredFeatures::ICE_PATCH);
         }
 
         DefaultBiomeFeatures::withCommonOverworldBlocks(generation);

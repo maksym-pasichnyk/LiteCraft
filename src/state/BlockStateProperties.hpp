@@ -2,7 +2,7 @@
 
 #include "BooleanProperty.hpp"
 
-enum class BlockStateProperties {
+enum class BlockStateProperty {
     // BooleanProperty
     ATTACHED,
     BOTTOM,

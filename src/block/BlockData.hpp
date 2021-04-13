@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <compare>
 
-enum class BlockStateProperties;
+enum class BlockStateProperty;
 
 struct Block;
 struct Material;
@@ -29,5 +29,5 @@ struct BlockData {
     auto isSolid() const -> bool;
     auto getLightLevel() const -> int32_t;
     auto isValidPosition(WorldReader& reader, const glm::vec3& pos) const -> bool;
-    auto hasProperty(BlockStateProperties property) const -> bool;
+    auto hasProperty(BlockStateProperty property) const -> bool;
 };

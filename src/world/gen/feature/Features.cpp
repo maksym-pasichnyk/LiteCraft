@@ -4,6 +4,10 @@
 #include "LakesFeature.hpp"
 #include "VinesFeature.hpp"
 #include "BambooFeature.hpp"
+#include "IcePathFeature.hpp"
+#include "BlueIceFeature.hpp"
+#include "IcebergFeature.hpp"
+#include "IceSpikeFeature.hpp"
 #include "BlockBlobFeature.hpp"
 #include "BlockPileFeature.hpp"
 #include "DecoratedFeature.hpp"
@@ -93,16 +97,16 @@ void Features::registerFeatures() {
 //    FOSSIL = createFeature<FossilsFeature>("fossil");
     HUGE_RED_MUSHROOM = createFeature<BigRedMushroomFeature>("huge_red_mushroom");
     HUGE_BROWN_MUSHROOM = createFeature<BigBrownMushroomFeature>("huge_brown_mushroom");
-//    ICE_SPIKE = createFeature<IceSpikeFeature>("ice_spike");
+    ICE_SPIKE = createFeature<IceSpikeFeature>("ice_spike");
 //    GLOWSTONE_BLOB = createFeature<GlowstoneBlobFeature>("glowstone_blob");
     FREEZE_TOP_LAYER = createFeature<IceAndSnowFeature>("freeze_top_layer");
     VINES = createFeature<VinesFeature>("vines");
 //    MONSTER_ROOM = createFeature<DungeonsFeature>("monster_room");
-//    BLUE_ICE = createFeature<BlueIceFeature>("blue_ice");
-//    ICEBERG = createFeature<IcebergFeature>("iceberg");
+    BLUE_ICE = createFeature<BlueIceFeature>("blue_ice");
+    ICEBERG = createFeature<IcebergFeature>("iceberg");
     FOREST_ROCK = createFeature<BlockBlobFeature>("forest_rock");
 //    DISK = createFeature<SphereReplaceFeature>("disk");
-//    ICE_PATCH = createFeature<IcePathFeature>("ice_patch");
+    ICE_PATCH = createFeature<IcePathFeature>("ice_patch");
     LAKE = createFeature<LakesFeature>("lake");
     ORE = createFeature<OreFeature>("ore");
 //    END_SPIKE = createFeature<EndSpikeFeature>("end_spike");

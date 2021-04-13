@@ -1,7 +1,6 @@
 #pragma once
 
-#include "block/BlockTable.hpp"
-
+#include "block/BlockData.hpp"
 #include <glm/vec3.hpp>
 
 template <typename T>

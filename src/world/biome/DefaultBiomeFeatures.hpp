@@ -303,12 +303,12 @@ struct DefaultBiomeFeatures {
     }
 
     static void withIcebergs(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::LOCAL_MODIFICATIONS, ConfiguredFeatures::ICEBERG_PACKED);
-//        builder.withFeature(GenerationStage::Decoration::LOCAL_MODIFICATIONS, ConfiguredFeatures::ICEBERG_BLUE);
+        builder.withFeature(GenerationStage::Decoration::LOCAL_MODIFICATIONS, ConfiguredFeatures::ICEBERG_PACKED);
+        builder.withFeature(GenerationStage::Decoration::LOCAL_MODIFICATIONS, ConfiguredFeatures::ICEBERG_BLUE);
     }
 
     static void withBlueIce(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, ConfiguredFeatures::BLUE_ICE);
+        builder.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, ConfiguredFeatures::BLUE_ICE);
     }
 
     static void withFrozenTopLayer(BiomeGenerationSettings::Builder& builder) {

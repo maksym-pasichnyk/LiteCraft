@@ -91,7 +91,7 @@ struct EntityType;
 struct WorldReader;
 struct BlockReader;
 struct BlockGraphics;
-enum class BlockStateProperties;
+enum class BlockStateProperty;
 
 struct AbstractBlock {
     using IBlockColor = std::function<MaterialColor(const BlockData& data)>;
@@ -283,7 +283,7 @@ struct AbstractBlock {
 
     int id;
     Properties properties;
-    std::vector<BlockStateProperties> blockStateProperties;
+    std::vector<BlockStateProperty> blockStateProperties;
     BlockGraphics* graphics{nullptr};
 
     explicit AbstractBlock(int id, Properties properties) : id(id), properties(std::move(properties)) {}
@@ -304,7 +304,7 @@ struct AbstractBlock {
         return properties.lightLevel(data);
     }
 
-    std::span<BlockStateProperties> getBlockStateProperties() {
+    std::span<BlockStateProperty> getBlockStateProperties() {
         return blockStateProperties;
     }
 

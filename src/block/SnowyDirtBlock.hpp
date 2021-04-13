@@ -4,7 +4,7 @@
 #include "../state/BlockStateProperties.hpp"
 
 struct SnowyDirtBlock : Block {
-    static constexpr auto SNOWY = BlockStateProperties::SNOWY;
+    static constexpr auto SNOWY = BlockStateProperty::SNOWY;
 
     using Block::Block;
 };

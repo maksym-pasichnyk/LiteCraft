@@ -60,9 +60,9 @@ struct WorldLightManager {
             if (y < 255) {
                 remove(region, x, y + 1, z, channel, light, mask);
             }
-            if (y > 0) {
+//            if (y > 0) {
                 remove(region, x, y - 1, z, channel, light, mask);
-            }
+//            }
         }
 
         while (!sources.empty()) {
@@ -87,9 +87,9 @@ struct WorldLightManager {
             if (y < 255) {
                 propagate(region, x, y + 1, z, channel, light, mask);
             }
-            if (y > 0) {
+//            if (y > 0) {
                 propagate(region, x, y - 1, z, channel, light, mask);
-            }
+//            }
         }
 
         for (int i = 0; i < 9; i++) {
@@ -99,10 +99,9 @@ struct WorldLightManager {
         }
     }
 
-    void column(WorldGenRegion& region, int32_t x, int32_t z) {
+    void column(WorldGenRegion& region, int32_t x, int32_t y, int32_t z) {
         bool sky = true;
 
-        int32_t y = 255;
         for (; y >= 0; --y) {
             auto block_light = region.getData(x, y, z).getLightLevel();
             if (block_light > 0) {
@@ -140,7 +139,7 @@ struct WorldLightManager {
 
         for (int32_t x = xPos; x < xPos + 16; x++) {
             for (int32_t z = zPos; z < zPos + 16; z++) {
-                column(region, x, z);
+                column(region, x, 255, z);
             }
         }
 
@@ -177,7 +176,7 @@ struct WorldLightManager {
             }
         }
 
-        column(region, x, z);
+        column(region, x, 255, z);
 
         const auto bl_light = data.getLightLevel();
         const auto light0 = region.getLightFor(x, y, z, 0);

@@ -7,6 +7,7 @@
 struct Block;
 struct Random;
 struct WorldReader;
+struct WorldWriter;
 struct WorldGenRegion;
 struct ChunkGenerator;
 
@@ -25,4 +26,5 @@ struct Feature {
     static bool isDirt(Block* block);
     static bool isDirtAt(WorldReader& reader, const BlockPos& pos);
     static bool isAirAt(WorldReader& reader, const BlockPos& pos);
+    static void setBlockState(WorldWriter& world, const BlockPos& pos, BlockData state);
 };
