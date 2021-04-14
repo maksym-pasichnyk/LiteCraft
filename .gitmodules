@@ -16,3 +16,9 @@
 [submodule "imgui"]
 	path = imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "FastNoise2"]
+	path = FastNoise2
+	url = https://github.com/Auburn/FastNoise2.git
+[submodule "entt"]
+	path = entt
+	url = https://github.com/skypjack/entt.git
