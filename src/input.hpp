@@ -3,8 +3,7 @@
 #include <bitset>
 #include <SDL2/SDL.h>
 
-class Input {
-public:
+struct Input {
     enum class Key {
         None,
         Left,
@@ -24,58 +23,61 @@ public:
         Middle,
     };
 
-    bool IsMouseButtonPressed(MouseButton button) {
-        return thisFrameMouse.test((int)button);
+    bool isMouseButtonPressed(MouseButton button) const {
+        return thisFrameMouse.test(static_cast<int>(button));
     }
-    bool IsMouseButtonDown(MouseButton button) {
-        bool lastFrame = lastFrameMouse.test((int)button);
-        bool thisFrame = thisFrameMouse.test((int)button);
+    bool isMouseButtonDown(MouseButton button) const {
+        const bool lastFrame = lastFrameMouse.test(static_cast<int>(button));
+        const bool thisFrame = thisFrameMouse.test(static_cast<int>(button));
         return thisFrame && !lastFrame;
     }
-    bool IsMouseButtonUp(MouseButton button) {
-        bool lastFrame = lastFrameMouse.test((int)button);
-        bool thisFrame = thisFrameMouse.test((int)button);
+    bool isMouseButtonUp(MouseButton button) const {
+        const bool lastFrame = lastFrameMouse.test(static_cast<int>(button));
+        const bool thisFrame = thisFrameMouse.test(static_cast<int>(button));
         return !thisFrame && lastFrame;
     }
-
-    bool IsKeyPressed(Key keycode) {
-        return thisFrameKeys.test((int)keycode);
+    bool isKeyPressed(Key keycode) const {
+        return thisFrameKeys.test(static_cast<int>(keycode));
     }
-    bool IsKeyDown(Key keycode) {
-        bool lastFrame = lastFrameKeys.test((int)keycode);
-        bool thisFrame = thisFrameKeys.test((int)keycode);
+    bool isKeyDown(Key keycode) const {
+        const bool lastFrame = lastFrameKeys.test(static_cast<int>(keycode));
+        const bool thisFrame = thisFrameKeys.test(static_cast<int>(keycode));
         return thisFrame && !lastFrame;
     }
-    bool IsKeyUp(Key keycode) {
-        bool lastFrame = lastFrameKeys.test((int)keycode);
-        bool thisFrame = thisFrameKeys.test((int)keycode);
+    bool isKeyUp(Key keycode) const {
+        const bool lastFrame = lastFrameKeys.test(static_cast<int>(keycode));
+        const bool thisFrame = thisFrameKeys.test(static_cast<int>(keycode));
         return !thisFrame && lastFrame;
+    }
+    glm::ivec2 getMousePosition() const {
+        return mousePosition;
     }
 
     void update() {
         const auto keys = SDL_GetKeyboardState(nullptr);
 
         lastFrameKeys = thisFrameKeys;
-        thisFrameKeys.set((int) Key::Left, keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A]);
-        thisFrameKeys.set((int) Key::Right, keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D]);
-        thisFrameKeys.set((int) Key::Up, keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W]);
-        thisFrameKeys.set((int) Key::Down, keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S]);
-        thisFrameKeys.set((int) Key::Esc, keys[SDL_SCANCODE_ESCAPE]);
-        thisFrameKeys.set((int) Key::Jump, keys[SDL_SCANCODE_SPACE]);
-        thisFrameKeys.set((int) Key::Shift, keys[SDL_SCANCODE_LSHIFT]);
-        thisFrameKeys.set((int) Key::X, keys[SDL_SCANCODE_X]);
+        thisFrameKeys.set(static_cast<int>(Key::Left), keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A]);
+        thisFrameKeys.set(static_cast<int>(Key::Right), keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D]);
+        thisFrameKeys.set(static_cast<int>(Key::Up), keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W]);
+        thisFrameKeys.set(static_cast<int>(Key::Down), keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S]);
+        thisFrameKeys.set(static_cast<int>(Key::Esc), keys[SDL_SCANCODE_ESCAPE]);
+        thisFrameKeys.set(static_cast<int>(Key::Jump), keys[SDL_SCANCODE_SPACE]);
+        thisFrameKeys.set(static_cast<int>(Key::Shift), keys[SDL_SCANCODE_LSHIFT]);
+        thisFrameKeys.set(static_cast<int>(Key::X), keys[SDL_SCANCODE_X]);
 
-        const auto mouse = SDL_GetMouseState(nullptr, nullptr);
+        const auto mouse = SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
 
         lastFrameMouse = thisFrameMouse;
-        thisFrameMouse.set((int) MouseButton::Left, (mouse & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0);
-        thisFrameMouse.set((int) MouseButton::Right, (mouse & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0);
-        thisFrameMouse.set((int) MouseButton::Middle, (mouse & SDL_BUTTON(SDL_BUTTON_MIDDLE)) != 0);
+        thisFrameMouse.set(static_cast<int>(MouseButton::Left), (mouse & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0);
+        thisFrameMouse.set(static_cast<int>(MouseButton::Right), (mouse & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0);
+        thisFrameMouse.set(static_cast<int>(MouseButton::Middle), (mouse & SDL_BUTTON(SDL_BUTTON_MIDDLE)) != 0);
     }
-private:
-    std::bitset<5> thisFrameMouse;
-    std::bitset<5> lastFrameMouse;
 
-    std::bitset<256> thisFrameKeys;
-    std::bitset<256> lastFrameKeys;
+private:
+    glm::ivec2 mousePosition{};
+    std::bitset<5> thisFrameMouse{};
+    std::bitset<5> lastFrameMouse{};
+    std::bitset<256> thisFrameKeys{};
+    std::bitset<256> lastFrameKeys{};
 };

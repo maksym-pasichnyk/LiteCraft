@@ -18,8 +18,7 @@ bool WorldGenRegion::setData(int32_t x, int32_t y, int32_t z, BlockData data) {
         return false;
     }
 
-    getChunk(x >> 4, z >> 4)->setData(x, y, z, data);
-    return true;
+    return getChunk(x >> 4, z >> 4)->setData(x, y, z, data);
 }
 
 void WorldGenRegion::setLightFor(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val) {

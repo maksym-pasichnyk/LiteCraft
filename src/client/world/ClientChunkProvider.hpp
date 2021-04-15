@@ -11,13 +11,6 @@ struct ClientChunkProvider {
         if (chunkArray.inView(x, z)) {
             chunkArray.set(chunkArray.getIndex(x, z), chunk);
         }
-
-        for (int chunk_x = x - 1; chunk_x <= x + 1; ++chunk_x) {
-            for (int chunk_z = z - 1; chunk_z <= z + 1; ++chunk_z) {
-                auto chunk = getChunk(chunk_x, chunk_z);
-                if (chunk) chunk->needRender = true;
-            }
-        }
     }
 
     void unloadChunk(int32_t x, int32_t z) {

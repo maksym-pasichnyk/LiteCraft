@@ -14,6 +14,24 @@ struct Vertex {
     glm::u8vec4 light;
 };
 
+struct VertexArrayAttrib {
+    GLuint index;
+    GLint size;
+    GLenum type;
+    GLboolean normalized;
+    GLuint offset;
+};
+
+struct VertexArrayBinding {
+    GLuint index;
+    GLuint binding;
+};
+
+struct Submesh {
+    glm::i32 index_offset = 0;
+    glm::i32 index_count = 0;
+};
+
 struct Mesh {
     GLuint vao = GL_NONE;
     GLuint vbo = GL_NONE;
@@ -22,29 +40,24 @@ struct Mesh {
     GLsizeiptr ibo_size{0};
     int index_count{0};
     int vertex_count{0};
+    GLenum usage;
 
-    Mesh() {
+    Mesh(std::span<const VertexArrayAttrib> attributes, std::span<const VertexArrayBinding> bindings, GLsizei size, GLenum usage) : usage(usage) {
         glCreateVertexArrays(1, &vao);
         glCreateBuffers(1, &vbo);
         glCreateBuffers(1, &ibo);
 
         glVertexArrayElementBuffer(vao, ibo);
-        glVertexArrayVertexBuffer(vao, 0, vbo, 0, sizeof(Vertex));
+        glVertexArrayVertexBuffer(vao, 0, vbo, 0, size);
 
-        glEnableVertexArrayAttrib(vao, 0);
-        glEnableVertexArrayAttrib(vao, 1);
-        glEnableVertexArrayAttrib(vao, 2);
-        glEnableVertexArrayAttrib(vao, 3);
+        for (const auto& attrib : attributes) {
+            glEnableVertexArrayAttrib(vao, attrib.index);
+            glVertexArrayAttribFormat(vao, attrib.index, attrib.size, attrib.type, attrib.normalized, attrib.offset);
+        }
 
-        glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, point));
-        glVertexArrayAttribFormat(vao, 1, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, tex));
-        glVertexArrayAttribFormat(vao, 2, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, color));
-        glVertexArrayAttribFormat(vao, 3, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, light));
-
-        glVertexArrayAttribBinding(vao, 0, 0);
-        glVertexArrayAttribBinding(vao, 1, 0);
-        glVertexArrayAttribBinding(vao, 2, 0);
-        glVertexArrayAttribBinding(vao, 3, 0);
+        for (const auto& binding : bindings) {
+            glVertexArrayAttribBinding(vao, binding.index, binding.binding);
+        }
     }
 
     ~Mesh() {
@@ -53,11 +66,12 @@ struct Mesh {
         glDeleteVertexArrays(1, &vao);
     }
 
-    void SetVertices(std::span<const Vertex> vertices) {
+    template<typename _Type, size_t _Extent = std::dynamic_extent>
+    void SetVertices(std::span<_Type, _Extent> vertices) {
         vertex_count = vertices.size();
         if (vertices.size_bytes() > vbo_size) {
             vbo_size = vertices.size_bytes();
-            glNamedBufferData(vbo, vertices.size_bytes(), vertices.data(), GL_DYNAMIC_DRAW);
+            glNamedBufferData(vbo, vertices.size_bytes(), vertices.data(), usage);
         } else {
             glNamedBufferSubData(vbo, 0, vertices.size_bytes(), vertices.data());
         }
@@ -69,7 +83,7 @@ struct Mesh {
         index_count = count;
     	if (buf_size > ibo_size) {
             ibo_size = buf_size;
-            glNamedBufferData(ibo, buf_size, nullptr, GL_DYNAMIC_DRAW);
+            glNamedBufferData(ibo, buf_size, nullptr, usage);
         }
     }
 
@@ -81,7 +95,7 @@ struct Mesh {
         index_count = indices.size();
         if (indices.size_bytes() > ibo_size) {
             ibo_size = indices.size_bytes();
-            glNamedBufferData(ibo, indices.size_bytes(), indices.data(), GL_DYNAMIC_DRAW);
+            glNamedBufferData(ibo, indices.size_bytes(), indices.data(), usage);
         } else {
             glNamedBufferSubData(ibo, 0, indices.size_bytes(), indices.data());
         }

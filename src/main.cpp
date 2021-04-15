@@ -19,6 +19,7 @@
 #include "raytrace.hpp"
 #include "shader.hpp"
 #include "NetworkManager.hpp"
+#include "PacketManager.hpp"
 #include "CraftServer.hpp"
 #include "world/biome/Biome.hpp"
 #include "world/biome/Biomes.hpp"
@@ -142,14 +143,210 @@ void ExtractPlanes(std::array<Plane, 6>& planes, const glm::mat4x4& comboMatrix,
     }
 }
 
-static bool TestPlanesAABBInternalFast (const std::array<Plane, 6>& planes, const glm::vec3& boundsMin, const glm::vec3& boundsMax) {
-    for (const auto& [normal, distance] : planes) {
-        if (glm::dot(normal, glm::mix(boundsMax, boundsMin, glm::lessThan(normal, glm::vec3(0.0f)))) + distance < 0) {
-            return false;
+struct ChunkRenderData {
+    static constexpr std::array attributes {
+            VertexArrayAttrib{0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, point)},
+            VertexArrayAttrib{1, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, tex)},
+            VertexArrayAttrib{2, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, color)},
+            VertexArrayAttrib{3, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, light)}
+    };
+
+    static constexpr std::array bindings {
+            VertexArrayBinding{0, 0},
+            VertexArrayBinding{1, 0},
+            VertexArrayBinding{2, 0},
+            VertexArrayBinding{3, 0},
+    };
+
+    Mesh mesh{attributes, bindings, sizeof(Vertex), GL_DYNAMIC_DRAW};
+    std::array<Submesh, 3> layers{};
+
+    RenderBuffer rb{};
+    bool needRender = false;
+
+    void updateMesh() {
+        glm::i32 index_count = 0;
+        for (auto& subindices : rb.indices) {
+            index_count += subindices.size();
+        }
+
+        mesh.SetVertices(std::span(rb.vertices));
+        mesh.SetIndicesCount(index_count);
+
+        glm::i32 submesh_index = 0;
+        glm::i32 index_offset = 0;
+
+        for (auto& submesh : rb.indices) {
+            layers[submesh_index].index_offset = index_offset;
+            layers[submesh_index].index_count = submesh.size();
+            if (!submesh.empty()) {
+                mesh.SetIndicesData(submesh, index_offset);
+            }
+            index_offset += layers[submesh_index].index_count;
+            submesh_index++;
         }
     }
-    return true;
-}
+};
+
+struct ViewFrustum {
+    int stride;
+    std::vector<ChunkRenderData> chunks;
+
+    explicit ViewFrustum(int viewDistance) : stride(viewDistance * 2 + 1), chunks(stride * stride) {}
+
+    static bool TestPlanesAABBInternalFast(std::span<const Plane> planes, const glm::vec3& boundsMin, const glm::vec3& boundsMax) {
+        for (const auto& [normal, distance] : planes) {
+            if (glm::dot(normal, glm::mix(boundsMax, boundsMin, glm::lessThan(normal, glm::vec3(0.0f)))) + distance < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+
+template <typename T>
+struct generate_queue {
+    void clear() {
+        if (std::unique_lock _{mutex}) {
+            queue = {};
+        }
+        signal.notify_all();
+    }
+    bool empty() const {
+        std::unique_lock _{mutex};
+        return queue.empty();
+    }
+    size_t size() const {
+        std::unique_lock _{mutex};
+        return queue.size();
+    }
+    template <typename... Args>
+    void emplace(Args&&... args) {
+        if (std::unique_lock _{mutex}) {
+            queue.emplace(std::forward<Args>(args)...);
+        }
+        signal.notify_one();
+    }
+
+    std::optional<T> try_pop(std::stop_token& token) {
+        std::unique_lock lock{mutex};
+        signal.wait(lock, [this, &token] {
+            return !queue.empty() || token.stop_requested();
+        });
+        if (token.stop_requested()) {
+            return std::nullopt;
+        }
+        T res = std::move(queue.front());
+        queue.pop();
+        return std::move(res);
+    }
+
+private:
+    std::mutex mutex;
+    std::condition_variable signal;
+    std::queue<T> queue;
+};
+
+template <typename T>
+struct complete_queue {
+    bool empty() const {
+        std::unique_lock _{mutex};
+        return queue.empty();
+    }
+    size_t size() const {
+        std::unique_lock _{mutex};
+        return queue.size();
+    }
+
+    template <typename... Args>
+    void emplace(Args&&... args) {
+        std::unique_lock _{mutex};
+        queue.emplace(std::forward<Args>(args)...);
+    }
+
+    std::optional<T> try_pop() {
+        std::unique_lock _{mutex};
+        if (queue.empty()) {
+            return std::nullopt;
+        }
+        T res = std::move(queue.front());
+        queue.pop();
+        return std::move(res);
+    }
+
+private:
+    std::mutex mutex;
+    std::queue<T> queue;
+};
+
+struct ChunkRenderDispatcher {
+    ClientWorld* world;
+    std::vector<std::jthread> workers{};
+
+    generate_queue<std::pair<ChunkRenderData*, std::unique_ptr<ChunkRenderCache>>> tasks;
+    complete_queue<ChunkRenderData*> uploadTasks;
+
+    std::stop_source stop_source;
+
+    explicit ChunkRenderDispatcher(ClientWorld* world) : world(world) {
+        workers.emplace_back(&ChunkRenderDispatcher::runLoop, this, stop_source.get_token());
+    }
+
+    ~ChunkRenderDispatcher() {
+        stop_source.request_stop();
+        tasks.clear();
+        workers.clear();
+    }
+
+    void runChunkUploads() {
+        while (auto data = uploadTasks.try_pop()) {
+            (*data)->updateMesh();
+        }
+    }
+
+    void runLoop(std::stop_token&& token) {
+        while (!token.stop_requested()) {
+            auto task = tasks.try_pop(token);
+            if (!task.has_value()) {
+                break;
+            }
+
+            auto [data, cache] = std::move(*task);
+            renderBlocks(data->rb, *cache);
+            uploadTasks.emplace(data);
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+    }
+
+    static auto createRenderCache(ClientWorld* world, glm::i32 chunk_x, glm::i32 chunk_z) -> std::unique_ptr<ChunkRenderCache> {
+        auto cache = std::make_unique<ChunkRenderCache>(chunk_x, chunk_z);
+
+        size_t i = 0;
+        for (glm::i32 z = chunk_z - 1; z <= chunk_z + 1; z++) {
+            for (glm::i32 x = chunk_x - 1; x <= chunk_x + 1; x++) {
+                auto chunk = world->getChunk(x, z);
+                if (chunk == nullptr) {
+                    return nullptr;
+                }
+                cache->chunks[i++] = chunk;
+            }
+        }
+
+        return cache;
+    }
+
+    void rebuildChunk(ChunkRenderData& renderData, glm::i32 chunk_x, glm::i32 chunk_z, bool immediate) {
+        if (auto cache = createRenderCache(world, chunk_x, chunk_z)) {
+            if (immediate) {
+                renderBlocks(renderData.rb, *cache);
+                renderData.updateMesh();
+            } else {
+                tasks.emplace(&renderData, std::move(cache));
+            }
+        }
+    }
+};
 
 struct App {
     bool running = true;
@@ -160,6 +357,7 @@ struct App {
 
     NetworkManager nm;
     NetworkConnection connection;
+    PacketManager<App, 10> packetManager;
 
     Input input{};
     Camera camera{};
@@ -184,12 +382,15 @@ struct App {
 
     TextureAtlas texture_atlas;
 
-    std::vector<Chunk*> chunkToRenders;
+    std::vector<ChunkRenderData*> chunkToRenders;
+
+    std::unique_ptr<ChunkRenderDispatcher> renderDispatcher = nullptr;
+    std::unique_ptr<ViewFrustum> frustum = nullptr;
 
     SimpleVBuffer lineCache{};
     std::unique_ptr<Mesh> lineMesh{nullptr};
     std::unique_ptr<CraftServer> server{nullptr};
-    std::unique_ptr<ClientWorld> clientWorld{nullptr};
+    std::unique_ptr<ClientWorld> world{nullptr};
 
     std::optional<RayTraceResult> rayTraceResult{std::nullopt};
 
@@ -202,9 +403,13 @@ struct App {
     int frameCount = 0;
     int FPS = 0;
     std::chrono::high_resolution_clock::time_point startTime;
-    glm::ivec2 display_size;
+    glm::ivec2 displaySize{};
 
     App(const char* title, uint32_t width, uint32_t height) {
+        packetManager.bind<SUnloadChunkPacket, &App::processUnloadChunk>();
+        packetManager.bind<SLoadChunkPacket, &App::processLoadChunk>();
+        packetManager.bind<SChangeBlockPacket, &App::processChangeBlock>();
+
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
@@ -212,7 +417,8 @@ struct App {
         window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
         context = SDL_GL_CreateContext(window);
 
-//        SDL_SetWindowResizable(window, SDL_TRUE);
+        SDL_GetWindowSize(window, &displaySize.x, &displaySize.y);
+        SDL_SetWindowResizable(window, SDL_FALSE);
 
         glewInit();
         glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
@@ -222,7 +428,21 @@ struct App {
     }
 
     void createFrames(uint32_t width, uint32_t height) {
-        lineMesh = std::make_unique<Mesh>();
+        const std::array attributes {
+            VertexArrayAttrib{0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, point)},
+            VertexArrayAttrib{1, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, tex)},
+            VertexArrayAttrib{2, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, color)},
+            VertexArrayAttrib{3, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, light)}
+        };
+
+        const std::array bindings {
+            VertexArrayBinding{0, 0},
+            VertexArrayBinding{1, 0},
+            VertexArrayBinding{2, 0},
+            VertexArrayBinding{3, 0},
+        };
+
+        lineMesh = std::make_unique<Mesh>(attributes, bindings, sizeof(Vertex), GL_DYNAMIC_DRAW);
 
         for (int i = 0; i < 2; i++) {
             glCreateBuffers(1, &frames[i].camera_ubo);
@@ -285,22 +505,18 @@ struct App {
             cooldown -= 1;
         }
 
-        if (input.IsKeyDown(Input::Key::X)) {
+        if (input.isKeyDown(Input::Key::X)) {
             debugCamera = !debugCamera;
         }
 
-        glm::ivec2 display_size;
-        SDL_GetWindowSize(window, &display_size.x, &display_size.y);
-
-        glm::ivec2 mouse_center{display_size.x / 2, display_size.y / 2};
-		glm::ivec2 mouse_position;
-        SDL_GetMouseState(&mouse_position.x, &mouse_position.y);
+        const auto mouse_center = displaySize / 2;
+        const auto mouse_position = input.getMousePosition();
 		const auto mouse_delta = mouse_center - mouse_position;
         SDL_WarpMouseInWindow(window, mouse_center.x, mouse_center.y);
 
         rotateCamera(transform, mouse_delta, dt);
 
-        const auto topBlock = clientWorld->getBlock(transform.position.x, transform.position.y + 1, transform.position.z);
+        const auto topBlock = world->getBlock(transform.position.x, transform.position.y + 1, transform.position.z);
 
 		transform.position += calc_free_camera_velocity(input, transform, dt);
 
@@ -310,29 +526,29 @@ struct App {
 			.ignoreLiquid = true
 		};
 
-		rayTraceResult = rayTraceBlocks(*clientWorld, ray_trace_context);
+		rayTraceResult = rayTraceBlocks(*world, ray_trace_context);
         if (cooldown == 0 && rayTraceResult.has_value()) {
-            if (input.IsMouseButtonPressed(Input::MouseButton::Left)) {
+            if (input.isMouseButtonPressed(Input::MouseButton::Left)) {
                 cooldown = 10;
 
-                connection.sendPacket(SChangeBlockPacket{
+                connection.sendPacket(CPlayerDiggingPacket{
                     .pos = rayTraceResult->pos,
-                    .data = Blocks::AIR->getDefaultState()
+                    .dir = rayTraceResult->dir
                 });
-            } else if (input.IsMouseButtonPressed(Input::MouseButton::Right)) {
+            } else if (input.isMouseButtonPressed(Input::MouseButton::Right)) {
                 cooldown = 10;
 
-                connection.sendPacket(SChangeBlockPacket{
-                    .pos = rayTraceResult->pos + rayTraceResult->dir,
-                    .data = Blocks::TORCH->getDefaultState()
-                });
+//                connection.sendPacket(SChangeBlockPacket{
+//                    .pos = rayTraceResult->pos + rayTraceResult->dir,
+//                    .data = Blocks::TORCH->getDefaultState()
+//                });
             }
 		}
     }
 
     void setupCamera() {
         const auto [x, y, z] = transform.position;
-        const auto topMaterial = clientWorld->getBlock(glm::floor(x),std::floor(y + 1.68), glm::floor(z))->getMaterial();
+        const auto topMaterial = world->getBlock(glm::floor(x), std::floor(y + 1.68), glm::floor(z))->getMaterial();
 
         glm::vec2 FOG_CONTROL;
         if (topMaterial == Materials::WATER) {
@@ -365,47 +581,41 @@ struct App {
         }
     }
 
-    auto createRenderCache(int32_t chunk_x, int32_t chunk_z) -> std::optional<ChunkRenderCache> {
-        ChunkRenderCache cache{chunk_x, chunk_z};
-
-        size_t i = 0;
-        for (int32_t z = chunk_z - 1; z <= chunk_z + 1; z++) {
-            for (int32_t x = chunk_x - 1; x <= chunk_x + 1; x++) {
-                auto chunk = clientWorld->getChunk(x, z);
-                if (chunk == nullptr) {
-                    return std::nullopt;
-                }
-                cache.chunks[i++] = chunk;
-            }
-        }
-
-        return cache;
+    void processUnloadChunk(const SUnloadChunkPacket& packet) {
+        world->unloadChunk(packet.x, packet.z);
     }
 
-    void executor_execute() {
-        while (true) {
-            PacketHeader header{};
-            if (read(connection.fd, &header, sizeof(PacketHeader)) <= 0) {
-                break;
-            }
+    void processLoadChunk(const SLoadChunkPacket& packet) {
+        world->loadChunk(packet.x, packet.z, packet.chunk);
 
-            switch (header.id) {
-                case 1: {
-                    SUnloadChunkPacket packet{};
-                    while (read(connection.fd, &packet, header.size) < 0) {
-                    }
-                    clientWorld->unloadChunk(packet.x, packet.z);
-                    break;
-                }
-                case 2: {
-                    SLoadChunkPacket packet{};
-                    while (read(connection.fd, &packet, header.size) < 0) {
-                    }
-                    clientWorld->loadChunk(packet.x, packet.z, packet.chunk);
-                    break;
-                }
+        for (int chunk_x = packet.x - 1; chunk_x <= packet.x + 1; ++chunk_x) {
+            for (int chunk_z = packet.z - 1; chunk_z <= packet.z + 1; ++chunk_z) {
+                frustum->chunks[world->provider->chunkArray.getIndex(chunk_x, chunk_z)].needRender = true;
             }
         }
+    }
+
+    void processChangeBlock(const SChangeBlockPacket& packet) {
+        const auto pos = packet.pos;
+
+//        std::array<Chunk*, 9> _chunks{};
+//        world->manager->fillChunks(_chunks, 1, pos.x >> 4, pos.z >> 4, &ChunkStatus::Full);
+//        WorldGenRegion region{world.get(), _chunks, 1, pos.x >> 4, pos.z >> 4, world->seed};
+//
+//        const auto old = region.getData(pos);
+//        if (region.setData(pos, packet.data)) {
+//            world->manager->lightManager->update(region, pos.x, pos.y, pos.z, old, packet.data);
+
+        std::set<ChunkPos> positions;
+        for (int x = (pos.x - 1) >> 4; x <= (pos.x + 1) >> 4; x++) {
+            for (int z = (pos.z - 1) >> 4; z <= (pos.z + 1) >> 4; z++) {
+                frustum->chunks[world->provider->chunkArray.getIndex(x, z)].needRender = true;
+            }
+        }
+
+//        for (auto [x, z] : positions) {
+//            frustum->chunks[world->provider->chunkArray.getIndex(x, z)].needRender = true;
+//        }
     }
 
     void setupTerrain() {
@@ -417,7 +627,7 @@ struct App {
                 last_center_x = center_x;
                 last_center_z = center_z;
 
-                clientWorld->provider->chunkArray.setCenter(center_x, center_z);
+                world->provider->chunkArray.setCenter(center_x, center_z);
 
                 connection.sendPacket(PositionPacket{
                     .pos = transform.position
@@ -427,31 +637,29 @@ struct App {
 
         chunkToRenders.clear();
 
-        for (int32_t chunk_x = last_center_x - 8; chunk_x <= last_center_x + 8; chunk_x++) {
-            for (int32_t chunk_z = last_center_z - 8; chunk_z <= last_center_z + 8; chunk_z++) {
-                auto chunk = clientWorld->getChunk(chunk_x, chunk_z);
-                if (chunk == nullptr) continue;
+        for (glm::i32 chunk_x = last_center_x - 8; chunk_x <= last_center_x + 8; chunk_x++) {
+            for (glm::i32 chunk_z = last_center_z - 8; chunk_z <= last_center_z + 8; chunk_z++) {
+                const auto diff = glm::ivec2(last_center_x - chunk_x, last_center_z - chunk_z);
+                const bool immediate = (diff.x * diff.x + diff.y * diff.y) <= 1;
 
+
+//                auto chunk = world->getChunk(chunk_x, chunk_z);
+//                if (chunk == nullptr) continue;
                 const auto xstart = chunk_x << 4;
                 const auto zstart = chunk_z << 4;
 
                 const glm::vec3 bounds_min{xstart, 0, zstart};
                 const glm::vec3 bounds_max{xstart + 16, 256, zstart + 16};
 
-                if (TestPlanesAABBInternalFast(planes, bounds_min, bounds_max)) {
-                    if (chunk->needRender) {
-                        auto renderCache = createRenderCache(chunk_x, chunk_z);
-                        if (renderCache.has_value()) {
-                            chunk->needRender = false;
+                if (ViewFrustum::TestPlanesAABBInternalFast(planes, bounds_min, bounds_max)) {
+                    const glm::i32 i = world->provider->chunkArray.getIndex(chunk_x, chunk_z);
 
-                            renderBlocks(chunk->rb, *renderCache);
+                    if (frustum->chunks[i].needRender) {
+                        frustum->chunks[i].needRender = false;
 
-                            chunk->updateMesh();
-                        }
+                        renderDispatcher->rebuildChunk(frustum->chunks[i], chunk_x, chunk_z, immediate);
                     }
-                    if (chunk->mesh) {
-                        chunkToRenders.emplace_back(chunk);
-                    }
+                    chunkToRenders.emplace_back(&frustum->chunks[i]);
                 }
             }
         }
@@ -568,7 +776,7 @@ struct App {
             glDisable(GL_BLEND);
 //            glDepthRange(0, 1.0);
             lineMesh->SetIndices(lineCache.indices);
-            lineMesh->SetVertices(lineCache.vertices);
+            lineMesh->SetVertices(std::span(lineCache.vertices));
 
             glUseProgram(simple_pipeline);
             glBindVertexArray(lineMesh->vao);
@@ -625,7 +833,10 @@ struct App {
         nm = NetworkManager::create().value();
         connection = nm.client();
 
-        clientWorld = std::make_unique<ClientWorld>();
+        frustum = std::make_unique<ViewFrustum>(8);
+        world = std::make_unique<ClientWorld>();
+        renderDispatcher = std::make_unique<ChunkRenderDispatcher>(world.get());
+
         server = std::make_unique<CraftServer>(nm.server());
     }
 
@@ -636,9 +847,9 @@ struct App {
         last_center_x = center_x;
         last_center_z = center_z;
 
-        clientWorld->provider->chunkArray.setCenter(center_x, center_z);
+        world->provider->chunkArray.setCenter(center_x, center_z);
 
-        connection.sendPacket(SpawnPlayerPacket{
+        connection.sendPacket(SSpawnPlayerPacket{
             .pos = transform.position
         });
     }
@@ -657,10 +868,18 @@ struct App {
     void updateCameraAndRender() {
         setupCamera();
         setupTerrain();
+        renderDispatcher->runChunkUploads();
         renderTerrain();
     }
 
+    std::queue<std::future<void>> waitQueue;
+
     void runGameLoop(bool renderWorld) {
+        while (!waitQueue.empty()) {
+            waitQueue.front().wait();
+            waitQueue.pop();
+        }
+
         const auto time = std::chrono::high_resolution_clock::now();
         const auto dt = std::chrono::duration<double>(time - startTime).count();
 
@@ -676,7 +895,7 @@ struct App {
         startTime = time;
 
         updateInput(dt);
-        executor_execute();
+        packetManager.handlePackets(this, connection);
 
         glClearNamedFramebufferfv(frames[frameIndex].framebuffer, GL_COLOR, 0, glm::value_ptr(FOG_COLOR));
         glClearNamedFramebufferfi(frames[frameIndex].framebuffer, GL_DEPTH_STENCIL, 0, 0, 0);
@@ -695,7 +914,7 @@ struct App {
         ImGui::Text("FPS: %d", FPS);
         ImGui::Text("Position: %.2f, %.2f, %.2f", transform.position.x, transform.position.y, transform.position.z);
         ImGui::Text("Server chunks: %d", static_cast<int>(server->world->manager->chunks.size()));
-        ImGui::Text("Client chunks: %d", clientWorld->provider->chunkArray.getLoaded());
+        ImGui::Text("Client chunks: %d", world->provider->chunkArray.getLoaded());
         ImGui::Text("Render chunks: %zu", chunkToRenders.size());
         ImGui::Text("Debug camera: %s", debugCamera ? "true" : "false");
         ImGui::End();
@@ -709,48 +928,53 @@ struct App {
         flipFrame();
     }
 
+    template <typename Fn>
+    static void wait_for(std::future<void>& task, Fn&& fn) {
+        while (task.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
+            fn();
+        }
+    }
+
     void run() {
         using namespace std::chrono_literals;
 
-        SDL_GetWindowSize(window, &display_size.x, &display_size.y);
-        SDL_WarpMouseInWindow(window, display_size.x / 2, display_size.y / 2);
+        SDL_WarpMouseInWindow(window, displaySize.x / 2, displaySize.y / 2);
 
-        camera.setSize(display_size.x, display_size.y);
+        camera.setSize(displaySize.x, displaySize.y);
 
-        auto task = loadResources();
-        while (task.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
-            ImGui_ImplOpenGL3_NewFrame();
-            ImGui_ImplSDL2_NewFrame(window);
-            ImGui::NewFrame();
+        waitQueue.emplace(loadResources());
 
-            ImGui::SetNextWindowPos(ImVec2(0, 0));
-            ImGui::SetNextWindowSize(ImVec2(display_size.x, display_size.y));
-            ImGui::Begin("Loading", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoSavedSettings);
+        while (!waitQueue.empty()) {
+            auto task = std::move(waitQueue.front());
+            waitQueue.pop();
 
-            ImGui::Text("Loading...");
-            ImGui::End();
-            ImGui::Render();
+            wait_for(task, [this] {
+                ImGui_ImplOpenGL3_NewFrame();
+                ImGui_ImplSDL2_NewFrame(window);
+                ImGui::NewFrame();
 
-            const glm::vec4 color{0, 0, 0, 0};
+                ImGui::SetNextWindowPos(ImVec2(0, 0));
+                ImGui::SetNextWindowSize(ImVec2(displaySize.x, displaySize.y));
+                ImGui::Begin("Loading", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoSavedSettings);
+                ImGui::Text("Loading...");
+                ImGui::End();
+                ImGui::Render();
 
-            glClearNamedFramebufferfv(frames[frameIndex].framebuffer, GL_COLOR, 0, glm::value_ptr(color));
-            glClearNamedFramebufferfi(frames[frameIndex].framebuffer, GL_DEPTH_STENCIL, 0, 0, 0);
-            glBindFramebuffer(GL_FRAMEBUFFER, frames[frameIndex].framebuffer);
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-            glBlitNamedFramebuffer(frames[frameIndex].framebuffer, 0, 0, 0, 800, 600, 0, 0, 800, 600, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                const glm::vec4 CLEAR_COLOR{0, 0, 0, 0};
 
-            flipFrame();
+                glClearNamedFramebufferfv(frames[frameIndex].framebuffer, GL_COLOR, 0, glm::value_ptr(CLEAR_COLOR));
+                glClearNamedFramebufferfi(frames[frameIndex].framebuffer, GL_DEPTH_STENCIL, 0, 0, 0);
+                glBindFramebuffer(GL_FRAMEBUFFER, frames[frameIndex].framebuffer);
+                ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+                glBlitNamedFramebuffer(frames[frameIndex].framebuffer, 0, 0, 0, displaySize.x, displaySize.y, 0, 0, displaySize.x, displaySize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+                flipFrame();
+            });
         }
 
         createWorld();
         sendSpawnPacket();
-
-//        while (clientWorld->provider->chunkArray.getLoaded() != 289) {
-//            executor_execute();
-//        }
-
-        // todo: game loop
 
         startTime = std::chrono::high_resolution_clock::now();
         while (running) {
@@ -765,7 +989,7 @@ struct App {
             const auto [offset, count] = chunk->layers[(int) layer];
 
             if (count != 0) {
-                glBindVertexArray(chunk->mesh->vao);
+                glBindVertexArray(chunk->mesh.vao);
 
                 glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, static_cast<std::byte*>(nullptr) + offset * sizeof(int32_t));
             }
@@ -789,17 +1013,17 @@ private:
         auto forward = transform.forward();
         auto right = transform.right();
 
-        float moveSpeed = input.IsKeyPressed(Input::Key::Shift) ? 100.0f : 10.0f;
-        if (input.IsKeyPressed(Input::Key::Up)) {
+        float moveSpeed = input.isKeyPressed(Input::Key::Shift) ? 100.0f : 10.0f;
+        if (input.isKeyPressed(Input::Key::Up)) {
             velocity += forward * dt * moveSpeed;
         }
-        if (input.IsKeyPressed(Input::Key::Down)) {
+        if (input.isKeyPressed(Input::Key::Down)) {
             velocity -= forward * dt * moveSpeed;
         }
-        if (input.IsKeyPressed(Input::Key::Left)) {
+        if (input.isKeyPressed(Input::Key::Left)) {
             velocity -= right * dt * moveSpeed;
         }
-        if (input.IsKeyPressed(Input::Key::Right)) {
+        if (input.isKeyPressed(Input::Key::Right)) {
             velocity += right * dt * moveSpeed;
         }
         return velocity;

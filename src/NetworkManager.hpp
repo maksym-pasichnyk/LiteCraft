@@ -14,17 +14,28 @@ struct NetworkConnection {
     template<Packet T>
     void sendPacket(const T& packet) {
         PacketHeader header {
-                .id = T::ID,
-                .size = sizeof(T)
+            .id = T::ID,
+            .size = sizeof(T)
         };
 
         write(fd, &header, sizeof(PacketHeader));
         write(fd, &packet, sizeof(T));
     }
 
-    void readPacket() {
+    std::optional<PacketHeader> readHeader() {
         PacketHeader header{};
-        read(fd, &header, sizeof(PacketHeader));
+        if (read(fd, &header, sizeof(PacketHeader)) <= 0) {
+            return std::nullopt;
+        }
+        return header;
+    }
+
+    template<Packet T>
+    T readPacket(const PacketHeader& header) {
+        T packet;
+        while (read(fd, &packet, header.size) < 0) {
+        }
+        return packet;
     }
 };
 

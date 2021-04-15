@@ -65,8 +65,4 @@ struct ChunkRenderCache {
     auto getLightPacked(glm::ivec3 pos) const -> int32_t {
         return getLightPacked(pos.x, pos.y, pos.z);
     }
-
-    auto getMainChunk() const -> Chunk* {
-        return chunks[4];
-    }
 };

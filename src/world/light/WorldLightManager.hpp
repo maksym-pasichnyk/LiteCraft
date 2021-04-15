@@ -92,11 +92,11 @@ struct WorldLightManager {
 //            }
         }
 
-        for (int i = 0; i < 9; i++) {
-            if (mask.test(i)) {
-                region.chunks[i]->needRender = true;
-            }
-        }
+//        for (int i = 0; i < 9; i++) {
+//            if (mask.test(i)) {
+//                region.chunks[i]->needRender = true;
+//            }
+//        }
     }
 
     void column(WorldGenRegion& region, int32_t x, int32_t y, int32_t z) {

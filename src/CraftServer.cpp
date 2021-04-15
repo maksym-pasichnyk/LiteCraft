@@ -5,67 +5,56 @@
 #include <functional>
 
 CraftServer::CraftServer(NetworkConnection connection) : connection(connection) {
-    workers.emplace_back(std::bind_front(&CraftServer::runWorker, this));
+    packetManager.bind<SSpawnPlayerPacket, &CraftServer::processSpawnPlayer>();
+    packetManager.bind<PositionPacket, &CraftServer::processPlayerPosition>();
+    packetManager.bind<CPlayerDiggingPacket, &CraftServer::processPlayerDigging>();
+
     world = std::make_unique<ServerWorld>(this);
+
+    workers.emplace_back(&CraftServer::runLoop, this, stop_source.get_token());
 }
 
-void CraftServer::executor_execute() {
-    while (true) {
-        PacketHeader header{};
-        if (read(connection.fd, &header, sizeof(PacketHeader)) <= 0) {
-            break;
-        }
+void CraftServer::runLoop(std::stop_token &&token) {
+    while (!token.stop_requested()) {
+        packetManager.handlePackets(this, connection);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+}
 
-        switch (header.id) {
-            case 1: {
-                SpawnPlayerPacket packet{};
-                while (read(connection.fd, &packet, header.size) < 0) {
-                }
+void CraftServer::processSpawnPlayer(const SSpawnPlayerPacket &packet) {
+    last_player_position = ChunkPos::from(glm::ivec3(packet.pos));
+    world->manager->setPlayerTracking(last_player_position, true);
+}
 
-                last_player_position = ChunkPos::from(glm::ivec3(packet.pos));
-                world->manager->setPlayerTracking(last_player_position, true);
-                break;
-            }
-            case 2: {
-                PositionPacket packet{};
-                while (read(connection.fd, &packet, header.size) < 0) {
-                }
+void CraftServer::processPlayerPosition(const PositionPacket &packet) {
+    const auto pos = ChunkPos::from(glm::ivec3(packet.pos));
 
-                const auto player_pos = ChunkPos::from(glm::ivec3(packet.pos));
+    if (last_player_position != pos) {
+        world->manager->updatePlayerPosition(pos, last_player_position);
+        last_player_position = pos;
+    }
+}
 
-                if (last_player_position != player_pos) {
-                    world->manager->updatePlayerPosition(player_pos, last_player_position);
-                    last_player_position = player_pos;
-                }
-                break;
-            }
-            case 3: {
-                SChangeBlockPacket packet{};
-                while (read(connection.fd, &packet, header.size) < 0) {
-                }
+void CraftServer::processPlayerDigging(const CPlayerDiggingPacket& packet) {
+    const auto pos = packet.pos;
 
-                const auto pos = packet.pos;
+    std::array<Chunk*, 9> _chunks{};
+    world->manager->fillChunks(_chunks, 1, pos.x >> 4, pos.z >> 4, &ChunkStatus::Full);
+    WorldGenRegion region{world.get(), _chunks, 1, pos.x >> 4, pos.z >> 4, world->seed};
 
-                std::array<Chunk*, 9> _chunks{};
-                world->manager->fillChunks(_chunks, 1, pos.x >> 4, pos.z >> 4, &ChunkStatus::Full);
-                WorldGenRegion region{world.get(), _chunks, 1, pos.x >> 4, pos.z >> 4, world->seed};
+    const auto AIR = Blocks::AIR->getDefaultState();
+    const auto old = region.getData(pos);
+    if (region.setData(pos, AIR)) {
+        world->manager->lightManager->update(region, pos.x, pos.y, pos.z, old, AIR);
 
-                const auto old = region.getData(pos);
-                if (region.setData(pos, packet.data)) {
-                    world->manager->lightManager->update(region, pos.x, pos.y, pos.z, old, packet.data);
-
-                    std::set<ChunkPos> positions;
-                    for (int x = pos.x - 1; x <= pos.x + 1; x++) {
-                        for (int z = pos.z - 1; z <= pos.z + 1; z++) {
-                            positions.emplace(ChunkPos::from(x >> 4, z >> 4));
-                        }
-                    }
-
-                    for (auto [x, z] : positions) {
-                        region.getChunk(x, z)->needRender = true;
-                    }
-                }
-            }
-        }
+        connection.sendPacket(SChangeBlockPacket{
+            .pos = pos,
+            .data = AIR
+        });
+    } else {
+        connection.sendPacket(SChangeBlockPacket{
+            .pos = pos,
+            .data = old
+        });
     }
 }

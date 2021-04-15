@@ -32,13 +32,7 @@ public:
     auto set(int32_t i, Chunk* chunk) {
         auto old_chunk = chunks.at(i).exchange(chunk);
 
-        if (old_chunk) {
-            loaded -= 1;
-        }
-
-        if (chunk) {
-            loaded += 1;
-        }
+        loaded = loaded - (old_chunk ? 1 : 0) + (chunk ? 1 : 0);
     }
 
     auto getIndex(int32_t x, int32_t z) const -> int32_t {
@@ -53,8 +47,8 @@ public:
         centerX = x;
         centerZ = z;
     }
-private:
 
+private:
     static auto floorMod(int32_t x, int32_t y) -> int32_t {
         return ((x % y) + y) % y;
     }

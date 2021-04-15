@@ -111,7 +111,7 @@ struct SimpleVBuffer {
 
 struct RenderBuffer {
     std::vector<Vertex> vertices;
-    std::vector<int32_t> indices[3]{};
+    std::array<std::vector<int32_t>, 3> indices{};
 
 	auto getForLayer(RenderLayer layer) -> RenderLayerBuilder {
 		return RenderLayerBuilder {
@@ -126,11 +126,6 @@ struct RenderBuffer {
         	submesh.clear();
         }
     }
-};
-
-struct ChunkLayer {
-    int32_t index_offset = 0;
-    int32_t index_count = 0;
 };
 
 /*enum class ChunkState {
@@ -322,7 +317,6 @@ struct StructureStart;
 struct Chunk {
     ChunkPos pos;
 	int32_t status = 0;
-	bool needRender = false;
 
 	std::array<std::unique_ptr<ChunkSection>, 16> sections{};
     std::array<std::unique_ptr<LightSection>, 16> skyLightSections{};
@@ -331,10 +325,6 @@ struct Chunk {
     std::array<std::unique_ptr<Lightmap>, 18> lightSections{};
 
     Heightmap heightmap{};
-
-	RenderBuffer rb{};
-	ChunkLayer layers[3]{};
-    std::unique_ptr<Mesh> mesh{nullptr};
 
     std::map<Structure*, StructureStart*> structureStarts;
 //    std::vector<std::shared_ptr<StructureStart>> structureReferences;
@@ -406,20 +396,21 @@ struct Chunk {
         return section->getLightPacked(x & 15, y & 15, z & 15);
     }
 
-    void setData(const BlockPos& pos, BlockData data) {
-        setData(pos.x, pos.y, pos.z, data);
+    bool setData(const BlockPos& pos, BlockData data) {
+        return setData(pos.x, pos.y, pos.z, data);
     }
 
-    void setData(int32_t x, int32_t y, int32_t z, BlockData data) {
+    bool setData(int32_t x, int32_t y, int32_t z, BlockData data) {
     	auto& section = sections[y >> 4];
     	if (section == nullptr) {
     	    if (data.isAir()) {
-    	        return;
+    	        return false;
     	    }
     		section = std::make_unique<ChunkSection>();
     	}
         updateHeightmap(x & 15, y, z & 15, data);
     	section->blocks[toIndex(x & 15, y & 15, z & 15)] = data;
+    	return true;
     }
 
     void updateHeightmap(int32_t x, int32_t y, int32_t z, BlockData data) {
@@ -457,33 +448,6 @@ struct Chunk {
 
     auto getBlock(int32_t x, int32_t y, int32_t z) const -> Block* {
         return getData(x, y, z).getBlock();
-    }
-
-    void updateMesh() {
-        if (!mesh) {
-            mesh = std::make_unique<Mesh>();
-        }
-
-		int32_t index_count = 0;
-		for (auto& subindices : rb.indices) {
-			index_count += subindices.size();
-		}
-
-        mesh->SetVertices(rb.vertices);
-        mesh->SetIndicesCount(index_count);
-
-		int32_t submesh_index = 0;
-        int32_t index_offset = 0;
-
-        for (auto& submesh : rb.indices) {
-        	layers[submesh_index].index_offset = index_offset;
-        	layers[submesh_index].index_count = submesh.size();
-        	if (!submesh.empty()) {
-				mesh->SetIndicesData(submesh, index_offset);
-        	}
-			index_offset += layers[submesh_index].index_count;
-			submesh_index++;
-        }
     }
 
     auto getHeight(HeightmapType type, int32_t x, int32_t z) -> int32_t {

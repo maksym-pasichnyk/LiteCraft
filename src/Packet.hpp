@@ -14,7 +14,7 @@ struct PacketHeader {
 };
 
 struct SUnloadChunkPacket {
-    static constexpr int ID = 1;
+    static constexpr int ID = 0;
 
     int x;
     int z;
@@ -23,28 +23,35 @@ struct SUnloadChunkPacket {
 struct Chunk;
 
 struct SLoadChunkPacket {
-    static constexpr int ID = 2;
+    static constexpr int ID = 1;
 
     Chunk* chunk;
     int x;
     int z;
 };
 
-struct SpawnPlayerPacket {
-    static constexpr int ID = 1;
+struct SSpawnPlayerPacket {
+    static constexpr int ID = 0;
 
     glm::vec3 pos;
 };
 
 struct PositionPacket {
-    static constexpr int ID = 2;
+    static constexpr int ID = 1;
 
     glm::vec3 pos;
 };
 
 struct SChangeBlockPacket {
-    static constexpr int ID = 3;
+    static constexpr int ID = 2;
 
     glm::ivec3 pos;
     BlockData data;
+};
+
+struct CPlayerDiggingPacket {
+    static constexpr int ID = 2;
+
+    glm::ivec3 pos;
+    glm::ivec3 dir;
 };
