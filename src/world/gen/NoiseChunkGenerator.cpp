@@ -7,6 +7,7 @@
 #include "../chunk/Chunk.hpp"
 #include "../../block/Block.hpp"
 #include "../../block/Blocks.hpp"
+#include "../../util/math/Math.hpp"
 
 struct ScalingSettings {
     double xz_scale;
@@ -274,20 +275,6 @@ void NoiseChunkGenerator::fillNoiseColumn(std::span<double> column, int xpos, in
     }
 }
 
-static int Math_floorDiv(int x, int y) {
-    int r = x / y;
-    // if the signs are different and modulo not zero, round down
-    if ((x ^ y) < 0 && (r * y != x)) {
-        r--;
-    }
-    return r;
-}
-
-static int64_t Math_floorMod(int64_t x, int64_t y) {
-//        return x - floorDiv(x, y) * y;
-    return ((x % y) + y) % y;
-}
-
 std::vector<double> NoiseChunkGenerator::getNoiseColumn(int x, int z) {
     std::vector<double> noises(noiseSizeY + 1);
     fillNoiseColumn(noises, x, z);
@@ -295,10 +282,10 @@ std::vector<double> NoiseChunkGenerator::getNoiseColumn(int x, int z) {
 }
 
 int NoiseChunkGenerator::getColumn(int x, int z, std::span<BlockData> datas, bool(*predicate)(BlockData)) {
-    const int i = Math_floorDiv(x, horizontalNoiseGranularity);
-    const int j = Math_floorDiv(z, horizontalNoiseGranularity);
-    const int k = Math_floorDiv(x, horizontalNoiseGranularity);
-    const int l = Math_floorDiv(z, horizontalNoiseGranularity);
+    const int i = Math::floorDiv(x, horizontalNoiseGranularity);
+    const int j = Math::floorDiv(z, horizontalNoiseGranularity);
+    const int k = Math::floorDiv(x, horizontalNoiseGranularity);
+    const int l = Math::floorDiv(z, horizontalNoiseGranularity);
     const double d0 = (double) k / (double) horizontalNoiseGranularity;
     const double d1 = (double) l / (double) horizontalNoiseGranularity;
     const int seaLevel = 63;

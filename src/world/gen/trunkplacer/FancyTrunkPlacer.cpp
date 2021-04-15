@@ -55,7 +55,7 @@ std::list<FoliagePlacer::Foliage> FancyTrunkPlacer::getFoliages(WorldGenRegion &
     return list1;
 }
 
-bool FancyTrunkPlacer::placeTrunk(WorldGenRegion &reader, Random random, const BlockPos &pos1, const BlockPos &pos2, bool needPlace, std::set<BlockPos> &set1, BoundingBox &boundingBox, const BaseTreeFeatureConfig &config) {
+bool FancyTrunkPlacer::placeTrunk(WorldGenRegion &reader, Random& random, const BlockPos &pos1, const BlockPos &pos2, bool needPlace, std::set<BlockPos> &set1, BoundingBox &boundingBox, const BaseTreeFeatureConfig &config) {
     if (!needPlace && (pos1 == pos2)) {
         return true;
     }
@@ -64,7 +64,7 @@ bool FancyTrunkPlacer::placeTrunk(WorldGenRegion &reader, Random random, const B
     const auto[f, f1, f2] = glm::vec3(blockpos) / static_cast<float>(i);
 
     for (int j = 0; j <= i; ++j) {
-        const auto blockpos1 = BlockPos(glm::vec3(pos1) + glm::vec3(0.5F + (float)j * f, 0.5F + (float)j * f1, 0.5F + (float)j * f2));
+        const auto blockpos1 = glm::vec3(pos1) + glm::vec3(0.5F + (float)j * f, 0.5F + (float)j * f1, 0.5F + (float)j * f2);
         if (needPlace) {
             const auto state = config.trunkProvider->getBlockState(random, blockpos1);
 //                    .with(RotatedPillarBlock::AXIS, func_236889_a_(pos1, blockpos1));

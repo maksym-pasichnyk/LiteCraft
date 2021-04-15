@@ -3,20 +3,21 @@
 #include "BiomeGenerationSettings.hpp"
 #include "../gen/carver/ConfiguredCarvers.hpp"
 #include "../gen/feature/ConfiguredFeatures.hpp"
+#include "../gen/feature/structure/StructureFeatures.hpp"
 
 struct DefaultBiomeFeatures {
     static void withBadlandsStructures(BiomeGenerationSettings::Builder& builder) {
-//        builder.withStructure(StructureFeatures::MINESHAFT_BADLANDS);
+        builder.withStructure(StructureFeatures::MINESHAFT_BADLANDS);
 //        builder.withStructure(StructureFeatures::STRONGHOLD);
     }
 
     static void withStrongholdAndMineshaft(BiomeGenerationSettings::Builder& builder) {
-//        builder.withStructure(StructureFeatures::MINESHAFT);
+        builder.withStructure(StructureFeatures::MINESHAFT);
 //        builder.withStructure(StructureFeatures::STRONGHOLD);
     }
 
     static void withOceanStructures(BiomeGenerationSettings::Builder& builder) {
-//        builder.withStructure(StructureFeatures::MINESHAFT);
+        builder.withStructure(StructureFeatures::MINESHAFT);
 //        builder.withStructure(StructureFeatures::SHIPWRECK);
     }
 

@@ -1,67 +1,80 @@
 #include "ChunkGenerator.hpp"
 
 #include "feature/ConfiguredFeature.hpp"
-#include "feature/ConfiguredFeatures.hpp"
 #include "../WorldGenRegion.hpp"
 #include "../biome/Biome.hpp"
-#include "../biome/provider/BiomeProvider.hpp"
 #include "../chunk/Chunk.hpp"
 #include "../../block/Block.hpp"
 
-struct ExampleStructurePiece : StructurePiece {
-    ExampleStructurePiece(int32_t pos_x, int32_t pos_z) {
-        coordBaseMode = SOUTH;
-        boundingBox = BoundingBox::withSize(pos_x - 1, 6, pos_z - 1, 3, 10, 3);
-    }
+#include "settings/StructureSeparation.hpp"
+#include "feature/structure/Structure.hpp"
+#include "feature/structure/StructureFeature.hpp"
 
-    void place(WorldGenRegion& region, BoundingBox sbb) override {
-//        const auto wood = Blocks::WOOD->getDefaultState();
-//
-//        for (auto y = 0; y < 10; y++) {
-//            setBlock(region, sbb, 0, y, 0, Blocks2::iron_bars->getStateWithMeta(2 | 4));
-//            setBlock(region, sbb, 0, y, 1, wood);
-//            setBlock(region, sbb, 0, y, 2, Blocks2::iron_bars->getStateWithMeta(8 | 4));
-//
-//            setBlock(region, sbb, 1, y, 0, wood);
-//            setBlock(region, sbb, 1, y, 1, wood);
-//            setBlock(region, sbb, 1, y, 2, wood);
-//
-//            setBlock(region, sbb, 2, y, 0, Blocks2::iron_bars->getStateWithMeta(2 | 1));
-//            setBlock(region, sbb, 2, y, 1, wood);
-//            setBlock(region, sbb, 2, y, 2, Blocks2::iron_bars->getStateWithMeta(8 | 1));
-//        }
-    }
+struct StructureManager {
+
 };
 
-struct ExampleStructureStart : StructureStart {
-    void build(int32_t pos_x, int32_t pos_z) override {
-        pieces.emplace_back(new ExampleStructurePiece(pos_x + 8, pos_z + 8));
-    }
+struct TemplateManager {
+
 };
 
-void ChunkGenerator::generateStructures(WorldGenRegion &region, Chunk& chunk) {
-    if (std::abs(chunk.pos.x) % 2 == std::abs(chunk.pos.z) % 2) {
-        auto start = std::make_shared<ExampleStructureStart>();
-        start->build(chunk.pos.getStartX(), chunk.pos.getStartZ());
-        start->updateBoundingBox();
-        chunk.structureStarts.emplace_back(std::move(start));
-    }
-}
+//struct ExampleStructurePiece : StructurePiece {
+//    ExampleStructurePiece(int32_t pos_x, int32_t pos_z) {
+//        coordBaseMode = SOUTH;
+//        boundingBox = BoundingBox::withSize(pos_x - 1, 6, pos_z - 1, 3, 10, 3);
+//    }
+//
+//    void place(WorldGenRegion& region, BoundingBox sbb) override {
+////        const auto wood = Blocks::WOOD->getDefaultState();
+////
+////        for (auto y = 0; y < 10; y++) {
+////            setBlock(region, sbb, 0, y, 0, Blocks2::iron_bars->getStateWithMeta(2 | 4));
+////            setBlock(region, sbb, 0, y, 1, wood);
+////            setBlock(region, sbb, 0, y, 2, Blocks2::iron_bars->getStateWithMeta(8 | 4));
+////
+////            setBlock(region, sbb, 1, y, 0, wood);
+////            setBlock(region, sbb, 1, y, 1, wood);
+////            setBlock(region, sbb, 1, y, 2, wood);
+////
+////            setBlock(region, sbb, 2, y, 0, Blocks2::iron_bars->getStateWithMeta(2 | 1));
+////            setBlock(region, sbb, 2, y, 1, wood);
+////            setBlock(region, sbb, 2, y, 2, Blocks2::iron_bars->getStateWithMeta(8 | 1));
+////        }
+//    }
+//};
+
+//struct ExampleStructureStart : StructureStart {
+//    void build(int32_t pos_x, int32_t pos_z) override {
+//        pieces.emplace_back(new ExampleStructurePiece(pos_x + 8, pos_z + 8));
+//    }
+//};
 
 ChunkGenerator::ChunkGenerator(std::unique_ptr<BiomeProvider>&& biomeProvider) : biomeProvider(std::move(biomeProvider)) {}
 
-void ChunkGenerator::getStructureReferences(WorldGenRegion &region, Chunk& chunk) {
-    const auto sbb = BoundingBox::fromChunkPos(chunk.pos.x, chunk.pos.z);
+void ChunkGenerator::generateStructures(WorldGenRegion &region, Chunk& chunk) {
+    const auto [xpos, zpos] = chunk.pos;
+    auto biome = biomeProvider->getNoiseBiome(xpos << 2, 0, zpos << 2);
 
-    for (auto x = chunk.pos.x - 8; x <= chunk.pos.x + 8; x++) {
-        for (auto z = chunk.pos.z - 8; z <= chunk.pos.z + 8; z++) {
-            for (auto& start : region.getChunk(x, z)->structureStarts) {
-                if (sbb.intersect(start->boundingBox)) {
-                    chunk.structureReferences.emplace_back(start);
-                }
-            }
-        }
+    StructureManager structureManager{};
+    TemplateManager templateManager{};
+
+    for (auto feature : biome->getGenerationSettings().structures) {
+        createStarts(feature, structureManager, chunk, templateManager, region.getSeed(), chunk.pos, *biome);
     }
+}
+
+void ChunkGenerator::getStructureReferences(WorldGenRegion &region, Chunk& chunk) {
+//    const auto sbb = BoundingBox::fromChunkPos(chunk.pos.x, chunk.pos.z);
+
+//    for (auto x = chunk.pos.x - 8; x <= chunk.pos.x + 8; x++) {
+//        for (auto z = chunk.pos.z - 8; z <= chunk.pos.z + 8; z++) {
+//            for (auto& start : region.getChunk(x, z)->structureStarts) {
+//                if (sbb.intersectsWith(start->boundingBox)) {
+//                    chunk.structureReferences.emplace_back(start);
+//                }
+//            }
+//        }
+//    }
 }
 
 void ChunkGenerator::generateCarvers(WorldGenRegion& region, int64_t seed, Chunk& chunk/*, GenerationStage::Carving carving*/) {
@@ -91,36 +104,6 @@ void ChunkGenerator::generateCarvers(WorldGenRegion& region, int64_t seed, Chunk
     }
 }
 
-void placeBlock(IBlockWriter auto& blocks, int32_t x, int32_t y, int32_t z, const BlockData& data, const BoundingBox& sbb) {
-    if (sbb.contains(x, y, z)) {
-        blocks.setData(x, y, z, data);
-    }
-}
-
-void generateTree(IBlockWriter auto& blocks, int32_t x, int32_t height, int32_t z, Random& rand, const BoundingBox& sbb) {
-//    const auto treeHeight = 4 + rand.nextInt(0, 2);
-//
-//    const BlockData leaves = Blocks::LEAVES->getDefaultState();
-//    const BlockData log = Blocks::LOG->getDefaultState();
-//
-//    for (auto y = treeHeight - 2; y <= treeHeight + 1; y++) {
-//        placeBlock(blocks, x - 1, y + height, z - 1, leaves, sbb);
-//        placeBlock(blocks, x + 0, y + height, z - 1, leaves, sbb);
-//        placeBlock(blocks, x + 1, y + height, z - 1, leaves, sbb);
-//
-//        placeBlock(blocks, x - 1, y + height, z, leaves, sbb);
-//        placeBlock(blocks, x + 0, y + height, z, leaves, sbb);
-//        placeBlock(blocks, x + 1, y + height, z, leaves, sbb);
-//
-//        placeBlock(blocks, x - 1, y + height, z + 1, leaves, sbb);
-//        placeBlock(blocks, x + 0, y + height, z + 1, leaves, sbb);
-//        placeBlock(blocks, x + 1, y + height, z + 1, leaves, sbb);
-//    }
-//    for (auto y = height; y < height + treeHeight; y++) {
-//        placeBlock(blocks, x, y, z, log, sbb);
-//    }
-}
-
 void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
     Random random{};
 
@@ -131,4 +114,25 @@ void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
 
     auto biome = biomeProvider->getNoiseBiome((chunkPos.x << 2) + 2, 2, (chunkPos.z << 2) + 2);
     biome->decorate(*this, region, seed, random, BlockPos(xStart, 0, zStart));
+}
+
+void ChunkGenerator::createStarts(StructureFeature *feature, StructureManager &structureManager, Chunk &chunk, TemplateManager &templateManager, int64_t seed, const ChunkPos &chunkPos, Biome &biome) {
+    StructureSeparation separation {
+        .spacing = 10,
+        .separation = 10,
+        .salt = 0
+    };
+
+    Random random{};
+    auto start = feature->structure->generate(*this, *biomeProvider, templateManager, seed, chunkPos, biome, 0, random, separation, feature->config);
+    chunk.addStructureStart(feature->structure, start);
+
+
+//    auto structurestart = structureManager.getStructureStart(SectionPos.from(chunk.getPos(), 0), feature.structure, chunk);
+//    const int i = structurestart != nullptr ? structurestart.getRefCount() : 0;
+//    StructureSeparationSettings separation = this.settings.getSeparationSettings(feature.structure);
+//    if (separation != null) {
+//        StructureStart<?> structurestart1 = feature.generate(registries, this, this.biomeProvider, templateManager, seed, chunkPos, biome, i, separation);
+//        structureManager.addStructureStart(SectionPos.from(chunk.getPos(), 0), feature.structure, structurestart1, chunk);
+//    }
 }

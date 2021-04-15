@@ -4,7 +4,7 @@
 std::list<FoliagePlacer::Foliage> ForkyTrunkPlacer::getFoliages(WorldGenRegion &reader, Random &random, int height, const BlockPos &pos, std::set<BlockPos> &set1, BoundingBox &boundingBox, const BaseTreeFeatureConfig &config) {
     placeDirt(reader, pos.down());
     std::list<FoliagePlacer::Foliage> foliages{};
-    const auto direction = random.nextElement(std::span(Directions::Plane::HORIZONTAL));
+    const auto direction = random.nextElement(std::span(DirectionUtil::Plane::HORIZONTAL));
     const int i = height - random.nextInt(4) - 1;
 
     {
@@ -15,8 +15,8 @@ std::list<FoliagePlacer::Foliage> ForkyTrunkPlacer::getFoliages(WorldGenRegion &
         for (int j1 = 0; j1 < height; ++j1) {
             const int k1 = pos.y + j1;
             if (j1 >= i && j > 0) {
-                k += Directions::getXOffset(direction);
-                l += Directions::getZOffset(direction);
+                k += DirectionUtil::getXOffset(direction);
+                l += DirectionUtil::getZOffset(direction);
                 --j;
             }
 
@@ -28,7 +28,7 @@ std::list<FoliagePlacer::Foliage> ForkyTrunkPlacer::getFoliages(WorldGenRegion &
         foliages.emplace_back(BlockPos(k, i1, l), 1, false);
     }
 
-    const auto direction1 = random.nextElement(std::span(Directions::Plane::HORIZONTAL));
+    const auto direction1 = random.nextElement(std::span(DirectionUtil::Plane::HORIZONTAL));
     if (direction1 != direction) {
         auto [k, l] = std::pair{pos.x, pos.z};
         const int k2 = i - random.nextInt(2) - 1;
@@ -38,8 +38,8 @@ std::list<FoliagePlacer::Foliage> ForkyTrunkPlacer::getFoliages(WorldGenRegion &
         for (int i2 = k2; i2 < height && l1 > 0; --l1) {
             if (i2 >= 1) {
                 const int j2 = pos.y + i2;
-                k += Directions::getXOffset(direction1);
-                l += Directions::getZOffset(direction1);
+                k += DirectionUtil::getXOffset(direction1);
+                l += DirectionUtil::getZOffset(direction1);
                 if (placeTrunk(reader, random, BlockPos(k, j2, l), set1, boundingBox, config)) {
                     i1 = j2 + 1;
                 }

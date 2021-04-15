@@ -10,6 +10,12 @@ struct Random {
 	inline static constexpr auto RANDOM_MASK = ((1ULL << 48u) - 1);
 	inline static constexpr auto RANDOM_SCALE = 0x1.0p-53;
 
+    Random() = default;
+    Random(const Random&) = delete;
+    Random& operator=(const Random&) = delete;
+    Random(Random&&) = default;
+    Random& operator=(Random&&) = default;
+
 	static constexpr auto from(uint64_t seed) -> Random {
 		Random rand;
 		rand.setSeed(seed);

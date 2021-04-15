@@ -15,6 +15,7 @@ struct WorldReader : virtual BiomeReader, virtual BlockReader {
         return getNoiseBiomeRaw(x, y, z);
     }
 
-    bool hasWater(const BlockPos& pos);
-    bool isAirBlock(const BlockPos& pos);
+    bool hasWater(const BlockPos& pos) const;
+    bool isAirBlock(const BlockPos& pos) const;
+    bool isLiquidBlock(const BlockPos& pos) const;
 };

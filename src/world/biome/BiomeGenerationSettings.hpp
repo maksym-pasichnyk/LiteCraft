@@ -9,6 +9,7 @@
 #include <array>
 #include <span>
 
+struct StructureFeature;
 struct ConfiguredFeature;
 struct BiomeGenerationSettings {
 //    BiomeGenerationSettings() = default;
@@ -18,7 +19,7 @@ struct BiomeGenerationSettings {
     ConfiguredSurfaceBuilder surfaceBuilder;
     std::array<std::vector<ConfiguredCarver>, 2> carvers;
     std::array<std::vector<ConfiguredFeature*>, 10> features;
-//    std::vector<StructureFeature> structures;
+    std::vector<StructureFeature*> structures;
 //    std::vector<ConfiguredFeature> flowerFeatures;
 
     SurfaceBuilderConfig getSurfaceBuilderConfig() {
@@ -33,6 +34,7 @@ struct BiomeGenerationSettings {
         ConfiguredSurfaceBuilder surfaceBuilder;
         std::array<std::vector<ConfiguredCarver>, 2> carvers;
         std::array<std::vector<ConfiguredFeature*>, 10> features;
+        std::vector<StructureFeature*> structures;
 
         Builder& withSurfaceBuilder(const ConfiguredSurfaceBuilder& builder) {
             surfaceBuilder = builder;
@@ -49,11 +51,17 @@ struct BiomeGenerationSettings {
             return *this;
         }
 
+        Builder& withStructure(StructureFeature* structure) {
+            structures.emplace_back(structure);
+            return *this;
+        }
+
         BiomeGenerationSettings build() {
             return {
                 .surfaceBuilder = surfaceBuilder,
                 .carvers = std::move(carvers),
-                .features = std::move(features)
+                .features = std::move(features),
+                .structures = std::move(structures)
             };
         }
     };

@@ -28,6 +28,7 @@ const ChunkStatus ChunkStatus::Surface = create(/*5*/1, 0, [](ServerWorld* world
 //    std::ranges::for_each(chunks, &Chunk::updateHeightmaps);
 
     WorldGenRegion region{world, chunks, 0, x, z, seed};
+    generator.generateStructures(region, chunk);
     generator.generateTerrain(chunk);
     generator.generateSurface(region, chunk);
     generator.generateCarvers(region, seed, chunk);

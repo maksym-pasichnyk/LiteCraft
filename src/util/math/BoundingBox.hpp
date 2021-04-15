@@ -1,6 +1,8 @@
 #pragma once
 
+#include <cmath>
 #include <type_traits>
+#include <glm/vec3.hpp>
 
 struct BoundingBox {
     static constexpr BoundingBox from(const glm::ivec3& vec1, const glm::ivec3& vec2) {
@@ -68,13 +70,22 @@ struct BoundingBox {
     int maxY;
     int maxZ;
 
+    constexpr void offset(int x, int y, int z) {
+        minX += x;
+        minY += y;
+        minZ += z;
+        maxX += x;
+        maxY += y;
+        maxZ += z;
+    }
+
     constexpr bool contains(int x, int y, int z) const noexcept {
         return minX <= x && x <= maxX &&
                minY <= y && y <= maxY &&
                minZ <= z && z <= maxZ;
     }
 
-    constexpr bool intersect(const BoundingBox& boundingBox) const noexcept {
+    constexpr bool intersectsWith(const BoundingBox& boundingBox) const noexcept {
         return minX <= boundingBox.maxX && maxX >= boundingBox.minX &&
                minY <= boundingBox.maxY && maxY >= boundingBox.minY &&
                minZ <= boundingBox.maxZ && maxZ >= boundingBox.minZ;
@@ -87,5 +98,25 @@ struct BoundingBox {
         maxX = std::max(maxX, boundingBox.maxX);
         maxY = std::max(maxY, boundingBox.maxY);
         maxZ = std::max(maxZ, boundingBox.maxZ);
+    }
+    
+    constexpr bool isVecInside(const glm::ivec3& pos) const noexcept {
+        return contains(pos.x, pos.y, pos.z);
+    }
+
+    constexpr int getXSize() const noexcept{
+        return maxX - minX + 1;
+    }
+
+    constexpr int getYSize() const noexcept {
+        return maxY - minY + 1;
+    }
+
+    constexpr int getZSize() const noexcept {
+        return maxZ - minZ + 1;
+    }
+
+    constexpr glm::ivec3 getPivotCenter() const noexcept {
+        return glm::ivec3(minX + getXSize() / 2, minY + getYSize() / 2, minZ + getZSize() / 2);
     }
 };

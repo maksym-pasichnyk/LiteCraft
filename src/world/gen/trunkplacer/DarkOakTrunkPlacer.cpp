@@ -10,7 +10,7 @@ std::list<FoliagePlacer::Foliage> DarkOakTrunkPlacer::getFoliages(WorldGenRegion
     placeDirt(reader, blockpos.east());
     placeDirt(reader, blockpos.south());
     placeDirt(reader, blockpos.south().east());
-    const auto direction = random.nextElement(std::span(Directions::Plane::HORIZONTAL));
+    const auto direction = random.nextElement(std::span(DirectionUtil::Plane::HORIZONTAL));
     const int i = heightIn - random.nextInt(4);
     int j = 2 - random.nextInt(3);
     const int xStart = pos.x;
@@ -22,8 +22,8 @@ std::list<FoliagePlacer::Foliage> DarkOakTrunkPlacer::getFoliages(WorldGenRegion
 
     for(int i2 = 0; i2 < heightIn; ++i2) {
         if (i2 >= i && j > 0) {
-            xPos += Directions::getXOffset(direction);
-            zPos += Directions::getZOffset(direction);
+            xPos += DirectionUtil::getXOffset(direction);
+            zPos += DirectionUtil::getZOffset(direction);
             --j;
         }
 

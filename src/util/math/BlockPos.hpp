@@ -1,12 +1,14 @@
 #pragma once
 
+#include "../Direction.hpp"
+
 #include <ranges>
 #include <cstdint>
 #include <glm/glm.hpp>
 
 struct BlockPos : glm::ivec3 {
     using glm::ivec3::ivec3;
-    BlockPos(const glm::ivec3& pos) : glm::ivec3(pos) {}
+    constexpr BlockPos(const glm::ivec3& pos) : glm::ivec3(pos) {}
 
     static constexpr int NUM_X_BITS = 26;
     static constexpr int NUM_Z_BITS = NUM_X_BITS;
@@ -16,6 +18,10 @@ struct BlockPos : glm::ivec3 {
     static constexpr long Z_MASK = (1L << NUM_Z_BITS) - 1L;
     static constexpr int INVERSE_START_BITS_Z = NUM_Y_BITS;
     static constexpr int INVERSE_START_BITS_X = NUM_Y_BITS + NUM_Z_BITS;
+
+    static constexpr BlockPos from(int x, int y, int z) {
+        return {x, y, z};
+    }
 
     static constexpr int64_t pack(int32_t x, int32_t y, int32_t z) {
         return
@@ -72,5 +78,9 @@ struct BlockPos : glm::ivec3 {
     double distanceSq(const glm::dvec3& to, bool useCenter) {
         const auto delta = glm::dvec3(*this) + glm::dvec3(useCenter ? 0.5 : 0.0) - to;
         return glm::dot(delta, delta);
+    }
+
+    constexpr BlockPos offset(Direction direction) const {
+        return BlockPos(*this + DirectionUtil::OFFSET[static_cast<int>(direction)]);
     }
 };

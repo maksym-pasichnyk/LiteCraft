@@ -1146,7 +1146,7 @@ struct BiomeMaker {
 //            generation.withStructure(StructureFeatures::SWAMP_HUT);
         }
 
-//        generation.withStructure(StructureFeatures::MINESHAFT);
+        generation.withStructure(StructureFeatures::MINESHAFT);
 //        generation.withStructure(StructureFeatures::RUINED_PORTAL_SWAMP);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
         if (!isHillsVariant) {
@@ -1271,7 +1271,7 @@ struct BiomeMaker {
 //        mobSpawnInfo.withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::DROWNED, isSnowy ? 1 : 100, 1, 1));
         auto generation = BiomeGenerationSettings::Builder{}
             .withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
-//        generation.withStructure(StructureFeatures::MINESHAFT);
+        generation.withStructure(StructureFeatures::MINESHAFT);
 //        generation.withStructure(StructureFeatures::RUINED_PORTAL);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
@@ -1331,7 +1331,7 @@ struct BiomeMaker {
         if (isStoneVariant) {
             DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
         } else {
-//            generation.withStructure(StructureFeatures::MINESHAFT);
+            generation.withStructure(StructureFeatures::MINESHAFT);
 //            generation.withStructure(StructureFeatures::BURIED_TREASURE);
 //            generation.withStructure(StructureFeatures::SHIPWRECK_BEACHED);
         }

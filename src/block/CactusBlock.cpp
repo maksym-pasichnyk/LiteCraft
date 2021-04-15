@@ -4,8 +4,8 @@
 #include "../util/Direction.hpp"
 
 bool CactusBlock::isValidPosition(const BlockData &data, WorldReader &reader, const BlockPos &pos) {
-    for (Direction direction : Directions::Plane::HORIZONTAL) {
-        const auto material = reader.getData(Directions::offset(pos, direction)).getMaterial();
+    for (Direction direction : DirectionUtil::Plane::HORIZONTAL) {
+        const auto material = reader.getData(pos.offset(direction)).getMaterial();
         if (material->isSolid/* || worldIn.getFluidState(pos.offset(direction)).isTagged(FluidTags.LAVA)*/) {
             return false;
         }

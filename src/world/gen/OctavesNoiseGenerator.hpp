@@ -3,32 +3,11 @@
 #include "INoiseGenerator.hpp"
 #include "ImprovedNoiseGenerator.hpp"
 
+#include "../../util/math/Math.hpp"
+
 #include <memory>
 #include <vector>
 #include <fmt/format.h>
-
-namespace Math {
-    inline static long lfloor(double value) {
-        long i = (long) value;
-        return value < (double) i ? i - 1L : i;
-    }
-
-    inline static float lerp(float pct, float start, float end) {
-        return start + pct * (end - start);
-    }
-
-    inline static double lerp(double pct, double start, double end) {
-        return start + pct * (end - start);
-    }
-
-    inline static double clamp(double num, double min, double max) {
-        return num < min ? min : num > max ? max : num;
-    }
-
-    inline static double clampedLerp(double lowerBnd, double upperBnd, double slide) {
-        return slide < 0.0 ? lowerBnd : slide > 1.0 ? upperBnd : lerp(slide, lowerBnd, upperBnd);
-    }
-}
 
 struct OctavesNoiseGenerator : public INoiseGenerator {
     std::vector<std::optional<ImprovedNoiseGenerator>> octaves;
@@ -102,7 +81,7 @@ struct OctavesNoiseGenerator : public INoiseGenerator {
         double d1 = field_227461_c_;
         double d2 = field_227460_b_;
 
-        for(int i = 0; i < octaves.size(); ++i) {
+        for (int i = 0; i < octaves.size(); ++i) {
             auto& octave = octaves[i];
             if (octave.has_value()) {
                 noise += amplitudes[i] * octave->getNoiseValue(
@@ -129,11 +108,11 @@ struct OctavesNoiseGenerator : public INoiseGenerator {
     }
 
     ImprovedNoiseGenerator* getOctave(size_t i) {
-        auto& octave = octaves.at(octaves.size() - i - 1);
+        auto& octave = octaves[octaves.size() - i - 1];
         return octave.has_value() ? &*octave : nullptr;
     }
 
     inline static double maintainPrecision(double v) {
-        return v - (double) Math::lfloor(v / 3.3554432E7 + 0.5) * 3.3554432E7;
+        return v - static_cast<double>(Math::lfloor(v / 3.3554432E7 + 0.5)) * 3.3554432E7;
     }
 };

@@ -20,8 +20,6 @@
 #include "shader.hpp"
 #include "NetworkManager.hpp"
 #include "CraftServer.hpp"
-#include "world/ChunkManager.hpp"
-#include "world/ServerWorld.hpp"
 #include "world/biome/Biome.hpp"
 #include "world/biome/Biomes.hpp"
 #include "world/chunk/Chunk.hpp"
@@ -30,12 +28,13 @@
 #include "world/gen/carver/Carvers.hpp"
 #include "world/gen/carver/ConfiguredCarvers.hpp"
 #include "world/gen/feature/Features.hpp"
-#include "world/gen/placement/Placements.hpp"
+#include "world/gen/feature/structure/Structures.hpp"
+#include "world/gen/feature/structure/StructureFeatures.hpp"
 #include "world/gen/feature/ConfiguredFeatures.hpp"
+#include "world/gen/placement/Placements.hpp"
 
 #include "client/world/ClientWorld.hpp"
 #include "client/render/ChunkRenderCache.hpp"
-#include "client/render/ModelRendered.hpp"
 #include "client/render/model/ModelFormat.hpp"
 #include "block/Block.hpp"
 #include "block/Blocks.hpp"
@@ -615,6 +614,8 @@ struct App {
             Features::registerFeatures();
             Placements::registerPlacements();
             ConfiguredFeatures::configureFeatures();
+            Structures::registerStructures();
+            StructureFeatures::configureStructures();
             Biomes::registerBiomes();
 //            loadModels();
         });

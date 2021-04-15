@@ -13,7 +13,7 @@ bool VinesFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, R
 
         const BlockPos blockpos{x, y, z};
         if (reader.isAirBlock(blockpos)) {
-            for(Direction direction : Directions::values()) {
+            for(Direction direction : DirectionUtil::values()) {
                 if (direction != Direction::DOWN && VineBlock::canAttachTo(reader, blockpos, direction)) {
                     const auto state = VINE;//.with(VineBlock.getPropertyFor(direction), true);
                     reader.setData(blockpos, state/*, 2*/);

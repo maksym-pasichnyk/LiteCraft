@@ -13,7 +13,11 @@ enum class Direction {
     EAST
 };
 
-struct Directions {
+struct DirectionUtil {
+    enum class Axis {
+        X, Y, Z
+    };
+
     static constexpr std::array VALUES{
         Direction::DOWN,
         Direction::UP,
@@ -36,6 +40,33 @@ struct Directions {
         1, 0, 3, 2, 4, 5
     };
 
+    static constexpr std::array AXIS {
+        Axis::Y,
+        Axis::Y,
+        Axis::Z,
+        Axis::Z,
+        Axis::X,
+        Axis::X
+    };
+
+    static constexpr std::array ROTATE_Y {
+        Direction::DOWN,
+        Direction::UP,
+        Direction::EAST,
+        Direction::WEST,
+        Direction::NORTH,
+        Direction::SOUTH
+    };
+
+    static constexpr std::array ROTATE_YCCW {
+        Direction::DOWN,
+        Direction::UP,
+        Direction::WEST,
+        Direction::EAST,
+        Direction::SOUTH,
+        Direction::NORTH
+    };
+
     struct Plane {
         static constexpr std::array HORIZONTAL{Direction::NORTH, Direction::EAST, Direction::SOUTH, Direction::WEST};
         static constexpr std::array VERTICAL{Direction::UP, Direction::DOWN};
@@ -44,9 +75,9 @@ struct Directions {
     static constexpr auto values() {
         return std::span(VALUES);
     }
-    
-    static constexpr glm::ivec3 offset(const glm::ivec3& pos, Direction direction) {
-        return pos + OFFSET[static_cast<int>(direction)];
+
+    static constexpr Axis getAxis(Direction direction) {
+        return AXIS[static_cast<int>(direction)];
     }
 
     static constexpr Direction getOpposite(Direction direction) {
@@ -63,5 +94,13 @@ struct Directions {
 
     static constexpr int getZOffset(Direction direction) {
         return OFFSET[static_cast<int>(direction)].z;
+    }
+
+    static constexpr Direction rotateY(Direction direction) {
+        return ROTATE_Y[static_cast<int>(direction)];
+    }
+
+    static constexpr Direction rotateYCCW(Direction direction) {
+        return ROTATE_YCCW[static_cast<int>(direction)];
     }
 };

@@ -50,5 +50,5 @@ struct FancyTrunkPlacer : AbstractTrunkPlacer {
     }
 
     std::list<FoliagePlacer::Foliage> getFoliages(WorldGenRegion &reader, Random &random, int height, const BlockPos &pos, std::set<BlockPos> &set1, BoundingBox &boundingBox, const BaseTreeFeatureConfig &config) override;
-    bool placeTrunk(WorldGenRegion &reader, Random random, const BlockPos& pos1, const BlockPos& pos2, bool needPlace, std::set<BlockPos>& set1, BoundingBox& boundingBox, const BaseTreeFeatureConfig& config);
+    bool placeTrunk(WorldGenRegion &reader, Random& random, const BlockPos& pos1, const BlockPos& pos2, bool needPlace, std::set<BlockPos>& set1, BoundingBox& boundingBox, const BaseTreeFeatureConfig& config);
 };

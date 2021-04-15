@@ -9,12 +9,14 @@
 
 #include <glm/vec3.hpp>
 
+#include <map>
 #include <vector>
 #include <memory>
 #include <cassert>
 #include <queue>
 #include <cstdint>
 #include <functional>
+#include <fmt/format.h>
 
 struct WorldGenRegion;
 
@@ -147,128 +149,112 @@ struct ChunkSection {
     std::array<BlockData, 4096> blocks{};
 };
 
-enum DIRECTION {
-    SOUTH = 0,
-    EAST = 3,
-    NORTH = 2,
-    WEST = 1
-};
+//struct StructurePiece {
+//    DIRECTION coordBaseMode;
+//    BoundingBox boundingBox;
+//
+//    virtual ~StructurePiece() = default;
+//
+//    virtual void place(WorldGenRegion& region, BoundingBox bb) = 0;
+//
+//    int get_x_with_offset(int x, int z) {
+//        switch (coordBaseMode) {
+//            case SOUTH:
+//            case NORTH:
+//                return boundingBox.minX + x;
+//            case WEST:
+//                return boundingBox.maxX - z;
+//            case EAST:
+//                return boundingBox.minX + z;
+//        }
+//        return x;
+//    }
+//
+//    int get_y_with_offset(int y) {
+//        return boundingBox.minY + y;
+//    }
+//
+//    int get_z_with_offset(int x, int z) {
+//        switch (coordBaseMode) {
+//            case NORTH:
+//                return boundingBox.maxZ - z;
+//            case SOUTH:
+//                return boundingBox.minZ + z;
+//            case WEST:
+//            case EAST:
+//                return boundingBox.minZ + x;
+//        }
+//        return z;
+//    }
+//
+//    auto setBlock(IBlockReader auto &blocks, BoundingBox sbb, int x, int y, int z, BlockData blockData) {
+//        BlockPos blockpos{get_x_with_offset(x, z), get_y_with_offset(y), get_z_with_offset(x, z)};
+//
+//        if (sbb.contains(blockpos.x, blockpos.y, blockpos.z)) {
+//            if (coordBaseMode == EAST || coordBaseMode == NORTH) {
+//                auto val = 0;
+//                if (blockData.dv & BlockPane_WEST) {
+//                    val |= BlockPane_WEST;
+//                }
+//                if (blockData.dv & BlockPane_NORTH) {
+//                    val |= BlockPane_SOUTH;
+//                }
+//                if (blockData.dv & BlockPane_EAST) {
+//                    val |= BlockPane_EAST;
+//                }
+//                if (blockData.dv & BlockPane_SOUTH) {
+//                    val |= BlockPane_NORTH;
+//                }
+//                blockData.dv = val;
+//            }
+//
+//            if (coordBaseMode == EAST || coordBaseMode == WEST) {
+//                auto val = 0;
+//                if (blockData.dv & BlockPane_WEST) {
+//                    val |= BlockPane_SOUTH;
+//                }
+//                if (blockData.dv & BlockPane_NORTH) {
+//                    val |= BlockPane_WEST;
+//                }
+//                if (blockData.dv & BlockPane_EAST) {
+//                    val |= BlockPane_NORTH;
+//                }
+//                if (blockData.dv & BlockPane_SOUTH) {
+//                    val |= BlockPane_EAST;
+//                }
+//                blockData.dv = val;
+//            }
+//
+//            blocks.setData(blockpos.x, blockpos.y, blockpos.z, blockData);
+//        }
+//    }
+//};
 
-enum {
-    BlockPane_WEST = 1,
-    BlockPane_NORTH = 2,
-    BlockPane_EAST = 4,
-    BlockPane_SOUTH = 8,
-};
-
-#include <fmt/format.h>
-
-struct StructurePiece {
-    DIRECTION coordBaseMode;
-    BoundingBox boundingBox;
-
-    virtual ~StructurePiece() = default;
-
-    virtual void place(WorldGenRegion& region, BoundingBox bb) = 0;
-
-    int get_x_with_offset(int x, int z) {
-        switch (coordBaseMode) {
-            case SOUTH:
-            case NORTH:
-                return boundingBox.minX + x;
-            case WEST:
-                return boundingBox.maxX - z;
-            case EAST:
-                return boundingBox.minX + z;
-        }
-        return x;
-    }
-
-    int get_y_with_offset(int y) {
-        return boundingBox.minY + y;
-    }
-
-    int get_z_with_offset(int x, int z) {
-        switch (coordBaseMode) {
-            case NORTH:
-                return boundingBox.maxZ - z;
-            case SOUTH:
-                return boundingBox.minZ + z;
-            case WEST:
-            case EAST:
-                return boundingBox.minZ + x;
-        }
-        return z;
-    }
-
-    auto setBlock(IBlockReader auto &blocks, BoundingBox sbb, int x, int y, int z, BlockData blockData) {
-        BlockPos blockpos{get_x_with_offset(x, z), get_y_with_offset(y), get_z_with_offset(x, z)};
-
-        if (sbb.contains(blockpos.x, blockpos.y, blockpos.z)) {
-            if (coordBaseMode == EAST || coordBaseMode == NORTH) {
-                auto val = 0;
-                if (blockData.dv & BlockPane_WEST) {
-                    val |= BlockPane_WEST;
-                }
-                if (blockData.dv & BlockPane_NORTH) {
-                    val |= BlockPane_SOUTH;
-                }
-                if (blockData.dv & BlockPane_EAST) {
-                    val |= BlockPane_EAST;
-                }
-                if (blockData.dv & BlockPane_SOUTH) {
-                    val |= BlockPane_NORTH;
-                }
-                blockData.dv = val;
-            }
-
-            if (coordBaseMode == EAST || coordBaseMode == WEST) {
-                auto val = 0;
-                if (blockData.dv & BlockPane_WEST) {
-                    val |= BlockPane_SOUTH;
-                }
-                if (blockData.dv & BlockPane_NORTH) {
-                    val |= BlockPane_WEST;
-                }
-                if (blockData.dv & BlockPane_EAST) {
-                    val |= BlockPane_NORTH;
-                }
-                if (blockData.dv & BlockPane_SOUTH) {
-                    val |= BlockPane_EAST;
-                }
-                blockData.dv = val;
-            }
-
-            blocks.setData(blockpos.x, blockpos.y, blockpos.z, blockData);
-        }
-    }
-};
-
-struct StructureStart {
-    BoundingBox boundingBox;
-    std::vector<std::unique_ptr<StructurePiece>> pieces;
-
-    virtual ~StructureStart() = default;
-    virtual void build(int pos_x, int pos_z) = 0;
-
-    void updateBoundingBox() {
-        boundingBox.minX = std::numeric_limits<int>::max();
-        boundingBox.minY = std::numeric_limits<int>::max();
-        boundingBox.minZ = std::numeric_limits<int>::max();
-        boundingBox.maxX = std::numeric_limits<int>::min();
-        boundingBox.maxY = std::numeric_limits<int>::min();
-        boundingBox.maxZ = std::numeric_limits<int>::min();
-
-        for (auto& piece : pieces) {
-            boundingBox.minX = std::min(boundingBox.minX, piece->boundingBox.minX);
-            boundingBox.minY = std::min(boundingBox.minY, piece->boundingBox.minY);
-            boundingBox.minZ = std::min(boundingBox.minZ, piece->boundingBox.minZ);
-            boundingBox.maxX = std::max(boundingBox.maxX, piece->boundingBox.maxX);
-            boundingBox.maxY = std::max(boundingBox.maxY, piece->boundingBox.maxY);
-            boundingBox.maxZ = std::max(boundingBox.maxZ, piece->boundingBox.maxZ);
-        }
-    }
-};
+//struct StructureStart {
+//    BoundingBox boundingBox;
+//    std::vector<std::unique_ptr<StructurePiece>> pieces;
+//
+//    virtual ~StructureStart() = default;
+//    virtual void build(int pos_x, int pos_z) = 0;
+//
+//    void updateBoundingBox() {
+//        boundingBox.minX = std::numeric_limits<int>::max();
+//        boundingBox.minY = std::numeric_limits<int>::max();
+//        boundingBox.minZ = std::numeric_limits<int>::max();
+//        boundingBox.maxX = std::numeric_limits<int>::min();
+//        boundingBox.maxY = std::numeric_limits<int>::min();
+//        boundingBox.maxZ = std::numeric_limits<int>::min();
+//
+//        for (auto& piece : pieces) {
+//            boundingBox.minX = std::min(boundingBox.minX, piece->boundingBox.minX);
+//            boundingBox.minY = std::min(boundingBox.minY, piece->boundingBox.minY);
+//            boundingBox.minZ = std::min(boundingBox.minZ, piece->boundingBox.minZ);
+//            boundingBox.maxX = std::max(boundingBox.maxX, piece->boundingBox.maxX);
+//            boundingBox.maxY = std::max(boundingBox.maxY, piece->boundingBox.maxY);
+//            boundingBox.maxZ = std::max(boundingBox.maxZ, piece->boundingBox.maxZ);
+//        }
+//    }
+//};
 
 struct LightSection {
     std::array<uint8_t, 2048> lights;
@@ -331,6 +317,8 @@ private:
     }
 };
 
+struct Structure;
+struct StructureStart;
 struct Chunk {
     ChunkPos pos;
 	int32_t status = 0;
@@ -348,8 +336,8 @@ struct Chunk {
 	ChunkLayer layers[3]{};
     std::unique_ptr<Mesh> mesh{nullptr};
 
-    std::vector<std::shared_ptr<StructureStart>> structureStarts;
-    std::vector<std::shared_ptr<StructureStart>> structureReferences;
+    std::map<Structure*, StructureStart*> structureStarts;
+//    std::vector<std::shared_ptr<StructureStart>> structureReferences;
 
     explicit Chunk(ChunkPos pos) : pos{pos} {}
 
@@ -508,6 +496,10 @@ struct Chunk {
 
     static constexpr auto toIndex(int32_t x, int32_t y, int32_t z) noexcept -> int32_t {
         return (x << 8) | (z << 4) | y;
+    }
+
+    void addStructureStart(Structure* structure, StructureStart* start) {
+        structureStarts.emplace(structure, start);
     }
 
     void updateHeightmaps() {

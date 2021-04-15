@@ -14,8 +14,8 @@ bool BlueIceFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator,
     }
 
     bool flag = false;
-    for (Direction direction : Directions::values()) {
-        if (direction != Direction::DOWN && reader.getData(Directions::offset(pos, direction)).isIn(Blocks::PACKED_ICE)) {
+    for (Direction direction : DirectionUtil::values()) {
+        if (direction != Direction::DOWN && reader.getData(pos.offset(direction)).isIn(Blocks::PACKED_ICE)) {
             flag = true;
             break;
         }
@@ -43,8 +43,8 @@ bool BlueIceFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator,
                 state.isIn(Blocks::WATER) ||
                 state.isIn(Blocks::PACKED_ICE) ||
                 state.isIn(Blocks::ICE)) {
-                for (Direction direction : Directions::values()) {
-                    if (reader.getData(Directions::offset(blockpos, direction)).isIn(Blocks::BLUE_ICE)) {
+                for (Direction direction : DirectionUtil::values()) {
+                    if (reader.getData(blockpos.offset(direction)).isIn(Blocks::BLUE_ICE)) {
                         reader.setData(blockpos, BLUE_ICE/*, 2*/);
                         break;
                     }

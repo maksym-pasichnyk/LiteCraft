@@ -11,10 +11,10 @@ void CocoaTreeDecorator::decorate(WorldGenRegion &reader, Random &random, std::v
 
         for (const auto &pos : positions1) {
             if (pos.y <= y + 2) {
-                for (Direction direction : Directions::Plane::HORIZONTAL) {
+                for (Direction direction : DirectionUtil::Plane::HORIZONTAL) {
                     if (random.nextFloat() <= 0.25F) {
-                        const auto direction1 = Directions::getOpposite(direction);
-                        const auto blockpos = pos + BlockPos(Directions::getXOffset(direction1), 0, Directions::getZOffset(direction1));
+                        const auto direction1 = DirectionUtil::getOpposite(direction);
+                        const auto blockpos = pos + BlockPos(DirectionUtil::getXOffset(direction1), 0, DirectionUtil::getZOffset(direction1));
                         if (Feature::isAirAt(reader, blockpos)) {
                             const auto state = Blocks::COCOA->getDefaultState();
 //                                    .with(CocoaBlock::AGE, random.nextInt(3))
