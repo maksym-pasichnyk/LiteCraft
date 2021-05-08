@@ -4,6 +4,7 @@
 #include "../biome/provider/BiomeProvider.hpp"
 
 #include <memory>
+#include <mutex>
 
 struct Chunk;
 struct ChunkPos;
@@ -13,6 +14,7 @@ struct StructureManager;
 struct StructureFeature;
 struct ChunkGenerator {
     std::unique_ptr<BiomeProvider> biomeProvider;
+    std::mutex guard;
 
     explicit ChunkGenerator(std::unique_ptr<BiomeProvider>&& biomeProvider);
     virtual ~ChunkGenerator() = default;

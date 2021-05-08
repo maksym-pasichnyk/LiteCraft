@@ -28,6 +28,13 @@ struct ChunkPos {
         return {pos.x >> 4, pos.z >> 4};
     }
 
+    constexpr static auto from(int64_t pack) noexcept -> ChunkPos {
+        return {
+            static_cast<int32_t>(pack & 0xFFFFFFFFLL),
+            static_cast<int32_t>((pack >> 32) & 0xFFFFFFFFLL)
+        };
+    }
+
     constexpr static auto from(int32_t x, int32_t z) noexcept -> ChunkPos {
         return {x, z};
     }

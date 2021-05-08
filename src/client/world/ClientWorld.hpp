@@ -8,8 +8,8 @@
 struct ClientWorld {
     std::unique_ptr<ClientChunkProvider> provider;
 
-    ClientWorld() {
-        provider = std::make_unique<ClientChunkProvider>(8);
+    ClientWorld(int viewDistance) {
+        provider = std::make_unique<ClientChunkProvider>(viewDistance);
     }
 
     void loadChunk(int32_t x, int32_t z, Chunk* chunk) {

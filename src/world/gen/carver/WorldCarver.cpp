@@ -122,7 +122,7 @@ bool WorldCarver::carveBlock(Chunk& chunk, const BiomeReadFn& getBiome, /*BitSet
 
         if (isSurface) {
             if (chunk.getData(posX, posY - 1, posZ).isIn(Blocks::DIRT)) {
-                const auto top = getBiome({posX, posY, posZ})->biomeGenerationSettings.surfaceBuilder.config.top;
+                const auto top = getBiome({posX, posY, posZ})-> biomeGenerationSettings.getSurfaceBuilderConfig().getTop();
                 chunk.setData(posX, posY - 1, posZ, top/*, false*/);
             }
         }

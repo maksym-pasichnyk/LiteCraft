@@ -22,7 +22,7 @@ ChunkPos Structure::getChunkPosForStructure(const StructureSeparation &settings,
     random.setLargeFeatureSeedWithSalt(seed, ix, iz, salt);
     int i1;
     int j1;
-    if (func_230365_b_()) {
+    if (hasSimpleSeparation()) {
         i1 = random.nextInt(spacing - separation);
         j1 = random.nextInt(spacing - separation);
     } else {

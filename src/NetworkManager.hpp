@@ -3,23 +3,31 @@
 #include <cstdio>
 #include <unistd.h>
 #include <fcntl.h>
+#include <mutex>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <fmt/format.h>
 
 #include "Packet.hpp"
 
 struct NetworkConnection {
     int fd;
+    std::mutex guard;
+
+    NetworkConnection(int fd) : fd(fd) {}
 
     template<Packet T>
-    void sendPacket(const T& packet) {
+    bool sendPacket(const T& packet) {
         PacketHeader header {
             .id = T::ID,
             .size = sizeof(T)
         };
 
-        write(fd, &header, sizeof(PacketHeader));
-        write(fd, &packet, sizeof(T));
+        std::array<std::byte, sizeof(PacketHeader) + sizeof(T)> buf;
+        std::memcpy(buf.data(), &header, sizeof(PacketHeader));
+        std::memcpy(buf.data() + sizeof(PacketHeader), &packet, sizeof(T));
+
+        return write(fd, buf.data(), buf.size()) > 0;
     }
 
     std::optional<PacketHeader> readHeader() {
@@ -40,7 +48,8 @@ struct NetworkConnection {
 };
 
 struct NetworkManager {
-    std::array<int, 2> sockets;
+    std::shared_ptr<NetworkConnection> _client;
+    std::shared_ptr<NetworkConnection> _server;
 
     static auto create() -> std::optional<NetworkManager> {
         std::array<int, 2> sockets{};
@@ -57,14 +66,17 @@ struct NetworkManager {
             return std::nullopt;
         }
 
-        return NetworkManager{sockets};
+        return NetworkManager{
+                std::make_shared<NetworkConnection>(sockets[0]),
+                std::make_shared<NetworkConnection>(sockets[1]),
+        };
     }
 
-    auto client() const -> NetworkConnection {
-        return {.fd = sockets[0]};
+    auto client() const -> std::shared_ptr<NetworkConnection> {
+        return _client;
     }
 
-    auto server() const -> NetworkConnection {
-        return {.fd = sockets[1]};
+    auto server() const -> std::shared_ptr<NetworkConnection> {
+        return _server;
     }
 };

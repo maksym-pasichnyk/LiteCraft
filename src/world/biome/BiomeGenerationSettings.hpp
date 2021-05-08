@@ -16,14 +16,14 @@ struct BiomeGenerationSettings {
 //    BiomeGenerationSettings(const BiomeGenerationSettings&) = delete;
 //    BiomeGenerationSettings& operator=(const BiomeGenerationSettings&) = delete;
 
-    ConfiguredSurfaceBuilder surfaceBuilder;
+    ConfiguredSurfaceBuilder* surfaceBuilder;
     std::array<std::vector<ConfiguredCarver>, 2> carvers;
     std::array<std::vector<ConfiguredFeature*>, 10> features;
     std::vector<StructureFeature*> structures;
 //    std::vector<ConfiguredFeature> flowerFeatures;
 
     SurfaceBuilderConfig getSurfaceBuilderConfig() {
-        return surfaceBuilder.config;
+        return surfaceBuilder->config;
     }
 
 //    std::span<ConfiguredFeature*> getFeatures(GenerationStage::Decoration decoration) {
@@ -31,12 +31,12 @@ struct BiomeGenerationSettings {
 //    }
 
     struct Builder {
-        ConfiguredSurfaceBuilder surfaceBuilder;
+        ConfiguredSurfaceBuilder* surfaceBuilder;
         std::array<std::vector<ConfiguredCarver>, 2> carvers;
         std::array<std::vector<ConfiguredFeature*>, 10> features;
         std::vector<StructureFeature*> structures;
 
-        Builder& withSurfaceBuilder(const ConfiguredSurfaceBuilder& builder) {
+        Builder& withSurfaceBuilder(ConfiguredSurfaceBuilder* builder) {
             surfaceBuilder = builder;
             return *this;
         }

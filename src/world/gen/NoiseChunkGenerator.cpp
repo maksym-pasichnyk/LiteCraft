@@ -103,7 +103,7 @@ NoiseChunkGenerator::NoiseChunkGenerator(int64_t seed, std::unique_ptr<BiomeProv
 
     cacheNoiseColumns[0].resize(noiseSizeZ + 1);
     cacheNoiseColumns[1].resize(noiseSizeZ + 1);
-    
+
     for (int z = 0; z < noiseSizeZ + 1; ++z) {
         cacheNoiseColumns[0][z].resize(noiseSizeY + 1);
         cacheNoiseColumns[1][z].resize(noiseSizeY + 1);

@@ -705,4 +705,7 @@ void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
             }
         }
     }
+
+//    fmt::print("vertices: {}\n", rb.vertices.size());
+//    fmt::print("indices: {}, {}, {}\n", rb.indices[0].size(), rb.indices[1].size(), rb.indices[2].size());
 }

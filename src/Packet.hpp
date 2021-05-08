@@ -43,7 +43,7 @@ struct PositionPacket {
 };
 
 struct SChangeBlockPacket {
-    static constexpr int ID = 2;
+    static constexpr int ID = 3;
 
     glm::ivec3 pos;
     BlockData data;

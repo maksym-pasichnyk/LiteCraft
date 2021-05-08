@@ -3,6 +3,7 @@
 #include <span>
 #include <cstdint>
 #include <vector>
+#include <memory>
 
 struct Chunk;
 struct ServerWorld;
@@ -11,8 +12,8 @@ struct WorldLightManager;
 
 struct ChunkStatus {
     static const ChunkStatus Empty;
-//    static const ChunkStatus StructureStart;
-//    static const ChunkStatus StructureReferences;
+    static const ChunkStatus StructureStart;
+    static const ChunkStatus StructureReferences;
 //    static const ChunkStatus Biome;
 //    static const ChunkStatus Noise;
     static const ChunkStatus Surface;
@@ -24,8 +25,8 @@ struct ChunkStatus {
 
     static constexpr std::array ALL {
         &ChunkStatus::Empty,
-//        &ChunkStatus::StructureStart,
-//        &ChunkStatus::StructureReferences,
+        &ChunkStatus::StructureStart,
+        &ChunkStatus::StructureReferences,
 //        &ChunkStatus::Biome,
 //        &ChunkStatus::Noise,
         &ChunkStatus::Surface,
@@ -36,12 +37,12 @@ struct ChunkStatus {
         &ChunkStatus::Full
     };
 
-    using Fn = void(*)(ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<Chunk*> chunks, int64_t seed);
+    using Fn = void(*)(ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed);
 
     int32_t ordinal;
     int32_t range;
     Fn generate;
 
-    static ChunkStatus create(int32_t ordinal, int32_t range, Fn generate) noexcept;
+    static ChunkStatus create(ChunkStatus const* parent, int32_t range, Fn generate) noexcept;
     static ChunkStatus const* getById(int32_t ordinal);
 };

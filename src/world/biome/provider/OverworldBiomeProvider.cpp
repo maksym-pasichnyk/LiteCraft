@@ -7,5 +7,6 @@ OverworldBiomeProvider::OverworldBiomeProvider(int64_t seed, bool legacyBiomes, 
 }
 
 Biome *OverworldBiomeProvider::getNoiseBiome(int x, int y, int z) {
+//    std::lock_guard _{mutex};
     return genBiomes->getBiome(Biomes::biomes, x, z);
 }

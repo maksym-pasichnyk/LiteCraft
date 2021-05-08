@@ -4,19 +4,41 @@
 
 #include <functional>
 
-CraftServer::CraftServer(NetworkConnection connection) : connection(connection) {
+// todo: fix cleanup crash (wait for chunk tasks finished? check around chunks?)
+
+CraftServer::CraftServer(std::shared_ptr<NetworkConnection> connection, int viewDistance) : connection(std::move(connection)), viewDistance(viewDistance) {
     packetManager.bind<SSpawnPlayerPacket, &CraftServer::processSpawnPlayer>();
     packetManager.bind<PositionPacket, &CraftServer::processPlayerPosition>();
     packetManager.bind<CPlayerDiggingPacket, &CraftServer::processPlayerDigging>();
-
-    world = std::make_unique<ServerWorld>(this);
+    packetManager.bind<SChangeBlockPacket, &CraftServer::processChangeBlock>();
 
     workers.emplace_back(&CraftServer::runLoop, this, stop_source.get_token());
 }
 
 void CraftServer::runLoop(std::stop_token &&token) {
+    world = std::make_unique<ServerWorld>(this, viewDistance);
+
     while (!token.stop_requested()) {
-        packetManager.handlePackets(this, connection);
+        packetManager.handlePackets(this, *connection);
+        world->manager->tick();
+
+        const auto stride = (world->manager->viewDistance + 10 + 2) * 2 + 1;
+        if (world->manager->holders.size() > stride * stride) {
+            std::erase_if(world->manager->holders, [this] (auto& it) {
+                const auto pos = ChunkPos::from(it.first);
+                const auto distance = ChunkManager::getChunkDistance(last_player_position, pos);
+                if (distance > (world->manager->viewDistance + 10)) {
+                    for (size_t i = 0; i < 7; ++i) {
+                        if (it.second->chunks[i].has_value() && !it.second->chunks[i]->ready()) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            });
+        }
+
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
@@ -38,23 +60,61 @@ void CraftServer::processPlayerPosition(const PositionPacket &packet) {
 void CraftServer::processPlayerDigging(const CPlayerDiggingPacket& packet) {
     const auto pos = packet.pos;
 
-    std::array<Chunk*, 9> _chunks{};
-    world->manager->fillChunks(_chunks, 1, pos.x >> 4, pos.z >> 4, &ChunkStatus::Full);
-    WorldGenRegion region{world.get(), _chunks, 1, pos.x >> 4, pos.z >> 4, world->seed};
+    const auto [chunk_x, chunk_z] = ChunkPos::from(pos);
 
-    const auto AIR = Blocks::AIR->getDefaultState();
-    const auto old = region.getData(pos);
-    if (region.setData(pos, AIR)) {
-        world->manager->lightManager->update(region, pos.x, pos.y, pos.z, old, AIR);
+    auto chunk = world->manager->getChunk(chunk_x, chunk_z, &ChunkStatus::Full);
+    if (chunk != nullptr) {
+        const auto new_block = Blocks::AIR->getDefaultState();
+        const auto old_block = chunk->getData(pos);
+        if (chunk->setData(pos, new_block)) {
+            std::array chunks{chunk};
 
-        connection.sendPacket(SChangeBlockPacket{
-            .pos = pos,
-            .data = AIR
-        });
-    } else {
-        connection.sendPacket(SChangeBlockPacket{
-            .pos = pos,
-            .data = old
-        });
+            LightContext ctx{
+                .region{world.get(), chunks, 0, chunk_x, chunk_z, 0}
+            };
+
+            world->manager->lightManager->update(ctx, pos.x, pos.y, pos.z, old_block, new_block);
+
+            connection->sendPacket(SChangeBlockPacket{
+                    .pos = pos,
+                    .data = new_block
+            });
+        } else {
+            connection->sendPacket(SChangeBlockPacket{
+                .pos = pos,
+                .data = old_block
+            });
+        }
+    }
+}
+
+void CraftServer::processChangeBlock(const SChangeBlockPacket &packet) {
+    const auto pos = packet.pos;
+
+    const auto [chunk_x, chunk_z] = ChunkPos::from(pos);
+
+    auto chunk = world->manager->getChunk(chunk_x, chunk_z, &ChunkStatus::Full);
+    if (chunk != nullptr) {
+        const auto new_block = packet.data;
+        const auto old_block = chunk->getData(pos);
+        if (chunk->setData(pos, new_block)) {
+            std::array chunks{chunk};
+
+            LightContext ctx{
+                .region{world.get(), chunks, 0, chunk_x, chunk_z, 0}
+            };
+
+            world->manager->lightManager->update(ctx, pos.x, pos.y, pos.z, old_block, new_block);
+
+            connection->sendPacket(SChangeBlockPacket{
+                .pos = pos,
+                .data = new_block
+            });
+        } else {
+            connection->sendPacket(SChangeBlockPacket{
+                .pos = pos,
+                .data = old_block
+            });
+        }
     }
 }

@@ -259,7 +259,7 @@ struct BiomeMaker {
         };
     }
 
-    static Biome* makeMountainBiome(float depth, float scale, ConfiguredSurfaceBuilder surfaceBuilder, bool isEdgeBiome) {
+    static Biome* makeMountainBiome(float depth, float scale, ConfiguredSurfaceBuilder* surfaceBuilder, bool isEdgeBiome) {
 //        MobSpawnInfo::Builder mobSpawnInfo{};
 //        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
 //        mobSpawnInfo.withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::LLAMA, 5, 4, 6));
@@ -654,7 +654,7 @@ struct BiomeMaker {
         return makeGenericSavannaBiome(1.5F, 0.025F, 1.0F, true, false/*, mobSpawnInfo*/);
     }
 
-    static Biome* makeGenericBadlandsBiome(ConfiguredSurfaceBuilder surfaceBuilder, float depth, float scale, bool isHighland, bool hasOakTrees) {
+    static Biome* makeGenericBadlandsBiome(ConfiguredSurfaceBuilder* surfaceBuilder, float depth, float scale, bool isHighland, bool hasOakTrees) {
 //        MobSpawnInfo::Builder mobSpawnInfo{};
 //        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
         auto generation = BiomeGenerationSettings::Builder{}
@@ -748,7 +748,7 @@ struct BiomeMaker {
         };
     }
 
- static BiomeGenerationSettings::Builder getOceanGenerationSettingsBuilder(ConfiguredSurfaceBuilder surfaceBuilder, bool hasOceanMonument, bool isWarmOcean, bool isDeepVariant) {
+ static BiomeGenerationSettings::Builder getOceanGenerationSettingsBuilder(ConfiguredSurfaceBuilder* surfaceBuilder, bool hasOceanMonument, bool isWarmOcean, bool isDeepVariant) {
         auto generation = BiomeGenerationSettings::Builder{}
             .withSurfaceBuilder(surfaceBuilder);
 //        StructureFeature structurefeature = isWarmOcean

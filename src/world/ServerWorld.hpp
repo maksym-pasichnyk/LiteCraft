@@ -15,7 +15,13 @@ struct ServerWorld {
     std::unique_ptr<NoiseChunkGenerator> generator;
     int64_t seed = 1;
 
-    explicit ServerWorld(CraftServer* server);
+    int viewDistance = -1;
+
+    explicit ServerWorld(CraftServer* server, int viewDistance);
+    ~ServerWorld() {
+        manager.reset();
+        generator.reset();
+    }
 
     Biome* getNoiseBiomeRaw(int x, int y, int z);
 };

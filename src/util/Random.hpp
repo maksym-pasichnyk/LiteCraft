@@ -113,8 +113,8 @@ struct Random {
 		return k;
 	}
 
-    constexpr auto setLargeFeatureSeedWithSalt(int64_t baseSeed, int32_t x, int32_t z, int32_t modifier) -> int64_t {
-		const int64_t i = static_cast<int64_t>(x) * 0x4F9939F508LL + static_cast<int64_t>(z) * 0x1ef1565bd5LL + baseSeed + static_cast<int64_t>(modifier);
+    constexpr auto setLargeFeatureSeedWithSalt(int64_t baseSeed, int32_t x, int32_t z, int32_t salt) -> int64_t {
+		const int64_t i = static_cast<int64_t>(x) * 0x4F9939F508LL + static_cast<int64_t>(z) * 0x1ef1565bd5LL + baseSeed + static_cast<int64_t>(salt);
 		setSeed(i);
 		return i;
 	}

@@ -5,7 +5,7 @@
 #include "gen/NoiseChunkGenerator.hpp"
 #include "ChunkManager.hpp"
 
-ServerWorld::ServerWorld(CraftServer *server) : server(server) {
+ServerWorld::ServerWorld(CraftServer *server, int viewDistance) : server(server), viewDistance(viewDistance) {
     generator = std::make_unique<NoiseChunkGenerator>(seed, std::make_unique<OverworldBiomeProvider>(seed, false, false));
 //        generator = std::make_unique<NoiseChunkGenerator>(seed, std::make_unique<SingleBiomeProvider>(Biomes::SWAMP));
     manager = std::make_unique<ChunkManager>(this, generator.get());

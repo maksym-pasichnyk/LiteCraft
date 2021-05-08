@@ -22,3 +22,6 @@
 [submodule "entt"]
 	path = entt
 	url = https://github.com/skypjack/entt.git
+[submodule "promise.hpp"]
+	path = promise.hpp
+	url = https://github.com/BlackMATov/promise.hpp.git

@@ -5,6 +5,8 @@
 #include "../../block/Blocks.hpp"
 #include "../../block/SnowyDirtBlock.hpp"
 #include "../../block/material/Materials.hpp"
+#include "../gen/feature/structure/Structure.hpp"
+#include "../gen/feature/structure/Structures.hpp"
 
 #include <ranges>
 
@@ -15,6 +17,12 @@ const PerlinNoiseGenerator Biome::INFO_NOISE = PerlinNoiseGenerator(Random::from
 void Biome::decorate(ChunkGenerator &generator, WorldGenRegion &region, int64_t seed, Random &random, BlockPos pos) {
     for (int i = 0; i < 10; i++) {
         int k = 0;
+
+        for (auto structure : Structures::stages[i]) {
+            for (auto start : structure->starts) {
+
+            }
+        }
 
         for (auto feature : biomeGenerationSettings.features[i]) {
             random.setFeatureSeed(seed, k, i);

@@ -36,6 +36,7 @@ struct Biome {
     BiomeCategory category;
     BiomeAmbience effects;
 
+    std::mutex temperature_lock;
     linked_unordered_map<uint64_t, float> temperatureCache{};
 
     float getDepth() const {
@@ -67,18 +68,22 @@ struct Biome {
     }
 
     float getTemperature(BlockPos pos) /*const*/ {
-        const auto i = BlockPos::pack(pos.x, pos.y, pos.z);
-        if (temperatureCache.contains(i)) {
-            return temperatureCache.at(i);
-        }
+//        if (temperature_lock.try_lock()) {
+            const auto i = BlockPos::pack(pos.x, pos.y, pos.z);
+            if (temperatureCache.contains(i)) {
+                return temperatureCache.at(i);
+            }
 
-        const auto f = getTemperatureAtPosition(pos);
-        if (temperatureCache.size() >= 1024) {
-            temperatureCache.pop_front();
-        }
+            const auto f = getTemperatureAtPosition(pos);
 
-        temperatureCache.insert({i, f});
-        return f;
+            if (temperatureCache.size() >= 1024) {
+                temperatureCache.pop_front();
+            }
+            temperatureCache.insert({i, f});
+            temperature_lock.unlock();
+            return f;
+//        }
+//        return getTemperatureAtPosition(pos);
     }
 
     BiomeGenerationSettings& getGenerationSettings() {
@@ -86,8 +91,10 @@ struct Biome {
     }
 
     void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int sealevel, int64_t worldSeed) {
-        biomeGenerationSettings.surfaceBuilder.setSeed(worldSeed);
-        biomeGenerationSettings.surfaceBuilder.buildSurface(rand, chunk, *this, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, sealevel);
+//        std::lock_guard _{biomeGenerationSettings.surfaceBuilder->mutex};
+
+        biomeGenerationSettings.surfaceBuilder->setSeed(worldSeed);
+        biomeGenerationSettings.surfaceBuilder->buildSurface(rand, chunk, *this, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, sealevel);
     }
 
     void decorate(ChunkGenerator& generator, WorldGenRegion& region, int64_t seed, Random& random, BlockPos pos);

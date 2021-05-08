@@ -17,6 +17,7 @@
 #include <cstdint>
 #include <functional>
 #include <fmt/format.h>
+#include <atomic>
 
 struct WorldGenRegion;
 
@@ -109,9 +110,18 @@ struct SimpleVBuffer {
     }
 };
 
+#include <fmt/format.h>
+
 struct RenderBuffer {
     std::vector<Vertex> vertices;
     std::array<std::vector<int32_t>, 3> indices{};
+
+    RenderBuffer() {
+        vertices.reserve(20000);
+        indices[0].reserve(20000);
+        indices[1].reserve(20000);
+        indices[2].reserve(20000);
+    }
 
 	auto getForLayer(RenderLayer layer) -> RenderLayerBuilder {
 		return RenderLayerBuilder {
@@ -295,11 +305,11 @@ struct Lightmap {
     }
 
     void setLight(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val) {
-        std::invoke(channel == 0 ? &Lightmap::setBlockLight : &Lightmap::setSkyLight, *this, x, y, z, val);
+        (this->*(channel == 0 ? &Lightmap::setBlockLight : &Lightmap::setSkyLight))(x, y, z, val);
     }
 
     auto getLight(int32_t x, int32_t y, int32_t z, int32_t channel) -> int32_t {
-        return std::invoke(channel == 0 ? &Lightmap::getBlockLight : &Lightmap::getSkyLight, *this, x, y, z);
+        return (this->*(channel == 0 ? &Lightmap::getBlockLight : &Lightmap::getSkyLight))(x, y, z);
     }
 
     auto getLightPacked(int32_t x, int32_t y, int32_t z) -> int32_t {
@@ -312,19 +322,19 @@ private:
     }
 };
 
+#include <mutex>
+
 struct Structure;
 struct StructureStart;
 struct Chunk {
     ChunkPos pos;
-	int32_t status = 0;
-
 	std::array<std::unique_ptr<ChunkSection>, 16> sections{};
-    std::array<std::unique_ptr<LightSection>, 16> skyLightSections{};
-    std::array<std::unique_ptr<LightSection>, 16> blockLightSections{};
+//    std::array<std::unique_ptr<LightSection>, 16> skyLightSections{};
+//    std::array<std::unique_ptr<LightSection>, 16> blockLightSections{};
 
     std::array<std::unique_ptr<Lightmap>, 18> lightSections{};
 
-    Heightmap heightmap{};
+    std::array<Heightmap, 5> heightmaps{};
 
     std::map<Structure*, StructureStart*> structureStarts;
 //    std::vector<std::shared_ptr<StructureStart>> structureReferences;
@@ -381,7 +391,7 @@ struct Chunk {
     }
 
     auto getLight(int32_t x, int32_t y, int32_t z, int32_t channel) const -> int32_t {
-        auto& section = lightSections[(y >> 4) + 1];
+        auto section = lightSections[(y >> 4) + 1].get();
         if (section == nullptr) {
             return 0;
         }
@@ -415,21 +425,21 @@ struct Chunk {
 
     void updateHeightmap(int32_t x, int32_t y, int32_t z, BlockData data) {
         const int32_t i = x | (z << 4);
-        const int32_t height = heightmap.getAt(i);
+        const int32_t height = heightmaps[0].getAt(i);
 
         if (y > height - 2) {
             if (!data.isAir()) {
                 if (y >= height) {
-                    heightmap.setAt(i, y + 1);
+                    heightmaps[0].setAt(i, y + 1);
                 }
             } else if (height - 1 == y) {
                 for (int y1 = y - 1; y1 >= 0; --y1) {
                     if (!getData(x, y1, z).isAir()) {
-                        heightmap.setAt(i, y1 + 1);
+                        heightmaps[0].setAt(i, y1 + 1);
                         break;
                     }
                 }
-                heightmap.setAt(i, 0);
+                heightmaps[0].setAt(i, 0);
             }
         }
     }
@@ -439,7 +449,7 @@ struct Chunk {
     }
 
     auto getData(int32_t x, int32_t y, int32_t z) const -> BlockData {
-    	auto& section = sections[y >> 4];
+    	auto section = sections[y >> 4].get();
     	if (section == nullptr) {
 			return {};
     	}
@@ -451,7 +461,7 @@ struct Chunk {
     }
 
     auto getHeight(HeightmapType type, int32_t x, int32_t z) -> int32_t {
-        return heightmap.get(x, z);
+        return heightmaps[0].get(x, z);
     }
 
     auto getTopBlockY(HeightmapType type, int32_t x, int32_t z) -> int32_t {
@@ -473,7 +483,7 @@ struct Chunk {
 
                 for (int y = 255; y >= 0; y--) {
                     if (!getData(x, y, z).isAir()) {
-                        heightmap.setAt(i, y + 1);
+                        heightmaps[0].setAt(i, y + 1);
                         break;
                     }
                 }

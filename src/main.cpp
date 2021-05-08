@@ -50,6 +50,9 @@
 
 #include <future>
 
+#include "util/generate_queue.hpp"
+#include "util/complete_queue.hpp"
+
 extern void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks);
 
 struct CameraConstants {
@@ -204,84 +207,9 @@ struct ViewFrustum {
     }
 };
 
-template <typename T>
-struct generate_queue {
-    void clear() {
-        if (std::unique_lock _{mutex}) {
-            queue = {};
-        }
-        signal.notify_all();
-    }
-    bool empty() const {
-        std::unique_lock _{mutex};
-        return queue.empty();
-    }
-    size_t size() const {
-        std::unique_lock _{mutex};
-        return queue.size();
-    }
-    template <typename... Args>
-    void emplace(Args&&... args) {
-        if (std::unique_lock _{mutex}) {
-            queue.emplace(std::forward<Args>(args)...);
-        }
-        signal.notify_one();
-    }
-
-    std::optional<T> try_pop(std::stop_token& token) {
-        std::unique_lock lock{mutex};
-        signal.wait(lock, [this, &token] {
-            return !queue.empty() || token.stop_requested();
-        });
-        if (token.stop_requested()) {
-            return std::nullopt;
-        }
-        T res = std::move(queue.front());
-        queue.pop();
-        return std::move(res);
-    }
-
-private:
-    std::mutex mutex;
-    std::condition_variable signal;
-    std::queue<T> queue;
-};
-
-template <typename T>
-struct complete_queue {
-    bool empty() const {
-        std::unique_lock _{mutex};
-        return queue.empty();
-    }
-    size_t size() const {
-        std::unique_lock _{mutex};
-        return queue.size();
-    }
-
-    template <typename... Args>
-    void emplace(Args&&... args) {
-        std::unique_lock _{mutex};
-        queue.emplace(std::forward<Args>(args)...);
-    }
-
-    std::optional<T> try_pop() {
-        std::unique_lock _{mutex};
-        if (queue.empty()) {
-            return std::nullopt;
-        }
-        T res = std::move(queue.front());
-        queue.pop();
-        return std::move(res);
-    }
-
-private:
-    std::mutex mutex;
-    std::queue<T> queue;
-};
-
 struct ChunkRenderDispatcher {
     ClientWorld* world;
-    std::vector<std::jthread> workers{};
+    std::vector<std::thread> workers{};
 
     generate_queue<std::pair<ChunkRenderData*, std::unique_ptr<ChunkRenderCache>>> tasks;
     complete_queue<ChunkRenderData*> uploadTasks;
@@ -294,7 +222,9 @@ struct ChunkRenderDispatcher {
 
     ~ChunkRenderDispatcher() {
         stop_source.request_stop();
+        uploadTasks.clear();
         tasks.clear();
+        std::ranges::for_each(workers, std::mem_fn(&std::thread::join));
         workers.clear();
     }
 
@@ -306,16 +236,13 @@ struct ChunkRenderDispatcher {
 
     void runLoop(std::stop_token&& token) {
         while (!token.stop_requested()) {
-            auto task = tasks.try_pop(token);
-            if (!task.has_value()) {
-                break;
+            while (auto task = tasks.try_pop()) {
+                auto [data, cache] = std::move(*task);
+                renderBlocks(data->rb, *cache);
+                uploadTasks.emplace(data);
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
             }
-
-            auto [data, cache] = std::move(*task);
-            renderBlocks(data->rb, *cache);
-            uploadTasks.emplace(data);
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }
 
@@ -356,7 +283,7 @@ struct App {
     ResourcePackManager resources{};
 
     NetworkManager nm;
-    NetworkConnection connection;
+    std::shared_ptr<NetworkConnection> connection;
     PacketManager<App, 10> packetManager;
 
     Input input{};
@@ -373,6 +300,8 @@ struct App {
 
 	glm::vec3 velocity{0, 0, 0};
 	int cooldown = 0;
+
+	int viewDistance = 19;
 
     GLuint entity_pipeline;
     GLuint simple_pipeline;
@@ -421,11 +350,75 @@ struct App {
         SDL_SetWindowResizable(window, SDL_FALSE);
 
         glewInit();
+
+        glEnable(GL_DEBUG_OUTPUT);
+        glDebugMessageCallback(GraphicsDebugCallback, nullptr);
+
         glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
 
         createFrames(width, height);
         createImGui();
     }
+
+    static void GraphicsDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const *message, void const *user_param) {
+        auto source_str = [source]() -> std::string_view {
+            switch (source) {
+                case GL_DEBUG_SOURCE_API:
+                    return "API";
+                case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+                    return "WINDOW SYSTEM";
+                case GL_DEBUG_SOURCE_SHADER_COMPILER:
+                    return "SHADER COMPILER";
+                case GL_DEBUG_SOURCE_THIRD_PARTY:
+                    return "THIRD PARTY";
+                case GL_DEBUG_SOURCE_APPLICATION:
+                    return "APPLICATION";
+                case GL_DEBUG_SOURCE_OTHER:
+                    return "OTHER";
+                default:
+                    return "UNKNOWN";
+            }
+        }();
+
+        auto type_str = [type]() -> std::string_view {
+            switch (type) {
+                case GL_DEBUG_TYPE_ERROR:
+                    return "ERROR";
+                case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+                    return "DEPRECATED_BEHAVIOR";
+                case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+                    return "UNDEFINED_BEHAVIOR";
+                case GL_DEBUG_TYPE_PORTABILITY:
+                    return "PORTABILITY";
+                case GL_DEBUG_TYPE_PERFORMANCE:
+                    return "PERFORMANCE";
+                case GL_DEBUG_TYPE_MARKER:
+                    return "MARKER";
+                case GL_DEBUG_TYPE_OTHER:
+                    return "OTHER";
+                default:
+                    return "UNKNOWN";
+            }
+        }();
+
+        auto severity_str = [severity]() -> std::string_view {
+            switch (severity) {
+                case GL_DEBUG_SEVERITY_NOTIFICATION:
+                    return "NOTIFICATION";
+                case GL_DEBUG_SEVERITY_LOW:
+                    return "LOW";
+                case GL_DEBUG_SEVERITY_MEDIUM:
+                    return "MEDIUM";
+                case GL_DEBUG_SEVERITY_HIGH:
+                    return "HIGH";
+                default:
+                    return "UNKNOWN";
+            }
+        }();
+
+        fmt::print("{}, {}, {}, {}: {}\n", source_str, type_str, severity_str, id, message);
+    }
+
 
     void createFrames(uint32_t width, uint32_t height) {
         const std::array attributes {
@@ -531,17 +524,17 @@ struct App {
             if (input.isMouseButtonPressed(Input::MouseButton::Left)) {
                 cooldown = 10;
 
-                connection.sendPacket(CPlayerDiggingPacket{
+                connection->sendPacket(CPlayerDiggingPacket{
                     .pos = rayTraceResult->pos,
                     .dir = rayTraceResult->dir
                 });
             } else if (input.isMouseButtonPressed(Input::MouseButton::Right)) {
                 cooldown = 10;
 
-//                connection.sendPacket(SChangeBlockPacket{
-//                    .pos = rayTraceResult->pos + rayTraceResult->dir,
-//                    .data = Blocks::TORCH->getDefaultState()
-//                });
+                connection->sendPacket(SChangeBlockPacket{
+                    .pos = rayTraceResult->pos + rayTraceResult->dir,
+                    .data = Blocks::STONE->getDefaultState()
+                });
             }
 		}
     }
@@ -629,7 +622,7 @@ struct App {
 
                 world->provider->chunkArray.setCenter(center_x, center_z);
 
-                connection.sendPacket(PositionPacket{
+                connection->sendPacket(PositionPacket{
                     .pos = transform.position
                 });
             }
@@ -785,7 +778,7 @@ struct App {
         }
 	}
 
-    std::future<void> loadResources() {
+    promise_hpp::promise<void> loadResources() {
         using namespace std::string_view_literals;
 
         resources.addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla"));
@@ -809,7 +802,7 @@ struct App {
 
         BlockGraphics::mTerrainTextureAtlas = &texture_atlas;
 
-        return std::async(std::launch::async, [this] {
+        return executor.schedule([this] {
             Materials::registerMaterials();
             BlockGraphics::initBlocks(resources);
             Blocks::registerBlocks();
@@ -833,11 +826,10 @@ struct App {
         nm = NetworkManager::create().value();
         connection = nm.client();
 
-        frustum = std::make_unique<ViewFrustum>(8);
-        world = std::make_unique<ClientWorld>();
+        frustum = std::make_unique<ViewFrustum>(viewDistance);
+        world = std::make_unique<ClientWorld>(viewDistance);
         renderDispatcher = std::make_unique<ChunkRenderDispatcher>(world.get());
-
-        server = std::make_unique<CraftServer>(nm.server());
+        server = std::make_unique<CraftServer>(std::move(nm.server()), viewDistance);
     }
 
     void sendSpawnPacket() {
@@ -849,7 +841,7 @@ struct App {
 
         world->provider->chunkArray.setCenter(center_x, center_z);
 
-        connection.sendPacket(SSpawnPlayerPacket{
+        connection->sendPacket(SSpawnPlayerPacket{
             .pos = transform.position
         });
     }
@@ -872,14 +864,9 @@ struct App {
         renderTerrain();
     }
 
-    std::queue<std::future<void>> waitQueue;
+    scheduler_hpp::scheduler executor;
 
     void runGameLoop(bool renderWorld) {
-        while (!waitQueue.empty()) {
-            waitQueue.front().wait();
-            waitQueue.pop();
-        }
-
         const auto time = std::chrono::high_resolution_clock::now();
         const auto dt = std::chrono::duration<double>(time - startTime).count();
 
@@ -895,7 +882,7 @@ struct App {
         startTime = time;
 
         updateInput(dt);
-        packetManager.handlePackets(this, connection);
+        packetManager.handlePackets(this, *connection);
 
         glClearNamedFramebufferfv(frames[frameIndex].framebuffer, GL_COLOR, 0, glm::value_ptr(FOG_COLOR));
         glClearNamedFramebufferfi(frames[frameIndex].framebuffer, GL_DEPTH_STENCIL, 0, 0, 0);
@@ -909,13 +896,20 @@ struct App {
         ImGui_ImplSDL2_NewFrame(window);
         ImGui::NewFrame();
         ImGui::SetNextWindowPos(ImVec2(0, 0));
-        ImGui::SetNextWindowSize(ImVec2(300, 150));
+        ImGui::SetNextWindowSize(ImVec2(300, /*150*/400));
         ImGui::Begin("Debug panel", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoSavedSettings);
         ImGui::Text("FPS: %d", FPS);
         ImGui::Text("Position: %.2f, %.2f, %.2f", transform.position.x, transform.position.y, transform.position.z);
-        ImGui::Text("Server chunks: %d", static_cast<int>(server->world->manager->chunks.size()));
+        if (server->world && server->world->manager)
+        ImGui::Text("Server chunks: %d", static_cast<int>(server->world->manager->holders.size()));
         ImGui::Text("Client chunks: %d", world->provider->chunkArray.getLoaded());
         ImGui::Text("Render chunks: %zu", chunkToRenders.size());
+        ImGui::Text("Render distance: %d", viewDistance);
+
+//        for (int i = 0; i < 5; ++i) {
+//            ImGui::Text("%d -> %d", i, static_cast<int32_t>(server->world->manager->tasks[i].size()));
+//        }
+
         ImGui::Text("Debug camera: %s", debugCamera ? "true" : "false");
         ImGui::End();
         ImGui::Render();
@@ -942,42 +936,16 @@ struct App {
 
         camera.setSize(displaySize.x, displaySize.y);
 
-        waitQueue.emplace(loadResources());
-
-        while (!waitQueue.empty()) {
-            auto task = std::move(waitQueue.front());
-            waitQueue.pop();
-
-            wait_for(task, [this] {
-                ImGui_ImplOpenGL3_NewFrame();
-                ImGui_ImplSDL2_NewFrame(window);
-                ImGui::NewFrame();
-
-                ImGui::SetNextWindowPos(ImVec2(0, 0));
-                ImGui::SetNextWindowSize(ImVec2(displaySize.x, displaySize.y));
-                ImGui::Begin("Loading", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoSavedSettings);
-                ImGui::Text("Loading...");
-                ImGui::End();
-                ImGui::Render();
-
-                const glm::vec4 CLEAR_COLOR{0, 0, 0, 0};
-
-                glClearNamedFramebufferfv(frames[frameIndex].framebuffer, GL_COLOR, 0, glm::value_ptr(CLEAR_COLOR));
-                glClearNamedFramebufferfi(frames[frameIndex].framebuffer, GL_DEPTH_STENCIL, 0, 0, 0);
-                glBindFramebuffer(GL_FRAMEBUFFER, frames[frameIndex].framebuffer);
-                ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-                glBlitNamedFramebuffer(frames[frameIndex].framebuffer, 0, 0, 0, displaySize.x, displaySize.y, 0, 0, displaySize.x, displaySize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-                glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-                flipFrame();
-            });
-        }
-
-        createWorld();
-        sendSpawnPacket();
+        auto loading = loadResources()
+                        .then([this] {
+                            createWorld();
+                            sendSpawnPacket();
+                        });
 
         startTime = std::chrono::high_resolution_clock::now();
         while (running) {
+            executor.process_all_tasks();
+
             runGameLoop(true);
         }
     }

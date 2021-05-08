@@ -5,7 +5,10 @@
 
 #include <memory>
 
+#include <mutex>
+
 struct OverworldBiomeProvider : BiomeProvider {
+    std::mutex mutex;
     std::unique_ptr<Layer> genBiomes{};
 
     OverworldBiomeProvider(int64_t seed, bool legacyBiomes, bool largeBiomes);
