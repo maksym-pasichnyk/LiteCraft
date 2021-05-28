@@ -24,7 +24,7 @@ struct WeightedList {
     }
 
     decltype(auto) get(Random& random) const {
-        size_t index = elements.size();
+        size_t index = 0;
         double chance = std::numeric_limits<double>::min();
         for (size_t i = 0; i < elements.size(); i++) {
             const float entry_chance = -std::pow(random.nextFloat(), 1.0f / static_cast<float>(elements[i].second));

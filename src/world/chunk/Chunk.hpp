@@ -322,8 +322,6 @@ private:
     }
 };
 
-#include <mutex>
-
 struct Structure;
 struct StructureStart;
 struct Chunk {

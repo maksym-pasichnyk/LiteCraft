@@ -5,6 +5,7 @@
 
 #include "../../util/math/Math.hpp"
 
+#include <optional>
 #include <memory>
 #include <vector>
 #include <fmt/format.h>
