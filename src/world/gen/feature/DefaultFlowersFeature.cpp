@@ -12,11 +12,13 @@ int DefaultFlowersFeature::getFlowerCount(const BlockClusterFeatureConfig &confi
 }
 
 BlockPos DefaultFlowersFeature::getNearbyPos(Random &rand, BlockPos pos, const BlockClusterFeatureConfig &config) {
-    return pos + BlockPos(
-        rand.nextInt(config.xspread) - rand.nextInt(config.xspread),
-        rand.nextInt(config.yspread) - rand.nextInt(config.yspread),
-        rand.nextInt(config.zspread) - rand.nextInt(config.zspread)
-    );
+    const int x0 = rand.nextInt(config.xspread);
+    const int x1 = rand.nextInt(config.xspread);
+    const int y0 = rand.nextInt(config.yspread);
+    const int y1 = rand.nextInt(config.yspread);
+    const int z0 = rand.nextInt(config.zspread);
+    const int z1 = rand.nextInt(config.zspread);
+    return pos + BlockPos(x0 - x1, y0 - y1, z0 - z1);
 }
 
 BlockData DefaultFlowersFeature::getFlowerToPlace(Random &rand, BlockPos pos, const BlockClusterFeatureConfig &config) {

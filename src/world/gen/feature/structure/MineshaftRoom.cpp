@@ -4,7 +4,10 @@
 #include "../../../../block/Blocks.hpp"
 
 MineshaftPieces::Room::Room(int componentIndex, Random &random, int x, int z, MineshaftType type) : MineshaftPieces::Piece(componentIndex, type) {
-    bounds = BoundingBox{x, 50, z, x + 7 + random.nextInt(6), 54 + random.nextInt(6), z + 7 + random.nextInt(6)};
+    const int dx = random.nextInt(6);
+    const int dy = random.nextInt(6);
+    const int dz = random.nextInt(6);
+    bounds = BoundingBox{x, 50, z, x + 7 + dx, 54 + dy, z + 7 + dz};
 }
 
 void MineshaftPieces::Room::buildComponent(StructurePiece *start, std::vector<StructurePiece*> &pieces, Random &random) {

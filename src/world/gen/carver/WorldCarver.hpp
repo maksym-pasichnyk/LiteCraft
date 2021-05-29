@@ -23,9 +23,9 @@ struct WorldCarver {
     }
     bool canCarveBlock(const BlockData& data, const BlockData& above);
 
-    virtual bool shouldCarveBlock(double d0, double d1, double d2, int d3) = 0;
+    virtual bool isOutsideCaveRadius(double d0, double d1, double d2, int d3) = 0;
     virtual bool carveRegion(Chunk& chunk, const BiomeReadFn& getBiome, Random& rand, int32_t seaLevel, int32_t xoffset, int32_t zoffset, int32_t chunkx, int32_t chunkz/*, BitSet carvingMask*/) = 0;
-    virtual bool carveBlock(Chunk& chunk, const BiomeReadFn& getBiome, /*BitSet carvingMask,*/ Random& rand, int seaLevel, int chunkX, int chunkZ, int posX, int posZ, int x, int posY, int z, bool& isSurface);
+    virtual bool carveBlock(Chunk& chunk, const BiomeReadFn& getBiome, /*BitSet carvingMask,*/ Random& rand, int seaLevel, int chunkX, int chunkZ, int xpos, int ypos, int zpos, bool& is_surface);
     virtual bool hasCarvableFluids(Chunk& chunk, int chunkX, int chunkZ, int minX, int maxX, int minY, int maxY, int minZ, int maxZ);
 
     bool carveBlocks(Chunk& chunk, const BiomeReadFn& getBiome, int64_t seed, int seaLevel, int chunkx, int chunkz, double xcoord, double ycoord, double zcoord, double unk1, double unk2/*, BitSet carvingMask*/);

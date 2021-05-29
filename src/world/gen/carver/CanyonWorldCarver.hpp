@@ -7,7 +7,7 @@ struct CanyonWorldCarver : WorldCarver {
 
     CanyonWorldCarver() : WorldCarver(256) {}
 
-    bool shouldCarveBlock(double d0, double d1, double d2, int d3) override {
+    bool isOutsideCaveRadius(double d0, double d1, double d2, int d3) override {
         return ((((d0 * d0) + (d2 * d2)) * (double) rs[d3 - 1]) + ((d1 * d1) / 6.0)) >= 1.0;
     }
 

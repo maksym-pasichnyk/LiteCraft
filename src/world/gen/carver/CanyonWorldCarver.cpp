@@ -10,7 +10,8 @@ bool CanyonWorldCarver::carveRegion(Chunk &chunk, const BiomeReadFn &getBiome, R
 
     const float pitch = rand.nextFloat() * (static_cast<float>(M_PI) * 2.0F);
     const float yaw = (rand.nextFloat() - 0.5F) * 2.0F / 8.0F;
-    const float radius = (rand.nextFloat() * 2.0F + rand.nextFloat()) * 2.0F;
+    const float a = rand.nextFloat() * 2.0F;
+    const float radius = (a + rand.nextFloat()) * 2.0F;
     const int j = i - rand.nextInt(i / 4);
 
     addTunel(chunk, getBiome, rand.nextLong(), seaLevel, chunkx, chunkz, xpos, ypos, zpos, radius, pitch, yaw, 0, j, 3.0/*, carvingMask*/);
@@ -23,7 +24,8 @@ void CanyonWorldCarver::addTunel(Chunk &chunk, const BiomeReadFn &getBiome, int6
     float f = 1.0F;
     for (int i = 0; i < 256; ++i) {
         if (i == 0 || rand.nextInt(3) == 0) {
-            f = 1.0F + rand.nextFloat() * rand.nextFloat();
+            const float f0 = rand.nextFloat();
+            f = 1.0F + f0 * rand.nextFloat();
         }
 
         rs[i] = f * f;
@@ -45,8 +47,12 @@ void CanyonWorldCarver::addTunel(Chunk &chunk, const BiomeReadFn &getBiome, int6
         yaw = yaw * 0.7F;
         yaw = yaw + f1 * 0.05F;
         pitch += f4 * 0.05F;
-        f1 = f1 * 0.8F + (rand.nextFloat() - rand.nextFloat()) * rand.nextFloat() * 2.0F;
-        f4 = f4 * 0.5F + (rand.nextFloat() - rand.nextFloat()) * rand.nextFloat() * 4.0F;
+        const float g0 = rand.nextFloat();
+        const float g1 = rand.nextFloat();
+        f1 = f1 * 0.8F + (g0 - g1) * rand.nextFloat() * 2.0F;
+        const float g2 = rand.nextFloat();
+        const float g3 = rand.nextFloat();
+        f4 = f4 * 0.5F + (g2 - g3) * rand.nextFloat() * 4.0F;
         if (rand.nextInt(4) != 0) {
             if (!isInsideCarveRadius(chunkx, chunkz, xcoord, zcoord, j, unk2, radius)) {
                 return;

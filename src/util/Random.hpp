@@ -54,7 +54,7 @@ struct Random {
 	}
 
     constexpr auto nextLong() -> int64_t {
-        return (static_cast<int64_t>(next(32)) << 32) | next(32);
+        return (static_cast<int64_t>(next(32)) << 32) + next(32);
     }
 
     constexpr auto nextBoolean() -> bool {
@@ -66,7 +66,7 @@ struct Random {
     }
 
     constexpr auto nextDouble() -> double {
-    	return static_cast<double>(((static_cast<int64_t>(next(26)) << 27u)) | next(27)) * RANDOM_SCALE;
+    	return static_cast<double>(((static_cast<int64_t>(next(26)) << 27u)) + next(27)) * RANDOM_SCALE;
 	}
 
     constexpr auto initialScramble(int64_t v) -> int64_t {

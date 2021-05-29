@@ -322,6 +322,8 @@ private:
     }
 };
 
+#include <bitset>
+
 struct Structure;
 struct StructureStart;
 struct Chunk {
@@ -335,6 +337,7 @@ struct Chunk {
     std::array<Heightmap, 5> heightmaps{};
 
     std::map<Structure*, StructureStart*> structureStarts;
+    std::bitset<65536> carvingMask;
 //    std::vector<std::shared_ptr<StructureStart>> structureReferences;
 
     explicit Chunk(ChunkPos pos) : pos{pos} {}

@@ -13,5 +13,5 @@ struct NetherCaveCarver : CaveWorldCarver {
     }
     int getRandomStartY(Random &rand) override;
     float getRandomCaveRadius(Random &rand) override;
-    bool carveBlock(Chunk& chunk, const BiomeReadFn& getBiome, /*BitSet carvingMask,*/ Random& rand, int seaLevel, int chunkX, int chunkZ, int posX, int posZ, int x, int posY, int z, bool& isSurface) override;
+    bool carveBlock(Chunk& chunk, const BiomeReadFn& getBiome, /*BitSet carvingMask,*/ Random& rand, int seaLevel, int chunkX, int chunkZ, int posX, int posY, int posZ, bool& isSurface) override;
 };

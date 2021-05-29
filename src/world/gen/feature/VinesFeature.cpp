@@ -8,8 +8,11 @@
 bool VinesFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Random &random, BlockPos pos, const FeatureConfig &config) {
     const auto VINE = Blocks::VINE->getDefaultState();
     for (int y = 64; y < 256; ++y) {
-        const auto x = pos.x + random.nextInt(4) - random.nextInt(4);
-        const auto z = pos.z + random.nextInt(4) - random.nextInt(4);
+        const int ox = random.nextInt(4);
+        const auto x = pos.x + ox - random.nextInt(4);
+
+        const int oz = random.nextInt(4);
+        const auto z = pos.z + oz - random.nextInt(4);
 
         const BlockPos blockpos{x, y, z};
         if (reader.isAirBlock(blockpos)) {

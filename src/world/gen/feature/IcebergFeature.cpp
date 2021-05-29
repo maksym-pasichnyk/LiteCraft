@@ -190,7 +190,9 @@ bool IcebergFeature::generate(WorldGenRegion &region, ChunkGenerator &generator,
     const int i = 11 - random.nextInt(5);
     const int j = 3 + random.nextInt(3);
     const bool flag1 = random.nextDouble() > 0.7;
-    int l = flag1 ? random.nextInt(6) + 6 : random.nextInt(15) + 3;
+    int l = flag1
+            ? (random.nextInt(6) + 6)
+            : (random.nextInt(15) + 3);
     if (!flag1 && random.nextDouble() > 0.9) {
         l += random.nextInt(19) + 7;
     }
@@ -198,7 +200,9 @@ bool IcebergFeature::generate(WorldGenRegion &region, ChunkGenerator &generator,
     pos.y = region.getSeaLevel();
 
     const int i1 = std::min(l + random.nextInt(11), 18);
-    const int j1 = std::min(l + random.nextInt(7) - random.nextInt(5), 11);
+    const int g0 = random.nextInt(7);
+    const int g1 = random.nextInt(5);
+    const int j1 = std::min(l + g0 - g1, 11);
     const int k1 = flag1 ? i : 11;
 
     for (int l1 = -k1; l1 < k1; ++l1) {
@@ -228,7 +232,9 @@ bool IcebergFeature::generate(WorldGenRegion &region, ChunkGenerator &generator,
         }
     }
 
-    const bool flag2 = flag1 ? random.nextDouble() > 0.1 : random.nextDouble() > 0.7;
+    const bool flag2 = flag1
+            ? (random.nextDouble() > 0.1)
+            : (random.nextDouble() > 0.7);
     if (flag2) {
         func_205184_a(random, region, j1, l, pos, flag1, i, d0, j);
     }

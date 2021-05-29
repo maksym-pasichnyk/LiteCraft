@@ -77,6 +77,7 @@ void ChunkGenerator::getStructureReferences(WorldGenRegion &region, Chunk& chunk
 //    }
 }
 
+std::set<int64_t> _temp;
 void ChunkGenerator::generateCarvers(WorldGenRegion& region, int64_t seed, Chunk& chunk/*, GenerationStage::Carving carving*/) {
     const auto [xpos, zpos] = chunk.pos;
 

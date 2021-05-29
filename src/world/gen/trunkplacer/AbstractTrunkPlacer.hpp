@@ -32,7 +32,9 @@ struct AbstractTrunkPlacer {
         , height_rand_b(height_rand_b) {}
 
     int getRandomHeight(Random& random) {
-        return base_height + random.nextInt(height_rand_a + 1) + random.nextInt(height_rand_b + 1);
+        const auto a = random.nextInt(height_rand_a + 1);
+        const auto b = random.nextInt(height_rand_b + 1);
+        return base_height + a + b;
     }
 
     virtual std::list<FoliagePlacer::Foliage> getFoliages(WorldGenRegion& reader, Random& random, int heightIn, const BlockPos& blockPosIn, std::set<BlockPos>& set1, BoundingBox& boundingBox, const BaseTreeFeatureConfig& config) = 0;

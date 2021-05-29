@@ -9,9 +9,11 @@ int CaveWorldCarver::getRandomStartY(Random &rand) {
 }
 
 float CaveWorldCarver::getRandomCaveRadius(Random &rand) {
-    float radius = rand.nextFloat() * 2.0F + rand.nextFloat();
+    const float f0 = rand.nextFloat();
+    float radius = f0 * 2.0F + rand.nextFloat();
     if (rand.nextInt(10) == 0) {
-        radius *= rand.nextFloat() * rand.nextFloat() * 3.0F + 1.0F;
+        const float f1 = rand.nextFloat();
+        radius *= f1 * rand.nextFloat() * 3.0F + 1.0F;
     }
     return radius;
 }
@@ -44,7 +46,7 @@ bool CaveWorldCarver::carveRegion(Chunk &chunk, const BiomeReadFn &getBiome, Ran
 }
 
 void CaveWorldCarver::addRoom(Chunk &chunk, const BiomeReadFn& getBiome, int64_t seed, int seaLevel, int chunkx, int chunkz, double randOffsetXCoord, double ycoord, double zcoord, float caveRadius, double unk3/*, BitSet carvingMask*/) {
-    const double d0 = 1.5 + static_cast<double>(std::sin(static_cast<float>(M_PI) * 2.0F) * caveRadius);
+    const double d0 = 1.5 + static_cast<double>(std::sin(static_cast<float>(M_PI) / 2.0F) * caveRadius);
     const double d1 = d0 * unk3;
     carveBlocks(chunk, getBiome, seed, seaLevel, chunkx, chunkz, randOffsetXCoord + 1.0, ycoord, zcoord, d0, d1/*, carvingMask*/);
 }
@@ -66,11 +68,17 @@ void CaveWorldCarver::addTunel(Chunk &chunk, const BiomeReadFn& getBiome, int64_
         yaw = yaw * (flag ? 0.92F : 0.7F);
         yaw = yaw + f1 * 0.1F;
         pitch += f * 0.1F;
-        f1 = f1 * 0.9F + (rand.nextFloat() - rand.nextFloat()) * rand.nextFloat() * 2.0F;
-        f = f * 0.75F + (rand.nextFloat() - rand.nextFloat()) * rand.nextFloat() * 4.0F;
+        const float g0 = rand.nextFloat();
+        const float g1 = rand.nextFloat();
+        f1 = f1 * 0.9F + (g0 - g1) * rand.nextFloat() * 2.0F;
+        const float g2 = rand.nextFloat();
+        const float g3 = rand.nextFloat();
+        f = f * 0.75F + (g2 - g3) * rand.nextFloat() * 4.0F;
         if (j == i && radius > 1.0F) {
-            addTunel(chunk, getBiome, rand.nextLong(), seaLevel, chunkx, chunkz, xcoord, ycoord, zcoord, rand.nextFloat() * 0.5F + 0.5F, pitch - (static_cast<float>(M_PI) / 2.0F), yaw / 3.0F, j, unk2, 1.0/*, carvingMask*/);
-            addTunel(chunk, getBiome, rand.nextLong(), seaLevel, chunkx, chunkz, xcoord, ycoord, zcoord, rand.nextFloat() * 0.5F + 0.5F, pitch + (static_cast<float>(M_PI) / 2.0F), yaw / 3.0F, j, unk2, 1.0/*, carvingMask*/);
+            const auto seed2 = rand.nextLong();
+            addTunel(chunk, getBiome, seed2, seaLevel, chunkx, chunkz, xcoord, ycoord, zcoord, rand.nextFloat() * 0.5F + 0.5F, pitch - (static_cast<float>(M_PI) / 2.0F), yaw / 3.0F, j, unk2, 1.0/*, carvingMask*/);
+            const auto seed3 = rand.nextLong();
+            addTunel(chunk, getBiome, seed3, seaLevel, chunkx, chunkz, xcoord, ycoord, zcoord, rand.nextFloat() * 0.5F + 0.5F, pitch + (static_cast<float>(M_PI) / 2.0F), yaw / 3.0F, j, unk2, 1.0/*, carvingMask*/);
             return;
         }
 
@@ -84,6 +92,6 @@ void CaveWorldCarver::addTunel(Chunk &chunk, const BiomeReadFn& getBiome, int64_
     }
 }
 
-bool CaveWorldCarver::shouldCarveBlock(double d0, double d1, double d2, int d3) {
+bool CaveWorldCarver::isOutsideCaveRadius(double d0, double d1, double d2, int d3) {
     return d1 <= -0.7 || d0 * d0 + d1 * d1 + d2 * d2 >= 1.0;
 }

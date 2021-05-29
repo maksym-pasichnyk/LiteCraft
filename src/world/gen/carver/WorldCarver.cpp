@@ -65,33 +65,41 @@ bool WorldCarver::carveBlocks(Chunk &chunk, const BiomeReadFn &getBiome, int64_t
         (zcoord > (d1 + 16.0 + unk1 * 2.0))) {
         return false;
     }
-    const int minX = std::max(MathHelper_floor(xcoord - unk1) - chunkx * 16 - 1, 0);
-    const int maxX = std::min(MathHelper_floor(xcoord + unk1) - chunkx * 16 + 1, 16);
-    const int minY = std::max(MathHelper_floor(ycoord - unk2) - 1, 1);
-    const int maxY = std::min(MathHelper_floor(ycoord + unk2) + 1, maxHeight - 8);
-    const int minZ = std::max(MathHelper_floor(zcoord - unk1) - chunkz * 16 - 1, 0);
-    const int maxZ = std::min(MathHelper_floor(zcoord + unk1) - chunkz * 16 + 1, 16);
+    const int xmin = std::max(MathHelper_floor(xcoord - unk1) - chunkx * 16 - 1, 0);
+    const int xmax = std::min(MathHelper_floor(xcoord + unk1) - chunkx * 16 + 1, 16);
+    const int ymin = std::max(MathHelper_floor(ycoord - unk2) - 1, 1);
+    const int ymax = std::min(MathHelper_floor(ycoord + unk2) + 1, maxHeight - 8);
+    const int zmin = std::max(MathHelper_floor(zcoord - unk1) - chunkz * 16 - 1, 0);
+    const int zmax = std::min(MathHelper_floor(zcoord + unk1) - chunkz * 16 + 1, 16);
 
-    if (hasCarvableFluids(chunk, chunkx, chunkz, minX, maxX, minY, maxY, minZ, maxZ)) {
+    if (hasCarvableFluids(chunk, chunkx, chunkz, xmin, xmax, ymin, ymax, zmin, zmax)) {
         return false;
     }
     bool flag = false;
 
-    for (int x = minX; x < maxX; ++x) {
-        const int xStart = x + chunkx * 16;
-        const double d2 = (static_cast<double>(xStart) + 0.5 - xcoord) / unk1;
+    for (int x = xmin; x < xmax; ++x) {
+        const int xpos = x + (chunkx << 4);
+        const double d2 = (static_cast<double>(xpos) + 0.5 - xcoord) / unk1;
 
-        for (int z = minZ; z < maxZ; ++z) {
-            const int zStart = z + chunkz * 16;
-            const double d3 = (static_cast<double>(zStart) + 0.5 - zcoord) / unk1;
+        for (int z = zmin; z < zmax; ++z) {
+            const int zpos = z + chunkz * 16;
+            const double d3 = (static_cast<double>(zpos) + 0.5 - zcoord) / unk1;
             if (d2 * d2 + d3 * d3 >= 1.0) {
                 continue;
             }
-            bool isSurface = false;
-            for (int y = maxY; y > minY; --y) {
-                const double d4 = (static_cast<double>(y) - 0.5 - ycoord) / unk2;
-                if (!shouldCarveBlock(d2, d4, d3, y)) {
-                    flag |= carveBlock(chunk, getBiome, /*carvingMask,*/ random, seaLevel, chunkx, chunkz, xStart, zStart, x, y, z, isSurface);
+            bool is_surface = false;
+            for (int y = ymax; y > ymin; --y) {
+                const auto i = x | (z << 4) | (y << 8);
+
+                if (!chunk.carvingMask.test(i)) {
+                    const double d4 = (static_cast<double>(y) - 0.5 - ycoord) / unk2;
+                    if (!isOutsideCaveRadius(d2, d4, d3, y)) {
+                        chunk.carvingMask.set(i, true);
+
+                        if (carveBlock(chunk, getBiome, random, seaLevel, chunkx, chunkz, xpos, y, zpos, is_surface)) {
+                            flag = true;
+                        }
+                    }
                 }
             }
         }
@@ -100,30 +108,25 @@ bool WorldCarver::carveBlocks(Chunk &chunk, const BiomeReadFn &getBiome, int64_t
     return flag;
 }
 
-bool WorldCarver::carveBlock(Chunk& chunk, const BiomeReadFn& getBiome, /*BitSet carvingMask,*/ Random& rand, int seaLevel, int chunkX, int chunkZ, int posX, int posZ, int x, int posY, int z, bool& isSurface) {
-//    int i = x | z << 4 | posY << 8;
-//    if (carvingMask.get(i)) {
-//        return false;
-//    }
-//    carvingMask.set(i);
-    const auto data = chunk.getData(posX, posY, posZ);
+bool WorldCarver::carveBlock(Chunk& chunk, const BiomeReadFn& getBiome, Random& rand, int seaLevel, int chunkX, int chunkZ, int xpos, int ypos, int zpos, bool& is_surface) {
+    const auto data = chunk.getData(xpos, ypos, zpos);
     if (data.isIn(Blocks::GRASS_BLOCK) || data.isIn(Blocks::MYCELIUM)) {
-        isSurface = true;
+        is_surface = true;
     }
-    const auto above = chunk.getData(posX, posY + 1, posZ);
+    const auto above = chunk.getData(xpos, ypos + 1, zpos);
 
     if (!canCarveBlock(data, above)) {
         return false;
     }
-    if (posY < 11) {
-        chunk.setData(posX, posY, posZ, Blocks::LAVA->getDefaultState()/*, false*/);
+    if (ypos < 11) {
+        chunk.setData(xpos, ypos, zpos, Blocks::LAVA->getDefaultState()/*, false*/);
     } else {
-        chunk.setData(posX, posY, posZ, Blocks::AIR->getDefaultState()/*, false*/);
+        chunk.setData(xpos, ypos, zpos, Blocks::AIR->getDefaultState()/*, false*/);
 
-        if (isSurface) {
-            if (chunk.getData(posX, posY - 1, posZ).isIn(Blocks::DIRT)) {
-                const auto top = getBiome({posX, posY, posZ})-> biomeGenerationSettings.getSurfaceBuilderConfig().getTop();
-                chunk.setData(posX, posY - 1, posZ, top/*, false*/);
+        if (is_surface) {
+            if (chunk.getData(xpos, ypos - 1, zpos).isIn(Blocks::DIRT)) {
+                const auto top = getBiome({xpos, ypos, zpos})-> biomeGenerationSettings.getSurfaceBuilderConfig().getTop();
+                chunk.setData(xpos, ypos - 1, zpos, top/*, false*/);
             }
         }
     }

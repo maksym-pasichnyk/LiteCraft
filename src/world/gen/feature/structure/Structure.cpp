@@ -26,8 +26,13 @@ ChunkPos Structure::getChunkPosForStructure(const StructureSeparation &settings,
         i1 = random.nextInt(spacing - separation);
         j1 = random.nextInt(spacing - separation);
     } else {
-        i1 = (random.nextInt(spacing - separation) + random.nextInt(spacing - separation)) / 2;
-        j1 = (random.nextInt(spacing - separation) + random.nextInt(spacing - separation)) / 2;
+        const int g0 = random.nextInt(spacing - separation);
+        const int g1 = random.nextInt(spacing - separation);
+        i1 = (g0 + g1) / 2;
+
+        const int g2 = random.nextInt(spacing - separation);
+        const int g3 = random.nextInt(spacing - separation);
+        j1 = (g2 + g3) / 2;
     }
     return ChunkPos::from(ix * spacing + i1, iz * spacing + j1);
 }

@@ -533,7 +533,7 @@ struct App {
 
                 connection->sendPacket(SChangeBlockPacket{
                     .pos = rayTraceResult->pos + rayTraceResult->dir,
-                    .data = Blocks::STONE->getDefaultState()
+                    .data = Blocks::TORCH->getDefaultState()
                 });
             }
 		}

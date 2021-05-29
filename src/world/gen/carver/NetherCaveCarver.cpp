@@ -35,10 +35,11 @@ int NetherCaveCarver::getRandomStartY(Random &rand) {
 }
 
 float NetherCaveCarver::getRandomCaveRadius(Random &rand) {
-    return (rand.nextFloat() * 2.0F + rand.nextFloat()) * 2.0F;
+    const float f0 = rand.nextFloat();
+    return (f0 * 2.0F + rand.nextFloat()) * 2.0F;
 }
 
-bool NetherCaveCarver::carveBlock(Chunk &chunk, const BiomeReadFn &getBiome, Random &rand, int seaLevel, int chunkX, int chunkZ, int posX, int posZ, int x, int posY, int z, bool &isSurface) {
+bool NetherCaveCarver::carveBlock(Chunk &chunk, const BiomeReadFn &getBiome, Random &rand, int seaLevel, int chunkX, int chunkZ, int posX, int posY, int posZ, bool &isSurface) {
 //    int i = x | z << 4 | posY << 8;
 //    if (carvingMask.get(i)) {
 //        return false;

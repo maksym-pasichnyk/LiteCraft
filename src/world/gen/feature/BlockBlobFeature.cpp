@@ -22,10 +22,10 @@ bool BlockBlobFeature::generate(WorldGenRegion &reader, ChunkGenerator &generato
         }
 
         for (int l = 0; l < 3; ++l) {
-            int i = random.nextInt(2);
-            int j = random.nextInt(2);
-            int k = random.nextInt(2);
-            float f = (float)(i + j + k) * 0.333F + 0.5F;
+            const int i = random.nextInt(2);
+            const int j = random.nextInt(2);
+            const int k = random.nextInt(2);
+            const float f = static_cast<float>(i + j + k) * 0.333F + 0.5F;
 
             for (BlockPos blockpos : BlockPos::getAllInBox(pos - glm::ivec3(i, j, k), pos + glm::ivec3(i, j, k))) {
                 if (blockpos.distanceSq(pos) <= (double)(f * f)) {
@@ -33,7 +33,10 @@ bool BlockBlobFeature::generate(WorldGenRegion &reader, ChunkGenerator &generato
                 }
             }
 
-            pos = pos + glm::ivec3(random.nextInt(2) - 1, -random.nextInt(2), random.nextInt(2) - 1);
+            const int dx = random.nextInt(2) - 1;
+            const int dy = -random.nextInt(2);
+            const int dz = random.nextInt(2) - 1;
+            pos = pos + BlockPos(dx, dy, dz);
         }
 
         return true;

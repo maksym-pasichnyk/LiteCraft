@@ -61,7 +61,7 @@ ServerWorld::ServerWorld(CraftServer *server, int viewDistance) : server(server)
         .layer = Blocks::STONE->getDefaultState(),
         .fluid = Blocks::WATER->getDefaultState(),
         .bedrockRoofPosition = -1,
-        .bedrockFloorPosition = 4,
+        .bedrockFloorPosition = 0,
         .seaLevel = 63,
         .disableMobGeneration = false
     };

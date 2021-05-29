@@ -32,7 +32,8 @@ bool BlockPileFeature::generate(WorldGenRegion &reader, ChunkGenerator &generato
     for (BlockPos blockpos : BlockPos::getAllInBox(from, to)) {
         const int dx = pos.x - blockpos.x;
         const int dz = pos.z - blockpos.z;
-        if (static_cast<float>(dx * dx + dz * dz) <= (random.nextFloat() * 10.0F - random.nextFloat() * 6.0F)) {
+        const float a = random.nextFloat() * 10.0F;
+        if (static_cast<float>(dx * dx + dz * dz) <= (a - random.nextFloat() * 6.0F)) {
             placeBlock(reader, blockpos, random, cfg);
         } else if (random.nextFloat() < 0.031f) {
             placeBlock(reader, blockpos, random, cfg);

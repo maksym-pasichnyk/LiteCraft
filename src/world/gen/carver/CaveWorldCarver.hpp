@@ -21,5 +21,5 @@ struct CaveWorldCarver : WorldCarver {
     void addRoom(Chunk &chunk, const BiomeReadFn& getBiome, int64_t seed, int seaLevel, int chunkx, int chunkz, double randOffsetXCoord, double ycoord, double zcoord, float caveRadius, double unk3/*, BitSet carvingMask*/);
     void addTunel(Chunk &chunk, const BiomeReadFn& getBiome, int64_t seed, int seaLevel, int chunkx, int chunkz, double xcoord, double ycoord, double zcoord, float radius, float pitch, float yaw, int unk1, int unk2, double unk3/*, BitSet carvingMask*/);
 
-    bool shouldCarveBlock(double d0, double d1, double d2, int d3) override;
+    bool isOutsideCaveRadius(double d0, double d1, double d2, int d3) override;
 };
