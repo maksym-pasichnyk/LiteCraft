@@ -7,7 +7,7 @@
 #include <memory>
 
 struct HillsLayer : IDimOffset1Transformer {
-    int apply2(INoiseRandom& rand, const IArea auto& area1, const IArea auto& area2, int x, int z) {
+    int get(INoiseRandom& rand, const IArea auto& area1, const IArea auto& area2, int x, int z) {
         const int biomeInCenter1 = area1.getValue(getOffsetX(x + 1), getOffsetZ(z + 1));
         const int biomeInCenter2 = area2.getValue(getOffsetX(x + 1), getOffsetZ(z + 1));
 
@@ -19,7 +19,7 @@ struct HillsLayer : IDimOffset1Transformer {
         if (!LayerUtil::isShallowOcean(biomeInCenter1) && biomeInCenter2 >= 2 && k == 1) {
             return getHillBiome(biomeInCenter1, biomeInCenter1);
         }
-        if (rand.random(3) == 0 || k == 0) {
+        if (rand.nextInt(3) == 0 || k == 0) {
             int referenceBiome = biomeInCenter1;
             if (biomeInCenter1 == 2) {
                 referenceBiome = 17;
@@ -36,7 +36,7 @@ struct HillsLayer : IDimOffset1Transformer {
             } else if (biomeInCenter1 == 30) {
                 referenceBiome = 31;
             } else if (biomeInCenter1 == 1) {
-                referenceBiome = rand.random(3) == 0 ? 18 : 4;
+                referenceBiome = rand.nextInt(3) == 0 ? 18 : 4;
             } else if (biomeInCenter1 == 12) {
                 referenceBiome = 13;
             } else if (biomeInCenter1 == 21) {
@@ -57,8 +57,9 @@ struct HillsLayer : IDimOffset1Transformer {
                 referenceBiome = 36;
             } else if (LayerUtil::areBiomesSimilar(biomeInCenter1, 38)) {
                 referenceBiome = 37;
-            } else if ((biomeInCenter1 == 24 || biomeInCenter1 == 48 || biomeInCenter1 == 49 || biomeInCenter1 == 50) && rand.random(3) == 0) {
-                referenceBiome = rand.random(2) == 0 ? 1 : 4;
+            } else if ((biomeInCenter1 == 24 || biomeInCenter1 == 48 || biomeInCenter1 == 49 || biomeInCenter1 == 50) &&
+                    rand.nextInt(3) == 0) {
+                referenceBiome = rand.nextInt(2) == 0 ? 1 : 4;
             }
 
             if (k == 0 && referenceBiome != biomeInCenter1) {

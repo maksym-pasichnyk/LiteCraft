@@ -59,7 +59,7 @@ public:
         return ((x % y) + y) % y;
     }
 
-    int32_t random(int32_t bound) override {
+    int32_t nextInt(int32_t bound) override {
         const auto i = static_cast<int32_t>(floorMod(positionSeed >> 24, bound));
         positionSeed = FastRandom::mix(positionSeed, seed);
         return i;

@@ -7,7 +7,7 @@
 #include <memory>
 
 struct OceanLayer {
-    int apply2(INoiseRandom& rand, int x, int z) {
+    int get(INoiseRandom& rand, int x, int z) {
         const double noise = rand.getNoiseGenerator().getNoiseValue((double) x / 8.0, (double) z / 8.0, 0.0, 0.0, 0.0);
 
         if (noise > 0.4) {

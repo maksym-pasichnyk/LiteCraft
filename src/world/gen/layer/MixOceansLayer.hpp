@@ -9,7 +9,7 @@
 #include <memory>
 
 struct MixOceansLayer : IDimOffset0Transformer {
-    int apply2(INoiseRandom& rand, const IArea auto& area1, const IArea auto& area2, int x, int z) {
+    int get(INoiseRandom& rand, const IArea auto& area1, const IArea auto& area2, int x, int z) {
         const int biomeInCenter1 = area1.getValue(getOffsetX(x), getOffsetZ(z));
         const int biomeInCenter2 = area2.getValue(getOffsetX(x), getOffsetZ(z));
 

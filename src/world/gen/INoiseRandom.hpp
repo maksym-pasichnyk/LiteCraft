@@ -9,6 +9,6 @@ public:
 //    INoiseRandom& operator=(const INoiseRandom&) = delete;
 
 public:
-    virtual int random(int bound) = 0;
+    virtual int nextInt(int bound) = 0;
     virtual ImprovedNoiseGenerator& getNoiseGenerator() = 0;
 };

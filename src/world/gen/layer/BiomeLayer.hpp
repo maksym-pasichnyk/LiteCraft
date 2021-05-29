@@ -21,31 +21,31 @@ public:
     }
 
     int apply(INoiseRandom& context, int value) {
-        const int i = (value & 3840) >> 8;
+        const int i = (value & 0xF00) >> 8;
         value = value & -3841;
 
         if (!LayerUtil::isOcean(value) && value != 14) {
             switch(value) {
                 case 1:
                     if (i > 0) {
-                        return context.random(3) == 0 ? 39 : 38;
+                        return context.nextInt(3) == 0 ? 39 : 38;
                     }
 
-                    return warmBiomes[context.random(std::size(warmBiomes))];
+                    return warmBiomes[context.nextInt(std::size(warmBiomes))];
                 case 2:
                     if (i > 0) {
                         return 21;
                     }
 
-                    return biomes3[context.random(std::size(biomes3))];
+                    return biomes3[context.nextInt(std::size(biomes3))];
                 case 3:
                     if (i > 0) {
                         return 32;
                     }
 
-                    return biomes4[context.random(std::size(biomes4))];
+                    return biomes4[context.nextInt(std::size(biomes4))];
                 case 4:
-                    return biomes5[context.random(std::size(biomes5))];
+                    return biomes5[context.nextInt(std::size(biomes5))];
                 default:
                     return 14;
             }

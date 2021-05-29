@@ -106,19 +106,15 @@ struct LayerUtil {
         }
     }
 
-    static LayerUtil create(int64_t seed, int biome_scale, int32_t _4) {
-        return {};
+    [[gnu::pure]]
+    static constexpr bool isOcean(int id) noexcept {
+        return id == 44 || id == 45 || id == 0 || id == 46 || id == 10 || id == 47 ||
+               id == 48 || id == 24 || id == 49 || id == 50;
     }
 
     [[gnu::pure]]
-    static constexpr bool isOcean(int biomeIn) noexcept {
-        return biomeIn == 44 || biomeIn == 45 || biomeIn == 0 || biomeIn == 46 || biomeIn == 10 || biomeIn == 47 ||
-               biomeIn == 48 || biomeIn == 24 || biomeIn == 49 || biomeIn == 50;
-    }
-
-    [[gnu::pure]]
-    static constexpr bool isShallowOcean(int biomeIn) noexcept {
-        return biomeIn == 44 || biomeIn == 45 || biomeIn == 0 || biomeIn == 46 || biomeIn == 10;
+    static constexpr bool isShallowOcean(int id) noexcept {
+        return id == 44 || id == 45 || id == 0 || id == 46 || id == 10;
     }
 
     [[gnu::pure]]

@@ -11,7 +11,7 @@ struct SmoothLayer : ICastleTransformer<SmoothLayer> {
 
         if (westEqualsEast == northEqualsSouth) {
             if (westEqualsEast) {
-                return rand.random(2) == 0 ? east : north;
+                return rand.nextInt(2) == 0 ? east : north;
             }
             return center;
         }

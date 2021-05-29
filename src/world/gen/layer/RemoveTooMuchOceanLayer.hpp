@@ -12,6 +12,6 @@ struct RemoveTooMuchOceanLayer : ICastleTransformer<RemoveTooMuchOceanLayer> {
                LayerUtil::isShallowOcean(west) &&
                LayerUtil::isShallowOcean(east) &&
                LayerUtil::isShallowOcean(south) &&
-               rand.random(2) == 0 ? 1 : center;
+               rand.nextInt(2) == 0 ? 1 : center;
     }
 };

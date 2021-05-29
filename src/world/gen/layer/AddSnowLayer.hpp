@@ -12,7 +12,7 @@ struct AddSnowLayer : IC1Transformer<AddSnowLayer> {
             return value;
         }
 
-        const int i = rand.random(6);
+        const int i = rand.nextInt(6);
         if (i == 0) {
             return 4;
         }

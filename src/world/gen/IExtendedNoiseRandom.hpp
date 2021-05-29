@@ -15,11 +15,11 @@ public:
 
 public:
     int pickRandom(int first, int second) {
-        return random(2) == 0 ? first : second;
+        return nextInt(2) == 0 ? first : second;
     }
 
     int pickRandom(int first, int second, int third, int fourth) {
-        switch (random(4)) {
+        switch (nextInt(4)) {
             case 0: return first;
             case 1: return second;
             case 2: return third;

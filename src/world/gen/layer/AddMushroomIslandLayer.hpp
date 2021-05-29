@@ -12,6 +12,6 @@ struct AddMushroomIslandLayer : IBishopTransformer<AddMushroomIslandLayer> {
                LayerUtil::isShallowOcean(d0) &&
                LayerUtil::isShallowOcean(d2) &&
                LayerUtil::isShallowOcean(d1) &&
-               rand.random(100) == 0 ? 14 : d4;
+                       rand.nextInt(100) == 0 ? 14 : d4;
     }
 };

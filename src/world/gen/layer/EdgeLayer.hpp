@@ -21,8 +21,8 @@ struct EdgeLayer {
 
     struct Special : IC0Transformer<Special> {
         int apply(INoiseRandom& rand, int value) {
-            if (!LayerUtil::isShallowOcean(value) && rand.random(13) == 0) {
-                value |= (1 + rand.random(15)) << 8 & 3840;
+            if (!LayerUtil::isShallowOcean(value) && rand.nextInt(13) == 0) {
+                value |= (1 + rand.nextInt(15)) << 8 & 3840;
             }
             return value;
         }

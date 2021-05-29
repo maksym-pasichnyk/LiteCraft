@@ -7,7 +7,7 @@
 
 template <typename T>
 concept IAreaTransformer2 = requires(T self, INoiseRandom& rand, const LazyArea& area1, const LazyArea& area2, int x, int z) {
-    { self.apply2(rand, area1, area2, x, z)} -> std::same_as<int>;
+    { self.get(rand, area1, area2, x, z)} -> std::same_as<int>;
 };
 
 static IAreaFactory<LazyArea> make(IAreaTransformer2 auto self, std::shared_ptr<LazyAreaLayerContext> context, IAreaFactory<LazyArea> factory1, IAreaFactory<LazyArea> factory2) {
@@ -27,7 +27,7 @@ static IAreaFactory<LazyArea> make(IAreaTransformer2 auto self, std::shared_ptr<
             area2 = std::move(area2)
         ] (int x, int z) mutable {
             context->setPosition(x, z);
-            return self.apply2(*context, area1, area2, x, z);
+            return self.get(*context, area1, area2, x, z);
         }, area1, area2);
     };
 }

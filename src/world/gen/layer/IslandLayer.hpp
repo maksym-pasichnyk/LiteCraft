@@ -5,10 +5,10 @@
 #include <memory>
 
 struct IslandLayer {
-    int apply2(INoiseRandom& rand, int x, int z) {
+    int get(INoiseRandom& rand, int x, int z) {
         if (x == 0 && z == 0) {
             return 1;
         }
-        return rand.random(10) == 0 ? 1 : 0;
+        return rand.nextInt(10) == 0 ? 1 : 0;
     }
 };

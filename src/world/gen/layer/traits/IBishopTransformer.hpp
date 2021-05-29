@@ -7,7 +7,7 @@
 
 template <typename T>
 struct IBishopTransformer : IDimOffset1Transformer {
-    int apply2(IExtendedNoiseRandom& rand, const IArea auto& area, int x, int z) {
+    int get(IExtendedNoiseRandom& rand, const IArea auto& area, int x, int z) {
         const auto d0 = area.getValue(getOffsetX(x), getOffsetZ(z + 2));
         const auto d1 = area.getValue(getOffsetX(x + 2), getOffsetZ(z + 2));
         const auto d2 = area.getValue(getOffsetX(x + 2), getOffsetZ(z));
