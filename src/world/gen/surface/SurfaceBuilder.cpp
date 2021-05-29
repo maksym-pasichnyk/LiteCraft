@@ -80,11 +80,11 @@ struct DefaultSurfaceBuilder : public SurfaceBuilder {
                 } else if (i > 0) {
                     --i;
                     chunk.setData(xPos, yPos, zPos, blockstate1/*, false*/);
-                    if (i == 0 && blockstate1.isIn(Blocks::SAND) && blockstate1.dv == 0 && j > 1) {
+                    if (i == 0 && blockstate1.isIn(Blocks::SAND) && j > 1) {
                         i = rand.nextInt(4) + std::max(0, yPos - 63);
-//                        blockstate1 = blockstate1.isIn(Blocks2.RED_SAND)
-//                                      ? Blocks2.RED_SANDSTONE.getDefaultState()
-//                                      : Blocks2.SANDSTONE.getDefaultState();
+                        blockstate1 = blockstate1.isIn(Blocks::RED_SAND)
+                                        ? Blocks::RED_SAND->getDefaultState()
+                                        : Blocks::SANDSTONE->getDefaultState();
                     }
                 }
             }
@@ -240,46 +240,25 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
                             }
                         } else {
                             chunk.setData(blockpos, underBlock/*, false*/);
-//                            auto block = underBlock.getBlock();
-//                            if (block == Blocks2::WHITE_TERRACOTTA ||
-//                                block == Blocks2::ORANGE_TERRACOTTA ||
-//                                block == Blocks2::MAGENTA_TERRACOTTA ||
-//                                block == Blocks2::LIGHT_BLUE_TERRACOTTA ||
-//                                block == Blocks2::YELLOW_TERRACOTTA ||
-//                                block == Blocks2::LIME_TERRACOTTA ||
-//                                block == Blocks2::PINK_TERRACOTTA ||
-//                                block == Blocks2::GRAY_TERRACOTTA ||
-//                                block == Blocks2::LIGHT_GRAY_TERRACOTTA ||
-//                                block == Blocks2::CYAN_TERRACOTTA ||
-//                                block == Blocks2::PURPLE_TERRACOTTA ||
-//                                block == Blocks2::BLUE_TERRACOTTA ||
-//                                block == Blocks2::BROWN_TERRACOTTA ||
-//                                block == Blocks2::GREEN_TERRACOTTA ||
-//                                block == Blocks2::RED_TERRACOTTA ||
-//                                block == Blocks2::BLACK_TERRACOTTA) {
-//                                chunk.setData(blockpos, ORANGE_TERRACOTTA, false);
-//                            }
-//                            if (underBlock.isIn(Blocks2::stained_hardened_clay)) {
-//                                const auto val = underBlock.dv;
-//                                if (val == WHITE_TERRACOTTA.dv ||
-//                                    val == ORANGE_TERRACOTTA.dv ||
-//                                    val == MAGENTA_TERRACOTTA.dv ||
-//                                    val == LIGHT_BLUE_TERRACOTTA.dv ||
-//                                    val == YELLOW_TERRACOTTA.dv ||
-//                                    val == LIME_TERRACOTTA.dv ||
-//                                    val == PINK_TERRACOTTA.dv ||
-//                                    val == GRAY_TERRACOTTA.dv ||
-//                                    val == LIGHT_GRAY_TERRACOTTA.dv ||
-//                                    val == CYAN_TERRACOTTA.dv ||
-//                                    val == PURPLE_TERRACOTTA.dv ||
-//                                    val == BLUE_TERRACOTTA.dv ||
-//                                    val == BROWN_TERRACOTTA.dv ||
-//                                    val == GREEN_TERRACOTTA.dv ||
-//                                    val == RED_TERRACOTTA.dv ||
-//                                    val == BLACK_TERRACOTTA.dv) {
-//                                    chunk.setData(blockpos, ORANGE_TERRACOTTA/*, false*/);
-//                                }
-//                            }
+                            auto block = underBlock.getBlock();
+                            if (block == Blocks::WHITE_TERRACOTTA ||
+                                block == Blocks::ORANGE_TERRACOTTA ||
+                                block == Blocks::MAGENTA_TERRACOTTA ||
+                                block == Blocks::LIGHT_BLUE_TERRACOTTA ||
+                                block == Blocks::YELLOW_TERRACOTTA ||
+                                block == Blocks::LIME_TERRACOTTA ||
+                                block == Blocks::PINK_TERRACOTTA ||
+                                block == Blocks::GRAY_TERRACOTTA ||
+                                block == Blocks::LIGHT_GRAY_TERRACOTTA ||
+                                block == Blocks::CYAN_TERRACOTTA ||
+                                block == Blocks::PURPLE_TERRACOTTA ||
+                                block == Blocks::BLUE_TERRACOTTA ||
+                                block == Blocks::BROWN_TERRACOTTA ||
+                                block == Blocks::GREEN_TERRACOTTA ||
+                                block == Blocks::RED_TERRACOTTA ||
+                                block == Blocks::BLACK_TERRACOTTA) {
+                                chunk.setData(blockpos, ORANGE_TERRACOTTA/*, false*/);
+                            }
                         }
                     } else if (l > 0) {
                         --l;
@@ -531,46 +510,25 @@ struct ErodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
                         }
                     } else {
                         chunk.setData(blockpos, underBlock/*, false*/);
-                        /*Block block = underBlock.getBlock();
-                        if (block == Blocks2.WHITE_TERRACOTTA ||
-                            block == Blocks2.ORANGE_TERRACOTTA ||
-                            block == Blocks2.MAGENTA_TERRACOTTA ||
-                            block == Blocks2.LIGHT_BLUE_TERRACOTTA ||
-                            block == Blocks2.YELLOW_TERRACOTTA ||
-                            block == Blocks2.LIME_TERRACOTTA ||
-                            block == Blocks2.PINK_TERRACOTTA ||
-                            block == Blocks2.GRAY_TERRACOTTA ||
-                            block == Blocks2.LIGHT_GRAY_TERRACOTTA ||
-                            block == Blocks2.CYAN_TERRACOTTA ||
-                            block == Blocks2.PURPLE_TERRACOTTA ||
-                            block == Blocks2.BLUE_TERRACOTTA ||
-                            block == Blocks2.BROWN_TERRACOTTA ||
-                            block == Blocks2.GREEN_TERRACOTTA ||
-                            block == Blocks2.RED_TERRACOTTA ||
-                            block == Blocks2.BLACK_TERRACOTTA) {
-                            chunk.setData(blockpos, ORANGE_TERRACOTTA, false);
-                        }*/
-//                        if (underBlock.isIn(Blocks2::stained_hardened_clay)) {
-//                            const auto val = underBlock.dv;
-//                            if (val == WHITE_TERRACOTTA.dv ||
-//                                val == ORANGE_TERRACOTTA.dv ||
-//                                val == MAGENTA_TERRACOTTA.dv ||
-//                                val == LIGHT_BLUE_TERRACOTTA.dv ||
-//                                val == YELLOW_TERRACOTTA.dv ||
-//                                val == LIME_TERRACOTTA.dv ||
-//                                val == PINK_TERRACOTTA.dv ||
-//                                val == GRAY_TERRACOTTA.dv ||
-//                                val == LIGHT_GRAY_TERRACOTTA.dv ||
-//                                val == CYAN_TERRACOTTA.dv ||
-//                                val == PURPLE_TERRACOTTA.dv ||
-//                                val == BLUE_TERRACOTTA.dv ||
-//                                val == BROWN_TERRACOTTA.dv ||
-//                                val == GREEN_TERRACOTTA.dv ||
-//                                val == RED_TERRACOTTA.dv ||
-//                                val == BLACK_TERRACOTTA.dv) {
-//                                chunk.setData(blockpos, ORANGE_TERRACOTTA/*, false*/);
-//                            }
-//                        }
+                        auto block = underBlock.getBlock();
+                        if (block == Blocks::WHITE_TERRACOTTA ||
+                            block == Blocks::ORANGE_TERRACOTTA ||
+                            block == Blocks::MAGENTA_TERRACOTTA ||
+                            block == Blocks::LIGHT_BLUE_TERRACOTTA ||
+                            block == Blocks::YELLOW_TERRACOTTA ||
+                            block == Blocks::LIME_TERRACOTTA ||
+                            block == Blocks::PINK_TERRACOTTA ||
+                            block == Blocks::GRAY_TERRACOTTA ||
+                            block == Blocks::LIGHT_GRAY_TERRACOTTA ||
+                            block == Blocks::CYAN_TERRACOTTA ||
+                            block == Blocks::PURPLE_TERRACOTTA ||
+                            block == Blocks::BLUE_TERRACOTTA ||
+                            block == Blocks::BROWN_TERRACOTTA ||
+                            block == Blocks::GREEN_TERRACOTTA ||
+                            block == Blocks::RED_TERRACOTTA ||
+                            block == Blocks::BLACK_TERRACOTTA) {
+                            chunk.setData(blockpos, ORANGE_TERRACOTTA/*, false*/);
+                        }
                     }
                 } else if (k > 0) {
                     --k;
@@ -692,16 +650,14 @@ struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
             } else if (k > 0) {
                 --k;
                 chunk.setData(blockpos, blockstate1/*, false*/);
-                if (k == 0 && blockstate1.isIn(Blocks::SAND) && (blockstate1.dv == 0) && j > 1) {
+                if (k == 0 && blockstate1.isIn(Blocks::SAND) && j > 1) {
                     k = rand.nextInt(4) + std::max(0, k1 - 63);
-//                    blockstate1 = blockstate1.isIn(Blocks2.RED_SAND)
-//                            ? Blocks2.RED_SANDSTONE.getDefaultState()
-//                            : Blocks2.SANDSTONE.getDefaultState();
+                    blockstate1 = blockstate1.isIn(Blocks::RED_SAND)
+                                    ? Blocks::RED_SANDSTONE->getDefaultState()
+                                    : Blocks::SANDSTONE->getDefaultState();
                 }
             }
         }
-
-//        exit(1);
     }
 };
 

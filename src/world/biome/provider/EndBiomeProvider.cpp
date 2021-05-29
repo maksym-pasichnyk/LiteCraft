@@ -17,7 +17,7 @@ Biome *EndBiomeProvider::getNoiseBiome(int x, int y, int z) {
     if (static_cast<int64_t>(i) * static_cast<int64_t>(i) + static_cast<int64_t>(j) * static_cast<int64_t>(j) <= 4096L) {
         return theEndBiome;
     }
-    const float f = getRandomNoise(*generator, i * 2 + 1, j * 2 + 1);
+    const float f = getRandomNoise(i * 2 + 1, j * 2 + 1);
     if (f > 40.0F) {
         return endHighlandsBiome;
     }
@@ -27,7 +27,7 @@ Biome *EndBiomeProvider::getNoiseBiome(int x, int y, int z) {
     return f < -20.0F ? smallEndIslandsBiome : endBarrensBiome;
 }
 
-float EndBiomeProvider::getRandomNoise(SimplexNoiseGenerator &noiseGenerator, int x, int z) {
+float EndBiomeProvider::getRandomNoise(int x, int z) {
     const int i = x / 2;
     const int j = z / 2;
     const int k = x % 2;
@@ -41,7 +41,7 @@ float EndBiomeProvider::getRandomNoise(SimplexNoiseGenerator &noiseGenerator, in
             const auto l1 = static_cast<int64_t>(j) + j1;
 
             if (k1 * k1 + l1 * l1 > 4096L) {
-                if (noiseGenerator.getValue2D(static_cast<double>(k1), static_cast<double>(l1)) < -0.9) {
+                if (generator->getValue2D(static_cast<double>(k1), static_cast<double>(l1)) < -0.9) {
                     const auto f0 = std::abs(static_cast<float>(k1)) * 3439.0F +
                                     std::abs(static_cast<float>(l1)) * 147.0F;
                     const auto f1 = std::fmod(f0, 13.0F) + 9.0F;

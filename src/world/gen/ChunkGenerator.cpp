@@ -116,6 +116,10 @@ void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
     biome->decorate(*this, region, seed, random, BlockPos(xStart, 0, zStart));
 }
 
+Biome *ChunkGenerator::getNoiseBiome(int x, int y, int z) {
+    return biomeProvider->getNoiseBiome(x, y, z);
+}
+
 void ChunkGenerator::createStarts(StructureFeature *feature, StructureManager &structureManager, Chunk &chunk, TemplateManager &templateManager, int64_t seed, const ChunkPos &chunkPos, Biome &biome) {
     StructureSeparation separation {
         .spacing = 10,

@@ -20,5 +20,5 @@ struct EndBiomeProvider : BiomeProvider {
 
     Biome* getNoiseBiome(int x, int y, int z) override;
 
-    static float getRandomNoise(SimplexNoiseGenerator& noiseGenerator, int x, int z);
+    float getRandomNoise(int x, int z);
 };

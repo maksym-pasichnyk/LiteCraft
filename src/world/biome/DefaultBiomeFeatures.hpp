@@ -317,11 +317,11 @@ struct DefaultBiomeFeatures {
     }
 
     static void withCommonNetherBlocks(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_GRAVEL_NETHER);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_BLACKSTONE);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_GOLD_NETHER);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_QUARTZ_NETHER);
-//        withDebrisOre(builder);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_GRAVEL_NETHER);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_BLACKSTONE);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_GOLD_NETHER);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_QUARTZ_NETHER);
+        withDebrisOre(builder);
     }
 
     static void withDebrisOre(BiomeGenerationSettings::Builder& builder) {

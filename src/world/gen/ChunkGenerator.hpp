@@ -26,5 +26,7 @@ struct ChunkGenerator {
     virtual void generateSurface(WorldGenRegion& region, Chunk& chunk) = 0;
     virtual void generateFeatures(WorldGenRegion& region, Chunk& chunk);
 
+    Biome *getNoiseBiome(int x, int y, int z);
+
     void createStarts(StructureFeature* feature, /*DynamicRegistries registries,*/ StructureManager& structureManager, Chunk& chunk, TemplateManager& templateManager, int64_t seed, const ChunkPos& chunkPos, Biome& biome);
 };

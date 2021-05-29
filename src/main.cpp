@@ -292,7 +292,7 @@ struct App {
     Transform transform {
         .yaw = 0,
         .pitch = 0,
-        .position = {265, 83, -4932}
+        .position = {3385, 83, 1500}
     };
 
     int32_t last_center_x = -9999;

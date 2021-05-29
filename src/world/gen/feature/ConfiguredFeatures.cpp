@@ -347,6 +347,13 @@ void ConfiguredFeatures::configureFeatures() {
         .tries = 64,
         .project = false
     };
+//    (new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Blocks::SUNFLOWER->getDefaultState()), new DoublePlantBlockPlacer())).tries(64).project().build()
+    static BlockClusterFeatureConfig PATCH_SUNFLOWER_CONFIG {
+        .stateProvider = new SimpleBlockStateProvider(Blocks::SUNFLOWER->getDefaultState()),
+        .blockPlacer = new DoublePlantBlockPlacer(),
+        .tries = 64,
+        .project = false
+    };
     static BlockClusterFeatureConfig PATCH_MELON_CONFIG {
         .whitelist = {Blocks::GRASS_BLOCK},
         .stateProvider = new SimpleBlockStateProvider(Blocks::MELON->getDefaultState()),
@@ -633,7 +640,7 @@ void ConfiguredFeatures::configureFeatures() {
     PATCH_BROWN_MUSHROOM = registerFeature("patch_brown_mushroom", Features::RANDOM_PATCH->withConfiguration(PATCH_BROWN_MUSHROOM_CONFIG));
     PATCH_RED_MUSHROOM = registerFeature("patch_red_mushroom", Features::RANDOM_PATCH->withConfiguration(PATCH_RED_MUSHROOM_CONFIG));
 // PATCH_CRIMSON_ROOTS = registerFeature("patch_crimson_roots", Features::RANDOM_PATCH->withConfiguration((new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Blocks::CRIMSON_ROOTS->getDefaultState()), new SimpleBlockPlacer())).tries(64).project().build())->range(128));
-// PATCH_SUNFLOWER = registerFeature("patch_sunflower", Features::RANDOM_PATCH->withConfiguration((new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Blocks::SUNFLOWER->getDefaultState()), new DoublePlantBlockPlacer())).tries(64).project().build())->withPlacement( VEGETATION_PLACEMENT)->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(10));
+    PATCH_SUNFLOWER = registerFeature("patch_sunflower", Features::RANDOM_PATCH->withConfiguration(PATCH_SUNFLOWER_CONFIG)->withPlacement( VEGETATION_PLACEMENT)->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(10));
     PATCH_PUMPKIN = registerFeature("patch_pumpkin", Features::RANDOM_PATCH->withConfiguration(PATCH_PUMKIN_CONFIG)->withPlacement(PATCH_PLACEMENT)->chance(32));
     PATCH_TAIGA_GRASS = registerFeature("patch_taiga_grass", Features::RANDOM_PATCH->withConfiguration(TAIGA_GRASS_CONFIG));
     PATCH_BERRY_BUSH = registerFeature("patch_berry_bush", Features::RANDOM_PATCH->withConfiguration(BERRY_BUSH_PATCH_CONFIG));
@@ -672,14 +679,14 @@ void ConfiguredFeatures::configureFeatures() {
     RED_MUSHROOM_GIANT = registerFeature("red_mushroom_giant", RED_MUSHROOM_TAIGA->withSpreadPlacement(3));
     BROWN_MUSHROOM_SWAMP = registerFeature("brown_mushroom_swamp", BROWN_MUSHROOM_TAIGA->withSpreadPlacement(8));
     RED_MUSHROOM_SWAMP = registerFeature("red_mushroom_swamp", RED_MUSHROOM_TAIGA->withSpreadPlacement(8));
-// ORE_MAGMA = registerFeature("ore_magma", Features::ORE->withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.NETHERRACK, Blocks::MAGMA_BLOCK->getDefaultState(), 33))->withPlacement(Placements::MAGMA->withConfiguration(NoPlacementConfig{}))->square()->withSpreadPlacement(4));
-// ORE_SOUL_SAND = registerFeature("ore_soul_sand", Features::ORE->withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.NETHERRACK, Blocks::SOUL_SAND->getDefaultState(), 12))->range(32)->square()->withSpreadPlacement(12));
-// ORE_GOLD_DELTAS = registerFeature("ore_gold_deltas", Features::ORE->withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.NETHERRACK, Blocks::NETHER_GOLD_ORE->getDefaultState(), 10))->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(20));
-// ORE_QUARTZ_DELTAS = registerFeature("ore_quartz_deltas", Features::ORE->withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.NETHERRACK, Blocks::NETHER_QUARTZ_ORE->getDefaultState(), 14))->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(32));
-// ORE_GOLD_NETHER = registerFeature("ore_gold_nether", Features::ORE->withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.NETHERRACK, Blocks::NETHER_GOLD_ORE->getDefaultState(), 10))->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(10));
-// ORE_QUARTZ_NETHER = registerFeature("ore_quartz_nether", Features::ORE->withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.NETHERRACK, Blocks::NETHER_QUARTZ_ORE->getDefaultState(), 14))->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(16));
-// ORE_GRAVEL_NETHER = registerFeature("ore_gravel_nether", Features::ORE->withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.NETHERRACK, Blocks::GRAVEL->getDefaultState(), 33))->withPlacement(Placements::RANGE->withConfiguration(new TopSolidRangeConfig(5, 0, 37)))->square()->withSpreadPlacement(2));
-// ORE_BLACKSTONE = registerFeature("ore_blackstone", Features::ORE->withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.NETHERRACK, Blocks::BLACKSTONE->getDefaultState(), 33))->withPlacement(Placements::RANGE->withConfiguration(new TopSolidRangeConfig(5, 10, 37)))->square()->withSpreadPlacement(2));
+    ORE_MAGMA = registerFeature("ore_magma", Features::ORE->withConfiguration(OreFeatureConfig{/*OreFeatureConfig.FillerBlockType.NETHERRACK,*/ Blocks::MAGMA_BLOCK->getDefaultState(), 33})->withPlacement(Placements::MAGMA->withConfiguration(NoPlacementConfig{}))->square()->withSpreadPlacement(4));
+    ORE_SOUL_SAND = registerFeature("ore_soul_sand", Features::ORE->withConfiguration(OreFeatureConfig{/*OreFeatureConfig.FillerBlockType.NETHERRACK,*/ Blocks::SOUL_SAND->getDefaultState(), 12})->range(32)->square()->withSpreadPlacement(12));
+    ORE_GOLD_DELTAS = registerFeature("ore_gold_deltas", Features::ORE->withConfiguration(OreFeatureConfig{/*OreFeatureConfig.FillerBlockType.NETHERRACK,*/ Blocks::NETHER_GOLD_ORE->getDefaultState(), 10})->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(20));
+    ORE_QUARTZ_DELTAS = registerFeature("ore_quartz_deltas", Features::ORE->withConfiguration(OreFeatureConfig{/*OreFeatureConfig.FillerBlockType.NETHERRACK,*/ Blocks::NETHER_QUARTZ_ORE->getDefaultState(), 14})->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(32));
+    ORE_GOLD_NETHER = registerFeature("ore_gold_nether", Features::ORE->withConfiguration(OreFeatureConfig{/*OreFeatureConfig.FillerBlockType.NETHERRACK,*/ Blocks::NETHER_GOLD_ORE->getDefaultState(), 10})->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(10));
+    ORE_QUARTZ_NETHER = registerFeature("ore_quartz_nether", Features::ORE->withConfiguration(OreFeatureConfig{/*OreFeatureConfig.FillerBlockType.NETHERRACK,*/ Blocks::NETHER_QUARTZ_ORE->getDefaultState(), 14})->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(16));
+    ORE_GRAVEL_NETHER = registerFeature("ore_gravel_nether", Features::ORE->withConfiguration(OreFeatureConfig{/*OreFeatureConfig.FillerBlockType.NETHERRACK,*/ Blocks::GRAVEL->getDefaultState(), 33})->withPlacement(Placements::RANGE->withConfiguration(TopSolidRangeConfig{5, 0, 37}))->square()->withSpreadPlacement(2));
+    ORE_BLACKSTONE = registerFeature("ore_blackstone", Features::ORE->withConfiguration(OreFeatureConfig{/*OreFeatureConfig.FillerBlockType.NETHERRACK,*/ Blocks::BLACKSTONE->getDefaultState(), 33})->withPlacement(Placements::RANGE->withConfiguration(TopSolidRangeConfig{5, 10, 37}))->square()->withSpreadPlacement(2));
     ORE_DIRT = registerFeature("ore_dirt", Features::ORE->withConfiguration(OreFeatureConfig{/*OreFeatureConfig.FillerBlockType.BASE_STONE_OVERWORLD,*/ Blocks::DIRT->getDefaultState(), 33})->range(256)->square()->withSpreadPlacement(10));
     ORE_GRAVEL = registerFeature("ore_gravel", Features::ORE->withConfiguration(OreFeatureConfig{/*OreFeatureConfig.FillerBlockType.BASE_STONE_OVERWORLD,*/ Blocks::GRAVEL->getDefaultState(), 33})->range(256)->square()->withSpreadPlacement(8));
     ORE_GRANITE = registerFeature("ore_granite", Features::ORE->withConfiguration(OreFeatureConfig{/*OreFeatureConfig.FillerBlockType.BASE_STONE_OVERWORLD,*/ Blocks::GRANITE->getDefaultState(), 33})->range(80)->square()->withSpreadPlacement(10));
