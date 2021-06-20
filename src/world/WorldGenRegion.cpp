@@ -22,24 +22,20 @@ bool WorldGenRegion::setData(int32_t x, int32_t y, int32_t z, BlockData data) {
 }
 
 void WorldGenRegion::setLightFor(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val) {
-    getChunk(x >> 4, z >> 4)->setLight(x, y, z, channel, val);
+    static constexpr std::array setLight {
+        &Chunk::setSkyLight,
+        &Chunk::setBlockLight,
+    };
+    (getChunk(x >> 4, z >> 4)->*setLight[channel])(x, y, z, val);
 }
 
 auto WorldGenRegion::getLightFor(int32_t x, int32_t y, int32_t z, int32_t channel) const -> int32_t {
-    return getChunk(x >> 4, z >> 4)->getLight(x, y, z, channel);
+    static constexpr std::array getLight {
+        &Chunk::getSkyLight,
+        &Chunk::getBlockLight,
+    };
+    return (getChunk(x >> 4, z >> 4)->*getLight[channel])(x, y, z);
 }
-
-auto WorldGenRegion::getLightPacked(int32_t x, int32_t y, int32_t z) const -> int32_t {
-    return getChunk(x >> 4, z >> 4)->getLightPacked(x, y, z);
-}
-
-//auto WorldGenRegion::getTopBlockY(int32_t x, int32_t z) -> int32_t {
-//    return getChunk(x >> 4, z >> 4)->getTopBlockY(x, z);
-//}
-//
-//auto WorldGenRegion::getHeight(int32_t x, int32_t z) -> int32_t {
-//    return getChunk(x >> 4, z >> 4)->getHeight(x, z);
-//}
 
 Biome *WorldGenRegion::getNoiseBiomeRaw(int x, int y, int z) {
     return world->getNoiseBiomeRaw(x, y, z);

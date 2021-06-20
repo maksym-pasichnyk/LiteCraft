@@ -19,7 +19,13 @@ bool CanyonWorldCarver::carveRegion(Chunk &chunk, const BiomeReadFn &getBiome, R
 }
 
 void CanyonWorldCarver::addTunel(Chunk &chunk, const BiomeReadFn &getBiome, int64_t seed, int seaLevel, int chunkx, int chunkz, double xcoord, double ycoord, double zcoord, float radius, float pitch, float yaw, int unk1, int unk2, double unk3) {
+    if (!rs.has_value()) {
+        rs.set(new std::array<float, 1024>());
+    }
+
     auto rand = Random::from(seed);
+
+    auto cache = std::span(*rs.get());
 
     float f = 1.0F;
     for (int i = 0; i < 256; ++i) {
@@ -28,7 +34,7 @@ void CanyonWorldCarver::addTunel(Chunk &chunk, const BiomeReadFn &getBiome, int6
             f = 1.0F + f0 * rand.nextFloat();
         }
 
-        rs[i] = f * f;
+        cache[i] = f * f;
     }
 
     float f4 = 0.0F;
@@ -58,7 +64,7 @@ void CanyonWorldCarver::addTunel(Chunk &chunk, const BiomeReadFn &getBiome, int6
                 return;
             }
 
-            carveBlocks(chunk, getBiome, seed, seaLevel, chunkx, chunkz, xcoord, ycoord, zcoord, d0, d1/*, carvingMask*/);
+            carveBlocks(chunk, getBiome, seed, seaLevel, chunkx, chunkz, xcoord, ycoord, zcoord, d0, d1);
         }
     }
 }

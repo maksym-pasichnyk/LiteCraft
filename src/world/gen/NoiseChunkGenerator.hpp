@@ -4,6 +4,7 @@
 #include "OctavesNoiseGenerator.hpp"
 #include "PerlinNoiseGenerator.hpp"
 #include "settings/DimensionSettings.hpp"
+#include "ThreadLocal.hpp"
 #include "../../block/BlockData.hpp"
 
 #include <memory>
@@ -31,16 +32,13 @@ struct NoiseChunkGenerator : public ChunkGenerator {
         return weights;
     }();
 
-//    int dimensionHeight;
     int noiseSizeX;
     int noiseSizeZ;
     int noiseSizeY;
     int horizontalNoiseGranularity;
     int verticalNoiseGranularity;
-//    int bedrockFloorPosition;
-//    int bedrockRoofPosition;
 
-    std::array<std::vector<std::vector<double>>, 2> cacheNoiseColumns;
+    ThreadLocal<std::array<std::vector<std::vector<double>>, 2>> cacheNoiseColumns;
 
     std::unique_ptr<OctavesNoiseGenerator> minLimitPerlinNoise;
     std::unique_ptr<OctavesNoiseGenerator> maxLimitPerlinNoise;

@@ -26,21 +26,30 @@ ChunkManager::ChunkManager(ServerWorld *world, ChunkGenerator *generator)
 }
 
 void ChunkManager::tick() {
-//    executor.process_one_task();
+//    fmt::print("tick\n");
 
-    while (auto chunk = complete.try_pop()) {
-        auto [x, z] = (*chunk)->pos;
+    while (auto pos = complete.try_pop()) {
+        const auto [x, z] = *pos;
+        auto chunk = getChunk(x, z).get();
 
-        if (!world->server->connection->sendPacket(SLoadChunkPacket{*chunk, x, z})) {
-            complete.emplace(*chunk);
+        if (!world->server->connection->sendPacket(SLoadChunkPacket{chunk, x, z})) {
+            complete.emplace(*pos);
             break;
         }
     }
 }
 
 void ChunkManager::runLoop(std::stop_token&& token) {
-    while (!token.stop_requested()) {
-        executor.process_all_tasks();
+
+    fmt::print("0x{:X}\n", pthread_self());
+
+    try {
+        while (!token.stop_requested()) {
+//            fmt::print("process_all_tasks\n");
+            executor.process_all_tasks();
+        }
+    } catch (const std::exception& e) {
+        fmt::print("{}", e.what());
     }
 }
 
@@ -85,12 +94,13 @@ void ChunkManager::updatePlayerPosition(ChunkPos newChunkPos, ChunkPos oldChunkP
     }
 }
 
-ChunkHolder* ChunkManager::getHolder(int32_t x, int32_t z) {
-    auto& holder_ptr = holders[ChunkPos::asLong(x, z)];
+std::shared_ptr<ChunkHolder> ChunkManager::getHolder(int32_t x, int32_t z) {
+    auto holder_ptr = holders[ChunkPos::asLong(x, z)];
     if (holder_ptr == nullptr) {
         holder_ptr = std::make_unique<ChunkHolder>(ChunkPos::from(x, z));
+        holders[ChunkPos::asLong(x, z)] = holder_ptr;
     }
-    return holder_ptr.get();
+    return holder_ptr;
 }
 
 std::vector<ChunkResult> ChunkManager::getChunksAsync(int32_t range, int32_t chunk_x, int32_t chunk_z, ChunkStatus const* status) {
@@ -111,7 +121,7 @@ std::vector<ChunkResult> ChunkManager::getChunksAsync(int32_t range, int32_t chu
 
 std::shared_ptr<Chunk> ChunkManager::getChunk(int32_t chunk_x, int32_t chunk_z, const ChunkStatus *status) {
     auto async_chunk = getChunkAsync(chunk_x, chunk_z, status);
-    return async_chunk.ready() ? async_chunk.get() : nullptr;
+    return async_chunk.ready() ? assert(!async_chunk.get().expired()), async_chunk.get().lock() : nullptr;
 }
 
 template <typename T>
@@ -122,29 +132,32 @@ struct when_all_result {
     explicit when_all_result(size_t count) : counter(count), results(count) {}
 };
 
-ChunkResult ChunkManager::tryLoadFromFile(int32_t chunk_x, int32_t chunk_z) {
-//    return executor.schedule([this, chunk_x, chunk_z]() mutable {
-//        return std::make_shared<Chunk>(ChunkPos{chunk_x, chunk_z});
-//    });
-
-    return promise_hpp::make_resolved_promise(std::make_shared<Chunk>(ChunkPos{chunk_x, chunk_z}));
-}
+//ChunkResult ChunkManager::tryLoadFromFile(int32_t chunk_x, int32_t chunk_z) {
+////    return executor.schedule([this, chunk_x, chunk_z]() mutable {
+////        return std::make_shared<Chunk>(ChunkPos{chunk_x, chunk_z});
+////    });
+//
+//    return promise_hpp::make_resolved_promise(std::make_shared<Chunk>(ChunkPos{chunk_x, chunk_z}));
+//}
 
 ChunkResult ChunkManager::generateChunk(int32_t chunk_x, int32_t chunk_z, ChunkStatus const* status) {
     ChunkResult async_chunk;
     auto async_chunks = getChunksAsync(status->range, chunk_x, chunk_z, ChunkStatus::getById(status->ordinal - 1));
 
-    auto result = std::make_shared<when_all_result<std::shared_ptr<Chunk>>>(async_chunks.size());
+    auto result = std::make_shared<when_all_result<std::weak_ptr<Chunk>>>(async_chunks.size());
     for (size_t i = 0; i < async_chunks.size(); ++i) {
-        async_chunks[i].then([this, status, i, result, async_chunk](std::shared_ptr<Chunk> chunk) mutable {
-            if (result->results[i] = std::move(chunk), (result->counter -= 1) == 0) {
+        async_chunks[i].then([this, status, i, result, async_chunk](std::weak_ptr<Chunk> chunk) mutable {
+            assert(!chunk.expired());
+
+            if (result->results[i] = chunk, (result->counter -= 1) == 0) {
                 executor.schedule(/*scheduler_hpp::scheduler_priority::highest,*/ [this, status, chunks = std::move(result->results), async_chunk = std::move(async_chunk)]() mutable {
-                    auto chunk = chunks[chunks.size() / 2];
+                    assert(!chunks[chunks.size() / 2].expired());
+                    auto chunk = chunks[chunks.size() / 2].lock();
                     const auto [x, z] = chunk->pos;
                     status->generate(world, *lightManager, *generator, x, z, *chunk, chunks, world->seed);
 
                     if (status->ordinal == ChunkStatus::Full.ordinal) {
-                        complete.emplace(chunk.get());
+                        complete.emplace(chunk->pos);
                     }
 
                     async_chunk.resolve(chunk);
@@ -160,7 +173,8 @@ ChunkResult ChunkManager::getChunkAsync(int32_t chunk_x, int32_t chunk_z, const 
     auto& async_chunk = holder->chunks[status->ordinal];
     if (!async_chunk.has_value()) {
         if (status == &ChunkStatus::Empty) {
-            async_chunk = tryLoadFromFile(chunk_x, chunk_z);
+            async_chunk = promise_hpp::make_resolved_promise(std::weak_ptr(holder->chunk));
+//            tryLoadFromFile(chunk_x, chunk_z);
         } else {
             async_chunk = generateChunk(chunk_x, chunk_z, status);
         }

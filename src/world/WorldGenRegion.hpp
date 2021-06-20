@@ -14,6 +14,7 @@
 #include <memory>
 #include <array>
 #include <span>
+#include <cassert>
 
 struct ServerWorld;
 
@@ -33,11 +34,11 @@ struct WorldGenRegion : virtual WorldReader, virtual WorldWriter {
 
     glm::ivec2 bounds_min{};
     glm::ivec2 bounds_max{};
-    std::span<std::shared_ptr<Chunk>> chunks;
+    std::span<std::weak_ptr<Chunk>> chunks;
 
     BiomeMagnifier magnifier;
 
-	WorldGenRegion(ServerWorld* world, std::span<std::shared_ptr<Chunk>> chunks, int32_t radius, int32_t chunk_x, int32_t chunk_z, int64_t seed)
+	WorldGenRegion(ServerWorld* world, std::span<std::weak_ptr<Chunk>> chunks, int32_t radius, int32_t chunk_x, int32_t chunk_z, int64_t seed)
 	    : world(world)
 	    , seed(seed)
         , radius(radius)
@@ -73,7 +74,8 @@ struct WorldGenRegion : virtual WorldReader, virtual WorldWriter {
 
 	auto getChunk(int32_t x, int32_t z) const -> Chunk* {
 		if (chunkExists(x, z)) {
-			return chunks[toIndex(x, z)].get();
+		    assert(!chunks[toIndex(x, z)].expired());
+			return chunks[toIndex(x, z)].lock().get();
 		}
 		return nullptr;
 	}
@@ -102,16 +104,6 @@ struct WorldGenRegion : virtual WorldReader, virtual WorldWriter {
 
     auto getLightFor(const BlockPos& pos, int32_t channel) const -> int32_t {
         return getLightFor(pos.x, pos.y, pos.z, channel);
-    }
-
-    auto getLightPacked(int32_t x, int32_t y, int32_t z) const -> int32_t;
-
-    auto getLightPacked(BlockPos pos) const -> int32_t {
-        return getLightPacked(pos.x, pos.y, pos.z);
-    }
-
-    auto getMainChunk() const -> Chunk* {
-		return chunks[chunks.size() / 2].get();
     }
 
     auto getBiome(BlockPos pos) -> Biome* {

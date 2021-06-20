@@ -31,10 +31,12 @@ enum class ChunkGenerationStatus {
     Ready
 };
 
-using ChunkResult = promise_hpp::promise<std::shared_ptr<Chunk>>;
+using ChunkResult = promise_hpp::promise<std::weak_ptr<Chunk>>;
 
 struct ChunkHolder {
     ChunkPos pos;
+
+    std::shared_ptr<Chunk> chunk = std::make_shared<Chunk>(pos);
 
     explicit ChunkHolder(ChunkPos pos) : pos(pos) {}
 
@@ -48,8 +50,8 @@ struct ChunkManager {
 
     scheduler_hpp::scheduler executor;
 
-    complete_queue<Chunk*> complete;
-    std::map<int64_t, std::unique_ptr<ChunkHolder>> holders;
+    complete_queue<ChunkPos> complete;
+    std::map<int64_t, std::shared_ptr<ChunkHolder>> holders;
 
     int viewDistance = -1;
 
@@ -76,12 +78,12 @@ struct ChunkManager {
     void runLoop(std::stop_token&& token);
     void setChunkLoadedAtClient(int chunk_x, int chunk_z, bool wasLoaded, bool needLoad);
     void updatePlayerPosition(ChunkPos newChunkPos, ChunkPos oldChunkPos);
-    ChunkHolder* getHolder(int32_t x, int32_t z);
+    std::shared_ptr<ChunkHolder> getHolder(int32_t x, int32_t z);
 
     std::vector<ChunkResult> getChunksAsync(int32_t range, int32_t chunk_x, int32_t chunk_z, ChunkStatus const* status);
     std::shared_ptr<Chunk> getChunk(int32_t chunk_x, int32_t chunk_z, ChunkStatus const* status = &ChunkStatus::Full);
 
-    ChunkResult tryLoadFromFile(int32_t chunk_x, int32_t chunk_z);
+//    ChunkResult tryLoadFromFile(int32_t chunk_x, int32_t chunk_z);
     ChunkResult generateChunk(int32_t chunk_x, int32_t chunk_z, ChunkStatus const* status);
     ChunkResult getChunkAsync(int32_t chunk_x, int32_t chunk_z, ChunkStatus const* status = &ChunkStatus::Full);
     void setPlayerTracking(ChunkPos pos, bool track);

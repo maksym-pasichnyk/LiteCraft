@@ -235,14 +235,18 @@ struct ChunkRenderDispatcher {
     }
 
     void runLoop(std::stop_token&& token) {
-        while (!token.stop_requested()) {
-            while (auto task = tasks.try_pop()) {
-                auto [data, cache] = std::move(*task);
-                renderBlocks(data->rb, *cache);
-                uploadTasks.emplace(data);
+        try {
+            while (!token.stop_requested()) {
+                while (auto task = tasks.try_pop()) {
+                    auto[data, cache] = std::move(*task);
+                    renderBlocks(data->rb, *cache);
+                    uploadTasks.emplace(data);
 
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                }
             }
+        } catch (const std::exception& e) {
+            fmt::print("{}", e.what());
         }
     }
 
@@ -944,9 +948,13 @@ struct App {
 
         startTime = std::chrono::high_resolution_clock::now();
         while (running) {
-            executor.process_all_tasks();
+            try {
+                executor.process_all_tasks();
 
-            runGameLoop(true);
+                runGameLoop(true);
+            } catch (const std::exception& e) {
+                fmt::print("{}", e.what());
+            }
         }
     }
 

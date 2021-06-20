@@ -18,37 +18,6 @@ struct TemplateManager {
 
 };
 
-//struct ExampleStructurePiece : StructurePiece {
-//    ExampleStructurePiece(int32_t pos_x, int32_t pos_z) {
-//        coordBaseMode = SOUTH;
-//        boundingBox = BoundingBox::withSize(pos_x - 1, 6, pos_z - 1, 3, 10, 3);
-//    }
-//
-//    void place(WorldGenRegion& region, BoundingBox sbb) override {
-////        const auto wood = Blocks::WOOD->getDefaultState();
-////
-////        for (auto y = 0; y < 10; y++) {
-////            setBlock(region, sbb, 0, y, 0, Blocks2::iron_bars->getStateWithMeta(2 | 4));
-////            setBlock(region, sbb, 0, y, 1, wood);
-////            setBlock(region, sbb, 0, y, 2, Blocks2::iron_bars->getStateWithMeta(8 | 4));
-////
-////            setBlock(region, sbb, 1, y, 0, wood);
-////            setBlock(region, sbb, 1, y, 1, wood);
-////            setBlock(region, sbb, 1, y, 2, wood);
-////
-////            setBlock(region, sbb, 2, y, 0, Blocks2::iron_bars->getStateWithMeta(2 | 1));
-////            setBlock(region, sbb, 2, y, 1, wood);
-////            setBlock(region, sbb, 2, y, 2, Blocks2::iron_bars->getStateWithMeta(8 | 1));
-////        }
-//    }
-//};
-
-//struct ExampleStructureStart : StructureStart {
-//    void build(int32_t pos_x, int32_t pos_z) override {
-//        pieces.emplace_back(new ExampleStructurePiece(pos_x + 8, pos_z + 8));
-//    }
-//};
-
 ChunkGenerator::ChunkGenerator(std::unique_ptr<BiomeProvider>&& biomeProvider) : biomeProvider(std::move(biomeProvider)) {}
 
 void ChunkGenerator::generateStructures(WorldGenRegion &region, Chunk& chunk) {
@@ -77,13 +46,14 @@ void ChunkGenerator::getStructureReferences(WorldGenRegion &region, Chunk& chunk
 //    }
 }
 
-std::set<int64_t> _temp;
 void ChunkGenerator::generateCarvers(WorldGenRegion& region, int64_t seed, Chunk& chunk/*, GenerationStage::Carving carving*/) {
     const auto [xpos, zpos] = chunk.pos;
 
     const auto getBiome = [&region] (BlockPos pos) {
         return region.getBiome(pos);
     };
+
+    const int seaLevel = region.getSeaLevel();
 
     Random random;
 
@@ -97,7 +67,7 @@ void ChunkGenerator::generateCarvers(WorldGenRegion& region, int64_t seed, Chunk
                 for (size_t i = 0; i < carvers.size(); ++i) {
                     random.setLargeFeatureSeed(seed + static_cast<int64_t>(i), xoffset, zoffset);
                     if (carvers[i].shouldCarve(random, xoffset, zoffset)) {
-                        carvers[i].carveRegion(chunk, getBiome, random, /*seaLevel*/63, xoffset, zoffset, xpos, zpos/*, carvingMask*/);
+                        carvers[i].carveRegion(chunk, getBiome, random, seaLevel, xoffset, zoffset, xpos, zpos);
                     }
                 }
             }

@@ -50,16 +50,11 @@ struct ChunkRenderCache {
         return getData(pos.x, pos.y, pos.z);
     }
 
-    auto getLight(int32_t x, int32_t y, int32_t z, int32_t channel) const -> int32_t {
-        return getChunk(x >> 4, z >> 4)->getLight(x, y, z, channel);
-    }
-
-    auto getLight(glm::ivec3 pos, int32_t channel) const -> int32_t {
-        return getLight(pos.x, pos.y, pos.z, channel);
-    }
-
     auto getLightPacked(int32_t x, int32_t y, int32_t z) const -> int32_t {
-        return getChunk(x >> 4, z >> 4)->getLightPacked(x, y, z);
+        auto chunk = getChunk(x >> 4, z >> 4);
+        auto bl = chunk->getBlockLight(x, y, z);
+        auto sl = chunk->getSkyLight(x, y, z);
+        return (sl << 4) | bl;
     }
 
     auto getLightPacked(glm::ivec3 pos) const -> int32_t {

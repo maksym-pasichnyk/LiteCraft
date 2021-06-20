@@ -25,3 +25,9 @@
 [submodule "promise.hpp"]
 	path = promise.hpp
 	url = https://github.com/BlackMATov/promise.hpp.git
+[submodule "tbb"]
+	path = tbb
+	url = https://github.com/kubaroth/tbb.git
+[submodule "oneTBB"]
+	path = oneTBB
+	url = https://github.com/oneapi-src/oneTBB.git

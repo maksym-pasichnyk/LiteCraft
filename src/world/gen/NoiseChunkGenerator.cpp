@@ -78,14 +78,6 @@ NoiseChunkGenerator::NoiseChunkGenerator(int64_t seed, DimensionSettings setting
     noiseSizeY = settings.noise.height / verticalNoiseGranularity;
     noiseSizeZ = 16 / horizontalNoiseGranularity;
 
-    cacheNoiseColumns[0].resize(noiseSizeZ + 1);
-    cacheNoiseColumns[1].resize(noiseSizeZ + 1);
-
-    for (int z = 0; z < noiseSizeZ + 1; ++z) {
-        cacheNoiseColumns[0][z].resize(noiseSizeY + 1);
-        cacheNoiseColumns[1][z].resize(noiseSizeY + 1);
-    }
-
     auto randomSeed = Random::from(seed);
     minLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-15, 1));
     maxLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-15, 1));
@@ -297,29 +289,42 @@ void NoiseChunkGenerator::generateSurface(WorldGenRegion &region, Chunk& chunk) 
 }
 
 void NoiseChunkGenerator::generateTerrain(Chunk& chunk) {
+    if (!cacheNoiseColumns.has_value()) {
+        auto cache = new std::array<std::vector<std::vector<double>>, 2>();
+        (*cache)[0].resize(noiseSizeZ + 1);
+        (*cache)[1].resize(noiseSizeZ + 1);
+        for (int z = 0; z < noiseSizeZ + 1; ++z) {
+            (*cache)[0][z].resize(noiseSizeY + 1);
+            (*cache)[1][z].resize(noiseSizeY + 1);
+        }
+        cacheNoiseColumns.set(cache);
+    }
+
     const auto chunkPosX = chunk.pos.x;
     const auto chunkPosZ = chunk.pos.z;
     const int seaLevel = 63;
 
+    auto& cache = *cacheNoiseColumns.get();
+
     for (int z = 0; z < noiseSizeZ + 1; ++z) {
-        fillNoiseColumn(cacheNoiseColumns[0][z], chunkPosX * noiseSizeX, chunkPosZ * noiseSizeZ + z);
+        fillNoiseColumn(cache[0][z], chunkPosX * noiseSizeX, chunkPosZ * noiseSizeZ + z);
     }
 
     for (int x = 0; x < noiseSizeX; x++) {
         for (int z = 0; z < noiseSizeZ + 1; ++z) {
-            fillNoiseColumn(cacheNoiseColumns[1][z], chunkPosX * noiseSizeX + x + 1, chunkPosZ * noiseSizeZ + z);
+            fillNoiseColumn(cache[1][z], chunkPosX * noiseSizeX + x + 1, chunkPosZ * noiseSizeZ + z);
         }
 
         for (int z = 0; z < noiseSizeZ; ++z) {
             for (int y = noiseSizeY - 1; y >= 0; --y) {
-                const double d0 = cacheNoiseColumns[0][z][y];
-                const double d1 = cacheNoiseColumns[0][z + 1][y];
-                const double d2 = cacheNoiseColumns[1][z][y];
-                const double d3 = cacheNoiseColumns[1][z + 1][y];
-                const double d4 = cacheNoiseColumns[0][z][y + 1];
-                const double d5 = cacheNoiseColumns[0][z + 1][y + 1];
-                const double d6 = cacheNoiseColumns[1][z][y + 1];
-                const double d7 = cacheNoiseColumns[1][z + 1][y + 1];
+                const double d0 = cache[0][z][y];
+                const double d1 = cache[0][z + 1][y];
+                const double d2 = cache[1][z][y];
+                const double d3 = cache[1][z + 1][y];
+                const double d4 = cache[0][z][y + 1];
+                const double d5 = cache[0][z + 1][y + 1];
+                const double d6 = cache[1][z][y + 1];
+                const double d7 = cache[1][z + 1][y + 1];
 
                 for (int l1 = verticalNoiseGranularity - 1; l1 >= 0; --l1) {
                     const int ypos = y * verticalNoiseGranularity + l1;
@@ -355,6 +360,6 @@ void NoiseChunkGenerator::generateTerrain(Chunk& chunk) {
             }
         }
 
-        std::swap(cacheNoiseColumns[0], cacheNoiseColumns[1]);
+        std::swap(cache[0], cache[1]);
     }
 }

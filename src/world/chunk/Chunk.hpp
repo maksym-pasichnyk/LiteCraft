@@ -18,6 +18,7 @@
 #include <functional>
 #include <fmt/format.h>
 #include <atomic>
+#include <bitset>
 
 struct WorldGenRegion;
 
@@ -138,128 +139,9 @@ struct RenderBuffer {
     }
 };
 
-/*enum class ChunkState {
-	Empty,
-	StructureStart,
-	StructureReferences,
-	Biomes,
-	Noise,
-	Surface,
-	Features,
-	Light,
-	Full
-};*/
-
 struct ChunkSection {
     std::array<BlockData, 4096> blocks{};
 };
-
-//struct StructurePiece {
-//    DIRECTION coordBaseMode;
-//    BoundingBox boundingBox;
-//
-//    virtual ~StructurePiece() = default;
-//
-//    virtual void place(WorldGenRegion& region, BoundingBox bb) = 0;
-//
-//    int get_x_with_offset(int x, int z) {
-//        switch (coordBaseMode) {
-//            case SOUTH:
-//            case NORTH:
-//                return boundingBox.minX + x;
-//            case WEST:
-//                return boundingBox.maxX - z;
-//            case EAST:
-//                return boundingBox.minX + z;
-//        }
-//        return x;
-//    }
-//
-//    int get_y_with_offset(int y) {
-//        return boundingBox.minY + y;
-//    }
-//
-//    int get_z_with_offset(int x, int z) {
-//        switch (coordBaseMode) {
-//            case NORTH:
-//                return boundingBox.maxZ - z;
-//            case SOUTH:
-//                return boundingBox.minZ + z;
-//            case WEST:
-//            case EAST:
-//                return boundingBox.minZ + x;
-//        }
-//        return z;
-//    }
-//
-//    auto setBlock(IBlockReader auto &blocks, BoundingBox sbb, int x, int y, int z, BlockData blockData) {
-//        BlockPos blockpos{get_x_with_offset(x, z), get_y_with_offset(y), get_z_with_offset(x, z)};
-//
-//        if (sbb.contains(blockpos.x, blockpos.y, blockpos.z)) {
-//            if (coordBaseMode == EAST || coordBaseMode == NORTH) {
-//                auto val = 0;
-//                if (blockData.dv & BlockPane_WEST) {
-//                    val |= BlockPane_WEST;
-//                }
-//                if (blockData.dv & BlockPane_NORTH) {
-//                    val |= BlockPane_SOUTH;
-//                }
-//                if (blockData.dv & BlockPane_EAST) {
-//                    val |= BlockPane_EAST;
-//                }
-//                if (blockData.dv & BlockPane_SOUTH) {
-//                    val |= BlockPane_NORTH;
-//                }
-//                blockData.dv = val;
-//            }
-//
-//            if (coordBaseMode == EAST || coordBaseMode == WEST) {
-//                auto val = 0;
-//                if (blockData.dv & BlockPane_WEST) {
-//                    val |= BlockPane_SOUTH;
-//                }
-//                if (blockData.dv & BlockPane_NORTH) {
-//                    val |= BlockPane_WEST;
-//                }
-//                if (blockData.dv & BlockPane_EAST) {
-//                    val |= BlockPane_NORTH;
-//                }
-//                if (blockData.dv & BlockPane_SOUTH) {
-//                    val |= BlockPane_EAST;
-//                }
-//                blockData.dv = val;
-//            }
-//
-//            blocks.setData(blockpos.x, blockpos.y, blockpos.z, blockData);
-//        }
-//    }
-//};
-
-//struct StructureStart {
-//    BoundingBox boundingBox;
-//    std::vector<std::unique_ptr<StructurePiece>> pieces;
-//
-//    virtual ~StructureStart() = default;
-//    virtual void build(int pos_x, int pos_z) = 0;
-//
-//    void updateBoundingBox() {
-//        boundingBox.minX = std::numeric_limits<int>::max();
-//        boundingBox.minY = std::numeric_limits<int>::max();
-//        boundingBox.minZ = std::numeric_limits<int>::max();
-//        boundingBox.maxX = std::numeric_limits<int>::min();
-//        boundingBox.maxY = std::numeric_limits<int>::min();
-//        boundingBox.maxZ = std::numeric_limits<int>::min();
-//
-//        for (auto& piece : pieces) {
-//            boundingBox.minX = std::min(boundingBox.minX, piece->boundingBox.minX);
-//            boundingBox.minY = std::min(boundingBox.minY, piece->boundingBox.minY);
-//            boundingBox.minZ = std::min(boundingBox.minZ, piece->boundingBox.minZ);
-//            boundingBox.maxX = std::max(boundingBox.maxX, piece->boundingBox.maxX);
-//            boundingBox.maxY = std::max(boundingBox.maxY, piece->boundingBox.maxY);
-//            boundingBox.maxZ = std::max(boundingBox.maxZ, piece->boundingBox.maxZ);
-//        }
-//    }
-//};
 
 struct LightSection {
     std::array<uint8_t, 2048> lights;
@@ -285,126 +167,69 @@ private:
     }
 };
 
-struct Lightmap {
-    std::array<uint8_t, 4096> lights;
-
-    auto getBlockLight(int32_t x, int32_t y, int32_t z) -> int32_t {
-        return static_cast<int32_t>((lights[toIndex(x, y, z)] >> 0) & 0xF);
-    }
-
-    auto getSkyLight(int32_t x, int32_t y, int32_t z) -> int32_t {
-        return static_cast<int32_t>((lights[toIndex(x, y, z)] >> 4) & 0xF);
-    }
-
-    void setBlockLight(int32_t x, int32_t y, int32_t z, int32_t val) {
-        lights[toIndex(x, y, z)] = (lights[toIndex(x, y, z)] & 0xFFF0) | ((val & 0xF) << 0);
-    }
-
-    void setSkyLight(int32_t x, int32_t y, int32_t z, int32_t val) {
-        lights[toIndex(x, y, z)] = (lights[toIndex(x, y, z)] & 0xFF0F) | ((val & 0xF) << 4);
-    }
-
-    void setLight(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val) {
-        (this->*(channel == 0 ? &Lightmap::setBlockLight : &Lightmap::setSkyLight))(x, y, z, val);
-    }
-
-    auto getLight(int32_t x, int32_t y, int32_t z, int32_t channel) -> int32_t {
-        return (this->*(channel == 0 ? &Lightmap::getBlockLight : &Lightmap::getSkyLight))(x, y, z);
-    }
-
-    auto getLightPacked(int32_t x, int32_t y, int32_t z) -> int32_t {
-        return lights[toIndex(x, y, z)];
-    }
-
-private:
-    static constexpr auto toIndex(int32_t x, int32_t y, int32_t z) noexcept -> size_t {
-        return (y << 8) | (z << 4) | x;
-    }
-};
-
-#include <bitset>
 
 struct Structure;
 struct StructureStart;
 struct Chunk {
     ChunkPos pos;
 	std::array<std::unique_ptr<ChunkSection>, 16> sections{};
-//    std::array<std::unique_ptr<LightSection>, 16> skyLightSections{};
-//    std::array<std::unique_ptr<LightSection>, 16> blockLightSections{};
-
-    std::array<std::unique_ptr<Lightmap>, 18> lightSections{};
-
+    std::array<std::unique_ptr<LightSection>, 18> skyLightSections{};
+    std::array<std::unique_ptr<LightSection>, 18> blockLightSections{};
     std::array<Heightmap, 5> heightmaps{};
 
     std::map<Structure*, StructureStart*> structureStarts;
     std::bitset<65536> carvingMask;
+
+    std::vector<BlockPos> blockLightSources;
+
 //    std::vector<std::shared_ptr<StructureStart>> structureReferences;
 
     explicit Chunk(ChunkPos pos) : pos{pos} {}
 
-//    void setSkyLight(int32_t x, int32_t y, int32_t z, int32_t new_light) {
-//        auto& section = skyLightSections[y >> 4];
-//        if (section == nullptr) {
-//            if (new_light == /*15*/0) {
-//                return;
-//            }
-//            section = std::make_unique<LightSection>();
-//        }
-//        section->setLightFor(x & 15, y & 15, z & 15, /*15 -*/ new_light);
-//    }
-//
-//    auto getSkyLight(int32_t x, int32_t y, int32_t z) const -> int32_t {
-//        auto& section = skyLightSections[y >> 4];
-//        if (section == nullptr) {
-//            return /*15*/0;
-//        }
-//        return /*15 - */section->getLightFor(x & 15, y & 15, z & 15);
-//    }
-//
-//    void setBlockLight(int32_t x, int32_t y, int32_t z, int32_t new_light) {
-//        auto& section = blockLightSections[y >> 4];
-//        if (section == nullptr) {
-//            if (new_light == 0) {
-//                return;
-//            }
-//            section = std::make_unique<LightSection>();
-//        }
-//        section->setLightFor(x & 15, y & 15, z & 15, new_light);
-//    }
-//
-//    auto getBlockLight(int32_t x, int32_t y, int32_t z) const -> int32_t {
-//        auto& section = blockLightSections[y >> 4];
-//        if (section == nullptr) {
-//            return 0;
-//        }
-//        return section->getLightFor(x & 15, y & 15, z & 15);
-//    }
+    std::span<BlockPos> getLightSources() {
+        return blockLightSources;
+    }
 
-    void setLight(int32_t x, int32_t y, int32_t z, int32_t channel, int32_t val) {
-        auto& section = lightSections[(y >> 4) + 1];
+    void setBlockLight(int32_t x, int32_t y, int32_t z, int32_t val) {
+        auto& section = blockLightSections[(y >> 4) + 1];
         if (section == nullptr) {
             if (val == 0) {
                 return;
             }
-            section = std::make_unique<Lightmap>();
+            section = std::make_unique<LightSection>();
         }
-        section->setLight(x & 15, y & 15, z & 15, channel, val);
+        section->setLight(x & 15, y & 15, z & 15, val);
     }
 
-    auto getLight(int32_t x, int32_t y, int32_t z, int32_t channel) const -> int32_t {
-        auto section = lightSections[(y >> 4) + 1].get();
+    auto getBlockLight(int32_t x, int32_t y, int32_t z) const -> int32_t {
+        auto section = blockLightSections[(y >> 4) + 1].get();
         if (section == nullptr) {
             return 0;
         }
-        return section->getLight(x & 15, y & 15, z & 15, channel);
+        return section->getLight(x & 15, y & 15, z & 15);
     }
 
-    auto getLightPacked(int32_t x, int32_t y, int32_t z) const -> int32_t {
-        auto& section = lightSections[(y >> 4) + 1];
+    void setSkyLight(int32_t x, int32_t y, int32_t z, int32_t val) {
+        auto& section = skyLightSections[(y >> 4) + 1];
+        if (section == nullptr) {
+            if (val == 0) {
+                return;
+            }
+            section = std::make_unique<LightSection>();
+        }
+        section->setLight(x & 15, y & 15, z & 15, val);
+    }
+
+    auto getSkyLight(int32_t x, int32_t y, int32_t z) const -> int32_t {
+        auto section = skyLightSections[(y >> 4) + 1].get();
         if (section == nullptr) {
             return 0;
         }
-        return section->getLightPacked(x & 15, y & 15, z & 15);
+        return section->getLight(x & 15, y & 15, z & 15);
+    }
+
+    auto getLightLevel(const BlockPos& pos) const -> int32_t {
+        return getData(pos).getLightLevel();
     }
 
     bool setData(const BlockPos& pos, BlockData data) {
@@ -419,8 +244,12 @@ struct Chunk {
     	    }
     		section = std::make_unique<ChunkSection>();
     	}
+        section->blocks[toIndex(x & 15, y & 15, z & 15)] = data;
         updateHeightmap(x & 15, y, z & 15, data);
-    	section->blocks[toIndex(x & 15, y & 15, z & 15)] = data;
+
+        if (data.getLightLevel() > 0) {
+            blockLightSources.emplace_back((x & 15) + pos.getStartX(), y, (z & 15) + pos.getStartZ());
+        }
     	return true;
     }
 

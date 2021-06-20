@@ -6,6 +6,8 @@
 #include "../../../block/Blocks.hpp"
 #include "../../../block/material/Materials.hpp"
 
+#include "ThreadLocal.hpp"
+
 #include <ranges>
 
 std::unique_ptr<SurfaceBuilder> SurfaceBuilder::Noop{nullptr};
@@ -179,12 +181,113 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
     const BlockData RED_TERRACOTTA = Blocks::RED_TERRACOTTA->getDefaultState();
     const BlockData BLACK_TERRACOTTA = Blocks::BLACK_TERRACOTTA->getDefaultState();
 
-    std::optional<int64_t> seed = std::nullopt;
-    std::optional<PerlinNoiseGenerator> noise1 = std::nullopt;
-    std::optional<PerlinNoiseGenerator> noise2 = std::nullopt;
-    std::optional<PerlinNoiseGenerator> noise3 = std::nullopt;
+    struct Cache {
+        std::optional<int64_t> seed = std::nullopt;
+        std::optional<PerlinNoiseGenerator> noise1 = std::nullopt;
+        std::optional<PerlinNoiseGenerator> noise2 = std::nullopt;
+        std::optional<PerlinNoiseGenerator> noise3 = std::nullopt;
+        std::array<BlockData, 64> clayBands;
 
-    std::array<BlockData, 64> clayBands;
+        void setSeed(int64_t _seed) {
+            if (seed != _seed) {
+                seed = _seed;
+
+                generateBands(_seed);
+
+                auto rand = Random::from(_seed);
+                noise1.emplace(rand, std::views::iota(-3, 1));
+                noise2.emplace(rand, std::views::single(0));
+            }
+        }
+
+        void generateBands(int64_t _seed) {
+            const BlockData AIR = Blocks::AIR->getDefaultState();
+            const BlockData TERRACOTTA = Blocks::TERRACOTTA->getDefaultState();
+            const BlockData WHITE_TERRACOTTA = Blocks::WHITE_TERRACOTTA->getDefaultState();
+            const BlockData ORANGE_TERRACOTTA = Blocks::ORANGE_TERRACOTTA->getDefaultState();
+            const BlockData MAGENTA_TERRACOTTA = Blocks::MAGENTA_TERRACOTTA->getDefaultState();
+            const BlockData LIGHT_BLUE_TERRACOTTA = Blocks::LIGHT_BLUE_TERRACOTTA->getDefaultState();
+            const BlockData YELLOW_TERRACOTTA = Blocks::YELLOW_TERRACOTTA->getDefaultState();
+            const BlockData LIME_TERRACOTTA = Blocks::LIME_TERRACOTTA->getDefaultState();
+            const BlockData PINK_TERRACOTTA = Blocks::PINK_TERRACOTTA->getDefaultState();
+            const BlockData GRAY_TERRACOTTA = Blocks::GRAY_TERRACOTTA->getDefaultState();
+            const BlockData LIGHT_GRAY_TERRACOTTA = Blocks::LIGHT_GRAY_TERRACOTTA->getDefaultState();
+            const BlockData CYAN_TERRACOTTA = Blocks::CYAN_TERRACOTTA->getDefaultState();
+            const BlockData PURPLE_TERRACOTTA = Blocks::PURPLE_TERRACOTTA->getDefaultState();
+            const BlockData BLUE_TERRACOTTA = Blocks::BLUE_TERRACOTTA->getDefaultState();
+            const BlockData BROWN_TERRACOTTA = Blocks::BROWN_TERRACOTTA->getDefaultState();
+            const BlockData GREEN_TERRACOTTA = Blocks::GREEN_TERRACOTTA->getDefaultState();
+            const BlockData RED_TERRACOTTA = Blocks::RED_TERRACOTTA->getDefaultState();
+            const BlockData BLACK_TERRACOTTA = Blocks::BLACK_TERRACOTTA->getDefaultState();
+
+            clayBands.fill(TERRACOTTA);
+
+            auto rand = Random::from(_seed);
+
+            noise3.emplace(rand, std::views::single(0));
+
+            for (int i = 0; i < 64; ++i) {
+                i += rand.nextInt(5) + 1;
+                if (i < 64) {
+                    clayBands[i] = ORANGE_TERRACOTTA;
+                }
+            }
+
+            const int yellowCount = rand.nextInt(4) + 2;
+            for (int i = 0; i < yellowCount; ++i) {
+                const int j = rand.nextInt(3) + 1;
+                const int k = rand.nextInt(64);
+
+                for (int l = 0; k + l < 64 && l < j; ++l) {
+                    clayBands[k + l] = YELLOW_TERRACOTTA;
+                }
+            }
+
+            const int brownCount = rand.nextInt(4) + 2;
+            for (int i = 0; i < brownCount; ++i) {
+                const int j = rand.nextInt(3) + 2;
+                const int k = rand.nextInt(64);
+
+                for (int l = 0; k + l < 64 && l < j; ++l) {
+                    clayBands[k + l] = BROWN_TERRACOTTA;
+                }
+            }
+
+            const int redCount = rand.nextInt(4) + 2;
+            for (int i = 0; i < redCount; ++i) {
+                const int j = rand.nextInt(3) + 1;
+                const int k = rand.nextInt(64);
+
+                for (int l = 0; k + l < 64 && l < j; ++l) {
+                    clayBands[k + l] = RED_TERRACOTTA;
+                }
+            }
+
+            const int count = rand.nextInt(3) + 3;
+            int j = 0;
+            for (int i = 0; i < count; ++i) {
+                j += rand.nextInt(16) + 4;
+
+                for (int k = 0; j + k < 64 && k < 1; ++k) {
+                    clayBands[j + k] = WHITE_TERRACOTTA;
+                    if (j + k > 1 && rand.nextBoolean()) {
+                        clayBands[j + k - 1] = LIGHT_GRAY_TERRACOTTA;
+                    }
+
+                    if (j + k < 63 && rand.nextBoolean()) {
+                        clayBands[j + k + 1] = LIGHT_GRAY_TERRACOTTA;
+                    }
+                }
+            }
+        }
+
+        BlockData getClay(int x, int y, int z) {
+            const int i = static_cast<int>(std::round(noise3->noiseAt(static_cast<double>(x) / 512.0, static_cast<double>(z) / 512.0, false) * 2.0));
+            return clayBands[(y + i + 64) % 64];
+        }
+    };
+
+    ThreadLocal<Cache> cache{};
 
     void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
         const int xpos = xStart & 15;
@@ -199,6 +302,8 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
         int l = -1;
         bool flag1 = false;
         int i1 = 0;
+
+        auto& clayBands = getClayBands();
 
         for(int j1 = startHeight; j1 >= 0; --j1) {
             if (i1 < 15) {
@@ -229,7 +334,7 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
                                     if (flag) {
                                         blockstate5 = TERRACOTTA;
                                     } else {
-                                        blockstate5 = getClay(xStart, j1, zStart);
+                                        blockstate5 = clayBands.getClay(xStart, j1, zStart);
                                     }
                                 }
 
@@ -265,7 +370,7 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
                         if (flag1) {
                             chunk.setData(blockpos, ORANGE_TERRACOTTA/*, false*/);
                         } else {
-                            chunk.setData(blockpos, getClay(xStart, j1, zStart)/*, false*/);
+                            chunk.setData(blockpos, clayBands.getClay(xStart, j1, zStart)/*, false*/);
                         }
                     }
 
@@ -275,83 +380,15 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
         }
     }
 
+    Cache& getClayBands() {
+        if (!cache.has_value()) {
+            cache.set(new Cache());
+        }
+        return *cache.get();
+    }
+
     void setSeed(int64_t _seed) override {
-        if (seed != _seed) {
-            seed = _seed;
-
-            generateBands(_seed);
-
-            auto rand = Random::from(_seed);
-            noise1.emplace(rand, std::views::iota(-3, 1));
-            noise2.emplace(rand, std::views::single(0));
-        }
-    }
-
-    void generateBands(int64_t _seed) {
-        clayBands.fill(TERRACOTTA);
-
-        auto rand = Random::from(_seed);
-
-        noise3.emplace(rand, std::views::single(0));
-
-        for (int i = 0; i < 64; ++i) {
-            i += rand.nextInt(5) + 1;
-            if (i < 64) {
-                clayBands[i] = ORANGE_TERRACOTTA;
-            }
-        }
-
-        const int yellowCount = rand.nextInt(4) + 2;
-        for (int i = 0; i < yellowCount; ++i) {
-            const int j = rand.nextInt(3) + 1;
-            const int k = rand.nextInt(64);
-
-            for (int l = 0; k + l < 64 && l < j; ++l) {
-                clayBands[k + l] = YELLOW_TERRACOTTA;
-            }
-        }
-
-        const int brownCount = rand.nextInt(4) + 2;
-        for (int i = 0; i < brownCount; ++i) {
-            const int j = rand.nextInt(3) + 2;
-            const int k = rand.nextInt(64);
-
-            for (int l = 0; k + l < 64 && l < j; ++l) {
-                clayBands[k + l] = BROWN_TERRACOTTA;
-            }
-        }
-
-        const int redCount = rand.nextInt(4) + 2;
-        for (int i = 0; i < redCount; ++i) {
-            const int j = rand.nextInt(3) + 1;
-            const int k = rand.nextInt(64);
-
-            for (int l = 0; k + l < 64 && l < j; ++l) {
-                clayBands[k + l] = RED_TERRACOTTA;
-            }
-        }
-
-        const int count = rand.nextInt(3) + 3;
-        int j = 0;
-        for (int i = 0; i < count; ++i) {
-            j += rand.nextInt(16) + 4;
-
-            for (int k = 0; j + k < 64 && k < 1; ++k) {
-                clayBands[j + k] = WHITE_TERRACOTTA;
-                if (j + k > 1 && rand.nextBoolean()) {
-                    clayBands[j + k - 1] = LIGHT_GRAY_TERRACOTTA;
-                }
-
-                if (j + k < 63 && rand.nextBoolean()) {
-                    clayBands[j + k + 1] = LIGHT_GRAY_TERRACOTTA;
-                }
-            }
-        }
-    }
-
-    auto getClay(int x, int y, int z) -> BlockData {
-        const int i = static_cast<int>(std::round(noise3->noiseAt(static_cast<double>(x) / 512.0, static_cast<double>(z) / 512.0, false) * 2.0));
-        return clayBands[(y + i + 64) % 64];
+        getClayBands().setSeed(_seed);
     }
 };
 
@@ -372,6 +409,8 @@ struct WoodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
         int l = -1;
         bool flag1 = false;
         int i1 = 0;
+
+        auto& clayBands = getClayBands();
 
         for (int j1 = startHeight; j1 >= 0; --j1) {
             if (i1 < 15) {
@@ -408,7 +447,7 @@ struct WoodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
                                     if (flag) {
                                         blockstate5 = TERRACOTTA;
                                     } else {
-                                        blockstate5 = getClay(xStart, j1, zStart);
+                                        blockstate5 = clayBands.getClay(xStart, j1, zStart);
                                     }
                                 }
 
@@ -429,7 +468,7 @@ struct WoodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
                         if (flag1) {
                             chunk.setData(blockpos, ORANGE_TERRACOTTA/*, false*/);
                         } else {
-                            chunk.setData(blockpos, getClay(xStart, j1, zStart)/*, false*/);
+                            chunk.setData(blockpos, clayBands.getClay(xStart, j1, zStart)/*, false*/);
                         }
                     }
 
@@ -442,10 +481,12 @@ struct WoodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
 
 struct ErodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
     void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
+        auto& clayBands = getClayBands();
+
         double d0 = 0.0;
-        const double d1 = std::min(std::abs(noise), noise1->noiseAt(static_cast<double>(xStart) * 0.25, static_cast<double>(zStart) * 0.25, false) * 15.0);
+        const double d1 = std::min(std::abs(noise), clayBands.noise1->noiseAt(static_cast<double>(xStart) * 0.25, static_cast<double>(zStart) * 0.25, false) * 15.0);
         if (d1 > 0.0) {
-            const double d3 = std::abs(noise2->noiseAt(static_cast<double>(xStart) * 0.001953125, static_cast<double>(zStart) * 0.001953125, false));
+            const double d3 = std::abs(clayBands.noise2->noiseAt(static_cast<double>(xStart) * 0.001953125, static_cast<double>(zStart) * 0.001953125, false));
             d0 = d1 * d1 * 2.5;
             const double d4 = std::ceil(d3 * 50.0) + 14.0;
             if (d0 > d4) {
@@ -502,7 +543,7 @@ struct ErodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
                                 if (flag) {
                                     blockstate5 = TERRACOTTA;
                                 } else {
-                                    blockstate5 = getClay(xStart, l, zStart);
+                                    blockstate5 = clayBands.getClay(xStart, l, zStart);
                                 }
                             }
 
@@ -535,7 +576,7 @@ struct ErodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
                     if (flag1) {
                         chunk.setData(blockpos, ORANGE_TERRACOTTA/*, false*/);
                     } else {
-                        chunk.setData(blockpos, getClay(xStart, l, zStart)/*, false*/);
+                        chunk.setData(blockpos, clayBands.getClay(xStart, l, zStart)/*, false*/);
                     }
                 }
             }
@@ -550,28 +591,45 @@ struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
     const BlockData SNOW_BLOCK = Blocks::SNOW_BLOCK->getDefaultState();
     const BlockData GRAVEL = Blocks::GRAVEL->getDefaultState();
 
-    std::optional<int64_t> seed = std::nullopt;
-    std::optional<PerlinNoiseGenerator> noise1 = std::nullopt;
-    std::optional<PerlinNoiseGenerator> noise2 = std::nullopt;
+    struct Cache {
+        std::optional<int64_t> seed = std::nullopt;
+        std::optional<PerlinNoiseGenerator> noise1 = std::nullopt;
+        std::optional<PerlinNoiseGenerator> noise2 = std::nullopt;
+
+        void setSeed(int64_t _seed) {
+            if (seed != _seed) {
+                seed = _seed;
+
+                auto rand = Random::from(_seed);
+                noise1.emplace(rand, std::views::iota(-3, 1));
+                noise2.emplace(rand, std::views::single(0));
+            }
+        }
+    };
+
+    ThreadLocal<Cache> cache{};
+
+    Cache& getCache() {
+        if (!cache.has_value()) {
+            cache.set(new Cache());
+        }
+        return *cache.get();
+    }
 
     void setSeed(int64_t _seed) override {
-        if (seed != _seed) {
-            seed = _seed;
-
-            auto rand = Random::from(_seed);
-            noise1.emplace(rand, std::views::iota(-3, 1));
-            noise2.emplace(rand, std::views::single(0));
-        }
+        getCache().setSeed(_seed);
     }
 
     void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
+        auto& _cache = getCache();
+
         double d0 = 0.0;
         double d1 = 0.0;
         const float temperature = biome.getTemperature(BlockPos{xStart, 63, zStart});
-        const double d2 = std::min(std::abs(noise), noise1->noiseAt(static_cast<double>(xStart) * 0.1, static_cast<double>(zStart) * 0.1, false) * 15.0);
+        const double d2 = std::min(std::abs(noise), _cache.noise1->noiseAt(static_cast<double>(xStart) * 0.1, static_cast<double>(zStart) * 0.1, false) * 15.0);
 
         if (d2 > 1.8) {
-            const double d4 = std::abs(noise2->noiseAt(static_cast<double>(xStart) * 0.09765625, static_cast<double>(zStart) * 0.09765625, false));
+            const double d4 = std::abs(_cache.noise2->noiseAt(static_cast<double>(xStart) * 0.09765625, static_cast<double>(zStart) * 0.09765625, false));
 
             d0 = d2 * d2 * 1.2;
             const double d5 = std::ceil(d4 * 40.0) + 14.0;

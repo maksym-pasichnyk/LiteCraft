@@ -10,6 +10,8 @@
 #include "../../util/math/BlockPos.hpp"
 #include "../../util/linked_unordered_map.hpp"
 
+#include "ThreadLocal.hpp"
+
 #include <glm/vec3.hpp>
 #include <string_view>
 #include <functional>
@@ -36,8 +38,7 @@ struct Biome {
     BiomeCategory category;
     BiomeAmbience effects;
 
-    std::mutex temperature_lock;
-    linked_unordered_map<uint64_t, float> temperatureCache{};
+    ThreadLocal<linked_unordered_map<uint64_t, float>> temperatureCache{};
 
     float getDepth() const {
         return depth;
@@ -67,23 +68,26 @@ struct Biome {
         return f;
     }
 
-    float getTemperature(BlockPos pos) /*const*/ {
-//        if (temperature_lock.try_lock()) {
-            const auto i = BlockPos::pack(pos.x, pos.y, pos.z);
-            if (temperatureCache.contains(i)) {
-                return temperatureCache.at(i);
-            }
+    float getTemperature(BlockPos pos) const {
+        if (!temperatureCache.has_value()) {
+            temperatureCache.set(new linked_unordered_map<uint64_t, float>());
+        }
 
-            const auto f = getTemperatureAtPosition(pos);
+        const auto i = BlockPos::pack(pos.x, pos.y, pos.z);
 
-            if (temperatureCache.size() >= 1024) {
-                temperatureCache.pop_front();
-            }
-            temperatureCache.insert({i, f});
-            temperature_lock.unlock();
-            return f;
-//        }
-//        return getTemperatureAtPosition(pos);
+        auto& cache = *temperatureCache.get();
+
+        if (cache.contains(i)) {
+            return cache.at(i);
+        }
+
+        const auto f = getTemperatureAtPosition(pos);
+
+        if (cache.size() >= 1024) {
+            cache.pop_front();
+        }
+        cache.insert({i, f});
+        return f;
     }
 
     BiomeGenerationSettings& getGenerationSettings() {
@@ -91,8 +95,6 @@ struct Biome {
     }
 
     void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int sealevel, int64_t worldSeed) {
-//        std::lock_guard _{biomeGenerationSettings.surfaceBuilder->mutex};
-
         biomeGenerationSettings.surfaceBuilder->setSeed(worldSeed);
         biomeGenerationSettings.surfaceBuilder->buildSurface(rand, chunk, *this, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, sealevel);
     }
