@@ -9,13 +9,13 @@ bool BlueIceFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator,
     if (pos.y > reader.getSeaLevel() - 1) {
         return false;
     }
-    if (!reader.getData(pos).isIn(Blocks::WATER) && !reader.getData(pos.down()).isIn(Blocks::WATER)) {
+    if (!reader.getData(pos).is(Blocks::WATER) && !reader.getData(pos.down()).is(Blocks::WATER)) {
         return false;
     }
 
     bool flag = false;
     for (Direction direction : DirectionUtil::values()) {
-        if (direction != Direction::DOWN && reader.getData(pos.offset(direction)).isIn(Blocks::PACKED_ICE)) {
+        if (direction != Direction::DOWN && reader.getData(pos.offset(direction)).is(Blocks::PACKED_ICE)) {
             flag = true;
             break;
         }
@@ -46,11 +46,11 @@ bool BlueIceFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator,
             const BlockPos blockpos = pos + BlockPos(dx0 - dx1, j, dx2 - dx3);
             const auto state = reader.getData(blockpos);
             if (state.getMaterial() == Materials::AIR ||
-                state.isIn(Blocks::WATER) ||
-                state.isIn(Blocks::PACKED_ICE) ||
-                state.isIn(Blocks::ICE)) {
+                    state.is(Blocks::WATER) ||
+                state.is(Blocks::PACKED_ICE) ||
+                state.is(Blocks::ICE)) {
                 for (Direction direction : DirectionUtil::values()) {
-                    if (reader.getData(blockpos.offset(direction)).isIn(Blocks::BLUE_ICE)) {
+                    if (reader.getData(blockpos.offset(direction)).is(Blocks::BLUE_ICE)) {
                         reader.setData(blockpos, BLUE_ICE/*, 2*/);
                         break;
                     }

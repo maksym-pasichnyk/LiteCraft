@@ -7,6 +7,6 @@ bool IcePathFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator,
         pos.y -= 1;
     }
 
-    return reader.getData(pos).isIn(Blocks::SNOW_BLOCK)
+    return reader.getData(pos).is(Blocks::SNOW_BLOCK)
         && AbstractSphereReplaceFeature::generate(reader, generator, random, pos, config);
 }

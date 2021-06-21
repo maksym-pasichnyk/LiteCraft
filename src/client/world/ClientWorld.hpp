@@ -1,9 +1,11 @@
 #pragma once
 
 #include "ClientChunkProvider.hpp"
-#include "../../block/BlockData.hpp"
+#include "block/BlockData.hpp"
 
 #include <memory>
+
+struct Biome;
 
 struct ClientWorld {
     std::unique_ptr<ClientChunkProvider> provider;

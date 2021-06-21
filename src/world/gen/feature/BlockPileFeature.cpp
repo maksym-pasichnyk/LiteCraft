@@ -8,7 +8,7 @@
 static bool canPlaceOn(WorldReader& worldIn, const BlockPos& pos, Random& random) {
     const auto blockpos = pos.down();
     const auto state = worldIn.getData(blockpos);
-    return state.isIn(Blocks::GRASS_PATH) && random.nextBoolean();
+    return state.is(Blocks::GRASS_PATH) && random.nextBoolean();
 //        ? random.nextBoolean()
 //        : state.isSolidSide(worldIn, blockpos, Direction.UP);
 }

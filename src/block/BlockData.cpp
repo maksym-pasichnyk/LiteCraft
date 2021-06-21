@@ -4,7 +4,7 @@
 
 #include <algorithm>
 
-bool BlockData::isIn(const BlockTag &tag) const {
+bool BlockData::in(const BlockTag &tag) const {
     return getBlock()->isIn(tag);
 }
 

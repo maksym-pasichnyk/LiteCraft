@@ -15,7 +15,7 @@ bool AbstractSphereReplaceFeature::generate(WorldGenRegion &reader, ChunkGenerat
                 for (int y = pos.y - cfg.half_height; y <= pos.y + cfg.half_height; ++y) {
                     const auto block = reader.getData(x, y, z).getBlock();
                     for (const auto target : cfg.targets) {
-                        if (target.isIn(block)) {
+                        if (target.is(block)) {
                             reader.setData(x, y, z, cfg.state/*, 2*/);
                             flag = true;
                             break;

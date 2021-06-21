@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../world/chunk/Chunk.hpp"
+#include "world/chunk/Chunk.hpp"
 
 struct ChunkRenderCache {
     int32_t chunk_x;

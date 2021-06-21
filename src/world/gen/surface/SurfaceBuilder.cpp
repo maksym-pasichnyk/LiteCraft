@@ -51,7 +51,7 @@ struct DefaultSurfaceBuilder : public SurfaceBuilder {
             auto blockstate2 = chunk.getData(xPos, yPos, zPos);
             if (blockstate2.isAir()) {
                 i = -1;
-            } else if (blockstate2.isIn(defaultBlock.getBlock())) {
+            } else if (blockstate2.is(defaultBlock.getBlock())) {
                 if (i == -1) {
                     if (j <= 0) {
                         blockstate = AIR;
@@ -82,9 +82,9 @@ struct DefaultSurfaceBuilder : public SurfaceBuilder {
                 } else if (i > 0) {
                     --i;
                     chunk.setData(xPos, yPos, zPos, blockstate1/*, false*/);
-                    if (i == 0 && blockstate1.isIn(Blocks::SAND) && j > 1) {
+                    if (i == 0 && blockstate1.is(Blocks::SAND) && j > 1) {
                         i = rand.nextInt(4) + std::max(0, yPos - 63);
-                        blockstate1 = blockstate1.isIn(Blocks::RED_SAND)
+                        blockstate1 = blockstate1.is(Blocks::RED_SAND)
                                         ? Blocks::RED_SAND->getDefaultState()
                                         : Blocks::SANDSTONE->getDefaultState();
                     }
@@ -149,7 +149,7 @@ struct SwampSurfaceBuilder : public SurfaceBuilder {
 
             for(int k = startHeight; k >= 0; --k) {
                 if (!chunk.getData(i, k, j).isAir()) {
-                    if (k == 62 && !chunk.getData(i, k, j).isIn(defaultFluid.getBlock())) {
+                    if (k == 62 && !chunk.getData(i, k, j).is(defaultFluid.getBlock())) {
                         chunk.setData(i, k, j, defaultFluid/*, false*/);
                     }
                     break;
@@ -311,7 +311,7 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
                 const auto data = chunk.getData(blockpos);
                 if (data.isAir()) {
                     l = -1;
-                } else if (data.isIn(defaultBlock.getBlock())) {
+                } else if (data.is(defaultBlock.getBlock())) {
                     if (l == -1) {
                         flag1 = false;
                         if (k <= 0) {
@@ -418,7 +418,7 @@ struct WoodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
                 const auto data = chunk.getData(blockpos);
                 if (data.isAir()) {
                     l = -1;
-                } else if (data.isIn(defaultBlock.getBlock())) {
+                } else if (data.is(defaultBlock.getBlock())) {
                     if (l == -1) {
                         flag1 = false;
                         if (k <= 0) {
@@ -517,7 +517,7 @@ struct ErodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
 
             if (data.isAir()) {
                 k = -1;
-            } else if (data.isIn(defaultBlock.getBlock())) {
+            } else if (data.is(defaultBlock.getBlock())) {
                 if (k == -1) {
                     flag1 = false;
                     if (j <= 0) {
@@ -673,8 +673,8 @@ struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
             data = chunk.getData(blockpos);
             if (data.isAir()) {
                 k = -1;
-            } else if (!data.isIn(defaultBlock.getBlock())) {
-                if (data.isIn(Blocks::PACKED_ICE) && l <= i1 && k1 > j1) {
+            } else if (!data.is(defaultBlock.getBlock())) {
+                if (data.is(Blocks::PACKED_ICE) && l <= i1 && k1 > j1) {
                     chunk.setData(blockpos, SNOW_BLOCK/*, false*/);
                     ++l;
                 }
@@ -708,9 +708,9 @@ struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
             } else if (k > 0) {
                 --k;
                 chunk.setData(blockpos, blockstate1/*, false*/);
-                if (k == 0 && blockstate1.isIn(Blocks::SAND) && j > 1) {
+                if (k == 0 && blockstate1.is(Blocks::SAND) && j > 1) {
                     k = rand.nextInt(4) + std::max(0, k1 - 63);
-                    blockstate1 = blockstate1.isIn(Blocks::RED_SAND)
+                    blockstate1 = blockstate1.is(Blocks::RED_SAND)
                                     ? Blocks::RED_SANDSTONE->getDefaultState()
                                     : Blocks::SANDSTONE->getDefaultState();
                 }

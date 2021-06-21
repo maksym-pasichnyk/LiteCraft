@@ -8,7 +8,7 @@ bool IceSpikeFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator
         pos.y -= 1;
     }
 
-    if (!reader.getData(pos).isIn(Blocks::SNOW_BLOCK)) {
+    if (!reader.getData(pos).is(Blocks::SNOW_BLOCK)) {
         return false;
     }
 

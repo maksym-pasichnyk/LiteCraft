@@ -50,8 +50,8 @@ WorldCarver::WorldCarver(int32_t maxHeight) : maxHeight{maxHeight} {
 
 bool WorldCarver::canCarveBlock(const BlockData &data, const BlockData &above) {
     return carvableBlocks.contains(data.getBlock())
-        || (data.isIn(Blocks::SAND) || data.isIn(Blocks::GRAVEL))
-        && !above.isIn(Blocks::WATER);// && !above.getFluidState().isTagged(FluidTags.WATER);
+        || (data.is(Blocks::SAND) || data.is(Blocks::GRAVEL))
+        && !above.is(Blocks::WATER);// && !above.getFluidState().isTagged(FluidTags.WATER);
 }
 
 bool WorldCarver::carveBlocks(Chunk &chunk, const BiomeReadFn &getBiome, int64_t seed, int seaLevel, int chunkx, int chunkz, double xcoord, double ycoord, double zcoord, double unk1, double unk2/*, BitSet carvingMask*/) {
@@ -110,7 +110,7 @@ bool WorldCarver::carveBlocks(Chunk &chunk, const BiomeReadFn &getBiome, int64_t
 
 bool WorldCarver::carveBlock(Chunk& chunk, const BiomeReadFn& getBiome, Random& rand, int seaLevel, int chunkX, int chunkZ, int xpos, int ypos, int zpos, bool& is_surface) {
     const auto data = chunk.getData(xpos, ypos, zpos);
-    if (data.isIn(Blocks::GRASS_BLOCK) || data.isIn(Blocks::MYCELIUM)) {
+    if (data.is(Blocks::GRASS_BLOCK) || data.is(Blocks::MYCELIUM)) {
         is_surface = true;
     }
     const auto above = chunk.getData(xpos, ypos + 1, zpos);
@@ -124,7 +124,7 @@ bool WorldCarver::carveBlock(Chunk& chunk, const BiomeReadFn& getBiome, Random& 
         chunk.setData(xpos, ypos, zpos, Blocks::AIR->getDefaultState()/*, false*/);
 
         if (is_surface) {
-            if (chunk.getData(xpos, ypos - 1, zpos).isIn(Blocks::DIRT)) {
+            if (chunk.getData(xpos, ypos - 1, zpos).is(Blocks::DIRT)) {
                 const auto top = getBiome({xpos, ypos, zpos})-> biomeGenerationSettings.getSurfaceBuilderConfig().getTop();
                 chunk.setData(xpos, ypos - 1, zpos, top/*, false*/);
             }

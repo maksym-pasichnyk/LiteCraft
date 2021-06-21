@@ -17,10 +17,10 @@ struct BlockData {
 
     constexpr auto operator<=>(const BlockData&) const noexcept = default;
 
-    bool isIn(Block* block) const {
+    bool is(Block* block) const {
         return block == getBlock();
     }
-    bool isIn(const BlockTag& tag) const;
+    bool in(const BlockTag& tag) const;
 
     bool isAir() const;
     auto getBlock() const -> Block*;

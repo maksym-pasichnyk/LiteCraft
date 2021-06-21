@@ -3,11 +3,11 @@
 #include "../world/WorldReader.hpp"
 
 bool BushBlock::isValidGround(const BlockData &data, WorldReader &reader, const BlockPos &pos) {
-    return data.isIn(Blocks::GRASS_BLOCK)
-        || data.isIn(Blocks::DIRT)
-//        || data.isIn(Blocks::COARSE_DIRT)
-        || data.isIn(Blocks::PODZOL)
-        || data.isIn(Blocks::FARMLAND);
+    return data.is(Blocks::GRASS_BLOCK)
+        || data.is(Blocks::DIRT)
+//        || data.is(Blocks::COARSE_DIRT)
+        || data.is(Blocks::PODZOL)
+        || data.is(Blocks::FARMLAND);
 }
 
 bool BushBlock::isValidPosition(const BlockData &data, WorldReader &reader, const BlockPos &pos) {

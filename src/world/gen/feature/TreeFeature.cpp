@@ -7,11 +7,11 @@
 #include "../../../util/math/BoundingBox.hpp"
 
 bool TreeFeature::isVineAt(WorldReader &reader, const BlockPos &pos) {
-    return reader.getData(pos).isIn(Blocks::VINE);
+    return reader.getData(pos).is(Blocks::VINE);
 }
 
 bool TreeFeature::isWaterAt(WorldReader &reader, const BlockPos &pos) {
-    return reader.getData(pos).isIn(Blocks::WATER);
+    return reader.getData(pos).is(Blocks::WATER);
 }
 
 bool TreeFeature::isTallPlantAt(WorldReader &reader, const BlockPos &pos) {
@@ -20,7 +20,7 @@ bool TreeFeature::isTallPlantAt(WorldReader &reader, const BlockPos &pos) {
 
 bool TreeFeature::isAirOrLeavesAt(WorldReader &reader, const BlockPos &pos) {
     const auto state = reader.getData(pos);
-    return state.isAir() || state.isIn(BlockTags::LEAVES);
+    return state.isAir() || state.in(BlockTags::LEAVES);
 }
 
 bool TreeFeature::isReplaceableAt(WorldReader& reader, const BlockPos& pos) {
@@ -33,7 +33,7 @@ bool TreeFeature::isDirtOrFarmlandAt(WorldReader& reader, const BlockPos& pos) {
 }
 
 bool TreeFeature::isReplaceableOrLogAt(WorldReader& reader, const BlockPos& pos) {
-    return isReplaceableAt(reader, pos) || reader.getData(pos).isIn(BlockTags::LOGS);
+    return isReplaceableAt(reader, pos) || reader.getData(pos).in(BlockTags::LOGS);
 }
 
 void TreeFeature::placeBlockState(WorldWriter &writer, const BlockPos &pos, BlockData state) {

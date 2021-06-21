@@ -1,5 +1,9 @@
 #pragma once
 
+#include <string>
+#include <fstream>
+#include <sstream>
+
 struct Shader {
     static std::string source(const std::string &path) {
         std::ifstream file(path, std::ios::in);

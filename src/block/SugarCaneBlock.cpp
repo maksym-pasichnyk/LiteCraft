@@ -18,7 +18,7 @@ bool SugarCaneBlock::isValidPosition(const BlockData &data, WorldReader &reader,
         for (Direction direction : DirectionUtil::Plane::HORIZONTAL) {
             const auto state = reader.getData(blockpos.offset(direction));
 //            const auto fluid = reader.getFluidState(blockpos.offset(direction));
-            if (/*fluid.isTagged(FluidTags.WATER) ||*/ state.isIn(Blocks::FROSTED_ICE) || state.isIn(Blocks::WATER)) {
+            if (/*fluid.isTagged(FluidTags.WATER) ||*/ state.is(Blocks::FROSTED_ICE) || state.is(Blocks::WATER)) {
                 return true;
             }
         }

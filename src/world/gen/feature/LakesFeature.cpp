@@ -95,7 +95,7 @@ bool LakesFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, R
                     const auto blockpos = pos + BlockPos(i2, j4 - 1, j3);
                     if (isDirt(reader.getData(blockpos).getBlock())/* && reader.getLightFor(LightType.SKY, pos + BlockPos(i2, j4, j3)) > 0*/) {
                         auto biome = reader.getBiome(blockpos);
-                        if (biome->getGenerationSettings().getSurfaceBuilderConfig().getTop().isIn(Blocks::MYCELIUM)) {
+                        if (biome->getGenerationSettings().getSurfaceBuilderConfig().getTop().is(Blocks::MYCELIUM)) {
                             reader.setData(blockpos, Blocks::MYCELIUM->getDefaultState()/*, 2*/);
                         } else {
                             reader.setData(blockpos, Blocks::GRASS_BLOCK->getDefaultState()/*, 2*/);

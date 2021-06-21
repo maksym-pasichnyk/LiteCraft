@@ -1,29 +1,34 @@
+#include "client/render/chunk/ChunkRenderDispatcher.hpp"
+
 #include <GL/glew.h>
+#include <SDL2/SDL.h>
 
-#include <glm/glm.hpp>
-
-#include <memory>
-#include <atomic>
+#include <set>
+#include <span>
+#include <queue>
 #include <mutex>
 #include <random>
-#include <set>
-#include <queue>
-#include <span>
+#include <memory>
+
+#include <glm/glm.hpp>
 #include <fmt/format.h>
+
+#include <imgui.h>
+#include <backends/imgui_impl_sdl.h>
+#include <backends/imgui_impl_opengl3.h>
 
 #include "input.hpp"
 #include "camera.hpp"
-#include "transform.hpp"
-#include "block/BlockReader.hpp"
-#include "TextureAtlas.hpp"
-#include "raytrace.hpp"
 #include "shader.hpp"
-#include "NetworkManager.hpp"
-#include "PacketManager.hpp"
+#include "raytrace.hpp"
+#include "transform.hpp"
 #include "CraftServer.hpp"
+#include "TextureAtlas.hpp"
+#include "PacketManager.hpp"
+#include "NetworkManager.hpp"
+#include "world/chunk/Chunk.hpp"
 #include "world/biome/Biome.hpp"
 #include "world/biome/Biomes.hpp"
-#include "world/chunk/Chunk.hpp"
 #include "world/gen/surface/SurfaceBuilder.hpp"
 #include "world/gen/surface/ConfiguredSurfaceBuilders.hpp"
 #include "world/gen/carver/Carvers.hpp"
@@ -35,25 +40,15 @@
 #include "world/gen/placement/Placements.hpp"
 
 #include "client/world/ClientWorld.hpp"
-#include "client/render/ChunkRenderCache.hpp"
+#include "client/render/ViewFrustum.hpp"
+#include "client/render/chunk/ChunkRenderCache.hpp"
 #include "client/render/model/ModelFormat.hpp"
+
 #include "block/Block.hpp"
 #include "block/Blocks.hpp"
+#include "block/BlockReader.hpp"
 #include "block/BlockGraphics.hpp"
 #include "block/material/Materials.hpp"
-
-#include <SDL2/SDL.h>
-
-#include <imgui.h>
-#include <backends/imgui_impl_sdl.h>
-#include <backends/imgui_impl_opengl3.h>
-
-#include <future>
-
-#include "util/generate_queue.hpp"
-#include "util/complete_queue.hpp"
-
-extern void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks);
 
 struct CameraConstants {
 	glm::mat4 transform;
@@ -93,192 +88,6 @@ namespace nlohmann {
     }
 }
 
-struct Plane {
-    glm::vec3 normal;
-    float distance;
-};
-
-void NormalizePlane(Plane & plane) {
-    const float len = glm::length(plane.normal);
-    plane.normal /= len;
-    plane.distance /= len;
-}
-
-void ExtractPlanes(std::array<Plane, 6>& planes, const glm::mat4x4& comboMatrix, bool normalize) {
-    // Left clipping plane
-    planes[0].normal.x = comboMatrix[3][0] + comboMatrix[0][0];
-    planes[0].normal.y = comboMatrix[3][1] + comboMatrix[0][1];
-    planes[0].normal.z = comboMatrix[3][2] + comboMatrix[0][2];
-    planes[0].distance = comboMatrix[3][3] + comboMatrix[0][3];
-    // Right clipping plane
-    planes[1].normal.x = comboMatrix[3][0] - comboMatrix[0][0];
-    planes[1].normal.y = comboMatrix[3][1] - comboMatrix[0][1];
-    planes[1].normal.z = comboMatrix[3][2] - comboMatrix[0][2];
-    planes[1].distance = comboMatrix[3][3] - comboMatrix[0][3];
-    // Top clipping plane
-    planes[2].normal.x = comboMatrix[3][0] - comboMatrix[1][0];
-    planes[2].normal.y = comboMatrix[3][1] - comboMatrix[1][1];
-    planes[2].normal.z = comboMatrix[3][2] - comboMatrix[1][2];
-    planes[2].distance = comboMatrix[3][3] - comboMatrix[1][3];
-    // Bottom clipping plane
-    planes[3].normal.x = comboMatrix[3][0] + comboMatrix[1][0];
-    planes[3].normal.y = comboMatrix[3][1] + comboMatrix[1][1];
-    planes[3].normal.z = comboMatrix[3][2] + comboMatrix[1][2];
-    planes[3].distance = comboMatrix[3][3] + comboMatrix[1][3];
-    // Near clipping plane
-    planes[4].normal.x = comboMatrix[3][0] + comboMatrix[2][0];
-    planes[4].normal.y = comboMatrix[3][1] + comboMatrix[2][1];
-    planes[4].normal.z = comboMatrix[3][2] + comboMatrix[2][2];
-    planes[4].distance = comboMatrix[3][3] + comboMatrix[2][3];
-    // Far clipping plane
-    planes[5].normal.x = comboMatrix[3][0] - comboMatrix[2][0];
-    planes[5].normal.y = comboMatrix[3][1] - comboMatrix[2][1];
-    planes[5].normal.z = comboMatrix[3][2] - comboMatrix[2][2];
-    planes[5].distance = comboMatrix[3][3] - comboMatrix[2][3];
-    // Normalize the plane equations, if requested
-    if (normalize == true) {
-        NormalizePlane(planes[0]);
-        NormalizePlane(planes[1]);
-        NormalizePlane(planes[2]);
-        NormalizePlane(planes[3]);
-        NormalizePlane(planes[4]);
-        NormalizePlane(planes[5]);
-    }
-}
-
-struct ChunkRenderData {
-    static constexpr std::array attributes {
-            VertexArrayAttrib{0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, point)},
-            VertexArrayAttrib{1, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, tex)},
-            VertexArrayAttrib{2, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, color)},
-            VertexArrayAttrib{3, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, light)}
-    };
-
-    static constexpr std::array bindings {
-            VertexArrayBinding{0, 0},
-            VertexArrayBinding{1, 0},
-            VertexArrayBinding{2, 0},
-            VertexArrayBinding{3, 0},
-    };
-
-    Mesh mesh{attributes, bindings, sizeof(Vertex), GL_DYNAMIC_DRAW};
-    std::array<Submesh, 3> layers{};
-
-    RenderBuffer rb{};
-    bool needRender = false;
-
-    void updateMesh() {
-        glm::i32 index_count = 0;
-        for (auto& subindices : rb.indices) {
-            index_count += subindices.size();
-        }
-
-        mesh.SetVertices(std::span(rb.vertices));
-        mesh.SetIndicesCount(index_count);
-
-        glm::i32 submesh_index = 0;
-        glm::i32 index_offset = 0;
-
-        for (auto& submesh : rb.indices) {
-            layers[submesh_index].index_offset = index_offset;
-            layers[submesh_index].index_count = submesh.size();
-            if (!submesh.empty()) {
-                mesh.SetIndicesData(submesh, index_offset);
-            }
-            index_offset += layers[submesh_index].index_count;
-            submesh_index++;
-        }
-    }
-};
-
-struct ViewFrustum {
-    int stride;
-    std::vector<ChunkRenderData> chunks;
-
-    explicit ViewFrustum(int viewDistance) : stride(viewDistance * 2 + 1), chunks(stride * stride) {}
-
-    static bool TestPlanesAABBInternalFast(std::span<const Plane> planes, const glm::vec3& boundsMin, const glm::vec3& boundsMax) {
-        for (const auto& [normal, distance] : planes) {
-            if (glm::dot(normal, glm::mix(boundsMax, boundsMin, glm::lessThan(normal, glm::vec3(0.0f)))) + distance < 0) {
-                return false;
-            }
-        }
-        return true;
-    }
-};
-
-struct ChunkRenderDispatcher {
-    ClientWorld* world;
-    std::vector<std::thread> workers{};
-
-    generate_queue<std::pair<ChunkRenderData*, std::unique_ptr<ChunkRenderCache>>> tasks;
-    complete_queue<ChunkRenderData*> uploadTasks;
-
-    std::stop_source stop_source;
-
-    explicit ChunkRenderDispatcher(ClientWorld* world) : world(world) {
-        workers.emplace_back(&ChunkRenderDispatcher::runLoop, this, stop_source.get_token());
-    }
-
-    ~ChunkRenderDispatcher() {
-        stop_source.request_stop();
-        uploadTasks.clear();
-        tasks.clear();
-        std::ranges::for_each(workers, std::mem_fn(&std::thread::join));
-        workers.clear();
-    }
-
-    void runChunkUploads() {
-        while (auto data = uploadTasks.try_pop()) {
-            (*data)->updateMesh();
-        }
-    }
-
-    void runLoop(std::stop_token&& token) {
-        try {
-            while (!token.stop_requested()) {
-                while (auto task = tasks.try_pop()) {
-                    auto[data, cache] = std::move(*task);
-                    renderBlocks(data->rb, *cache);
-                    uploadTasks.emplace(data);
-
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                }
-            }
-        } catch (const std::exception& e) {
-            fmt::print("{}", e.what());
-        }
-    }
-
-    static auto createRenderCache(ClientWorld* world, glm::i32 chunk_x, glm::i32 chunk_z) -> std::unique_ptr<ChunkRenderCache> {
-        auto cache = std::make_unique<ChunkRenderCache>(chunk_x, chunk_z);
-
-        size_t i = 0;
-        for (glm::i32 z = chunk_z - 1; z <= chunk_z + 1; z++) {
-            for (glm::i32 x = chunk_x - 1; x <= chunk_x + 1; x++) {
-                auto chunk = world->getChunk(x, z);
-                if (chunk == nullptr) {
-                    return nullptr;
-                }
-                cache->chunks[i++] = chunk;
-            }
-        }
-
-        return cache;
-    }
-
-    void rebuildChunk(ChunkRenderData& renderData, glm::i32 chunk_x, glm::i32 chunk_z, bool immediate) {
-        if (auto cache = createRenderCache(world, chunk_x, chunk_z)) {
-            if (immediate) {
-                renderBlocks(renderData.rb, *cache);
-                renderData.updateMesh();
-            } else {
-                tasks.emplace(&renderData, std::move(cache));
-            }
-        }
-    }
-};
-
 struct App {
     bool running = true;
 
@@ -292,7 +101,6 @@ struct App {
 
     Input input{};
     Camera camera{};
-    std::array<Plane, 6> planes{};
     Transform transform {
         .yaw = 0,
         .pitch = 0,
@@ -423,16 +231,15 @@ struct App {
         fmt::print("{}, {}, {}, {}: {}\n", source_str, type_str, severity_str, id, message);
     }
 
-
     void createFrames(uint32_t width, uint32_t height) {
-        const std::array attributes {
+        constexpr std::array attributes {
             VertexArrayAttrib{0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, point)},
             VertexArrayAttrib{1, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, tex)},
             VertexArrayAttrib{2, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, color)},
             VertexArrayAttrib{3, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, light)}
         };
 
-        const std::array bindings {
+        constexpr std::array bindings {
             VertexArrayBinding{0, 0},
             VertexArrayBinding{1, 0},
             VertexArrayBinding{2, 0},
@@ -459,7 +266,7 @@ struct App {
             glNamedFramebufferRenderbuffer(frames[i].framebuffer, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, frames[i].depth_attachment);
 
             if(glCheckNamedFramebufferStatus(frames[i].framebuffer, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-                fmt::print("ERROR::FRAMEBUFFER:: Framebuffer is not complete!: {}\n", glGetError());
+                fmt::print("Framebuffer is not complete!: {}\n", glGetError());
             }
         }
     }
@@ -481,16 +288,12 @@ struct App {
         while (SDL_PollEvent(&event)) {
             ImGui_ImplSDL2_ProcessEvent(&event);
 
-//        	if (event.type == sf::Event::LostFocus) {
-////				window.setMouseCursorVisible(true);
-//			} else if (event.type == sf::Event::GainedFocus) {
-////        		window.setMouseCursorVisible(false);
-//        	} else if (event.type == sf::Event::MouseMoved) {
-//
-//        	} else
-            if (event.type == SDL_QUIT) {
+        	if (event.type == SDL_WINDOWEVENT_FOCUS_LOST) {
+//				window.setMouseCursorVisible(true);
+			} else if (event.type == SDL_WINDOWEVENT_FOCUS_GAINED) {
+//        		window.setMouseCursorVisible(false);
+        	} else if (event.type == SDL_QUIT) {
                 running = false;
-//                window.close();
             }
         }
     }
@@ -512,8 +315,6 @@ struct App {
         SDL_WarpMouseInWindow(window, mouse_center.x, mouse_center.y);
 
         rotateCamera(transform, mouse_delta, dt);
-
-        const auto topBlock = world->getBlock(transform.position.x, transform.position.y + 1, transform.position.z);
 
 		transform.position += calc_free_camera_velocity(input, transform, dt);
 
@@ -574,7 +375,7 @@ struct App {
         std::memcpy(frames[frameIndex].camera_ptr, &camera_constants, sizeof(CameraConstants));
 
         if (!debugCamera) {
-            ExtractPlanes(planes, glm::transpose(camera_matrix), true);
+            frustum->ExtractPlanes(glm::transpose(camera_matrix), true);
         }
     }
 
@@ -595,24 +396,12 @@ struct App {
     void processChangeBlock(const SChangeBlockPacket& packet) {
         const auto pos = packet.pos;
 
-//        std::array<Chunk*, 9> _chunks{};
-//        world->manager->fillChunks(_chunks, 1, pos.x >> 4, pos.z >> 4, &ChunkStatus::Full);
-//        WorldGenRegion region{world.get(), _chunks, 1, pos.x >> 4, pos.z >> 4, world->seed};
-//
-//        const auto old = region.getData(pos);
-//        if (region.setData(pos, packet.data)) {
-//            world->manager->lightManager->update(region, pos.x, pos.y, pos.z, old, packet.data);
-
         std::set<ChunkPos> positions;
         for (int x = (pos.x - 1) >> 4; x <= (pos.x + 1) >> 4; x++) {
             for (int z = (pos.z - 1) >> 4; z <= (pos.z + 1) >> 4; z++) {
                 frustum->chunks[world->provider->chunkArray.getIndex(x, z)].needRender = true;
             }
         }
-
-//        for (auto [x, z] : positions) {
-//            frustum->chunks[world->provider->chunkArray.getIndex(x, z)].needRender = true;
-//        }
     }
 
     void setupTerrain() {
@@ -639,21 +428,16 @@ struct App {
                 const auto diff = glm::ivec2(last_center_x - chunk_x, last_center_z - chunk_z);
                 const bool immediate = (diff.x * diff.x + diff.y * diff.y) <= 1;
 
-
-//                auto chunk = world->getChunk(chunk_x, chunk_z);
-//                if (chunk == nullptr) continue;
                 const auto xstart = chunk_x << 4;
                 const auto zstart = chunk_z << 4;
 
                 const glm::vec3 bounds_min{xstart, 0, zstart};
                 const glm::vec3 bounds_max{xstart + 16, 256, zstart + 16};
 
-                if (ViewFrustum::TestPlanesAABBInternalFast(planes, bounds_min, bounds_max)) {
+                if (frustum->TestAABB(bounds_min, bounds_max)) {
                     const glm::i32 i = world->provider->chunkArray.getIndex(chunk_x, chunk_z);
 
-                    if (frustum->chunks[i].needRender) {
-                        frustum->chunks[i].needRender = false;
-
+                    if (std::exchange(frustum->chunks[i].needRender, false)) {
                         renderDispatcher->rebuildChunk(frustum->chunks[i], chunk_x, chunk_z, immediate);
                     }
                     chunkToRenders.emplace_back(&frustum->chunks[i]);
@@ -904,7 +688,6 @@ struct App {
         ImGui::Begin("Debug panel", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoSavedSettings);
         ImGui::Text("FPS: %d", FPS);
         ImGui::Text("Position: %.2f, %.2f, %.2f", transform.position.x, transform.position.y, transform.position.z);
-        if (server->world && server->world->manager)
         ImGui::Text("Server chunks: %d", static_cast<int>(server->world->manager->holders.size()));
         ImGui::Text("Client chunks: %d", world->provider->chunkArray.getLoaded());
         ImGui::Text("Render chunks: %zu", chunkToRenders.size());
@@ -926,14 +709,7 @@ struct App {
         flipFrame();
     }
 
-    template <typename Fn>
-    static void wait_for(std::future<void>& task, Fn&& fn) {
-        while (task.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
-            fn();
-        }
-    }
-
-    void run() {
+    int run() {
         using namespace std::chrono_literals;
 
         SDL_WarpMouseInWindow(window, displaySize.x / 2, displaySize.y / 2);
@@ -946,23 +722,22 @@ struct App {
                             sendSpawnPacket();
                         });
 
+
         startTime = std::chrono::high_resolution_clock::now();
         while (running) {
-            try {
-                executor.process_all_tasks();
+            executor.process_all_tasks();
 
-                runGameLoop(true);
-            } catch (const std::exception& e) {
-                fmt::print("{}", e.what());
-            }
+            runGameLoop(true);
         }
+
+        return 0;
     }
 
 	void renderLayer(RenderLayer layer) {
         for (auto chunk : chunkToRenders) {
             // todo: sometimes crash here
 
-            const auto [offset, count] = chunk->layers[(int) layer];
+            const auto [offset, count] = chunk->layers[static_cast<size_t>(layer)];
 
             if (count != 0) {
                 glBindVertexArray(chunk->mesh.vao);
@@ -1006,8 +781,7 @@ private:
     }
 };
 
-auto main() -> int32_t {
-    App app{"Minecraft", 800, 600};
-    app.run();
-    return 0;
+int main() {
+    App app{"Bedcraft", 800, 600};
+    return app.run();
 }

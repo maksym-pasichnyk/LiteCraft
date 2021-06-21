@@ -45,7 +45,7 @@ bool AbstractBigMushroomFeature::checkPosition(WorldGenRegion &world, const Bloc
             for (int l = -k; l <= k; ++l) {
                 for (int i1 = -k; i1 <= k; ++i1) {
                     const auto state = world.getData(pos + BlockPos(l, j, i1));
-                    if (!state.isAir() && !state.isIn(BlockTags::LEAVES)) {
+                    if (!state.isAir() && !state.in(BlockTags::LEAVES)) {
                         return false;
                     }
                 }

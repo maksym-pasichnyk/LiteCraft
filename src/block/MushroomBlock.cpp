@@ -8,7 +8,7 @@ bool MushroomBlock::isValidGround(const BlockData &data, WorldReader &reader, co
 bool MushroomBlock::isValidPosition(const BlockData &data, WorldReader &reader, const BlockPos &pos) {
     const auto blockpos = pos.down();
     const auto state = reader.getData(blockpos);
-    if (state.isIn(BlockTags::MUSHROOM_GROW_BLOCK)) {
+    if (state.in(BlockTags::MUSHROOM_GROW_BLOCK)) {
         return true;
     }
     return /*reader.getLightSubtracted(pos, 0) < 13 &&*/ isValidGround(state, reader, blockpos);

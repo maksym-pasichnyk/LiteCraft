@@ -57,13 +57,13 @@ double IcebergFeature::func_205177_a(int a, int b, const BlockPos &pos, int c, R
 
 void IcebergFeature::func_205175_a(const BlockPos &pos, WorldGenRegion &region, Random &random, int a, int b, bool p_205175_6_, bool p_205175_7_, BlockData p_205175_8_) {
     const auto blockstate = region.getData(pos);
-    if (blockstate.getMaterial() == Materials::AIR || 
-        blockstate.isIn(Blocks::SNOW_BLOCK) || 
-        blockstate.isIn(Blocks::ICE) || 
-        blockstate.isIn(Blocks::WATER)) {
+    if (blockstate.getMaterial() == Materials::AIR ||
+        blockstate.is(Blocks::SNOW_BLOCK) ||
+        blockstate.is(Blocks::ICE) ||
+        blockstate.is(Blocks::WATER)) {
         const bool flag = !p_205175_6_ || random.nextDouble() > 0.05;
         const int i = p_205175_6_ ? 3 : 2;
-        if (p_205175_7_ && !blockstate.isIn(Blocks::WATER) && static_cast<double>(a) <= static_cast<double>(random.nextInt(std::max(1, b / i))) + static_cast<double>(b) * 0.6 && flag) {
+        if (p_205175_7_ && !blockstate.is(Blocks::WATER) && static_cast<double>(a) <= static_cast<double>(random.nextInt(std::max(1, b / i))) + static_cast<double>(b) * 0.6 && flag) {
             setBlockState(region, pos, Blocks::SNOW_BLOCK->getDefaultState());
         } else {
             setBlockState(region, pos, p_205175_8_);
@@ -177,7 +177,7 @@ void IcebergFeature::func_205174_a(int p_205174_1_, int yDiff, const BlockPos& p
 }
 
 void IcebergFeature::removeSnowLayer(WorldGenRegion &region, const BlockPos& pos) {
-    if (region.getData(pos.up()).isIn(Blocks::SNOW)) {
+    if (region.getData(pos.up()).is(Blocks::SNOW)) {
         setBlockState(region, pos.up(), Blocks::AIR->getDefaultState());
     }
 }

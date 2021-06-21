@@ -1,8 +1,10 @@
-#include "ChunkRenderCache.hpp"
+#include "client/render/chunk/ChunkRenderCache.hpp"
 #include "../../block/Block.hpp"
 #include "../../block/BlockGraphics.hpp"
 #include "../../block/material/Materials.hpp"
 #include "../../TextureAtlas.hpp"
+
+#include "client/render/RenderBuffer.hpp"
 
 #include <glm/vec3.hpp>
 
