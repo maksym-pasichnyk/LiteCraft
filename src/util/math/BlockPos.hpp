@@ -43,6 +43,14 @@ struct BlockPos : glm::ivec3 {
         return getAllInBox(from.x, from.y, from.z, to.x, to.y, to.z);
     }
 
+    constexpr auto add(int dx, int dy, int dz) const noexcept {
+        return BlockPos{x + dx, y + dy, z + dz};
+    }
+
+    constexpr auto sub(int dx, int dy, int dz) const noexcept {
+        return BlockPos{x - dx, y - dy, z - dz};
+    }
+
     constexpr auto up(int n = 1) const noexcept {
         return BlockPos{x, y + n, z};
     }

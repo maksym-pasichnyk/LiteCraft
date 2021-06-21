@@ -90,7 +90,7 @@ struct Biomes {
     static Biome* WARPED_FOREST;
     static Biome* BASALT_DELTAS;
 
-    static Biome* findBiome(const std::string& name) {
+    static Biome* findByName(const std::string& name) {
         return table.at(name);
     }
 

@@ -3,17 +3,22 @@
 #include "TreeFeature.hpp"
 #include "LakesFeature.hpp"
 #include "VinesFeature.hpp"
+#include "SpringFeature.hpp"
 #include "BambooFeature.hpp"
 #include "IcePathFeature.hpp"
 #include "BlueIceFeature.hpp"
 #include "IcebergFeature.hpp"
 #include "IceSpikeFeature.hpp"
+#include "FillLayerFeature.hpp"
 #include "BlockBlobFeature.hpp"
 #include "BlockPileFeature.hpp"
 #include "DecoratedFeature.hpp"
 #include "IceAndSnowFeature.hpp"
 #include "RandomPatchFeature.hpp"
+#include "NoExposedOreFeature.hpp"
+#include "ReplaceBlockFeature.hpp"
 #include "SingleRandomFeature.hpp"
+#include "SphereReplaceFeature.hpp"
 #include "DefaultFlowersFeature.hpp"
 #include "BigRedMushroomFeature.hpp"
 #include "BigBrownMushroomFeature.hpp"
@@ -89,9 +94,9 @@ void Features::registerFeatures() {
     NO_BONEMEAL_FLOWER = createFeature<DefaultFlowersFeature>("no_bonemeal_flower");
     RANDOM_PATCH = createFeature<RandomPatchFeature>("random_patch");
     BLOCK_PILE = createFeature<BlockPileFeature>("block_pile");
-//    SPRING_FEATURE = createFeature<SpringFeature>("spring_feature");
+    SPRING_FEATURE = createFeature<SpringFeature>("spring_feature");
 //    CHORUS_PLANT = createFeature<ChorusPlantFeature>("chorus_plant");
-//    EMERALD_ORE = createFeature<ReplaceBlockFeature>("emerald_ore");
+    EMERALD_ORE = createFeature<ReplaceBlockFeature>("emerald_ore");
 //    VOID_START_PLATFORM = createFeature<VoidStartPlatformFeature>("void_start_platform");
 //    DESERT_WELL = createFeature<DesertWellsFeature>("desert_well");
 //    FOSSIL = createFeature<FossilsFeature>("fossil");
@@ -105,7 +110,7 @@ void Features::registerFeatures() {
     BLUE_ICE = createFeature<BlueIceFeature>("blue_ice");
     ICEBERG = createFeature<IcebergFeature>("iceberg");
     FOREST_ROCK = createFeature<BlockBlobFeature>("forest_rock");
-//    DISK = createFeature<SphereReplaceFeature>("disk");
+    DISK = createFeature<SphereReplaceFeature>("disk");
     ICE_PATCH = createFeature<IcePathFeature>("ice_patch");
     LAKE = createFeature<LakesFeature>("lake");
     ORE = createFeature<OreFeature>("ore");
@@ -127,10 +132,10 @@ void Features::registerFeatures() {
 //    BASALT_COLUMNS = createFeature<BasaltColumnFeature>("basalt_columns");
 //    DELTA_FEATURE = createFeature<BasaltDeltasStructure>("delta_feature");
 //    NETHERRACK_REPLACE_BLOBS = createFeature<NetherackBlobReplacementStructure>("netherrack_replace_blobs");
-//    FILL_LAYER = createFeature<FillLayerFeature>("fill_layer");
+    FILL_LAYER = createFeature<FillLayerFeature>("fill_layer");
 //    BONUS_CHEST = createFeature<BonusChestFeature>("bonus_chest");
 //    BASALT_PILLAR = createFeature<BasaltPillarFeature>("basalt_pillar");
-//    NO_SURFACE_ORE = createFeature<NoExposedOreFeature>("no_surface_ore");
+    NO_SURFACE_ORE = createFeature<NoExposedOreFeature>("no_surface_ore");
     RANDOM_SELECTOR = createFeature<MultipleWithChanceRandomFeature>("random_selector");
     SIMPLE_RANDOM_SELECTOR = createFeature<SingleRandomFeature>("simple_random_selector");
     RANDOM_BOOLEAN_SELECTOR = createFeature<TwoFeatureChoiceFeature>("random_boolean_selector");

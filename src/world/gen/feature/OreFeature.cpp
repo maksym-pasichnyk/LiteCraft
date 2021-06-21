@@ -33,7 +33,8 @@ bool OreFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Ran
 }
 
 bool OreFeature::generateOre(WorldGenRegion &world, Random &random, const OreFeatureConfig &config, double p_207803_4_, double p_207803_6_, double p_207803_8_, double p_207803_10_, double p_207803_12_, double p_207803_14_, int p_207803_16_, int p_207803_17_, int p_207803_18_, int sizex, int sizey) {
-//    BitSet bitset = new BitSet(sizex * sizey * sizex);
+    std::vector<bool> mask(sizex * sizey * sizex);
+
     const int size = config.size;
     auto doubles = std::span<double>(static_cast<double *>(aligned_alloc(alignof(double), sizeof(double) * (size * 4))), size * 4);
 
@@ -58,10 +59,10 @@ bool OreFeature::generateOre(WorldGenRegion &world, Random &random, const OreFea
             if (doubles[k3 * 4 + 3] <= 0.0) {
                 continue;
             }
-            double d12 = doubles[i3 * 4 + 0] - doubles[k3 * 4 + 0];
-            double d13 = doubles[i3 * 4 + 1] - doubles[k3 * 4 + 1];
-            double d14 = doubles[i3 * 4 + 2] - doubles[k3 * 4 + 2];
-            double d15 = doubles[i3 * 4 + 3] - doubles[k3 * 4 + 3];
+            const double d12 = doubles[i3 * 4 + 0] - doubles[k3 * 4 + 0];
+            const double d13 = doubles[i3 * 4 + 1] - doubles[k3 * 4 + 1];
+            const double d14 = doubles[i3 * 4 + 2] - doubles[k3 * 4 + 2];
+            const double d15 = doubles[i3 * 4 + 3] - doubles[k3 * 4 + 3];
             if (d15 * d15 > d12 * d12 + d13 * d13 + d14 * d14) {
                 if (d15 > 0.0) {
                     doubles[k3 * 4 + 3] = -1.0;
@@ -102,15 +103,14 @@ bool OreFeature::generateOre(WorldGenRegion &world, Random &random, const OreFea
                     const double d10 = (static_cast<double>(k2) + 0.5 - d5) / d11;
                     if (d8 * d8 + d9 * d9 + d10 * d10 < 1.0) {
                         const int l2 = i2 - p_207803_16_ + (j2 - p_207803_17_) * sizex + (k2 - p_207803_18_) * sizex * sizey;
-//                        if (!bitset.get(l2)) {
-//                            bitset.set(l2);
-                            auto block = world.getBlock(i2, j2, k2);
-//                            if (config.target.test(block, random)) {
-                            if (block == Blocks::STONE || block == Blocks::GRANITE || block == Blocks::DIORITE || block == Blocks::ANDESITE) {
+                        if (!mask[l2]) {
+                            mask[l2] = true;
+
+                            if (RuleTestUtil::test(config.target, world.getData(i2, j2, k2), random)) {
                                 world.setData(i2, j2, k2, config.state/*, 2*/);
                                 ++i;
                             }
-//                        }
+                        }
                     }
                 }
             }

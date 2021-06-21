@@ -6,11 +6,11 @@
 const MultiNoiseBiomeProvider::Preset MultiNoiseBiomeProvider::Preset::DEFAULT_NETHER_PROVIDER_PRESET {
     [](int64_t seed) -> std::unique_ptr<MultiNoiseBiomeProvider> {
         return std::make_unique<MultiNoiseBiomeProvider>(seed, std::vector<std::pair<Biome*, BiomeAttributes>> {
-            {Biomes::NETHER_WASTES, BiomeAttributes{0.0F, 0.0F, 0.0F, 0.0F, 0.0F}},
-            {Biomes::SOUL_SAND_VALLEY, BiomeAttributes{0.0F, -0.5F, 0.0F, 0.0F, 0.0F}},
-            {Biomes::CRIMSON_FOREST, BiomeAttributes{0.4F, 0.0F, 0.0F, 0.0F, 0.0F}},
-            {Biomes::WARPED_FOREST, BiomeAttributes{0.0F, 0.5F, 0.0F, 0.0F, 0.375F}},
-            {Biomes::BASALT_DELTAS, BiomeAttributes{-0.5F, 0.0F, 0.0F, 0.0F, 0.175F}},
+            {Biomes::findByName("nether_wastes"), BiomeAttributes{0.0F, 0.0F, 0.0F, 0.0F, 0.0F}},
+            {Biomes::findByName("soul_sand_valley"), BiomeAttributes{0.0F, -0.5F, 0.0F, 0.0F, 0.0F}},
+            {Biomes::findByName("crimson_forest"), BiomeAttributes{0.4F, 0.0F, 0.0F, 0.0F, 0.0F}},
+            {Biomes::findByName("warped_forest"), BiomeAttributes{0.0F, 0.5F, 0.0F, 0.0F, 0.375F}},
+            {Biomes::findByName("basalt_deltas"), BiomeAttributes{-0.5F, 0.0F, 0.0F, 0.0F, 0.175F}},
         });
     }
 };
@@ -18,7 +18,7 @@ const MultiNoiseBiomeProvider::Preset MultiNoiseBiomeProvider::Preset::DEFAULT_N
 Biome *MultiNoiseBiomeProvider::getNoiseBiome(int x, int y, int z) {
     const int i = useHeightForNoise ? y : 0;
 
-    const BiomeAttributes attributes{
+    const auto attributes = BiomeAttributes{
         static_cast<float>(temperatureNoiseMixer->noiseAt(x, i, z)),
         static_cast<float>(humidityNoiseMixer->noiseAt(x, i, z)),
         static_cast<float>(altitudeNoiseMixer->noiseAt(x, i, z)),

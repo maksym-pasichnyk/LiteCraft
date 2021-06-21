@@ -1,8 +1,11 @@
 #pragma once
 
+#include "LiquidsConfig.hpp"
 #include "NoFeatureConfig.hpp"
+#include "FillLayerConfig.hpp"
 #include "OreFeatureConfig.hpp"
 #include "ProbabilityConfig.hpp"
+#include "ReplaceBlockConfig.hpp"
 #include "SphereReplaceConfig.hpp"
 #include "BaseTreeFeatureConfig.hpp"
 #include "BlockWithContextConfig.hpp"
@@ -19,8 +22,11 @@
 
 using FeatureConfig = std::variant<
     NoFeatureConfig,
+    LiquidsConfig,
+    FillLayerConfig,
     OreFeatureConfig,
     ProbabilityConfig,
+    ReplaceBlockConfig,
     SphereReplaceConfig,
     BaseTreeFeatureConfig,
     BlockWithContextConfig,
