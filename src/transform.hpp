@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
-struct Transform {
+struct TransformComponent {
     float yaw = 0;
     float pitch = 0;
     glm::vec3 position{};

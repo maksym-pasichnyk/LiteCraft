@@ -98,7 +98,6 @@ private:
     }
 };
 
-
 struct Structure;
 struct StructureStart;
 struct Chunk {

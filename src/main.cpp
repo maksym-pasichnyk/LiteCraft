@@ -1,5 +1,3 @@
-#include "client/render/chunk/ChunkRenderDispatcher.hpp"
-
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 
@@ -10,6 +8,7 @@
 #include <random>
 #include <memory>
 
+#include <entt/entt.hpp>
 #include <glm/glm.hpp>
 #include <fmt/format.h>
 
@@ -41,14 +40,55 @@
 
 #include "client/world/ClientWorld.hpp"
 #include "client/render/ViewFrustum.hpp"
-#include "client/render/chunk/ChunkRenderCache.hpp"
 #include "client/render/model/ModelFormat.hpp"
+#include "client/render/chunk/ChunkRenderDispatcher.hpp"
 
 #include "block/Block.hpp"
 #include "block/Blocks.hpp"
 #include "block/BlockReader.hpp"
 #include "block/BlockGraphics.hpp"
 #include "block/material/Materials.hpp"
+
+struct AABB {
+    float min_x;
+    float min_y;
+    float min_z;
+    float max_x;
+    float max_y;
+    float max_z;
+
+    constexpr auto min() const noexcept -> glm::vec3 {
+        return {min_x, min_y, min_z};
+    }
+
+    constexpr auto max() const noexcept -> glm::vec3 {
+        return {min_x, min_y, min_z};
+    }
+
+    constexpr auto size() const noexcept -> glm::vec3 {
+        return max() - min();
+    }
+
+    constexpr auto center() const noexcept -> glm::vec3 {
+        return (min() + max()) * 0.5f;
+    }
+
+    constexpr auto add(const glm::vec3& offset) const noexcept -> AABB {
+        return from(min() + offset, max() + offset);
+    }
+
+    constexpr auto sub(const glm::vec3& offset) const noexcept -> AABB {
+        return from(min() - offset, max() - offset);
+    }
+
+    static constexpr auto from(const glm::vec3& min, const glm::vec3& max) noexcept -> AABB {
+        return AABB{min.x, min.y, min.z, max.x, max.y, max.z};
+    }
+
+    static constexpr auto with_size(const glm::vec3& min, const glm::vec3& size) noexcept -> AABB {
+        return from(min, min + size);
+    }
+};
 
 struct CameraConstants {
 	glm::mat4 transform;
@@ -88,7 +128,22 @@ namespace nlohmann {
     }
 }
 
+struct PlayerComponent {};
+struct MobComponent {};
+
+struct VelocityComponent {
+    glm::vec2 horizontal{};
+    glm::f32 vertical = 0;
+
+    constexpr auto flat() const -> glm::vec3 {
+        return {horizontal.x, vertical, horizontal.y};
+    }
+};
+
 struct App {
+    entt::registry _registry;
+    entt::entity _player;
+
     bool running = true;
 
     SDL_Window* window;
@@ -101,18 +156,11 @@ struct App {
 
     Input input{};
     Camera camera{};
-    Transform transform {
-        .yaw = 0,
-        .pitch = 0,
-        .position = {3385, 83, 1500}
-    };
 
     int32_t last_center_x = -9999;
     int32_t last_center_z = -9999;
 
-	glm::vec3 velocity{0, 0, 0};
 	int cooldown = 0;
-
 	int viewDistance = 19;
 
     GLuint entity_pipeline;
@@ -170,6 +218,36 @@ struct App {
 
         createFrames(width, height);
         createImGui();
+
+        _player = createPlayer({3385, 83, 1500});
+
+        // createZombie({3386, 83, 1501});
+        // createZombie({3387, 83, 1502});
+        // createZombie({3388, 83, 1503});
+    }
+
+    entt::entity createPlayer(const glm::vec3& position) {
+        auto id = _registry.create();
+        _registry.emplace<PlayerComponent>(id);
+        _registry.emplace<VelocityComponent>(id);
+        _registry.emplace<TransformComponent>(id, TransformComponent{
+            .yaw = 0,
+            .pitch = 0,
+            .position = position
+        });
+        return id;
+    }
+
+    entt::entity createZombie(const glm::vec3& position) {
+        auto id = _registry.create();
+        _registry.emplace<MobComponent>(id);
+        _registry.emplace<VelocityComponent>(id);
+        _registry.emplace<TransformComponent>(id, TransformComponent{
+            .yaw = 0,
+            .pitch = 0,
+            .position = position
+        });
+        return id;
     }
 
     static void GraphicsDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const *message, void const *user_param) {
@@ -314,37 +392,43 @@ struct App {
 		const auto mouse_delta = mouse_center - mouse_position;
         SDL_WarpMouseInWindow(window, mouse_center.x, mouse_center.y);
 
+        auto& transform = _registry.get<TransformComponent>(_player);
+        auto& velocity = _registry.get<VelocityComponent>(_player);
+
         rotateCamera(transform, mouse_delta, dt);
 
-		transform.position += calc_free_camera_velocity(input, transform, dt);
+        auto cam_vel = calc_free_camera_velocity(input, transform, dt);
 
-		RayTraceContext ray_trace_context {
-			.position = transform.position + glm::vec3(0, 1.68, 0),
-			.direction = transform.forward(),
-			.ignoreLiquid = true
-		};
+        velocity.horizontal = {cam_vel.x, cam_vel.z};
+        velocity.vertical = cam_vel.y;
 
-		rayTraceResult = rayTraceBlocks(*world, ray_trace_context);
-        if (cooldown == 0 && rayTraceResult.has_value()) {
-            if (input.isMouseButtonPressed(Input::MouseButton::Left)) {
-                cooldown = 10;
-
-                connection->sendPacket(CPlayerDiggingPacket{
-                    .pos = rayTraceResult->pos,
-                    .dir = rayTraceResult->dir
-                });
-            } else if (input.isMouseButtonPressed(Input::MouseButton::Right)) {
-                cooldown = 10;
-
-                connection->sendPacket(SChangeBlockPacket{
-                    .pos = rayTraceResult->pos + rayTraceResult->dir,
-                    .data = Blocks::TORCH->getDefaultState()
-                });
-            }
-		}
+//		RayTraceContext ray_trace_context {
+//			.position = transform.position + glm::vec3(0, 1.68, 0),
+//			.direction = transform.forward(),
+//			.ignoreLiquid = true
+//		};
+//
+//		rayTraceResult = rayTraceBlocks(*world, ray_trace_context);
+//        if (cooldown == 0 && rayTraceResult.has_value()) {
+//            if (input.isMouseButtonPressed(Input::MouseButton::Left)) {
+//                cooldown = 10;
+//
+//                connection->sendPacket(CPlayerDiggingPacket{
+//                    .pos = rayTraceResult->pos,
+//                    .dir = rayTraceResult->dir
+//                });
+//            } else if (input.isMouseButtonPressed(Input::MouseButton::Right)) {
+//                cooldown = 10;
+//
+//                connection->sendPacket(SChangeBlockPacket{
+//                    .pos = rayTraceResult->pos + rayTraceResult->dir,
+//                    .data = Blocks::TORCH->getDefaultState()
+//                });
+//            }
+//		}
     }
 
-    void setupCamera() {
+    void setupCamera(TransformComponent& transform) {
         const auto [x, y, z] = transform.position;
         const auto topMaterial = world->getBlock(glm::floor(x), std::floor(y + 1.68), glm::floor(z))->getMaterial();
 
@@ -404,7 +488,7 @@ struct App {
         }
     }
 
-    void setupTerrain() {
+    void setupTerrain(TransformComponent& transform) {
         const auto center_x = static_cast<int32_t>(transform.position.x) >> 4;
         const auto center_z = static_cast<int32_t>(transform.position.z) >> 4;
 
@@ -425,19 +509,17 @@ struct App {
 
         for (glm::i32 chunk_x = last_center_x - 8; chunk_x <= last_center_x + 8; chunk_x++) {
             for (glm::i32 chunk_z = last_center_z - 8; chunk_z <= last_center_z + 8; chunk_z++) {
-                const auto diff = glm::ivec2(last_center_x - chunk_x, last_center_z - chunk_z);
-                const bool immediate = (diff.x * diff.x + diff.y * diff.y) <= 1;
-
-                const auto xstart = chunk_x << 4;
-                const auto zstart = chunk_z << 4;
-
-                const glm::vec3 bounds_min{xstart, 0, zstart};
-                const glm::vec3 bounds_max{xstart + 16, 256, zstart + 16};
+                const auto bounds_min = glm::vec3{chunk_x << 4, 0, chunk_z << 4};
+                const auto bounds_max = bounds_min + glm::vec3{16, 256, 16};
 
                 if (frustum->TestAABB(bounds_min, bounds_max)) {
                     const glm::i32 i = world->provider->chunkArray.getIndex(chunk_x, chunk_z);
 
                     if (std::exchange(frustum->chunks[i].needRender, false)) {
+                        const auto dx = last_center_x - chunk_x;
+                        const auto dz = last_center_z - chunk_z;
+                        const auto immediate = (dx * dx + dy * dy) <= 1;
+
                         renderDispatcher->rebuildChunk(frustum->chunks[i], chunk_x, chunk_z, immediate);
                     }
                     chunkToRenders.emplace_back(&frustum->chunks[i]);
@@ -489,6 +571,34 @@ struct App {
         glBindTexture(GL_TEXTURE_2D, 0);
 
         lineCache.clear();
+        for (auto const& [_, /*mob,*/ transform] : _registry.view<MobComponent, TransformComponent>().each()) {
+            const auto aabb = AABB::with_size(transform.position, glm::vec3(1, 2, 1));
+
+            lineCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
+            lineCache.vertex(aabb.min_x, aabb.min_y, aabb.min_z, 0, 0, 0, 0, 0, 0xFF);
+            lineCache.vertex(aabb.min_x, aabb.max_y, aabb.min_z, 0, 1, 0, 0, 0, 0xFF);
+            lineCache.vertex(aabb.max_x, aabb.max_y, aabb.min_z, 1, 1, 0, 0, 0, 0xFF);
+            lineCache.vertex(aabb.max_x, aabb.min_y, aabb.min_z, 1, 0, 0, 0, 0, 0xFF);
+
+            lineCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
+            lineCache.vertex(aabb.max_x, aabb.min_y, aabb.min_z, 0, 0, 0, 0, 0, 0xFF);
+            lineCache.vertex(aabb.max_x, aabb.max_y, aabb.min_z, 0, 1, 0, 0, 0, 0xFF);
+            lineCache.vertex(aabb.max_x, aabb.max_y, aabb.max_z, 1, 1, 0, 0, 0, 0xFF);
+            lineCache.vertex(aabb.max_x, aabb.min_y, aabb.max_z, 1, 0, 0, 0, 0, 0xFF);
+
+            lineCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
+            lineCache.vertex(aabb.max_x, aabb.min_y, aabb.max_z, 0, 0, 0, 0, 0, 0xFF);
+            lineCache.vertex(aabb.max_x, aabb.max_y, aabb.max_z, 0, 1, 0, 0, 0, 0xFF);
+            lineCache.vertex(aabb.min_x, aabb.max_y, aabb.max_z, 1, 1, 0, 0, 0, 0xFF);
+            lineCache.vertex(aabb.min_x, aabb.min_y, aabb.max_z, 1, 0, 0, 0, 0, 0xFF);
+
+            lineCache.quad(0, 1, 1, 2, 2, 3, 3, 0);
+            lineCache.vertex(aabb.min_x, aabb.min_y, aabb.max_z, 0, 0, 0, 0, 0, 0xFF);
+            lineCache.vertex(aabb.min_x, aabb.max_y, aabb.max_z, 0, 1, 0, 0, 0, 0xFF);
+            lineCache.vertex(aabb.min_x, aabb.max_y, aabb.min_z, 1, 1, 0, 0, 0, 0xFF);
+            lineCache.vertex(aabb.min_x, aabb.min_y, aabb.min_z, 1, 0, 0, 0, 0, 0xFF);
+        }
+
 		if (rayTraceResult.has_value()) {
 			const auto [fx, fy, fz] = glm::vec3(rayTraceResult->pos);
 
@@ -620,9 +730,9 @@ struct App {
         server = std::make_unique<CraftServer>(std::move(nm.server()), viewDistance);
     }
 
-    void sendSpawnPacket() {
-        const auto center_x = static_cast<int32_t>(transform.position.x) >> 4;
-        const auto center_z = static_cast<int32_t>(transform.position.z) >> 4;
+    void sendSpawnPacket(const glm::vec3& position) {
+        const auto center_x = static_cast<int32_t>(position.x) >> 4;
+        const auto center_z = static_cast<int32_t>(position.z) >> 4;
 
         last_center_x = center_x;
         last_center_z = center_z;
@@ -630,7 +740,7 @@ struct App {
         world->provider->chunkArray.setCenter(center_x, center_z);
 
         connection->sendPacket(SSpawnPlayerPacket{
-            .pos = transform.position
+            .pos = position
         });
     }
 
@@ -645,9 +755,9 @@ struct App {
         frameIndex = (frameIndex + 1) % 2;
     }
 
-    void updateCameraAndRender() {
-        setupCamera();
-        setupTerrain();
+    void updateCameraAndRender(TransformComponent& transform) {
+        setupCamera(transform);
+        setupTerrain(transform);
         renderDispatcher->runChunkUploads();
         renderTerrain();
     }
@@ -669,7 +779,18 @@ struct App {
 
         startTime = time;
 
+        auto& player_transform = _registry.get<TransformComponent>(_player);
+
         updateInput(dt);
+
+        for (auto const& components : _registry.view<TransformComponent, VelocityComponent>().each()) {
+            auto& transform = std::get<1>(components);
+            const auto& velocity = std::get<2>(components);
+
+            transform.position += velocity.flat() * static_cast<float>(dt);
+//            velocity.vertical -= 9.8f * dt;
+        }
+
         packetManager.handlePackets(this, *connection);
 
         glClearNamedFramebufferfv(frames[frameIndex].framebuffer, GL_COLOR, 0, glm::value_ptr(FOG_COLOR));
@@ -678,7 +799,7 @@ struct App {
         glBindFramebuffer(GL_FRAMEBUFFER, frames[frameIndex].framebuffer);
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, frames[frameIndex].camera_ubo);
 
-        updateCameraAndRender();
+        updateCameraAndRender(player_transform);
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame(window);
@@ -687,16 +808,11 @@ struct App {
         ImGui::SetNextWindowSize(ImVec2(300, /*150*/400));
         ImGui::Begin("Debug panel", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoSavedSettings);
         ImGui::Text("FPS: %d", FPS);
-        ImGui::Text("Position: %.2f, %.2f, %.2f", transform.position.x, transform.position.y, transform.position.z);
+        ImGui::Text("Position: %.2f, %.2f, %.2f", player_transform.position.x, player_transform.position.y, player_transform.position.z);
         ImGui::Text("Server chunks: %d", static_cast<int>(server->world->manager->holders.size()));
         ImGui::Text("Client chunks: %d", world->provider->chunkArray.getLoaded());
         ImGui::Text("Render chunks: %zu", chunkToRenders.size());
         ImGui::Text("Render distance: %d", viewDistance);
-
-//        for (int i = 0; i < 5; ++i) {
-//            ImGui::Text("%d -> %d", i, static_cast<int32_t>(server->world->manager->tasks[i].size()));
-//        }
-
         ImGui::Text("Debug camera: %s", debugCamera ? "true" : "false");
         ImGui::End();
         ImGui::Render();
@@ -719,9 +835,8 @@ struct App {
         auto loading = loadResources()
                         .then([this] {
                             createWorld();
-                            sendSpawnPacket();
+                            sendSpawnPacket(_registry.get<TransformComponent>(_player).position);
                         });
-
 
         startTime = std::chrono::high_resolution_clock::now();
         while (running) {
@@ -748,7 +863,7 @@ struct App {
     }
 
 private:
-    static void rotateCamera(Transform& transform, glm::ivec2 mouse_delta, float dt) {
+    static void rotateCamera(TransformComponent& transform, glm::ivec2 mouse_delta, float dt) {
         if (mouse_delta.x != 0 || mouse_delta.y != 0) {
             float d4 = 0.5f * 0.6F + 0.2F;
             float d5 = d4 * d4 * d4 * 8.0f;
@@ -758,7 +873,7 @@ private:
         }
     }
 
-    static auto calc_free_camera_velocity(Input& input, Transform& transform, float dt) -> glm::vec3 {
+    static auto calc_free_camera_velocity(Input& input, TransformComponent& transform, float dt) -> glm::vec3 {
         glm::vec3 velocity{0, 0, 0};
 
         auto forward = transform.forward();
@@ -766,16 +881,16 @@ private:
 
         float moveSpeed = input.isKeyPressed(Input::Key::Shift) ? 100.0f : 10.0f;
         if (input.isKeyPressed(Input::Key::Up)) {
-            velocity += forward * dt * moveSpeed;
+            velocity += forward * moveSpeed;
         }
         if (input.isKeyPressed(Input::Key::Down)) {
-            velocity -= forward * dt * moveSpeed;
+            velocity -= forward * moveSpeed;
         }
         if (input.isKeyPressed(Input::Key::Left)) {
-            velocity -= right * dt * moveSpeed;
+            velocity -= right * moveSpeed;
         }
         if (input.isKeyPressed(Input::Key::Right)) {
-            velocity += right * dt * moveSpeed;
+            velocity += right * moveSpeed;
         }
         return velocity;
     }
