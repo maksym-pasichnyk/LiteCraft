@@ -12,7 +12,6 @@
 #include <algorithm>
 
 struct ChunkRenderDispatcher {
-    ClientWorld* world;
     std::vector<std::thread> workers{};
 
     generate_queue<std::pair<ChunkRenderData*, std::unique_ptr<ChunkRenderCache>>> tasks;
@@ -20,7 +19,7 @@ struct ChunkRenderDispatcher {
 
     std::stop_source stop_source;
 
-    explicit ChunkRenderDispatcher(ClientWorld* world) : world(world) {
+    explicit ChunkRenderDispatcher() {
         workers.emplace_back(&ChunkRenderDispatcher::runLoop, this, stop_source.get_token());
     }
 
@@ -56,13 +55,13 @@ struct ChunkRenderDispatcher {
         }
     }
 
-    static auto createRenderCache(ClientWorld* world, glm::i32 chunk_x, glm::i32 chunk_z) -> std::unique_ptr<ChunkRenderCache> {
+    static auto createRenderCache(ClientWorld& world, glm::i32 chunk_x, glm::i32 chunk_z) -> std::unique_ptr<ChunkRenderCache> {
         auto cache = std::make_unique<ChunkRenderCache>(chunk_x, chunk_z);
 
         size_t i = 0;
         for (glm::i32 z = chunk_z - 1; z <= chunk_z + 1; z++) {
             for (glm::i32 x = chunk_x - 1; x <= chunk_x + 1; x++) {
-                auto chunk = world->getChunk(x, z);
+                auto chunk = world.getChunk(x, z);
                 if (chunk == nullptr) {
                     return nullptr;
                 }
@@ -73,7 +72,7 @@ struct ChunkRenderDispatcher {
         return cache;
     }
 
-    void rebuildChunk(ChunkRenderData& renderData, glm::i32 chunk_x, glm::i32 chunk_z, bool immediate) {
+    void rebuildChunk(ClientWorld& world, ChunkRenderData& renderData, glm::i32 chunk_x, glm::i32 chunk_z, bool immediate) {
         if (auto cache = createRenderCache(world, chunk_x, chunk_z)) {
             if (immediate) {
                 render(renderData.rb, *cache);

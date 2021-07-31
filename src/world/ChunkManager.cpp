@@ -1,17 +1,15 @@
 #include "ChunkManager.hpp"
 #include "ServerWorld.hpp"
-#include "gen/NoiseChunkGenerator.hpp"
-#include "light/WorldLightManager.hpp"
 #include "../CraftServer.hpp"
 
-#include <future>
 #include <memory>
 
+//todo: remove promise.hpp lib
 //todo: task chain
 //todo: merge tasks
 //todo: promise allocator
 //todo: priority queue
-//todo: load from file
+//todo: save/load from file
 //todo: chunk allocator
 
 ChunkManager::ChunkManager(ServerWorld *world, ChunkGenerator *generator)

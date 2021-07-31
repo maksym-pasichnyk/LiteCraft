@@ -197,7 +197,7 @@ struct App {
         world = std::make_unique<ClientWorld>(viewDistance);
         server = std::make_unique<CraftServer>(viewDistance);
         frustum = std::make_unique<ViewFrustum>(viewDistance);
-        dispatcher = std::make_unique<ChunkRenderDispatcher>(world.get());
+        dispatcher = std::make_unique<ChunkRenderDispatcher>();
 
         connection = std::make_unique<NetworkConnection>(server->getLocalAddress());
         connection->send(SSpawnPlayerPacket{
@@ -370,7 +370,7 @@ private:
                         const auto dz = chunk_z - z;
                         const auto immediate = (dx * dx + dz * dz) <= 1;
 
-                        dispatcher->rebuildChunk(frustum->chunks[i], x, z, immediate);
+                        dispatcher->rebuildChunk(*world, frustum->chunks[i], x, z, immediate);
                     }
 
                     chunkToRenders.emplace_back(&frustum->chunks[i]);

@@ -33,25 +33,10 @@ const ChunkStatus ChunkStatus::StructureReferences = create(&ChunkStatus::Struct
 
 const ChunkStatus ChunkStatus::Surface = create(&ChunkStatus::StructureReferences, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::weak_ptr<Chunk>> chunks, int64_t seed) {
     WorldGenRegion region{world, chunks, 0, x, z, seed};
-//    auto s = std::chrono::high_resolution_clock::now();
-
-//    generator_mutex.lock();
-
-//    auto e = std::chrono::high_resolution_clock::now();
 
     generator.generateTerrain(chunk);
     generator.generateSurface(region, chunk);
     generator.generateCarvers(region, seed, chunk);
-
-//    generator_mutex.unlock();
-
-//    static double time = 0;
-//    static int call = 0;
-//
-//    time += std::chrono::duration<double, std::milli>(e - s).count();
-//    call += 1;
-//
-//    fmt::print("generate: {} ms\n", time / static_cast<double>(call));
 });
 
 //const ChunkStatus ChunkStatus::Carver = create(&ChunkStatus::Surface, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::weak_ptr<Chunk>> chunks, int64_t seed) {
