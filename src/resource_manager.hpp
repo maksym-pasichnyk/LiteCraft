@@ -3,16 +3,16 @@
 #include <span>
 #include <memory>
 #include <vector>
+#include <ranges>
+#include <cstring>
 #include <fstream>
 #include <optional>
+#include <physfs.h>
 #include <filesystem>
-
 #include <fmt/format.h>
 
 #include "stb_image.hpp"
 
-#include <ranges>
-#include <cstring>
 //#include <range/v3/all.hpp>
 
 struct NativeImage {
@@ -29,7 +29,7 @@ struct NativeImage {
 	int height = 0;
 	int channels = 0;
 
-	static NativeImage read(std::span<char> bytes, bool flip) {
+	static auto read(std::span<char> bytes, bool flip) -> NativeImage {
 		auto data = reinterpret_cast<const unsigned char *>(bytes.data());
 
 		int width, height, channels;
@@ -72,65 +72,70 @@ private:
 };
 
 struct ResourcePack {
-	explicit ResourcePack(std::filesystem::path path) : basePath(std::move(path)) {}
+    ResourcePack() = default;
+    virtual ~ResourcePack() = default;
 
-    inline std::filesystem::path getFullPath(const std::filesystem::path& path) {
-		return basePath / path;
+    template <typename Fn>
+    void load(const std::string& path, Fn&& fn) {
+        if (const auto bytes = load(path)) {
+            fn(*bytes);
+        }
+    }
+
+    virtual auto load(const std::string& path) -> std::optional<std::vector<char>> = 0;
+    virtual auto contains(const std::string& path) -> bool = 0;
+};
+
+struct PhysFsResourcePack : ResourcePack {
+    explicit PhysFsResourcePack(std::string path) : basePath(std::move(path)) {}
+
+    auto contains(const std::string& path) -> bool override {
+        return PHYSFS_exists(getFullPath(path).c_str());
+    }
+
+    auto load(const std::string& path) -> std::optional<std::vector<char>> override {
+        auto file = PHYSFS_openRead(getFullPath(path).c_str());
+        if (file != nullptr) {
+            std::vector<char> bytes(PHYSFS_fileLength(file));
+            PHYSFS_readBytes(file, bytes.data(), bytes.size());
+            PHYSFS_close(file);
+            return std::move(bytes);
+        }
+        return std::nullopt;
+    }
+
+private:
+    auto getFullPath(const std::string& path) const -> std::string {
+        return fmt::format("{}/{}", basePath, path);
+    }
+
+    std::string basePath;
+};
+
+struct FolderResourcePack : ResourcePack {
+    explicit FolderResourcePack(std::string path) : basePath(std::move(path)) {}
+
+    auto contains(const std::string& path) -> bool override {
+		return std::filesystem::exists(getFullPath(path));
 	}
 
-	inline bool contains(const std::string& path) {
-		const auto file_path = basePath / path;
-		return std::filesystem::exists(file_path);
-	}
-
-	inline auto loadFile(const std::filesystem::path& path) -> std::optional<std::vector<char>> {
-		const auto filePath = getFullPath(path);
-		if (std::filesystem::exists(filePath)) {
-			std::vector<char> bytes(std::filesystem::file_size(filePath));
-			std::ifstream stream(filePath, std::ios::binary);
-			stream.read(bytes.data(), bytes.size());
+	auto load(const std::string& path) -> std::optional<std::vector<char>> override {
+		const auto full_path = getFullPath(path);
+		if (std::filesystem::exists(full_path)) {
+		    std::vector<char> bytes(std::filesystem::file_size(full_path));
+			std::ifstream stream(full_path, std::ios::binary);
+			stream.read(bytes.data(), static_cast<std::streamsize>(bytes.size()));
 			stream.close();
 			return std::move(bytes);
 		}
 		return std::nullopt;
 	}
 
-    template <typename Fn>
-    inline void loadResources(const std::filesystem::path& path, Fn&& fn) {
-	    const auto full_path = getFullPath(path);
-	    if (!std::filesystem::exists(full_path)) {
-            return;
-	    }
-
-        for (const auto& e : std::filesystem::recursive_directory_iterator(full_path)) {
-            if (e.is_regular_file()) {
-//                fmt::print("{}\n", e.path().filename().string());
-
-                std::vector<char> bytes(std::filesystem::file_size(e.path()));
-                std::ifstream stream(e.path(), std::ios::binary);
-                stream.read(bytes.data(), bytes.size());
-                stream.close();
-
-                fn(bytes);
-            }
-        }
-    }
-
-    template <typename Fn>
-    inline auto loadResource(const std::filesystem::path& path, Fn&& fn) -> std::optional<std::vector<char>> {
-        const auto filePath = getFullPath(path);
-        if (std::filesystem::exists(filePath)) {
-            std::vector<char> bytes(std::filesystem::file_size(filePath));
-            std::ifstream stream(filePath, std::ios::binary);
-            stream.read(bytes.data(), bytes.size());
-            stream.close();
-
-            fn(bytes);
-        }
-        return std::nullopt;
-    }
-
 private:
+    auto getFullPath(const std::string& path) const -> std::filesystem::path {
+        return basePath / path;
+    }
+
 	std::filesystem::path basePath;
 };
 
@@ -139,32 +144,25 @@ struct ResourcePackManager {
 		packs.emplace_back(std::move(resourcePack));
 	}
 
-	std::optional<std::vector<char>> loadFile(const std::filesystem::path& path) {
+	auto load(const std::string& path) -> std::optional<std::vector<char>> {
 		for (auto& pack : packs) {
-			if (auto value = pack->loadFile(path)) {
+			if (auto value = pack->load(path)) {
 				return std::move(value);
 			}
 		}
 		return std::nullopt;
 	}
 
-	template <typename Fn>
-    void loadResources(const std::filesystem::path& path, Fn&& fn) {
-        for (auto& pack : packs) {
-            pack->loadResources(path, std::forward<Fn>(fn));
-        }
-    }
-
     template <typename Fn>
-    void loadAllVersionsOf(const std::filesystem::path& path, Fn&& fn) {
+    void loadAllVersionsOf(const std::string& path, Fn&& fn) {
         for (auto& pack : packs) {
-            pack->loadResource(path, std::forward<Fn>(fn));
+            pack->load(path, std::forward<Fn>(fn));
         }
     }
 
-	std::optional<NativeImage> loadTextureData(const std::string& name, bool flip) {
+    auto loadTextureData(const std::string& name, bool flip) -> std::optional<NativeImage> {
 		for (auto ext : {".png", ".tga"}) {
-			if (auto bytes = loadFile(name + ext)) {
+			if (auto bytes = load(name + ext)) {
 				return NativeImage::read(*bytes, flip);
 			}
 		}

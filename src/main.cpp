@@ -146,13 +146,7 @@ struct App {
 
         /**************************************************************************************************************/
 
-        resources->addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla"));
-        resources->addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.14"));
-        resources->addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.15"));
-        resources->addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.16"));
-        resources->addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.16.100"));
-        resources->addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.16.200"));
-        resources->addResourcePack(std::make_unique<ResourcePack>("../assets/resource_packs/vanilla_1.16.210"));
+        resources->addResourcePack(std::make_unique<PhysFsResourcePack>("/resource_packs/vanilla"));
 
         atlas = std::make_unique<TextureAtlas>();
         atlas->loadMetaFile(*resources);
@@ -186,16 +180,16 @@ struct App {
         };
 
         opaque_pipeline = device->createShader(
-            AppPlatform::readFile("../resources/default.vert").value(),
-            AppPlatform::readFile("../resources/default.frag").value()
+            AppPlatform::readFile("default.vert").value(),
+            AppPlatform::readFile("default.frag").value()
         );
         cutout_pipeline = device->createShader(
-            AppPlatform::readFile("../resources/default.vert").value(),
-            AppPlatform::readFile("../resources/cutout.frag").value()
+            AppPlatform::readFile("default.vert").value(),
+            AppPlatform::readFile("cutout.frag").value()
         );
         transparent_pipeline = device->createShader(
-            AppPlatform::readFile("../resources/default.vert").value(),
-            AppPlatform::readFile("../resources/transparent.frag").value()
+            AppPlatform::readFile("default.vert").value(),
+            AppPlatform::readFile("transparent.frag").value()
         );
 
         /**************************************************************************************************************/

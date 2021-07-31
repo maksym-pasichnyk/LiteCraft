@@ -306,22 +306,22 @@ struct TextureAtlas /*: Texture*/ {
         std::vector<ParsedAtlasNode> nodes{};
 
         resources.loadAllVersionsOf("textures/terrain_texture.json",
-                                    [this, &nodes, &textureAtlasPack, &resources](std::span<const char> bytes) {
-                                        auto terrain_texture = nlohmann::json::parse(bytes, nullptr, true, true);
+            [this, &nodes, &textureAtlasPack, &resources](std::span<const char> bytes) {
+                auto terrain_texture = nlohmann::json::parse(bytes, nullptr, true, true);
 
 //            auto resource_pack_name = terrain_texture.at("resource_pack_name").get<std::string>();
 //            texture_name = terrain_texture.at("texture_name").get<std::string>();
 //            padding = terrain_texture.at("padding").get<int>();
 //            num_mip_levels = terrain_texture.at("num_mip_levels").get<int>();
 //
-                                        _loadAtlasNodes(terrain_texture.at("texture_data"), nodes);
+                _loadAtlasNodes(terrain_texture.at("texture_data"), nodes);
 
-                                        std::set<std::string> requireTextures;
-                                        for (const auto &node : nodes) {
-                                            for (const auto &element : node.elements) {
-                                                requireTextures.emplace(element.path);
-                                            }
-                                        }
+                std::set<std::string> requireTextures;
+                for (const auto &node : nodes) {
+                    for (const auto &element : node.elements) {
+                        requireTextures.emplace(element.path);
+                    }
+                }
 
 //		auto requireTextures = nodes
 //			| ranges::views::transform(&ParsedAtlasNode::elements)
@@ -329,11 +329,10 @@ struct TextureAtlas /*: Texture*/ {
 //			| ranges::views::transform(&ParsedAtlasNodeElement::path)
 //			| ranges::views::unique;
 
-                                        for (const auto &path : requireTextures) {
-                                            textureAtlasPack.addSprite(path,
-                                                                       resources.loadTextureData(path, true).value());
-                                        }
-                                    });
+                for (const auto &path : requireTextures) {
+                    textureAtlasPack.addSprite(path, resources.loadTextureData(path, true).value());
+                }
+            });
 
 		sheet = textureAtlasPack.build();
 
@@ -350,10 +349,10 @@ struct TextureAtlas /*: Texture*/ {
 				const auto& sprite = sprites.at(element.path).get();
 
 				TextureRect rect{
-						sprite.originX,
-						sprite.originY,
-						sprite.info.width(),
-						sprite.info.height()
+                    sprite.originX,
+                    sprite.originY,
+                    sprite.info.width(),
+                    sprite.info.height()
 				};
 
 				auto& textureUvCoordinateSet = item.textures.emplace_back();
