@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+
 #include "SurfaceBuilder.hpp"
 #include "../PerlinNoiseGenerator.hpp"
 #include "../../biome/Biome.hpp"
@@ -8,7 +10,8 @@
 
 #include "ThreadLocal.hpp"
 
-#include <ranges>
+#include <cmath>
+#include <range/v3/view.hpp>
 
 std::unique_ptr<SurfaceBuilder> SurfaceBuilder::Noop{nullptr};
 std::unique_ptr<SurfaceBuilder> SurfaceBuilder::Default{nullptr};
@@ -195,8 +198,8 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
                 generateBands(_seed);
 
                 auto rand = Random::from(_seed);
-                noise1.emplace(rand, std::views::iota(-3, 1));
-                noise2.emplace(rand, std::views::single(0));
+                noise1.emplace(rand, ranges::views::iota(-3, 1));
+                noise2.emplace(rand, ranges::views::single(0));
             }
         }
 
@@ -224,7 +227,7 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
 
             auto rand = Random::from(_seed);
 
-            noise3.emplace(rand, std::views::single(0));
+            noise3.emplace(rand, ranges::views::single(0));
 
             for (int i = 0; i < 64; ++i) {
                 i += rand.nextInt(5) + 1;
@@ -601,8 +604,8 @@ struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
                 seed = _seed;
 
                 auto rand = Random::from(_seed);
-                noise1.emplace(rand, std::views::iota(-3, 1));
-                noise2.emplace(rand, std::views::single(0));
+                noise1.emplace(rand, ranges::views::iota(-3, 1));
+                noise2.emplace(rand, ranges::views::single(0));
             }
         }
     };

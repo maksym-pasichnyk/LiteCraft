@@ -9,16 +9,17 @@
 #include "promise.hpp/promise.hpp"
 #include "promise.hpp/scheduler.hpp"
 
-#include <thread>
-#include <memory>
-#include <stack>
-#include <span>
 #include <map>
+#include <list>
+#include <span>
+#include <stack>
 #include <mutex>
 #include <future>
+#include <thread>
+#include <memory>
+#include <optional>
 #include <algorithm>
-
-#include <list>
+#include <range/v3/algorithm.hpp>
 
 struct Chunk;
 struct ServerWorld;
@@ -43,6 +44,7 @@ struct ChunkHolder {
     std::array<std::optional<ChunkResult>, 7> chunks{};
 };
 
+struct NetworkConnection;
 struct ChunkManager {
     ServerWorld* world;
     ChunkGenerator* generator;
@@ -61,7 +63,7 @@ struct ChunkManager {
     ChunkManager(ServerWorld* world, ChunkGenerator* generator);
     ~ChunkManager() {
         stop_source.request_stop();
-        std::ranges::for_each(workers, std::mem_fn(&std::thread::join));
+        ranges::for_each(workers, std::mem_fn(&std::thread::join));
         workers.clear();
         complete.clear();
         holders.clear();
@@ -74,10 +76,10 @@ struct ChunkManager {
         return std::max(std::abs(from.x - to.x), std::abs(from.z - to.z));
     }
 
-    void tick();
     void runLoop(std::stop_token&& token);
-    void setChunkLoadedAtClient(int chunk_x, int chunk_z, bool wasLoaded, bool needLoad);
-    void updatePlayerPosition(ChunkPos newChunkPos, ChunkPos oldChunkPos);
+    void tick(NetworkConnection& connection);
+    void setChunkLoadedAtClient(NetworkConnection& connection, int chunk_x, int chunk_z, bool wasLoaded, bool needLoad);
+    void updatePlayerPosition(NetworkConnection& connection, ChunkPos newChunkPos, ChunkPos oldChunkPos);
     std::shared_ptr<ChunkHolder> getHolder(int32_t x, int32_t z);
 
     std::vector<ChunkResult> getChunksAsync(int32_t range, int32_t chunk_x, int32_t chunk_z, ChunkStatus const* status);
@@ -86,5 +88,5 @@ struct ChunkManager {
 //    ChunkResult tryLoadFromFile(int32_t chunk_x, int32_t chunk_z);
     ChunkResult generateChunk(int32_t chunk_x, int32_t chunk_z, ChunkStatus const* status);
     ChunkResult getChunkAsync(int32_t chunk_x, int32_t chunk_z, ChunkStatus const* status = &ChunkStatus::Full);
-    void setPlayerTracking(ChunkPos pos, bool track);
+    void setPlayerTracking(NetworkConnection& connection, ChunkPos pos, bool track);
 };

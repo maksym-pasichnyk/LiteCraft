@@ -8,11 +8,11 @@
 #include "../gen/feature/structure/Structure.hpp"
 #include "../gen/feature/structure/Structures.hpp"
 
-#include <ranges>
+#include <range/v3/view.hpp>
 
-const PerlinNoiseGenerator Biome::TEMPERATURE_NOISE = PerlinNoiseGenerator(Random::from(1234), std::views::single(0));
-const PerlinNoiseGenerator Biome::FROZEN_TEMPERATURE_NOISE = PerlinNoiseGenerator(Random::from(3456), std::views::iota(-2, 0 + 1));
-const PerlinNoiseGenerator Biome::INFO_NOISE = PerlinNoiseGenerator(Random::from(2345), std::views::single(0));
+const PerlinNoiseGenerator Biome::TEMPERATURE_NOISE = PerlinNoiseGenerator(Random::from(1234), ranges::views::single(0));
+const PerlinNoiseGenerator Biome::FROZEN_TEMPERATURE_NOISE = PerlinNoiseGenerator(Random::from(3456), ranges::views::iota(-2, 0 + 1));
+const PerlinNoiseGenerator Biome::INFO_NOISE = PerlinNoiseGenerator(Random::from(2345), ranges::views::single(0));
 
 void Biome::decorate(ChunkGenerator &generator, WorldGenRegion &region, int64_t seed, Random &random, BlockPos pos) {
     for (int i = 0; i < 10; i++) {
@@ -36,7 +36,7 @@ bool Biome::doesSnowGenerate(WorldReader &world, const BlockPos &pos) {
     if (getTemperature(pos) >= 0.15F) {
         return false;
     }
-    if (pos.y >= 0 && pos.y < 256 && world.getBlockLight(/*LightType::BLOCK,*/ pos) < 10) {
+    if (pos.y >= 0 && pos.y < 256 && world.getBlockLight(pos) < 10) {
         const auto data = world.getData(pos);
         return data.isAir() && Blocks::SNOW->getDefaultState().isValidPosition(world, pos);
     }

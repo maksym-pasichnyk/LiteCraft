@@ -6,7 +6,7 @@
 #include <functional>
 
 template <IArea T>
-struct IAreaFactory : private std::function<T()> {
+struct IAreaFactory : /*private*/ std::function<T()> {
     using std::function<T()>::function;
 
     T makeArea() {

@@ -60,7 +60,7 @@ public:
         return p[permutIndex & 255];
     }
 
-    constexpr double getValue2D(double x, double y) const {
+    /*constexpr*/ double getValue2D(double x, double y) const {
         const double d0 = (x + y) * F2;
         const int i = std::floor(x + d0);
         const int j = std::floor(y + d0);
@@ -94,7 +94,7 @@ public:
         return 70.0 * (d10 + d11 + d12);
     }
 
-    constexpr double getValue3D(double x, double y, double z) const {
+    /*constexpr*/ double getValue3D(double x, double y, double z) const {
         const double d1 = (x + y + z) * 0.3333333333333333;
         const int i = std::floor(x + d1);
         const int j = std::floor(y + d1);
@@ -112,57 +112,57 @@ public:
         int k1;
         int l1;
         int i2;
-//        if (d7 >= d8) {
-//            if (d8 >= d9) {
-//                l = 1;
-//                i1 = 0;
-//                j1 = 0;
-//                k1 = 1;
-//                l1 = 1;
-//                i2 = 0;
-//            } else if (d7 >= d9) {
-//                l = 1;
-//                i1 = 0;
-//                j1 = 0;
-//                k1 = 1;
-//                l1 = 0;
-//                i2 = 1;
-//            } else {
-//                l = 0;
-//                i1 = 0;
-//                j1 = 1;
-//                k1 = 1;
-//                l1 = 0;
-//                i2 = 1;
-//            }
-//        } else if (d8 < d9) {
-//            l = 0;
-//            i1 = 0;
-//            j1 = 1;
-//            k1 = 0;
-//            l1 = 1;
-//            i2 = 1;
-//        } else if (d7 < d9) {
-//            l = 0;
-//            i1 = 1;
-//            j1 = 0;
-//            k1 = 0;
-//            l1 = 1;
-//            i2 = 1;
-//        } else {
-//            l = 0;
-//            i1 = 1;
-//            j1 = 0;
-//            k1 = 1;
-//            l1 = 1;
-//            i2 = 0;
-//        }
-        l = d7 >= d8 && (d8 >= d9 || d7 >= d9);
-        i1 = !(d7 >= d8) || d8 >= d9;
-        j1 = d7 >= d8 && d8 < d9 && d7 < d9 || !(d7 >= d8) && d8 < d9;
-        k1 = d7 >= d8 || d8 >= d9 && d7 >= d9;
-        l1 = d7 >= d8 && d8 >= d9 || !(d7 >= d8);
-        i2 = (d7 >= d8 || !(d7 >= d8)) && d8 < d9 || !(d7 >= d8) && d7 < d9;
+        if (d7 >= d8) {
+            if (d8 >= d9) {
+                l = 1;
+                i1 = 0;
+                j1 = 0;
+                k1 = 1;
+                l1 = 1;
+                i2 = 0;
+            } else if (d7 >= d9) {
+                l = 1;
+                i1 = 0;
+                j1 = 0;
+                k1 = 1;
+                l1 = 0;
+                i2 = 1;
+            } else {
+                l = 0;
+                i1 = 0;
+                j1 = 1;
+                k1 = 1;
+                l1 = 0;
+                i2 = 1;
+            }
+        } else if (d8 < d9) {
+            l = 0;
+            i1 = 0;
+            j1 = 1;
+            k1 = 0;
+            l1 = 1;
+            i2 = 1;
+        } else if (d7 < d9) {
+            l = 0;
+            i1 = 1;
+            j1 = 0;
+            k1 = 0;
+            l1 = 1;
+            i2 = 1;
+        } else {
+            l = 0;
+            i1 = 1;
+            j1 = 0;
+            k1 = 1;
+            l1 = 1;
+            i2 = 0;
+        }
+//        l = d7 >= d8 && (d8 >= d9 || d7 >= d9);
+//        i1 = !(d7 >= d8) || d8 >= d9;
+//        j1 = d7 >= d8 && d8 < d9 && d7 < d9 || !(d7 >= d8) && d8 < d9;
+//        k1 = d7 >= d8 || d8 >= d9 && d7 >= d9;
+//        l1 = d7 >= d8 && d8 >= d9 || !(d7 >= d8);
+//        i2 = (d7 >= d8 || !(d7 >= d8)) && d8 < d9 || !(d7 >= d8) && d7 < d9;
 
         const double d10 = d7 - (double)l + 0.16666666666666666;
         const double d11 = d8 - (double)i1 + 0.16666666666666666;

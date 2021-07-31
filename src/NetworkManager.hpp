@@ -1,82 +1,63 @@
 #pragma once
 
-#include <cstdio>
-#include <unistd.h>
-#include <fcntl.h>
-#include <mutex>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <fmt/format.h>
-
 #include "Packet.hpp"
+#include "net/tcp.hpp"
+
+#include <vector>
+#include <span>
 
 struct NetworkConnection {
-    int fd;
-    std::mutex guard;
+    explicit NetworkConnection(TcpStream socket) : socket(socket) {
+        socket.set_blocking(false);
+    }
 
-    NetworkConnection(int fd) : fd(fd) {}
+    explicit NetworkConnection(const SocketAddr& address) : socket(TcpStream::connect(address)) {
+        if (socket.has_value()) {
+            socket->set_blocking(false);
+        }
+    }
 
-    template<Packet T>
-    bool sendPacket(const T& packet) {
+    ~NetworkConnection() {
+        if (socket.has_value()) {
+            socket->close();
+        }
+    }
+
+    template <typename Packet>
+    bool send(const Packet& packet) {
+        if (!socket.has_value()) {
+            return false;
+        }
+
         PacketHeader header {
-            .id = T::ID,
-            .size = sizeof(T)
+            .id = Packet::ID,
+            .size = sizeof(Packet)
         };
 
-        std::array<std::byte, sizeof(PacketHeader) + sizeof(T)> buf;
-        std::memcpy(buf.data(), &header, sizeof(PacketHeader));
-        std::memcpy(buf.data() + sizeof(PacketHeader), &packet, sizeof(T));
+        std::array<std::byte, sizeof(PacketHeader) + sizeof(Packet)> bytes;
+        std::memcpy(bytes.data(), &header, sizeof(PacketHeader));
+        std::memcpy(bytes.data() + sizeof(PacketHeader), &packet, sizeof(Packet));
 
-        return write(fd, buf.data(), buf.size()) > 0;
+        return socket->send(bytes).has_value();
     }
 
-    std::optional<PacketHeader> readHeader() {
-        PacketHeader header{};
-        if (read(fd, &header, sizeof(PacketHeader)) <= 0) {
-            return std::nullopt;
-        }
-        return header;
-    }
-
-    template<Packet T>
-    T readPacket(const PacketHeader& header) {
-        T packet;
-        while (read(fd, &packet, header.size) < 0) {
-        }
-        return packet;
-    }
-};
-
-struct NetworkManager {
-    std::shared_ptr<NetworkConnection> _client;
-    std::shared_ptr<NetworkConnection> _server;
-
-    static auto create() -> std::optional<NetworkManager> {
-        std::array<int, 2> sockets{};
-
-        if (socketpair(AF_UNIX, SOCK_STREAM, 0, sockets.data()) < 0) {
+    auto recv() -> std::optional<std::pair<PacketHeader, std::vector<std::byte>>> {
+        if (!socket.has_value()) {
             return std::nullopt;
         }
 
-        if (fcntl(sockets[0], F_SETFL, fcntl(sockets[0], F_GETFL) | O_NONBLOCK) < 0) {
+        std::array<std::byte, sizeof(PacketHeader)> data{};
+        auto len = socket->recv(std::as_writable_bytes(std::span(data)));
+        if (!len.has_value() || len->first == 0) {
             return std::nullopt;
         }
 
-        if (fcntl(sockets[1], F_SETFL, fcntl(sockets[1], F_GETFL) | O_NONBLOCK) < 0) {
-            return std::nullopt;
-        }
-
-        return NetworkManager{
-                std::make_shared<NetworkConnection>(sockets[0]),
-                std::make_shared<NetworkConnection>(sockets[1]),
-        };
+        const auto header = std::bit_cast<PacketHeader>(data);
+        std::vector<std::byte> bytes{static_cast<size_t>(header.size)};
+        socket->recv(std::span(bytes));
+        return std::pair{header, bytes};
     }
 
-    auto client() const -> std::shared_ptr<NetworkConnection> {
-        return _client;
-    }
-
-    auto server() const -> std::shared_ptr<NetworkConnection> {
-        return _server;
-    }
+private:
+    std::optional<TcpStream> socket;
 };

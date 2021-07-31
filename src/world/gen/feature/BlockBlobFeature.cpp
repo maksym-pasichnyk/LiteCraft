@@ -27,11 +27,11 @@ bool BlockBlobFeature::generate(WorldGenRegion &reader, ChunkGenerator &generato
             const int k = random.nextInt(2);
             const float f = static_cast<float>(i + j + k) * 0.333F + 0.5F;
 
-            for (BlockPos blockpos : BlockPos::getAllInBox(pos - glm::ivec3(i, j, k), pos + glm::ivec3(i, j, k))) {
-                if (blockpos.distanceSq(pos) <= (double)(f * f)) {
-                    reader.setData(blockpos, cfg.state/*, 4*/);
-                }
-            }
+//            for (BlockPos blockpos : BlockPos::getAllInBox(pos - glm::ivec3(i, j, k), pos + glm::ivec3(i, j, k))) {
+//                if (blockpos.distanceSq(pos) <= (double)(f * f)) {
+//                    reader.setData(blockpos, cfg.state/*, 4*/);
+//                }
+//            }
 
             const int dx = random.nextInt(2) - 1;
             const int dy = -random.nextInt(2);

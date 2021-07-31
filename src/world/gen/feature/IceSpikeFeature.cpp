@@ -3,6 +3,8 @@
 #include "../../../block/Block.hpp"
 #include "../../../block/Blocks.hpp"
 
+#include <algorithm>
+
 bool IceSpikeFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Random &random, BlockPos pos, const FeatureConfig &config) {
     while (reader.isAirBlock(pos) && pos.y > 2) {
         pos.y -= 1;

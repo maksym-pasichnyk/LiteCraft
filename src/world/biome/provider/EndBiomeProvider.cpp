@@ -1,5 +1,8 @@
 #include "EndBiomeProvider.hpp"
 
+#include <cmath>
+#include <algorithm>
+
 EndBiomeProvider::EndBiomeProvider(int64_t seed, Biome *theEndBiome, Biome *endHighlandsBiome, Biome *endMidlandsBiome, Biome *smallEndIslandsBiome, Biome *endBarrensBiome)
     : theEndBiome{theEndBiome}
     , endHighlandsBiome{endHighlandsBiome}

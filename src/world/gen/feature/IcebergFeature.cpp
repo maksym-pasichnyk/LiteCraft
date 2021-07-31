@@ -1,11 +1,13 @@
+#define _USE_MATH_DEFINES
+
 #include "IcebergFeature.hpp"
 #include "../../WorldGenRegion.hpp"
 #include "../../../block/Block.hpp"
 #include "../../../block/Blocks.hpp"
 #include "../../../block/material/Materials.hpp"
 
-#include <ranges>
-#include <algorithm>
+#include <cmath>
+#include <range/v3/algorithm.hpp>
 
 int IcebergFeature::func_205178_b(int a, int b, int c) {
     const float f1 = (1.0F - static_cast<float>(std::pow(a, 2.0)) / (static_cast<float>(b) * 1.0F)) * static_cast<float>(c);
@@ -99,7 +101,7 @@ void IcebergFeature::func_205186_a(WorldGenRegion &region, const BlockPos &pos, 
                             region.getData(blockpos.north()).getBlock(),
                             region.getData(blockpos.south()).getBlock()
                         };
-                        if (std::ranges::count_if(blocks, isIce) >= 3) {
+                        if (ranges::count_if(blocks, isIce) >= 3) {
                             setBlockState(region, blockpos, AIR);
                         }
                     }

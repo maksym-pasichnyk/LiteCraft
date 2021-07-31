@@ -1,8 +1,11 @@
+#define _USE_MATH_DEFINES
+
 #include "OreFeature.hpp"
 #include "../../WorldGenRegion.hpp"
 #include "../../../block/Blocks.hpp"
 
 #include <cmath>
+#include <algorithm>
 
 bool OreFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Random &random, BlockPos pos, const FeatureConfig &config) {
     const auto& cfg = std::get<OreFeatureConfig>(config);
@@ -36,7 +39,7 @@ bool OreFeature::generateOre(WorldGenRegion &world, Random &random, const OreFea
     std::vector<bool> mask(sizex * sizey * sizex);
 
     const int size = config.size;
-    auto doubles = std::span<double>(static_cast<double *>(aligned_alloc(alignof(double), sizeof(double) * (size * 4))), size * 4);
+    std::vector<double> doubles(size * 4);
 
     for (int k = 0; k < size; ++k) {
         const float f = static_cast<float>(k) / static_cast<float>(size);

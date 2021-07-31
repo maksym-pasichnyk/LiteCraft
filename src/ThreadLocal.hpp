@@ -1,29 +1,35 @@
 #pragma once
 
 #include <thread>
+#include <windows.h>
 
 template<typename T>
 struct ThreadLocal {
     ThreadLocal() {
-        pthread_key_create(&key, [] (void* p) {
-            delete static_cast<T*>(p);
-        });
+        key = TlsAlloc();
+//        pthread_key_create(&key, [] (void* p) {
+//            delete static_cast<T*>(p);
+//        });
     }
     ~ThreadLocal() {
-        pthread_key_delete(key);
+        TlsFree(key);
+//        pthread_key_delete(key);
     }
-    bool has_value() const {
+    auto has_value() const -> bool {
         return get() != nullptr;
     }
 
-    T* get() const {
-        return static_cast<T*>(pthread_getspecific(key));
+    auto get() const -> T* {
+        return static_cast<T*>(TlsGetValue(key));
+//        return static_cast<T*>(pthread_getspecific(key));
     }
 
     void set(T* p) const {
-        pthread_setspecific(key, p);
+        TlsSetValue(key, p);
+//        pthread_setspecific(key, p);
     }
 
 private:
-    pthread_key_t key;
+    DWORD key{};
+//    pthread_key_t key;
 };

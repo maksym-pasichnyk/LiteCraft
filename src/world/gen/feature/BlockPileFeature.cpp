@@ -29,16 +29,16 @@ bool BlockPileFeature::generate(WorldGenRegion &reader, ChunkGenerator &generato
 
     const auto from = pos - BlockPos(i, 0, j);
     const auto to = pos + BlockPos(i, 1, j);
-    for (BlockPos blockpos : BlockPos::getAllInBox(from, to)) {
-        const int dx = pos.x - blockpos.x;
-        const int dz = pos.z - blockpos.z;
-        const float a = random.nextFloat() * 10.0F;
-        if (static_cast<float>(dx * dx + dz * dz) <= (a - random.nextFloat() * 6.0F)) {
-            placeBlock(reader, blockpos, random, cfg);
-        } else if (random.nextFloat() < 0.031f) {
-            placeBlock(reader, blockpos, random, cfg);
-        }
-    };
+//    for (BlockPos blockpos : BlockPos::getAllInBox(from, to)) {
+//        const int dx = pos.x - blockpos.x;
+//        const int dz = pos.z - blockpos.z;
+//        const float a = random.nextFloat() * 10.0F;
+//        if (static_cast<float>(dx * dx + dz * dz) <= (a - random.nextFloat() * 6.0F)) {
+//            placeBlock(reader, blockpos, random, cfg);
+//        } else if (random.nextFloat() < 0.031f) {
+//            placeBlock(reader, blockpos, random, cfg);
+//        }
+//    };
 
 
     return true;

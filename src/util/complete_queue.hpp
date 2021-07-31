@@ -2,6 +2,7 @@
 
 #include <mutex>
 #include <queue>
+#include <optional>
 
 template <typename T>
 struct complete_queue {

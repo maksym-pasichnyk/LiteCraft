@@ -30,18 +30,18 @@ struct BlockPos : glm::ivec3 {
             (static_cast<int64_t>(z) & Z_MASK) << INVERSE_START_BITS_Z;
     }
 
-    static auto getAllInBox(int x0, int y0, int z0, int x1, int y1, int z1) {
-        const int dx = x1 - x0 + 1;
-        const int dy = y1 - y0 + 1;
-        const int dz = z1 - z0 + 1;
-        return std::views::iota(0, dx * dy * dz) | std::views::transform([x0, y0, z0, dx, dy](int current) {
-            return glm::ivec3{x0 + (current % dx), y0 + ((current / dx) % dy), z0 + (current / dx / dy)};
-        });
-    }
-
-    static auto getAllInBox(const glm::ivec3& from, const glm::ivec3& to) {
-        return getAllInBox(from.x, from.y, from.z, to.x, to.y, to.z);
-    }
+//    static auto getAllInBox(int x0, int y0, int z0, int x1, int y1, int z1) {
+//        const int dx = x1 - x0 + 1;
+//        const int dy = y1 - y0 + 1;
+//        const int dz = z1 - z0 + 1;
+//        return std::views::iota(0, dx * dy * dz) | std::views::transform([x0, y0, z0, dx, dy](int current) {
+//            return glm::ivec3{x0 + (current % dx), y0 + ((current / dx) % dy), z0 + (current / dx / dy)};
+//        });
+//    }
+//
+//    static auto getAllInBox(const glm::ivec3& from, const glm::ivec3& to) {
+//        return getAllInBox(from.x, from.y, from.z, to.x, to.y, to.z);
+//    }
 
     constexpr auto add(int dx, int dy, int dz) const noexcept {
         return BlockPos{x + dx, y + dy, z + dz};

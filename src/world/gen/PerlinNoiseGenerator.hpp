@@ -2,10 +2,11 @@
 
 #include "SimplexNoiseGenerator.hpp"
 
-#include <optional>
 #include <vector>
+#include <optional>
 #include <algorithm>
 #include <fmt/format.h>
+#include <range/v3/algorithm.hpp>
 
 struct PerlinNoiseGenerator : public INoiseGenerator {
     std::vector<std::optional<SimplexNoiseGenerator>> noiseLevels;
@@ -25,12 +26,12 @@ struct PerlinNoiseGenerator : public INoiseGenerator {
         SimplexNoiseGenerator simplexNoiseGenerator{rand};
 
         noiseLevels.resize(octavesCount);
-        if (last >= 0 && last < octavesCount && std::ranges::find(octaves, 0) != octaves.end()) {
+        if (last >= 0 && last < octavesCount && ranges::find(octaves, 0) != octaves.end()) {
             noiseLevels[last] = simplexNoiseGenerator;
         }
 
         for(int i1 = last + 1; i1 < octavesCount; ++i1) {
-            if (i1 >= 0 && std::ranges::find(octaves, last - i1) != octaves.end()) {
+            if (i1 >= 0 && ranges::find(octaves, last - i1) != octaves.end()) {
                 noiseLevels[i1] = SimplexNoiseGenerator(rand);
             } else {
                 rand.skip(262);
@@ -42,7 +43,7 @@ struct PerlinNoiseGenerator : public INoiseGenerator {
             auto sharedseedrandom = Random::from(k1);
 
             for (int j1 = last - 1; j1 >= 0; --j1) {
-                if (j1 < octavesCount && std::ranges::find(octaves, last - j1) != octaves.end()) {
+                if (j1 < octavesCount && ranges::find(octaves, last - j1) != octaves.end()) {
                     noiseLevels[j1] = SimplexNoiseGenerator(sharedseedrandom);
                 } else {
                     sharedseedrandom.skip(262);

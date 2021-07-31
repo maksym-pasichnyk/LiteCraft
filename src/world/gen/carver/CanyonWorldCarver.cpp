@@ -1,6 +1,11 @@
+#define _USE_MATH_DEFINES
+
 #include "CanyonWorldCarver.hpp"
 #include "../../../util/Random.hpp"
+
+#include <span>
 #include <cmath>
+#include <fmt/format.h>
 
 bool CanyonWorldCarver::carveRegion(Chunk &chunk, const BiomeReadFn &getBiome, Random &rand, int seaLevel, int xoffset, int zoffset, int chunkx, int chunkz) {
     const int i = (getRange() * 2 - 1) * 16;
@@ -22,11 +27,9 @@ void CanyonWorldCarver::addTunel(Chunk &chunk, const BiomeReadFn &getBiome, int6
     if (!rs.has_value()) {
         rs.set(new std::array<float, 1024>());
     }
-
-    auto rand = Random::from(seed);
-
     auto cache = std::span(*rs.get());
 
+    auto rand = Random::from(seed);
     float f = 1.0F;
     for (int i = 0; i < 256; ++i) {
         if (i == 0 || rand.nextInt(3) == 0) {

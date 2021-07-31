@@ -2,14 +2,14 @@
 
 #include <span>
 #include <vector>
-#include <GL/glew.h>
+#include <GL/gl3w.h>
 #include <glm/fwd.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
 struct Vertex {
-    glm::vec3 point;
+    glm::vec3 pos;
     glm::vec2 tex;
     glm::u8vec4 color;
     glm::u8vec4 light;

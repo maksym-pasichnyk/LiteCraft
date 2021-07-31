@@ -9,6 +9,8 @@
 #include "../../block/Blocks.hpp"
 #include "../../util/math/Math.hpp"
 
+#include <range/v3/view.hpp>
+
 struct DefaultNoiseProvider : NoiseProvider {
     std::pair<double, double> get(NoiseChunkGenerator* generator, int xpos, int zpos) override {
         float f = 0.0F;
@@ -79,14 +81,14 @@ NoiseChunkGenerator::NoiseChunkGenerator(int64_t seed, DimensionSettings setting
     noiseSizeZ = 16 / horizontalNoiseGranularity;
 
     auto randomSeed = Random::from(seed);
-    minLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-15, 1));
-    maxLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-15, 1));
-    mainLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-7, 1));
+    minLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, ranges::views::iota(-15, 1));
+    maxLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, ranges::views::iota(-15, 1));
+    mainLimitPerlinNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, ranges::views::iota(-7, 1));
 
-    surfaceNoise = std::make_unique<PerlinNoiseGenerator>(randomSeed, std::views::iota(-3, 1));
+    surfaceNoise = std::make_unique<PerlinNoiseGenerator>(randomSeed, ranges::views::iota(-3, 1));
 
     randomSeed.skip(2620);
-    depthNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, std::views::iota(-15, 1));
+    depthNoise = std::make_unique<OctavesNoiseGenerator>(randomSeed, ranges::views::iota(-15, 1));
 
     if (settings.noise.islandNoiseOverride) {
         noiseProvider = std::make_unique<EndNoiseProvider>(dynamic_cast<EndBiomeProvider*>(biomeProvider.get()));

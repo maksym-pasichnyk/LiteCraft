@@ -6,7 +6,7 @@
 
 struct ChunkRenderData {
     static constexpr std::array attributes {
-        VertexArrayAttrib{0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, point)},
+        VertexArrayAttrib{0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, pos)},
         VertexArrayAttrib{1, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, tex)},
         VertexArrayAttrib{2, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, color)},
         VertexArrayAttrib{3, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, light)}

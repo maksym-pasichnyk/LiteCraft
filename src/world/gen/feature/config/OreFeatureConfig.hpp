@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/world/gen/RuleTest.hpp"
+#include "world/gen/RuleTest.hpp"
 
 struct OreFeatureConfig {
     RuleTest target;

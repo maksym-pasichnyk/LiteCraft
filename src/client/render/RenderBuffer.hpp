@@ -34,7 +34,7 @@ struct RenderLayerBuilder {
 
     void vertex(float x, float y, float z, float u, float v, uint8_t r, uint8_t g, uint8_t b, int32_t packedLight, float ao) {
         vertices.push_back(Vertex{
-            .point{x, y, z},
+            .pos{x, y, z},
             .tex{u, v},
             .color{r, g, b, ao * 255},
             .light{

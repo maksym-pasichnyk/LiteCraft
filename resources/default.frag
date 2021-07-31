@@ -1,13 +1,12 @@
 #version 450
 
-out vec4 out_color;
+layout(location = 0) out vec4 out_color;
 
-layout (binding = 0) uniform sampler2D sTexture;
+layout(binding = 0) uniform sampler2D sTexture;
 
-layout (location = 0) in struct {
+layout(location = 0) in struct {
     vec4 color;
     vec2 tex;
-	vec4 fogColor;
 } v_in;
 
 void main() {
@@ -15,8 +14,5 @@ void main() {
     vec3 col = mix(tex.rgb, tex.rgb * v_in.color.rgb, tex.a);
     col *= vec3(v_in.color.a);
 
-    float gamma = 1.3;
-    col.rgb = pow(col.rgb, vec3(gamma));
-    col.rgb = mix(col.rgb, v_in.fogColor.rgb, v_in.fogColor.a);
     out_color = vec4(col, 1.0);
 }

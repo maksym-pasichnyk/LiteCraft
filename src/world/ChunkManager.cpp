@@ -25,46 +25,37 @@ ChunkManager::ChunkManager(ServerWorld *world, ChunkGenerator *generator)
     workers.emplace_back(&ChunkManager::runLoop, this, stop_source.get_token());
 }
 
-void ChunkManager::tick() {
-//    fmt::print("tick\n");
+void ChunkManager::runLoop(std::stop_token&& token) {
+    while (!token.stop_requested()) {
+        executor.process_all_tasks();
+    }
+}
 
+void ChunkManager::tick(NetworkConnection& connection) {
     while (auto pos = complete.try_pop()) {
         const auto [x, z] = *pos;
         auto chunk = getChunk(x, z).get();
 
-        if (!world->server->connection->sendPacket(SLoadChunkPacket{chunk, x, z})) {
-            complete.emplace(*pos);
-            break;
+        if (connection.send(SLoadChunkPacket{chunk, x, z})) {
+            continue;
         }
+        complete.emplace(*pos);
+        break;
     }
 }
 
-void ChunkManager::runLoop(std::stop_token&& token) {
-
-    fmt::print("0x{:X}\n", pthread_self());
-
-    try {
-        while (!token.stop_requested()) {
-//            fmt::print("process_all_tasks\n");
-            executor.process_all_tasks();
-        }
-    } catch (const std::exception& e) {
-        fmt::print("{}", e.what());
-    }
-}
-
-void ChunkManager::setChunkLoadedAtClient(int chunk_x, int chunk_z, bool wasLoaded, bool needLoad) {
+void ChunkManager::setChunkLoadedAtClient(NetworkConnection& connection, int chunk_x, int chunk_z, bool wasLoaded, bool needLoad) {
     if (wasLoaded && !needLoad) {
-        world->server->connection->sendPacket(SUnloadChunkPacket{chunk_x, chunk_z});
+        connection.send(SUnloadChunkPacket{chunk_x, chunk_z});
     } else if (needLoad && !wasLoaded) {
         auto chunk = getChunk(chunk_x, chunk_z, &ChunkStatus::Full);
         if (chunk != nullptr) {
-            world->server->connection->sendPacket(SLoadChunkPacket{chunk.get(), chunk_x, chunk_z});
+            connection.send(SLoadChunkPacket{chunk.get(), chunk_x, chunk_z});
         }
     }
 }
 
-void ChunkManager::updatePlayerPosition(ChunkPos newChunkPos, ChunkPos oldChunkPos) {
+void ChunkManager::updatePlayerPosition(NetworkConnection& connection, ChunkPos newChunkPos, ChunkPos oldChunkPos) {
     if (std::abs(newChunkPos.x - oldChunkPos.x) <= 2 * viewDistance && std::abs(newChunkPos.z - oldChunkPos.z) <= 2 * viewDistance) {
         const int xStart = std::min(newChunkPos.x, oldChunkPos.x) - viewDistance;
         const int zStart = std::min(newChunkPos.z, oldChunkPos.z) - viewDistance;
@@ -76,19 +67,19 @@ void ChunkManager::updatePlayerPosition(ChunkPos newChunkPos, ChunkPos oldChunkP
                 const bool wasLoaded = getChunkDistance(oldChunkPos, chunk_x, chunk_z) <= viewDistance;
                 const bool needLoad = getChunkDistance(newChunkPos, chunk_x, chunk_z) <= viewDistance;
 
-                setChunkLoadedAtClient(chunk_x, chunk_z, wasLoaded, needLoad);
+                setChunkLoadedAtClient(connection, chunk_x, chunk_z, wasLoaded, needLoad);
             }
         }
     } else {
         for (int32_t chunk_x = oldChunkPos.x - viewDistance; chunk_x <= oldChunkPos.x + viewDistance; chunk_x++) {
             for (int32_t chunk_z = oldChunkPos.z - viewDistance; chunk_z <= oldChunkPos.z + viewDistance; chunk_z++) {
-                setChunkLoadedAtClient(chunk_x, chunk_z, true, false);
+                setChunkLoadedAtClient(connection, chunk_x, chunk_z, true, false);
             }
         }
 
         for (int32_t chunk_x = newChunkPos.x - viewDistance; chunk_x <= newChunkPos.x + viewDistance; chunk_x++) {
             for (int32_t chunk_z = newChunkPos.z - viewDistance; chunk_z <= newChunkPos.z + viewDistance; chunk_z++) {
-                setChunkLoadedAtClient(chunk_x, chunk_z, false, true);
+                setChunkLoadedAtClient(connection, chunk_x, chunk_z, false, true);
             }
         }
     }
@@ -120,8 +111,12 @@ std::vector<ChunkResult> ChunkManager::getChunksAsync(int32_t range, int32_t chu
 }
 
 std::shared_ptr<Chunk> ChunkManager::getChunk(int32_t chunk_x, int32_t chunk_z, const ChunkStatus *status) {
+    using namespace std::chrono_literals;
+
     auto async_chunk = getChunkAsync(chunk_x, chunk_z, status);
-    return async_chunk.ready() ? assert(!async_chunk.get().expired()), async_chunk.get().lock() : nullptr;
+    return async_chunk.wait_for(0ms) == promise_hpp::promise_wait_status::no_timeout
+           ? assert(!async_chunk.get().expired()), async_chunk.get().lock()
+           : nullptr;
 }
 
 template <typename T>
@@ -149,12 +144,11 @@ ChunkResult ChunkManager::generateChunk(int32_t chunk_x, int32_t chunk_z, ChunkS
         async_chunks[i].then([this, status, i, result, async_chunk](std::weak_ptr<Chunk> chunk) mutable {
             assert(!chunk.expired());
 
-            if (result->results[i] = chunk, (result->counter -= 1) == 0) {
+            if (result->results[i] = std::move(chunk), (result->counter -= 1) == 0) {
                 executor.schedule(/*scheduler_hpp::scheduler_priority::highest,*/ [this, status, chunks = std::move(result->results), async_chunk = std::move(async_chunk)]() mutable {
                     assert(!chunks[chunks.size() / 2].expired());
                     auto chunk = chunks[chunks.size() / 2].lock();
-                    const auto [x, z] = chunk->pos;
-                    status->generate(world, *lightManager, *generator, x, z, *chunk, chunks, world->seed);
+                    status->generate(world, *lightManager, *generator, chunk->pos.x, chunk->pos.z, *chunk, chunks, world->seed);
 
                     if (status->ordinal == ChunkStatus::Full.ordinal) {
                         complete.emplace(chunk->pos);
@@ -182,10 +176,10 @@ ChunkResult ChunkManager::getChunkAsync(int32_t chunk_x, int32_t chunk_z, const 
     return *async_chunk;
 }
 
-void ChunkManager::setPlayerTracking(ChunkPos pos, bool track) {
+void ChunkManager::setPlayerTracking(NetworkConnection& connection, ChunkPos pos, bool track) {
     for (int32_t chunk_x = pos.x - viewDistance; chunk_x <= pos.x + viewDistance; chunk_x++) {
         for (int32_t chunk_z = pos.z - viewDistance; chunk_z <= pos.z + viewDistance; chunk_z++) {
-            setChunkLoadedAtClient(chunk_x, chunk_z, !track, track);
+            setChunkLoadedAtClient(connection, chunk_x, chunk_z, !track, track);
         }
     }
 }

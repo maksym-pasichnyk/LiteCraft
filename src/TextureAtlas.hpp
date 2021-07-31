@@ -6,7 +6,7 @@
 #include <string>
 #include <nlohmann/json.hpp>
 
-#include <GL/glew.h>
+#include <GL/gl3w.h>
 
 struct TextureRect {
 	int x;
@@ -176,7 +176,7 @@ struct TextureAtlasPack {
 			return a->width < b->width || (a->width == b->width) && (a->height < b->height);
 		});
 
-		int textureSize = std::max(
+		const auto textureSize = std::max(
 			nextPowerOf2(holders[0]->width),
 			nextPowerOf2(holders[0]->height)
 		);

@@ -1,33 +1,36 @@
-[submodule "json"]
-	path = json
+[submodule "ThirdParty/json"]
+	path = ThirdParty/json
 	url = https://github.com/nlohmann/json
-[submodule "fmt"]
-	path = fmt
+[submodule "ThirdParty/fmt"]
+	path = ThirdParty/fmt
 	url = https://github.com/fmtlib/fmt
-[submodule "stl"]
-	path = stl
-	url = https://github.com/max-pasichnyk/stl
-[submodule "glm"]
-	path = glm
+[submodule "ThirdParty/glm"]
+	path = ThirdParty/glm
 	url = https://github.com/g-truc/glm.git
-[submodule "imgui-sfml"]
-	path = imgui-sfml
-	url = https://github.com/eliasdaler/imgui-sfml.git
-[submodule "imgui"]
-	path = imgui
+[submodule "ThirdParty/imgui"]
+	path = ThirdParty/imgui
 	url = https://github.com/ocornut/imgui.git
-[submodule "FastNoise2"]
-	path = FastNoise2
-	url = https://github.com/Auburn/FastNoise2.git
-[submodule "entt"]
-	path = entt
+[submodule "ThirdParty/entt"]
+	path = ThirdParty/entt
 	url = https://github.com/skypjack/entt.git
-[submodule "promise.hpp"]
-	path = promise.hpp
+[submodule "ThirdParty/promise.hpp"]
+	path = ThirdParty/promise.hpp
 	url = https://github.com/BlackMATov/promise.hpp.git
-[submodule "tbb"]
-	path = tbb
-	url = https://github.com/kubaroth/tbb.git
-[submodule "oneTBB"]
-	path = oneTBB
-	url = https://github.com/oneapi-src/oneTBB.git
+[submodule "ThirdParty/range-v3"]
+	path = ThirdParty/range-v3
+	url = https://github.com/ericniebler/range-v3
+[submodule "ThirdParty/gl3w"]
+	path = ThirdParty/gl3w
+	url = https://github.com/skaslev/gl3w.git
+[submodule "ThirdParty/glfw"]
+	path = ThirdParty/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "ThirdParty/curl"]
+	path = ThirdParty/curl
+	url = https://github.com/curl/curl.git
+[submodule "ThirdParty/physfs"]
+	path = ThirdParty/physfs
+	url = https://github.com/icculus/physfs.git
+[submodule "ThirdParty/zlib-ng"]
+	path = ThirdParty/zlib-ng
+	url = https://github.com/zlib-ng/zlib-ng.git

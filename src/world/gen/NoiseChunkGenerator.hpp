@@ -22,7 +22,7 @@ struct NoiseProvider {
 };
 
 struct NoiseChunkGenerator : public ChunkGenerator {
-    static constexpr std::array<float, 25> biomeWeights = [] {
+    inline static const /*constexpr*/ std::array<float, 25> biomeWeights = [] {
         std::array<float, 25> weights{};
         for (int i = -2; i <= 2; ++i) {
             for (int j = -2; j <= 2; ++j) {

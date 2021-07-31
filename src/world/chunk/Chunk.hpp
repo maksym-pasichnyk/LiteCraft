@@ -8,6 +8,7 @@
 #include "../../util/math/BoundingBox.hpp"
 
 #include <map>
+#include <span>
 #include <queue>
 #include <vector>
 #include <memory>
@@ -63,7 +64,7 @@ struct SimpleVBuffer {
 
     void vertex(float x, float y, float z, float u, float v, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
         vertices.push_back(Vertex{
-			.point{x, y, z},
+            .pos{x, y, z},
 			.tex{u, v},
 			.color{r, g, b, a}
         });

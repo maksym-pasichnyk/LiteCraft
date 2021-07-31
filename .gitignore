@@ -1,6 +1,2 @@
-.idea
 cmake-build-*
-build
-*.spv
-.vscode
 assets

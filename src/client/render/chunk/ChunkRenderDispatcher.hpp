@@ -45,7 +45,6 @@ struct ChunkRenderDispatcher {
     }
 
     void runLoop(std::stop_token&& token) {
-
         while (!token.stop_requested()) {
             while (auto task = tasks.try_pop()) {
                 auto [data, cache] = std::move(*task);

@@ -1,10 +1,10 @@
+#include "client/render/RenderBuffer.hpp"
 #include "client/render/chunk/ChunkRenderCache.hpp"
+
 #include "../../block/Block.hpp"
 #include "../../block/BlockGraphics.hpp"
 #include "../../block/material/Materials.hpp"
 #include "../../TextureAtlas.hpp"
-
-#include "client/render/RenderBuffer.hpp"
 
 #include <glm/vec3.hpp>
 
@@ -707,6 +707,20 @@ void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
             }
         }
     }
+
+    /* Anvil
+        cube({}, 0, 0, 4, 16, 1, 12);
+        cube({}, 1, 0, 3, 15, 1, 4);
+        cube({}, 1, 0, 12, 15, 1, 13);
+        cube({}, 1, 1, 4, 15, 4, 12);
+        cube({}, 4, 4, 5, 12, 5, 12);
+        cube({}, 6, 5, 5, 10, 10, 12);
+        cube({}, 2, 10, 4, 14, 16, 12);
+        cube({}, 14, 11, 4, 16, 15, 12);
+        cube({}, 0, 11, 4, 2, 15, 12);
+        cube({}, 3, 11, 3, 13, 15, 4);
+        cube({}, 3, 11, 12, 13, 15, 13);
+    */
 
 //    fmt::print("vertices: {}\n", rb.vertices.size());
 //    fmt::print("indices: {}, {}, {}\n", rb.indices[0].size(), rb.indices[1].size(), rb.indices[2].size());
