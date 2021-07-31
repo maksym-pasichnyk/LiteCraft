@@ -203,6 +203,9 @@ struct App {
         connection->send(SSpawnPlayerPacket{
             .pos = transform.position
         });
+
+        const auto pos = glm::ivec3(glm::floor(transform.position));
+        world->provider->chunkArray.setCenter(pos.x >> 4, pos.z >> 4);
     }
 
     void createUniforms() {
@@ -316,6 +319,8 @@ struct App {
 
             surface->present();
             window->swapBuffers();
+
+//            fmt::print("fps: {}\n", 1.0f / dt);
         }
 
         return 0;
@@ -361,12 +366,13 @@ private:
                     const auto i = static_cast<size_t>(world->provider->chunkArray.getIndex(x, z));
 
                     if (std::exchange(frustum->chunks[i].needRender, false)) {
-                        const auto dx = x;
-                        const auto dz = z;
+                        const auto dx = chunk_x - x;
+                        const auto dz = chunk_z - z;
                         const auto immediate = (dx * dx + dz * dz) <= 1;
 
                         dispatcher->rebuildChunk(frustum->chunks[i], x, z, immediate);
                     }
+
                     chunkToRenders.emplace_back(&frustum->chunks[i]);
                 }
             }

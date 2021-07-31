@@ -21,6 +21,8 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/zlib-ng")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/range-v3")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/promise.hpp")
 
+target_compile_options(fmt PUBLIC /EHsc)
+
 add_library(imgui STATIC
     "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui/imgui.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui/imconfig.h"

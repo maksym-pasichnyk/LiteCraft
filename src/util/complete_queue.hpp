@@ -10,7 +10,7 @@ struct complete_queue {
         std::lock_guard _{mutex};
         return queue.empty();
     }
-    size_t size() const {
+    size_t size() /*const*/ {
         std::lock_guard _{mutex};
         return queue.size();
     }

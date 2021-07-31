@@ -32,6 +32,8 @@ void ChunkManager::runLoop(std::stop_token&& token) {
 }
 
 void ChunkManager::tick(NetworkConnection& connection) {
+//    fmt::print("ChunkManager::tick: {} in queue\n", complete.size());
+
     while (auto pos = complete.try_pop()) {
         const auto [x, z] = *pos;
         auto chunk = getChunk(x, z).get();

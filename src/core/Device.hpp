@@ -12,6 +12,8 @@ struct Device {
 
         glEnable(GL_DEBUG_OUTPUT);
         glDebugMessageCallback(debug, nullptr);
+
+        fmt::print("Renderer: {}\n", glGetString(GL_RENDERER));
     }
 
     auto compileShader(std::string_view source, GLenum type) -> GLuint {

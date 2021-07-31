@@ -15,7 +15,7 @@ struct Window {
 
         _window = glfwCreateWindow(width, height, title, nullptr, nullptr);
         glfwMakeContextCurrent(_window);
-        glfwSwapInterval(1);
+        glfwSwapInterval(0);
 
         glfwSetWindowUserPointer(_window, this);
 
