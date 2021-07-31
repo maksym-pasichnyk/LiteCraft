@@ -2,7 +2,7 @@
 #include "Blocks.hpp"
 #include "Block.hpp"
 
-#include <algorithm>
+#include <range/v3/algorithm.hpp>
 
 bool BlockData::in(const BlockTag &tag) const {
     return getBlock()->isIn(tag);
@@ -31,5 +31,5 @@ auto BlockData::isValidPosition(WorldReader &reader, const glm::vec3 &pos) const
 }
 auto BlockData::hasProperty(BlockStateProperty property) const -> bool {
     auto properties = getBlock()->getBlockStateProperties();
-    return std::ranges::find(properties, property) != properties.end();
+    return ranges::find(properties, property) != properties.end();
 }

@@ -2,13 +2,14 @@
 
 #include "StructureFeature.hpp"
 
+#include <util/Registry.hpp>
 #include <memory>
 #include <string>
 #include <array>
 #include <map>
 
 struct StructureFeatures {
-    static std::map<std::string, std::unique_ptr<StructureFeature>> registry;
+    static Registry<StructureFeature> registry;
 
     static StructureFeature* PILLAGER_OUTPOST;
     static StructureFeature* MINESHAFT;

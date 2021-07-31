@@ -35,7 +35,7 @@
 #include "../treedecorator/AlterGroundTreeDecorator.hpp"
 #include "../../../block/Blocks.hpp"
 
-std::map<std::string, std::unique_ptr<ConfiguredFeature>> ConfiguredFeatures::features;
+Registry<ConfiguredFeature> ConfiguredFeatures::features{};
 ConfiguredFeature* ConfiguredFeatures::END_SPIKE;
 ConfiguredFeature* ConfiguredFeatures::END_GATEWAY;
 ConfiguredFeature* ConfiguredFeatures::END_GATEWAY_DELAYED;
@@ -229,8 +229,7 @@ ConfiguredFeature* ConfiguredFeatures::BAMBOO_VEGETATION;
 ConfiguredFeature* ConfiguredFeatures::MUSHROOM_FIELD_VEGETATION;
 
 static ConfiguredFeature* registerFeature(std::string name, ConfiguredFeature* feature) {
-    ConfiguredFeatures::features.emplace(std::move(name), feature);
-    return feature;
+	return ConfiguredFeatures::features.add(std::move(name), std::unique_ptr<ConfiguredFeature>(feature));
 }
 
 void ConfiguredFeatures::configureFeatures() {

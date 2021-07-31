@@ -5,6 +5,8 @@
 #include <ranges>
 #include <cstdint>
 #include <glm/glm.hpp>
+#include <range/v3/view.hpp>
+#include <range/v3/algorithm.hpp>
 
 struct BlockPos : glm::ivec3 {
     using glm::ivec3::ivec3;
@@ -30,18 +32,18 @@ struct BlockPos : glm::ivec3 {
             (static_cast<int64_t>(z) & Z_MASK) << INVERSE_START_BITS_Z;
     }
 
-//    static auto getAllInBox(int x0, int y0, int z0, int x1, int y1, int z1) {
-//        const int dx = x1 - x0 + 1;
-//        const int dy = y1 - y0 + 1;
-//        const int dz = z1 - z0 + 1;
-//        return std::views::iota(0, dx * dy * dz) | std::views::transform([x0, y0, z0, dx, dy](int current) {
-//            return glm::ivec3{x0 + (current % dx), y0 + ((current / dx) % dy), z0 + (current / dx / dy)};
-//        });
-//    }
-//
-//    static auto getAllInBox(const glm::ivec3& from, const glm::ivec3& to) {
-//        return getAllInBox(from.x, from.y, from.z, to.x, to.y, to.z);
-//    }
+    static auto getAllInBox(int x0, int y0, int z0, int x1, int y1, int z1) {
+        const int dx = x1 - x0 + 1;
+        const int dy = y1 - y0 + 1;
+        const int dz = z1 - z0 + 1;
+        return ranges::views::iota(0, dx * dy * dz) | ranges::views::transform([x0, y0, z0, dx, dy](int i) {
+            return BlockPos{x0 + (i % dx), y0 + ((i / dx) % dy), z0 + (i / dx / dy)};
+        });
+    }
+
+    static auto getAllInBox(const BlockPos& from, const BlockPos& to) {
+        return getAllInBox(from.x, from.y, from.z, to.x, to.y, to.z);
+    }
 
     constexpr auto add(int dx, int dy, int dz) const noexcept {
         return BlockPos{x + dx, y + dy, z + dz};
@@ -75,7 +77,7 @@ struct BlockPos : glm::ivec3 {
         return BlockPos{x - n, y, z};
     }
 
-    double distanceSq(const glm::ivec3& to) {
+    double distanceSq(const BlockPos& to) const {
         return distanceSq(glm::dvec3(to), true);
     }
 
@@ -83,12 +85,12 @@ struct BlockPos : glm::ivec3 {
 //        return distanceSq(position.x, position.y, position.z, useCenter);
 //    }
 
-    double distanceSq(const glm::dvec3& to, bool useCenter) {
+    double distanceSq(const glm::dvec3& to, bool useCenter) const {
         const auto delta = glm::dvec3(*this) + glm::dvec3(useCenter ? 0.5 : 0.0) - to;
         return glm::dot(delta, delta);
     }
 
     constexpr BlockPos offset(Direction direction) const {
-        return BlockPos(*this + DirectionUtil::OFFSET[static_cast<int>(direction)]);
+        return *this + DirectionUtil::OFFSET[static_cast<int>(direction)];
     }
 };

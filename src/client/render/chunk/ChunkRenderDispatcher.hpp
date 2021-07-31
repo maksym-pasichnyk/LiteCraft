@@ -9,7 +9,7 @@
 #include <memory>
 #include <ranges>
 #include <thread>
-#include <algorithm>
+#include <range/v3/algorithm.hpp>
 
 struct ChunkRenderDispatcher {
     std::vector<std::thread> workers{};
@@ -27,7 +27,7 @@ struct ChunkRenderDispatcher {
         stop_source.request_stop();
         uploadTasks.clear();
         tasks.clear();
-        std::ranges::for_each(workers, std::mem_fn(&std::thread::join));
+        ranges::for_each(workers, std::mem_fn(&std::thread::join));
         workers.clear();
     }
 

@@ -2,11 +2,12 @@
 
 #include "ConfiguredSurfaceBuilder.hpp"
 
+#include <util/Registry.hpp>
 #include <memory>
 #include <map>
 
 struct ConfiguredSurfaceBuilders {
-    static std::map<std::string, std::unique_ptr<ConfiguredSurfaceBuilder>> builders;
+    static Registry<ConfiguredSurfaceBuilder> builders;
 
     static ConfiguredSurfaceBuilder* BADLANDS;
     static ConfiguredSurfaceBuilder* BASALT_DELTAS;

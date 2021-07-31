@@ -1,7 +1,7 @@
 #include "MultiNoiseBiomeProvider.hpp"
 #include "../Biomes.hpp"
 
-#include <algorithm>
+#include <range/v3/algorithm.hpp>
 
 const MultiNoiseBiomeProvider::Preset MultiNoiseBiomeProvider::Preset::DEFAULT_NETHER_PROVIDER_PRESET {
     [](int64_t seed) -> std::unique_ptr<MultiNoiseBiomeProvider> {
@@ -26,7 +26,7 @@ Biome *MultiNoiseBiomeProvider::getNoiseBiome(int x, int y, int z) {
         0.0F
     };
 
-    auto it = std::ranges::min_element(parameters, [&attributes](const auto &a, const auto &b) -> bool {
+    auto it = ranges::min_element(parameters, [&attributes](const auto &a, const auto &b) -> bool {
         return attributes.getAttributeDifference(a.second) < attributes.getAttributeDifference(b.second);
     });
 

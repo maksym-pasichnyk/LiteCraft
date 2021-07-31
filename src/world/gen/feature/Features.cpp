@@ -26,7 +26,7 @@
 #include "TwoFeatureChoiceFeature.hpp"
 #include "MultipleWithChanceRandomFeature.hpp"
 
-std::map<std::string, std::unique_ptr<Feature>> Features::features;
+Registry<Feature> Features::features{};
 Feature* Features::NO_OP;
 Feature* Features::TREE;
 FlowersFeature* Features::FLOWER;
@@ -82,9 +82,7 @@ Feature* Features::DECORATED;
 
 template <typename T, typename... Args>
 static T* createFeature(std::string name, Args&&... args) {
-    auto feature = new T(std::forward<Args>(args)...);
-    Features::features.emplace(std::move(name), feature);
-    return feature;
+    return dynamic_cast<T*>(Features::features.add(std::move(name), std::make_unique<T>(std::forward<Args>(args)...)));
 }
 
 void Features::registerFeatures() {

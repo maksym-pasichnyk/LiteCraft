@@ -1,12 +1,13 @@
 #pragma once
 
+#include <util/Registry.hpp>
 #include <memory>
 #include <string>
 #include <map>
 
 struct ConfiguredFeature;
 struct ConfiguredFeatures {
-    static std::map<std::string, std::unique_ptr<ConfiguredFeature>> features;
+    static Registry<ConfiguredFeature> features;
     static ConfiguredFeature* END_SPIKE;
     static ConfiguredFeature* END_GATEWAY;
     static ConfiguredFeature* END_GATEWAY_DELAYED;

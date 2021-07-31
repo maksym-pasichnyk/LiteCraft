@@ -1,12 +1,13 @@
 #pragma once
 
+#include <util/Registry.hpp>
 #include <memory>
 #include <string>
 #include <map>
 
 struct Placement;
 struct Placements {
-    static std::map<std::string, std::unique_ptr<Placement>> placements;
+    static Registry<Placement> placements;
     static Placement* NOPE;
     static Placement* CHANCE;
     static Placement* COUNT;

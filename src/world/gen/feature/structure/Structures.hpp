@@ -2,11 +2,11 @@
 
 #include "../../GenerationStage.hpp"
 
-#include <map>
-#include <array>
 #include <string>
 #include <memory>
 #include <vector>
+#include <array>
+#include <map>
 
 struct Structure;
 struct Structures {

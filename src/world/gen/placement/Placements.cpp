@@ -29,7 +29,7 @@
 #include "DecoratedPlacement.hpp"
 #include "CountMultilayerPlacement.hpp"
 
-std::map<std::string, std::unique_ptr<Placement>> Placements::placements;
+Registry<Placement> Placements::placements{};
 Placement* Placements::NOPE;
 Placement* Placements::CHANCE;
 Placement* Placements::COUNT;
@@ -62,9 +62,7 @@ Placement* Placements::COUNT_MULTILAYER;
 
 template<typename T, typename... Args>
 static T* createPlacement(std::string name, Args&&... args) {
-    auto placement = new T(std::forward<Args>(args)...);
-    Placements::placements.emplace(std::move(name), placement);
-    return placement;
+    return dynamic_cast<T*>(Placements::placements.add(std::move(name), std::make_unique<T>(std::forward<Args>(args)...)));
 }
 
 void Placements::registerPlacements() {

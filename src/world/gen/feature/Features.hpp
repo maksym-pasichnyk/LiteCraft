@@ -1,5 +1,6 @@
 #pragma once
 
+#include <util/Registry.hpp>
 #include <string>
 #include <memory>
 #include <map>
@@ -9,7 +10,7 @@ struct FlowersFeature;
 struct SeaGrassFeature;
 struct BonusChestFeature;
 struct Features {
-    static std::map<std::string, std::unique_ptr<Feature>> features;
+    static Registry<Feature> features;
     static Feature* NO_OP;
     static Feature* TREE;
     static FlowersFeature* FLOWER;

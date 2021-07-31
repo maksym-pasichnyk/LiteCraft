@@ -1,5 +1,6 @@
 #pragma once
 
+#include <util/Registry.hpp>
 #include <memory>
 #include <vector>
 #include <string>
@@ -7,8 +8,7 @@
 
 struct WorldCarver;
 struct Carvers {
-    static std::vector<std::unique_ptr<WorldCarver>> carvers;
-    static std::map<std::string, WorldCarver*> registry;
+    static Registry<WorldCarver> carvers;
 
     static WorldCarver* CAVE;
     static WorldCarver* NETHER_CAVE;

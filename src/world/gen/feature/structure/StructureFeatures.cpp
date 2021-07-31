@@ -2,7 +2,7 @@
 #include "Structure.hpp"
 #include "Structures.hpp"
 
-std::map<std::string, std::unique_ptr<StructureFeature>> StructureFeatures::registry;
+Registry<StructureFeature> StructureFeatures::registry{};
 
 StructureFeature* StructureFeatures::PILLAGER_OUTPOST;
 StructureFeature* StructureFeatures::MINESHAFT;
@@ -37,8 +37,7 @@ StructureFeature* StructureFeatures::RUINED_PORTAL_OCEAN;
 StructureFeature* StructureFeatures::RUINED_PORTAL_NETHER;
 
 static StructureFeature* registerStructure(std::string name, StructureFeature* feature) {
-    StructureFeatures::registry.emplace(std::move(name), feature);
-    return feature;
+    return StructureFeatures::registry.add(std::move(name), std::unique_ptr<StructureFeature>(feature));
 }
 
 void StructureFeatures::configureStructures() {

@@ -2,7 +2,7 @@
 
 #include "SurfaceBuilder.hpp"
 
-std::map<std::string, std::unique_ptr<ConfiguredSurfaceBuilder>> ConfiguredSurfaceBuilders::builders;
+Registry<ConfiguredSurfaceBuilder> ConfiguredSurfaceBuilders::builders{};
 
 ConfiguredSurfaceBuilder* ConfiguredSurfaceBuilders::BADLANDS;
 ConfiguredSurfaceBuilder* ConfiguredSurfaceBuilders::BASALT_DELTAS;
@@ -29,9 +29,7 @@ ConfiguredSurfaceBuilder* ConfiguredSurfaceBuilders::WARPED_FOREST;
 ConfiguredSurfaceBuilder* ConfiguredSurfaceBuilders::WOODED_BADLANDS;
 
 ConfiguredSurfaceBuilder* configure(std::string name, SurfaceBuilder* builder, const SurfaceBuilderConfig& config) {
-    auto configured = new ConfiguredSurfaceBuilder{ builder, config };
-    ConfiguredSurfaceBuilders::builders.emplace(std::move(name), configured);
-    return configured;
+    return ConfiguredSurfaceBuilders::builders.add(std::move(name), std::unique_ptr<ConfiguredSurfaceBuilder>(new ConfiguredSurfaceBuilder{ builder, config }));
 }
 
 void ConfiguredSurfaceBuilders::configureSurfaceBuilders() {
