@@ -14,6 +14,7 @@
 #include "BlockPileFeature.hpp"
 #include "DecoratedFeature.hpp"
 #include "IceAndSnowFeature.hpp"
+#include "DesertWellsFeature.hpp"
 #include "RandomPatchFeature.hpp"
 #include "NoExposedOreFeature.hpp"
 #include "ReplaceBlockFeature.hpp"
@@ -24,6 +25,7 @@
 #include "BigBrownMushroomFeature.hpp"
 #include "BlockWithContextFeature.hpp"
 #include "TwoFeatureChoiceFeature.hpp"
+#include "VoidStartPlatformFeature.hpp"
 #include "MultipleWithChanceRandomFeature.hpp"
 
 Registry<Feature> Features::features{};
@@ -95,8 +97,8 @@ void Features::registerFeatures() {
     SPRING_FEATURE = createFeature<SpringFeature>("spring_feature");
 //    CHORUS_PLANT = createFeature<ChorusPlantFeature>("chorus_plant");
     EMERALD_ORE = createFeature<ReplaceBlockFeature>("emerald_ore");
-//    VOID_START_PLATFORM = createFeature<VoidStartPlatformFeature>("void_start_platform");
-//    DESERT_WELL = createFeature<DesertWellsFeature>("desert_well");
+    VOID_START_PLATFORM = createFeature<VoidStartPlatformFeature>("void_start_platform");
+    DESERT_WELL = createFeature<DesertWellsFeature>("desert_well");
 //    FOSSIL = createFeature<FossilsFeature>("fossil");
     HUGE_RED_MUSHROOM = createFeature<BigRedMushroomFeature>("huge_red_mushroom");
     HUGE_BROWN_MUSHROOM = createFeature<BigBrownMushroomFeature>("huge_brown_mushroom");

@@ -62,6 +62,14 @@ struct ChunkPos {
         return z << 4;
     }
 
+    constexpr int32_t getEndX() const noexcept {
+        return getStartX() + 15;
+    }
+
+    constexpr int32_t getEndZ() const noexcept {
+        return getStartZ() + 15;
+    }
+
 //    constexpr SubchunkPos subchunkPos(uint8_t subchunk) const {
 //        return { x, z, subchunk, dimension };
 //    }

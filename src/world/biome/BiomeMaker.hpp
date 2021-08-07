@@ -1379,9 +1379,9 @@ struct BiomeMaker {
     }
 
     static Biome* makeVoidBiome() {
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(ConfiguredSurfaceBuilders::NOPE);
-//        generation.withFeature(GenerationStage::Decoration::TOP_LAYER_MODIFICATION, Features::VOID_START_PLATFORM);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::NOPE);
+        generation.withFeature(GenerationStage::Decoration::TOP_LAYER_MODIFICATION, ConfiguredFeatures::VOID_START_PLATFORM);
         return new Biome {
             .climate{
                 .precipitation = RainType::NONE,
