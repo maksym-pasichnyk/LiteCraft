@@ -4,13 +4,15 @@
 #include <span>
 #include <queue>
 #include <mutex>
-#include <random>
 #include <memory>
+#include <iostream>
 
-#include <entt/entt.hpp>
 #include <glm/glm.hpp>
 #include <fmt/format.h>
+#include <entt/entt.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
+#include <util/Utils.hpp>
 #include <core/Window.hpp>
 #include <core/Device.hpp>
 #include <core/Surface.hpp>
@@ -18,14 +20,10 @@
 
 #include "input.hpp"
 #include "camera.hpp"
-#include "shader.hpp"
 #include "raytrace.hpp"
 #include "transform.hpp"
 #include "CraftServer.hpp"
 #include "TextureAtlas.hpp"
-#include "PacketManager.hpp"
-#include "NetworkManager.hpp"
-#include "world/chunk/Chunk.hpp"
 #include "world/biome/Biome.hpp"
 #include "world/biome/Biomes.hpp"
 #include "world/gen/surface/SurfaceBuilder.hpp"
@@ -40,14 +38,8 @@
 
 #include "client/world/ClientWorld.hpp"
 #include "client/render/ViewFrustum.hpp"
-#include "client/render/model/ModelFormat.hpp"
 #include "client/render/chunk/ChunkRenderDispatcher.hpp"
-
-#include "block/Block.hpp"
-#include "block/Blocks.hpp"
-#include "block/BlockReader.hpp"
 #include "block/BlockGraphics.hpp"
-#include "block/material/Materials.hpp"
 
 struct CameraConstants {
     glm::mat4 transform;
@@ -57,50 +49,6 @@ struct CameraConstants {
 struct CameraUniform {
     GLuint handle;
     void* pointer;
-};
-
-struct Transform {
-    glm::vec2 rotation{};
-    glm::vec3 position{};
-
-    auto getRotationMatrix() const -> glm::mat4 {
-        return getRotationMatrix(rotation);
-    }
-
-    auto getTransformMatrix() const -> glm::mat4 {
-        return glm::translate(getRotationMatrix(), -position);
-    }
-
-    auto getTransformMatrix(glm::vec3 offset) const -> glm::mat4 {
-        return glm::translate(getRotationMatrix(), -(position + offset));
-    }
-
-    auto up() const -> glm::vec3 {
-        return glm::vec3(0, 1, 0) * glm::mat3(getRotationMatrix());
-    }
-
-    auto forward() const -> glm::vec3 {
-        return glm::vec3(0, 0, -1) * glm::mat3(getRotationMatrix());
-    }
-
-    auto right() const -> glm::vec3 {
-        return glm::vec3(1, 0, 0) * glm::mat3(getRotationMatrix());
-    }
-
-    static auto getRotationMatrix(const glm::vec2& rotation) -> glm::mat4 {
-        const auto ry = glm::radians(rotation.x);
-        const auto rp = glm::radians(rotation.y);
-
-        const auto [sy, cy] = std::pair{ glm::sin(ry), glm::cos(ry) };
-        const auto [sp, cp] = std::pair{ glm::sin(rp), glm::cos(rp) };
-
-        return {
-            cy, sp * sy, -cp * sy, 0,
-            0, cp, sp, 0,
-            sy, -sp * cy, cp * cy, 0,
-            0, 0, 0, 1
-        };
-    }
 };
 
 struct App {
@@ -116,7 +64,7 @@ struct App {
     std::unique_ptr<ClientWorld> world{};
     std::unique_ptr<CraftServer> server{};
     std::unique_ptr<ViewFrustum> frustum{};
-    std::unique_ptr<NetworkConnection> connection{};
+    std::unique_ptr<Connection> connection{};
     std::unique_ptr<ChunkRenderDispatcher> dispatcher{};
 
     Camera camera{};
@@ -175,8 +123,8 @@ struct App {
         /**************************************************************************************************************/
 
         transform = {
-            .rotation = {0, 10},
-            .position = {0, 80, 10}
+            .position = {0, 80, 10},
+            .rotation = {0, 10}
         };
 
         opaque_pipeline = device->createShader(
@@ -199,7 +147,7 @@ struct App {
         frustum = std::make_unique<ViewFrustum>(viewDistance);
         dispatcher = std::make_unique<ChunkRenderDispatcher>();
 
-        connection = std::make_unique<NetworkConnection>(server->getLocalAddress());
+        connection = std::make_unique<Connection>(server->getLocalAddress());
         connection->send(SSpawnPlayerPacket{
             .pos = transform.position
         });
@@ -217,7 +165,7 @@ struct App {
         }
     }
 
-    void processLoadChunk(NetworkConnection& _, const SLoadChunkPacket& packet) {
+    void processLoadChunk(Connection & _, const SLoadChunkPacket& packet) {
         world->loadChunk(packet.x, packet.z, packet.chunk);
 
         for (int x = packet.x - 1; x <= packet.x + 1; ++x) {
@@ -227,11 +175,11 @@ struct App {
         }
     }
 
-    void processUnloadChunk(NetworkConnection& _, const SUnloadChunkPacket& packet) {
+    void processUnloadChunk(Connection & _, const SUnloadChunkPacket& packet) {
         world->unloadChunk(packet.x, packet.z);
     }
 
-    void processChangeBlock(NetworkConnection& _, const SChangeBlockPacket& packet) {
+    void processChangeBlock(Connection & _, const SChangeBlockPacket& packet) {
         const auto pos = packet.pos;
 
         for (int x = (pos.x - 1) >> 4; x <= (pos.x + 1) >> 4; x++) {
@@ -437,7 +385,75 @@ private:
     }
 };
 
+struct AppServer {
+    int viewDistance = 11;
+    std::unique_ptr<ResourcePackManager> resources{};
+
+    AppServer() {
+        resources = std::make_unique<ResourcePackManager>();
+        resources->addResourcePack(std::make_unique<PhysFsResourcePack>("/resource_packs/vanilla"));
+
+        /**************************************************************************************************************/
+
+        Materials::registerMaterials();
+//        BlockGraphics::initBlocks(*resources);
+        Blocks::registerBlocks();
+        BlockTags::registerTags();
+        SurfaceBuilder::registerBuilders();
+        SurfaceBuilderConfig::registerConfigs();
+        ConfiguredSurfaceBuilders::configureSurfaceBuilders();
+        Carvers::registerCarvers();
+        ConfiguredCarvers::configureCarvers();
+        Features::registerFeatures();
+        Placements::registerPlacements();
+        ConfiguredFeatures::configureFeatures();
+        Structures::registerStructures();
+        StructureFeatures::configureStructures();
+        Biomes::registerBiomes();
+
+        /**************************************************************************************************************/
+    }
+
+    int run() {
+        bool running = true;
+        std::string cmd{};
+        while (running) {
+            fmt::print("Run dedicated server!\n");
+            CraftServer server{viewDistance};
+            while (true) {
+                if (std::getline(std::cin, cmd)) {
+                    if (cmd == "restart") {
+                        break;
+                    } else if (cmd == "exit") {
+                        running = false;
+                        break;
+                    }
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            }
+            fmt::print("Stop dedicated server!\n");
+        }
+        return 0;
+    }
+};
+
 int main() {
-    App app{"Bedcraft", 800, 600};
-    return app.run();
+    if constexpr (Utils::is_server()) {
+        AppServer app{};
+        return app.run();
+    } else {
+        App app{"Bedcraft", 800, 600};
+        return app.run();
+    }
 }
+
+
+//auto parse_command(std::string_view cmd, size_t& offset) -> std::optional<std::string> {
+//    if (offset == std::string_view::npos) {
+//        return std::nullopt;
+//    }
+//    const auto off = std::exchange(offset, cmd.find(' ', offset));
+//    return offset != std::string_view::npos
+//            ? std::string(cmd.substr(off, offset - off))
+//            : std::string(cmd.substr(off));
+//}

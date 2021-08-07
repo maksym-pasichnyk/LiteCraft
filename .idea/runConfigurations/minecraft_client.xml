@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="minecraft-client" type="CMakeRunConfiguration" factoryName="Application" singleton="false" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$ProjectFileDir$/resources" PASS_PARENT_ENVS_2="true" PROJECT_NAME="minecraft" TARGET_NAME="minecraft-client" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="minecraft" RUN_TARGET_NAME="minecraft-client">
+    <method v="2">
+      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>

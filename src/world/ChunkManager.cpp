@@ -29,7 +29,7 @@ void ChunkManager::runLoop(std::stop_token&& token) {
     }
 }
 
-void ChunkManager::tick(NetworkConnection& connection) {
+void ChunkManager::tick(Connection & connection) {
 //    fmt::print("ChunkManager::tick: {} in queue\n", complete.size());
 
     while (auto pos = complete.try_pop()) {
@@ -44,7 +44,7 @@ void ChunkManager::tick(NetworkConnection& connection) {
     }
 }
 
-void ChunkManager::setChunkLoadedAtClient(NetworkConnection& connection, int chunk_x, int chunk_z, bool wasLoaded, bool needLoad) {
+void ChunkManager::setChunkLoadedAtClient(Connection & connection, int chunk_x, int chunk_z, bool wasLoaded, bool needLoad) {
     if (wasLoaded && !needLoad) {
         connection.send(SUnloadChunkPacket{chunk_x, chunk_z});
     } else if (needLoad && !wasLoaded) {
@@ -55,7 +55,7 @@ void ChunkManager::setChunkLoadedAtClient(NetworkConnection& connection, int chu
     }
 }
 
-void ChunkManager::updatePlayerPosition(NetworkConnection& connection, ChunkPos newChunkPos, ChunkPos oldChunkPos) {
+void ChunkManager::updatePlayerPosition(Connection & connection, ChunkPos newChunkPos, ChunkPos oldChunkPos) {
     if (std::abs(newChunkPos.x - oldChunkPos.x) <= 2 * viewDistance && std::abs(newChunkPos.z - oldChunkPos.z) <= 2 * viewDistance) {
         const int xStart = std::min(newChunkPos.x, oldChunkPos.x) - viewDistance;
         const int zStart = std::min(newChunkPos.z, oldChunkPos.z) - viewDistance;
@@ -176,7 +176,7 @@ ChunkResult ChunkManager::getChunkAsync(int32_t chunk_x, int32_t chunk_z, const 
     return *async_chunk;
 }
 
-void ChunkManager::setPlayerTracking(NetworkConnection& connection, ChunkPos pos, bool track) {
+void ChunkManager::setPlayerTracking(Connection & connection, ChunkPos pos, bool track) {
     for (int32_t chunk_x = pos.x - viewDistance; chunk_x <= pos.x + viewDistance; chunk_x++) {
         for (int32_t chunk_z = pos.z - viewDistance; chunk_z <= pos.z + viewDistance; chunk_z++) {
             setChunkLoadedAtClient(connection, chunk_x, chunk_z, !track, track);

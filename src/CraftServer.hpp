@@ -1,9 +1,9 @@
 #pragma once
 
-#include "NetworkManager.hpp"
+#include "Connection.hpp"
 #include "PacketManager.hpp"
-#include "world/ServerWorld.hpp"
 #include "util/math/ChunkPos.hpp"
+#include "world/ServerWorld.hpp"
 
 #include <range/v3/algorithm.hpp>
 #include <thread>
@@ -12,7 +12,7 @@
 struct CraftServer {
     PacketManager<CraftServer> packetManager;
 
-    std::vector<std::unique_ptr<NetworkConnection>> connections;
+    std::vector<std::unique_ptr<Connection>> connections;
 
     std::unique_ptr<ServerWorld> world = nullptr;
     std::vector<std::thread> workers{};
@@ -39,8 +39,8 @@ struct CraftServer {
         return listener.local_addr().value();
     }
 
-    void processSpawnPlayer(NetworkConnection& _, const SSpawnPlayerPacket& packet);
-    void processPlayerPosition(NetworkConnection& _, const PositionPacket& packet);
-    void processPlayerDigging(NetworkConnection& _, const CPlayerDiggingPacket& packet);
-    void processChangeBlock(NetworkConnection& _, const SChangeBlockPacket& packet);
+    void processSpawnPlayer(Connection & _, const SSpawnPlayerPacket& packet);
+    void processPlayerPosition(Connection & _, const PositionPacket& packet);
+    void processPlayerDigging(Connection & _, const CPlayerDiggingPacket& packet);
+    void processChangeBlock(Connection & _, const SChangeBlockPacket& packet);
 };

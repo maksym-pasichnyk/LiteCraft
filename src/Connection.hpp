@@ -6,18 +6,18 @@
 #include <vector>
 #include <span>
 
-struct NetworkConnection {
-    explicit NetworkConnection(TcpStream socket) : socket(socket) {
+struct Connection {
+    explicit Connection(TcpStream socket) : socket(socket) {
         socket.set_blocking(false);
     }
 
-    explicit NetworkConnection(const SocketAddr& address) : socket(TcpStream::connect(address)) {
+    explicit Connection(const SocketAddr& address) : socket(TcpStream::connect(address)) {
         if (socket.has_value()) {
             socket->set_blocking(false);
         }
     }
 
-    ~NetworkConnection() {
+    ~Connection() {
         if (socket.has_value()) {
             socket->close();
         }

@@ -33,14 +33,12 @@ add_library(imgui STATIC
     "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui/imgui_widgets.cpp"
 )
 
-file(GLOB_RECURSE SRC_FILES
+file(GLOB_RECURSE craft_source_files
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
 )
 
-add_executable("${PROJECT_NAME}" "${SRC_FILES}")
-
-target_include_directories("${PROJECT_NAME}" PRIVATE
+set(craft_include_directories
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
     "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui"
     "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/physfs/src"
@@ -48,14 +46,13 @@ target_include_directories("${PROJECT_NAME}" PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/range-v3/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/promise.hpp/headers"
 )
-target_compile_definitions("${PROJECT_NAME}" PRIVATE
+set(craft_compile_definitions
     -DGLFW_INCLUDE_NONE
     -DIMGUI_DEFINE_MATH_OPERATORS
     -DGLM_FORCE_XYZW_ONLY
     -DNOMINMAX
 )
-
-target_link_libraries("${PROJECT_NAME}" PRIVATE
+set(craft_link_libraries
     glm
     fmt
     EnTT
@@ -67,6 +64,17 @@ target_link_libraries("${PROJECT_NAME}" PRIVATE
     promise.hpp
     nlohmann_json
     physfs-static
+    WS2_32
 )
 
-target_link_libraries("${PROJECT_NAME}" PRIVATE WS2_32)
+add_executable("${PROJECT_NAME}-server" "${craft_source_files}")
+add_executable("${PROJECT_NAME}-client" "${craft_source_files}")
+
+target_include_directories("${PROJECT_NAME}-client" PRIVATE ${craft_include_directories})
+target_include_directories("${PROJECT_NAME}-server" PRIVATE ${craft_include_directories})
+
+target_compile_definitions("${PROJECT_NAME}-client" PRIVATE ${craft_compile_definitions})
+target_compile_definitions("${PROJECT_NAME}-server" PRIVATE ${craft_compile_definitions} -DDEDICATED_SERVER)
+
+target_link_libraries("${PROJECT_NAME}-client" PRIVATE ${craft_link_libraries})
+target_link_libraries("${PROJECT_NAME}-server" PRIVATE ${craft_link_libraries})

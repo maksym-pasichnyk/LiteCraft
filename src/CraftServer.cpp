@@ -21,10 +21,9 @@ CraftServer::CraftServer(int viewDistance) : viewDistance(viewDistance) {
 }
 
 void CraftServer::runLoop(std::stop_token &&token) {
-
     while (!token.stop_requested()) {
         if (auto connection = listener.accept()) {
-            connections.emplace_back(std::make_unique<NetworkConnection>(connection->first));
+            connections.emplace_back(std::make_unique<Connection>(connection->first));
         }
 
         for (auto& connection : connections) {
@@ -61,12 +60,12 @@ void CraftServer::runLoop(std::stop_token &&token) {
     }
 }
 
-void CraftServer::processSpawnPlayer(NetworkConnection& connection, const SSpawnPlayerPacket &packet) {
+void CraftServer::processSpawnPlayer(Connection & connection, const SSpawnPlayerPacket &packet) {
     last_player_position = ChunkPos::from(glm::ivec3(packet.pos));
     world->manager->setPlayerTracking(connection, last_player_position, true);
 }
 
-void CraftServer::processPlayerPosition(NetworkConnection& connection, const PositionPacket &packet) {
+void CraftServer::processPlayerPosition(Connection & connection, const PositionPacket &packet) {
     const auto pos = ChunkPos::from(glm::ivec3(packet.pos));
 
     if (last_player_position != pos) {
@@ -75,7 +74,7 @@ void CraftServer::processPlayerPosition(NetworkConnection& connection, const Pos
     }
 }
 
-void CraftServer::processPlayerDigging(NetworkConnection& connection, const CPlayerDiggingPacket& packet) {
+void CraftServer::processPlayerDigging(Connection & connection, const CPlayerDiggingPacket& packet) {
     const auto pos = packet.pos;
 
     const auto [chunk_x, chunk_z] = ChunkPos::from(pos);
@@ -100,7 +99,7 @@ void CraftServer::processPlayerDigging(NetworkConnection& connection, const CPla
     }
 }
 
-void CraftServer::processChangeBlock(NetworkConnection& connection, const SChangeBlockPacket &packet) {
+void CraftServer::processChangeBlock(Connection & connection, const SChangeBlockPacket &packet) {
     const auto pos = packet.pos;
 
     const auto [chunk_x, chunk_z] = ChunkPos::from(pos);
