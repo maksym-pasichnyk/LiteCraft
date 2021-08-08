@@ -39,8 +39,8 @@ struct CraftServer {
         return listener.local_addr().value();
     }
 
-    void processSpawnPlayer(Connection & _, const SSpawnPlayerPacket& packet);
-    void processPlayerPosition(Connection & _, const PositionPacket& packet);
-    void processPlayerDigging(Connection & _, const CPlayerDiggingPacket& packet);
-    void processChangeBlock(Connection & _, const SChangeBlockPacket& packet);
+    void processHandshake(Connection& _, const CHandshakePacket& packet);
+    void processPlayerPosition(Connection& _, const PositionPacket& packet);
+    void processPlayerDigging(Connection& _, const CPlayerDiggingPacket& packet);
+//    void processChangeBlock(Connection& _, const SChangeBlockPacket& packet);
 };

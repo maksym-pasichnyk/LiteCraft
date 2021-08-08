@@ -78,10 +78,13 @@ struct App {
     GLuint cutout_pipeline;
     GLuint transparent_pipeline;
 
+    bool joined = false;
+
     App(const char* title, uint32_t width, uint32_t height) {
         handler.bind<SLoadChunkPacket, &App::processLoadChunk>();
         handler.bind<SUnloadChunkPacket, &App::processUnloadChunk>();
         handler.bind<SChangeBlockPacket, &App::processChangeBlock>();
+        handler.bind<SSpawnPlayerPacket, &App::processSpawnPlayer>();
 
         /**************************************************************************************************************/
 
@@ -122,11 +125,6 @@ struct App {
 
         /**************************************************************************************************************/
 
-        transform = {
-            .position = {0, 80, 10},
-            .rotation = {0, 10}
-        };
-
         opaque_pipeline = device->createShader(
             AppPlatform::readFile("default.vert").value(),
             AppPlatform::readFile("default.frag").value()
@@ -148,12 +146,11 @@ struct App {
         dispatcher = std::make_unique<ChunkRenderDispatcher>();
 
         connection = std::make_unique<Connection>(server->getLocalAddress());
-        connection->send(SSpawnPlayerPacket{
-            .pos = transform.position
-        });
+        connection->send(CHandshakePacket{720, ProtocolType::HANDSHAKING});
 
-        const auto pos = glm::ivec3(glm::floor(transform.position));
-        world->provider->chunkArray.setCenter(pos.x >> 4, pos.z >> 4);
+        while (!joined) {
+            handler.handlePackets(*this, *connection);
+        }
     }
 
     void createUniforms() {
@@ -162,30 +159,6 @@ struct App {
             glCreateBuffers(1, &uniform.handle);
             glNamedBufferStorage(uniform.handle, sizeof(CameraConstants), nullptr, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
             uniform.pointer = glMapNamedBufferRange(uniform.handle, 0, sizeof(CameraConstants), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-        }
-    }
-
-    void processLoadChunk(Connection & _, const SLoadChunkPacket& packet) {
-        world->loadChunk(packet.x, packet.z, packet.chunk);
-
-        for (int x = packet.x - 1; x <= packet.x + 1; ++x) {
-            for (int z = packet.z - 1; z <= packet.z + 1; ++z) {
-                frustum->chunks[world->provider->chunkArray.getIndex(x, z)].needRender = true;
-            }
-        }
-    }
-
-    void processUnloadChunk(Connection & _, const SUnloadChunkPacket& packet) {
-        world->unloadChunk(packet.x, packet.z);
-    }
-
-    void processChangeBlock(Connection & _, const SChangeBlockPacket& packet) {
-        const auto pos = packet.pos;
-
-        for (int x = (pos.x - 1) >> 4; x <= (pos.x + 1) >> 4; x++) {
-            for (int z = (pos.z - 1) >> 4; z <= (pos.z + 1) >> 4; z++) {
-                frustum->chunks[world->provider->chunkArray.getIndex(x, z)].needRender = true;
-            }
         }
     }
 
@@ -229,10 +202,10 @@ struct App {
             } else if (Input::get().isMouseButtonPressed(Input::MouseButton::Right)) {
                 cooldown = 0.25f;
 
-                connection->send(SChangeBlockPacket{
-                    .pos = rayTraceResult->pos + rayTraceResult->dir,
-                    .data = Blocks::TORCH->getDefaultState()
-                });
+//                connection->send(SChangeBlockPacket{
+//                    .pos = rayTraceResult->pos + rayTraceResult->dir,
+//                    .data = Blocks::TORCH->getDefaultState()
+//                });
             }
         }
     }
@@ -272,6 +245,43 @@ struct App {
         }
 
         return 0;
+    }
+
+private:
+    void processLoadChunk(Connection& _, const SLoadChunkPacket& packet) {
+        world->loadChunk(packet.x, packet.z, packet.chunk);
+
+        for (int x = packet.x - 1; x <= packet.x + 1; ++x) {
+            for (int z = packet.z - 1; z <= packet.z + 1; ++z) {
+                frustum->chunks[world->provider->chunkArray.getIndex(x, z)].needRender = true;
+            }
+        }
+    }
+
+    void processUnloadChunk(Connection& _, const SUnloadChunkPacket& packet) {
+        world->unloadChunk(packet.x, packet.z);
+    }
+
+    void processChangeBlock(Connection& _, const SChangeBlockPacket& packet) {
+        const auto pos = packet.pos;
+
+        for (int x = (pos.x - 1) >> 4; x <= (pos.x + 1) >> 4; x++) {
+            for (int z = (pos.z - 1) >> 4; z <= (pos.z + 1) >> 4; z++) {
+                frustum->chunks[world->provider->chunkArray.getIndex(x, z)].needRender = true;
+            }
+        }
+    }
+
+    void processSpawnPlayer(Connection& _, const SSpawnPlayerPacket& packet) {
+        joined = true;
+
+        const auto pos = glm::ivec3(glm::floor(packet.pos));
+        world->provider->chunkArray.setCenter(pos.x >> 4, pos.z >> 4);
+
+        transform = {
+            .position = packet.pos,
+            .rotation = {0, 10}
+        };
     }
 
 private:

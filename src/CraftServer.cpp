@@ -7,10 +7,10 @@
 // todo: fix cleanup crash (wait for chunk tasks finished? check around chunks?)
 
 CraftServer::CraftServer(int viewDistance) : viewDistance(viewDistance) {
-    packetManager.bind<SSpawnPlayerPacket, &CraftServer::processSpawnPlayer>();
+    packetManager.bind<CHandshakePacket, &CraftServer::processHandshake>();
     packetManager.bind<PositionPacket, &CraftServer::processPlayerPosition>();
     packetManager.bind<CPlayerDiggingPacket, &CraftServer::processPlayerDigging>();
-    packetManager.bind<SChangeBlockPacket, &CraftServer::processChangeBlock>();
+//    packetManager.bind<SChangeBlockPacket, &CraftServer::processChangeBlock>();
 
     listener = TcpListener::bind(SocketAddr::from(Ipv4Addr::localhost(), 0)).value();
     listener.set_blocking(false);
@@ -22,7 +22,7 @@ CraftServer::CraftServer(int viewDistance) : viewDistance(viewDistance) {
 
 void CraftServer::runLoop(std::stop_token &&token) {
     while (!token.stop_requested()) {
-        if (auto connection = listener.accept()) {
+        while (auto connection = listener.accept()) {
             connections.emplace_back(std::make_unique<Connection>(connection->first));
         }
 
@@ -60,12 +60,15 @@ void CraftServer::runLoop(std::stop_token &&token) {
     }
 }
 
-void CraftServer::processSpawnPlayer(Connection & connection, const SSpawnPlayerPacket &packet) {
-    last_player_position = ChunkPos::from(glm::ivec3(packet.pos));
+void CraftServer::processHandshake(Connection& connection, const CHandshakePacket& packet) {
+    last_player_position = ChunkPos::from(glm::ivec3{0, 80, 10});
+    connection.send(SSpawnPlayerPacket{
+        .pos = {0, 80, 10}
+    });
     world->manager->setPlayerTracking(connection, last_player_position, true);
 }
 
-void CraftServer::processPlayerPosition(Connection & connection, const PositionPacket &packet) {
+void CraftServer::processPlayerPosition(Connection& connection, const PositionPacket &packet) {
     const auto pos = ChunkPos::from(glm::ivec3(packet.pos));
 
     if (last_player_position != pos) {
@@ -74,12 +77,11 @@ void CraftServer::processPlayerPosition(Connection & connection, const PositionP
     }
 }
 
-void CraftServer::processPlayerDigging(Connection & connection, const CPlayerDiggingPacket& packet) {
+void CraftServer::processPlayerDigging(Connection& connection, const CPlayerDiggingPacket& packet) {
     const auto pos = packet.pos;
+    const auto [x, z] = ChunkPos::from(pos);
 
-    const auto [chunk_x, chunk_z] = ChunkPos::from(pos);
-
-    auto chunk = world->getChunk(chunk_x, chunk_z);
+    auto chunk = world->getChunk(x, z);
     if (chunk != nullptr) {
         const auto new_block = Blocks::AIR->getDefaultState();
         const auto old_block = chunk->getData(pos);
@@ -99,27 +101,27 @@ void CraftServer::processPlayerDigging(Connection & connection, const CPlayerDig
     }
 }
 
-void CraftServer::processChangeBlock(Connection & connection, const SChangeBlockPacket &packet) {
-    const auto pos = packet.pos;
-
-    const auto [chunk_x, chunk_z] = ChunkPos::from(pos);
-
-    auto chunk = world->getChunk(chunk_x, chunk_z);
-    if (chunk != nullptr) {
-        const auto new_block = packet.data;
-        const auto old_block = chunk->getData(pos);
-        if (chunk->setData(pos, new_block)) {
-            world->manager->lightManager->update(*world, pos.x, pos.y, pos.z, old_block, new_block);
-
-            connection.send(SChangeBlockPacket{
-                .pos = pos,
-                .data = new_block
-            });
-        } else {
-            connection.send(SChangeBlockPacket{
-                .pos = pos,
-                .data = old_block
-            });
-        }
-    }
-}
+//void CraftServer::processChangeBlock(Connection & connection, const SChangeBlockPacket &packet) {
+//    const auto pos = packet.pos;
+//
+//    const auto [chunk_x, chunk_z] = ChunkPos::from(pos);
+//
+//    auto chunk = world->getChunk(chunk_x, chunk_z);
+//    if (chunk != nullptr) {
+//        const auto new_block = packet.data;
+//        const auto old_block = chunk->getData(pos);
+//        if (chunk->setData(pos, new_block)) {
+//            world->manager->lightManager->update(*world, pos.x, pos.y, pos.z, old_block, new_block);
+//
+//            connection.send(SChangeBlockPacket{
+//                .pos = pos,
+//                .data = new_block
+//            });
+//        } else {
+//            connection.send(SChangeBlockPacket{
+//                .pos = pos,
+//                .data = old_block
+//            });
+//        }
+//    }
+//}

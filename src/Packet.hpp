@@ -13,31 +13,35 @@ struct PacketHeader {
     int size;
 };
 
-struct SUnloadChunkPacket {
-    static constexpr int ID = 0;
-
-    int x;
-    int z;
-};
-
 struct Chunk;
 
+
+enum class ProtocolType {
+    HANDSHAKING = -1,
+    PLAY = 0,
+    STATUS = 1,
+    LOGIN = 2
+};
+
+/**************************************************************************************************************/
+
 struct SLoadChunkPacket {
-    static constexpr int ID = 1;
+    static constexpr int ID = 0;
 
     Chunk* chunk;
     int x;
     int z;
 };
 
-struct SSpawnPlayerPacket {
-    static constexpr int ID = 0;
+struct SUnloadChunkPacket {
+    static constexpr int ID = 1;
 
-    glm::vec3 pos;
+    int x;
+    int z;
 };
 
-struct PositionPacket {
-    static constexpr int ID = 1;
+struct SSpawnPlayerPacket {
+    static constexpr int ID = 2;
 
     glm::vec3 pos;
 };
@@ -47,6 +51,21 @@ struct SChangeBlockPacket {
 
     glm::ivec3 pos;
     BlockData data;
+};
+
+/**************************************************************************************************************/
+
+struct CHandshakePacket {
+    static constexpr int ID = 0;
+
+    int version;
+    ProtocolType type;
+};
+
+struct PositionPacket {
+    static constexpr int ID = 1;
+
+    glm::vec3 pos;
 };
 
 struct CPlayerDiggingPacket {
