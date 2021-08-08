@@ -15,7 +15,6 @@ struct PacketHeader {
 
 struct Chunk;
 
-
 enum class ProtocolType {
     HANDSHAKING = -1,
     PLAY = 0,
@@ -23,10 +22,40 @@ enum class ProtocolType {
     LOGIN = 2
 };
 
+enum class SPacketType {
+    EncryptionRequest,
+    EnableCompression,
+    LoginSuccess,
+    LoadChunk,
+    UnloadChunk,
+    SpawnPlayer,
+    ChangeBlock,
+};
+
+enum class CPacketType {
+    Handshake,
+    LoginStart,
+    EncryptionResponse,
+    Position,
+    PlayerDigging
+};
+
 /**************************************************************************************************************/
 
+struct SEncryptionRequestPacket {
+    static constexpr auto ID = SPacketType::EncryptionRequest;
+};
+
+struct SEnableCompressionPacket {
+    static constexpr auto ID = SPacketType::EnableCompression;
+};
+
+struct SLoginSuccessPacket {
+    static constexpr auto ID = SPacketType::LoginSuccess;
+};
+
 struct SLoadChunkPacket {
-    static constexpr int ID = 0;
+    static constexpr auto ID = SPacketType::LoadChunk;
 
     Chunk* chunk;
     int x;
@@ -34,20 +63,20 @@ struct SLoadChunkPacket {
 };
 
 struct SUnloadChunkPacket {
-    static constexpr int ID = 1;
+    static constexpr auto ID = SPacketType::UnloadChunk;
 
     int x;
     int z;
 };
 
 struct SSpawnPlayerPacket {
-    static constexpr int ID = 2;
+    static constexpr auto ID = SPacketType::SpawnPlayer;
 
     glm::vec3 pos;
 };
 
 struct SChangeBlockPacket {
-    static constexpr int ID = 3;
+    static constexpr auto ID = SPacketType::ChangeBlock;
 
     glm::ivec3 pos;
     BlockData data;
@@ -56,20 +85,28 @@ struct SChangeBlockPacket {
 /**************************************************************************************************************/
 
 struct CHandshakePacket {
-    static constexpr int ID = 0;
+    static constexpr auto ID = CPacketType::Handshake;
 
     int version;
     ProtocolType type;
 };
 
+struct CLoginStartPacket {
+    static constexpr auto ID = CPacketType::LoginStart;
+};
+
+struct CEncryptionResponsePacket {
+    static constexpr auto ID = CPacketType::EncryptionResponse;
+};
+
 struct PositionPacket {
-    static constexpr int ID = 1;
+    static constexpr auto ID = CPacketType::Position;
 
     glm::vec3 pos;
 };
 
 struct CPlayerDiggingPacket {
-    static constexpr int ID = 2;
+    static constexpr auto ID = CPacketType::PlayerDigging;
 
     glm::ivec3 pos;
     glm::ivec3 dir;

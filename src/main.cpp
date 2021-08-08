@@ -81,6 +81,9 @@ struct App {
     bool joined = false;
 
     App(const char* title, uint32_t width, uint32_t height) {
+        handler.bind<SEncryptionRequestPacket, &App::processEncryptionRequest>();
+        handler.bind<SEnableCompressionPacket, &App::processEnableCompression>();
+        handler.bind<SLoginSuccessPacket, &App::processLoginSuccess>();
         handler.bind<SLoadChunkPacket, &App::processLoadChunk>();
         handler.bind<SUnloadChunkPacket, &App::processUnloadChunk>();
         handler.bind<SChangeBlockPacket, &App::processChangeBlock>();
@@ -147,6 +150,7 @@ struct App {
 
         connection = std::make_unique<Connection>(server->getLocalAddress());
         connection->send(CHandshakePacket{720, ProtocolType::HANDSHAKING});
+        connection->send(CLoginStartPacket{});
 
         while (!joined) {
             handler.handlePackets(*this, *connection);
@@ -248,6 +252,13 @@ struct App {
     }
 
 private:
+    void processEncryptionRequest(Connection& connection, const SEncryptionRequestPacket& packet) {
+        connection.send(CEncryptionResponsePacket{});
+    }
+    void processEnableCompression(Connection& _, const SEnableCompressionPacket& packet) {}
+
+    void processLoginSuccess(Connection& _, const SLoginSuccessPacket& packet) {}
+
     void processLoadChunk(Connection& _, const SLoadChunkPacket& packet) {
         world->loadChunk(packet.x, packet.z, packet.chunk);
 

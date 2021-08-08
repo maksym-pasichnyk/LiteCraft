@@ -30,7 +30,7 @@ struct Connection {
         }
 
         PacketHeader header {
-            .id = Packet::ID,
+            .id = static_cast<int>(Packet::ID),
             .size = sizeof(Packet)
         };
 

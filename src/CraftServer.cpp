@@ -8,6 +8,8 @@
 
 CraftServer::CraftServer(int viewDistance) : viewDistance(viewDistance) {
     packetManager.bind<CHandshakePacket, &CraftServer::processHandshake>();
+    packetManager.bind<CLoginStartPacket, &CraftServer::processLoginStart>();
+    packetManager.bind<CEncryptionResponsePacket, &CraftServer::processEncryptionResponse>();
     packetManager.bind<PositionPacket, &CraftServer::processPlayerPosition>();
     packetManager.bind<CPlayerDiggingPacket, &CraftServer::processPlayerDigging>();
 //    packetManager.bind<SChangeBlockPacket, &CraftServer::processChangeBlock>();
@@ -61,6 +63,17 @@ void CraftServer::runLoop(std::stop_token &&token) {
 }
 
 void CraftServer::processHandshake(Connection& connection, const CHandshakePacket& packet) {
+}
+
+void CraftServer::processLoginStart(Connection& connection, const CLoginStartPacket& packet) {
+    connection.send(SEncryptionRequestPacket{});
+}
+
+void CraftServer::processEncryptionResponse(Connection& connection, const CEncryptionResponsePacket& packet) {
+    connection.send(SEnableCompressionPacket{});
+    connection.send(SLoginSuccessPacket{});
+
+    // todo: join
     last_player_position = ChunkPos::from(glm::ivec3{0, 80, 10});
     connection.send(SSpawnPlayerPacket{
         .pos = {0, 80, 10}

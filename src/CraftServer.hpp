@@ -40,6 +40,8 @@ struct CraftServer {
     }
 
     void processHandshake(Connection& _, const CHandshakePacket& packet);
+    void processLoginStart(Connection& _, const CLoginStartPacket& packet);
+    void processEncryptionResponse(Connection& _, const CEncryptionResponsePacket& packet);
     void processPlayerPosition(Connection& _, const PositionPacket& packet);
     void processPlayerDigging(Connection& _, const CPlayerDiggingPacket& packet);
 //    void processChangeBlock(Connection& _, const SChangeBlockPacket& packet);
