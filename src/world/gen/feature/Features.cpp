@@ -8,6 +8,7 @@
 #include "IcePathFeature.hpp"
 #include "BlueIceFeature.hpp"
 #include "IcebergFeature.hpp"
+#include "DungeonsFeature.hpp"
 #include "IceSpikeFeature.hpp"
 #include "FillLayerFeature.hpp"
 #include "BlockBlobFeature.hpp"
@@ -106,7 +107,7 @@ void Features::registerFeatures() {
 //    GLOWSTONE_BLOB = createFeature<GlowstoneBlobFeature>("glowstone_blob");
     FREEZE_TOP_LAYER = createFeature<IceAndSnowFeature>("freeze_top_layer");
     VINES = createFeature<VinesFeature>("vines");
-//    MONSTER_ROOM = createFeature<DungeonsFeature>("monster_room");
+    MONSTER_ROOM = createFeature<DungeonsFeature>("monster_room");
     BLUE_ICE = createFeature<BlueIceFeature>("blue_ice");
     ICEBERG = createFeature<IcebergFeature>("iceberg");
     FOREST_ROCK = createFeature<BlockBlobFeature>("forest_rock");

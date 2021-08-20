@@ -318,8 +318,28 @@ void ConfiguredFeatures::configureFeatures() {
         .project = false,
         .requiresWater = true
     };
-//static LiquidsConfig LAVA_SPRING_CONFIG = new LiquidsConfig(Features.States.LAVA, true, 4, 1, ImmutableSet.of(Blocks::STONE, Blocks::GRANITE, Blocks::DIORITE, Blocks::ANDESITE));
-//static LiquidsConfig CLOSED_SPRING_CONFIG = new LiquidsConfig(Features.States.LAVA, false, 5, 0, ImmutableSet.of(Blocks::NETHERRACK));
+
+    static LiquidsConfig LAVA_SPRING_CONFIG{
+        .state = Blocks::LAVA->getDefaultState(),
+        .needsBlockBelow = true,
+        .rockAmount = 4,
+        .holeAmount = 1,
+        .acceptedBlocks = {
+            Blocks::STONE,
+            Blocks::GRANITE,
+            Blocks::DIORITE,
+            Blocks::ANDESITE
+        }
+    };
+    static LiquidsConfig CLOSED_SPRING_CONFIG{
+        .state = Blocks::LAVA->getDefaultState(),
+        .needsBlockBelow = false,
+        .rockAmount = 5,
+        .holeAmount = 0,
+        .acceptedBlocks = {
+            Blocks::NETHERRACK
+        }
+    };
 //static BlockStateProvidingFeatureConfig CRIMSON_FOREST_VEGETATION_CONFIG = new BlockStateProvidingFeatureConfig((new WeightedBlockStateProvider()).addWeightedBlockstate(Features.States.CRIMSON_ROOTS, 87).addWeightedBlockstate(Features.States.CRIMSON_FUNGUS, 11).addWeightedBlockstate(Features.States.WARPED_FUNGUS, 1));
 //static BlockStateProvidingFeatureConfig WARPED_FOREST_VEGETATION_CONFIG = new BlockStateProvidingFeatureConfig((new WeightedBlockStateProvider()).addWeightedBlockstate(Features.States.WARPED_ROOTS, 85).addWeightedBlockstate(Features.States.CRIMSON_ROOTS, 1).addWeightedBlockstate(Features.States.WARPED_FUNGUS, 13).addWeightedBlockstate(Features.States.CRIMSON_FUNGUS, 1));
 //static BlockStateProvidingFeatureConfig NETHER_SPROUTS_CONFIG = new BlockStateProvidingFeatureConfig(new SimpleBlockStateProvider(Features.States.NETHER_SPROUTS));
@@ -623,16 +643,16 @@ void ConfiguredFeatures::configureFeatures() {
     FREEZE_TOP_LAYER = registerFeature("freeze_top_layer", Features::FREEZE_TOP_LAYER->withConfiguration(NoFeatureConfig{}));
 // BONUS_CHEST = registerFeature("bonus_chest", Features::BONUS_CHEST->withConfiguration(NoFeatureConfig{}));
     VOID_START_PLATFORM = registerFeature("void_start_platform", Features::VOID_START_PLATFORM->withConfiguration(NoFeatureConfig{}));
-// MONSTER_ROOM = registerFeature("monster_room", Features::MONSTER_ROOM->withConfiguration(NoFeatureConfig{})->range(256)->square()->withSpreadPlacement(8));
+    MONSTER_ROOM = registerFeature("monster_room", Features::MONSTER_ROOM->withConfiguration(NoFeatureConfig{})->range(256)->square()->withSpreadPlacement(8));
     DESERT_WELL = registerFeature("desert_well", Features::DESERT_WELL->withConfiguration(NoFeatureConfig{})->withPlacement(HEIGHTMAP_PLACEMENT)->chance(1000));
 // FOSSIL = registerFeature("fossil", Features::FOSSIL->withConfiguration(NoFeatureConfig{})->chance(64));
-// SPRING_LAVA_DOUBLE = registerFeature("spring_lava_double", Features::SPRING_FEATURE::withConfiguration(LAVA_SPRING_CONFIG)->withPlacement(Placements::RANGE_VERY_BIASED->withConfiguration(new TopSolidRangeConfig(8, 16, 256)))->square()->withSpreadPlacement(40));
-// SPRING_LAVA = registerFeature("spring_lava", Features::SPRING_FEATURE::withConfiguration(LAVA_SPRING_CONFIG)->withPlacement(Placements::RANGE_VERY_BIASED->withConfiguration(new TopSolidRangeConfig(8, 16, 256)))->square()->withSpreadPlacement(20));
-// SPRING_DELTA = registerFeature("spring_delta", Features::SPRING_FEATURE::withConfiguration(new LiquidsConfig(Blocks::LAVA->getDefaultState(), true, 4, 1, ImmutableSet.of(Blocks::NETHERRACK, Blocks::SOUL_SAND, Blocks::GRAVEL, Blocks::MAGMA_BLOCK, Blocks::BLACKSTONE)))->withPlacement(SPRING_PLACEMENT)->square()->withSpreadPlacement(16));
-// SPRING_CLOSED = registerFeature("spring_closed", Features::SPRING_FEATURE::withConfiguration(CLOSED_SPRING_CONFIG)->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(16));
-// SPRING_CLOSED_DOUBLE = registerFeature("spring_closed_double", Features::SPRING_FEATURE::withConfiguration(CLOSED_SPRING_CONFIG)->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(32));
-// SPRING_OPEN = registerFeature("spring_open", Features::SPRING_FEATURE::withConfiguration(new LiquidsConfig(Blocks::LAVA->getDefaultState(), false, 4, 1, ImmutableSet.of(Blocks::NETHERRACK)))->withPlacement(SPRING_PLACEMENT)->square()->withSpreadPlacement(8));
-// SPRING_WATER = registerFeature("spring_water", Features::SPRING_FEATURE::withConfiguration(new LiquidsConfig(Blocks::WATER->getDefaultState(), true, 4, 1, ImmutableSet.of(Blocks::STONE, Blocks::GRANITE, Blocks::DIORITE, Blocks::ANDESITE)))->withPlacement(Placements::RANGE_BIASED->withConfiguration(new TopSolidRangeConfig(8, 8, 256)))->square()->withSpreadPlacement(50));
+    SPRING_LAVA_DOUBLE = registerFeature("spring_lava_double", Features::SPRING_FEATURE->withConfiguration(LAVA_SPRING_CONFIG)->withPlacement(Placements::RANGE_VERY_BIASED->withConfiguration(TopSolidRangeConfig{8, 16, 256}))->square()->withSpreadPlacement(40));
+    SPRING_LAVA = registerFeature("spring_lava", Features::SPRING_FEATURE->withConfiguration(LAVA_SPRING_CONFIG)->withPlacement(Placements::RANGE_VERY_BIASED->withConfiguration(TopSolidRangeConfig{8, 16, 256}))->square()->withSpreadPlacement(20));
+    SPRING_DELTA = registerFeature("spring_delta", Features::SPRING_FEATURE->withConfiguration(LiquidsConfig{Blocks::LAVA->getDefaultState(), true, 4, 1, { Blocks::NETHERRACK, Blocks::SOUL_SAND, Blocks::GRAVEL, Blocks::MAGMA_BLOCK, Blocks::BLACKSTONE}})->withPlacement(SPRING_PLACEMENT)->square()->withSpreadPlacement(16));
+    SPRING_CLOSED = registerFeature("spring_closed", Features::SPRING_FEATURE->withConfiguration(CLOSED_SPRING_CONFIG)->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(16));
+    SPRING_CLOSED_DOUBLE = registerFeature("spring_closed_double", Features::SPRING_FEATURE->withConfiguration(CLOSED_SPRING_CONFIG)->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(32));
+    SPRING_OPEN = registerFeature("spring_open", Features::SPRING_FEATURE->withConfiguration(LiquidsConfig{Blocks::LAVA->getDefaultState(), false, 4, 1, {Blocks::NETHERRACK}})->withPlacement(SPRING_PLACEMENT)->square()->withSpreadPlacement(8));
+    SPRING_WATER = registerFeature("spring_water", Features::SPRING_FEATURE->withConfiguration(LiquidsConfig{Blocks::WATER->getDefaultState(), true, 4, 1, {Blocks::STONE, Blocks::GRANITE, Blocks::DIORITE, Blocks::ANDESITE}})->withPlacement(Placements::RANGE_BIASED->withConfiguration(TopSolidRangeConfig{8, 8, 256}))->square()->withSpreadPlacement(50));
     PILE_HAY = registerFeature("pile_hay", Features::BLOCK_PILE->withConfiguration(PILE_HAY_CONFIG));
     PILE_MELON = registerFeature("pile_melon", Features::BLOCK_PILE->withConfiguration(PILE_MELON_CONFIG));
     PILE_SNOW = registerFeature("pile_snow", Features::BLOCK_PILE->withConfiguration(PILE_SNOW_CONFIG));
@@ -702,8 +722,8 @@ void ConfiguredFeatures::configureFeatures() {
     ORE_REDSTONE = registerFeature("ore_redstone", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::REDSTONE_ORE->getDefaultState(), 8})->range(16)->square()->withSpreadPlacement(8));
     ORE_DIAMOND = registerFeature("ore_diamond", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::DIAMOND_ORE->getDefaultState(), 8})->range(16)->square());
     ORE_LAPIS = registerFeature("ore_lapis", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::LAPIS_ORE->getDefaultState(), 7})->withPlacement(Placements::DEPTH_AVERAGE->withConfiguration(DepthAverageConfig{16, 16}))->square());
-// ORE_INFESTED = registerFeature("ore_infested", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::INFESTED_STONE->getDefaultState(), 9})->range(64)->square()->withSpreadPlacement(7));
-// ORE_EMERALD = registerFeature("ore_emerald", Features::EMERALD_ORE->withConfiguration(new ReplaceBlockConfig(Blocks::STONE->getDefaultState(), Blocks::EMERALD_ORE->getDefaultState()))->withPlacement(Placements::EMERALD_ORE->withConfiguration(IPlacementConfig.NO_PLACEMENT_CONFIG)));
+    ORE_INFESTED = registerFeature("ore_infested", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::INFESTED_STONE->getDefaultState(), 9})->range(64)->square()->withSpreadPlacement(7));
+    ORE_EMERALD = registerFeature("ore_emerald", Features::EMERALD_ORE->withConfiguration(ReplaceBlockConfig{Blocks::STONE->getDefaultState(), Blocks::EMERALD_ORE->getDefaultState()})->withPlacement(Placements::EMERALD_ORE->withConfiguration(NoPlacementConfig{})));
 // ORE_DEBRIS_LARGE = registerFeature("ore_debris_large", Features::NO_SURFACE_ORE->withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.BASE_STONE_NETHER, Blocks::ANCIENT_DEBRIS->getDefaultState(), 3))->withPlacement(Placements::DEPTH_AVERAGE->withConfiguration(new DepthAverageConfig(16, 8)))->square());
 // ORE_DEBRIS_SMALL = registerFeature("ore_debris_small", Features::NO_SURFACE_ORE->withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.BASE_STONE_NETHER, Blocks::ANCIENT_DEBRIS->getDefaultState(), 2))->withPlacement(Placements::RANGE->withConfiguration(new TopSolidRangeConfig(8, 16, 128)))->square());
 // CRIMSON_FUNGI = registerFeature("crimson_fungi", Features::HUGE_FUNGUS->withConfiguration(HugeFungusConfig.field_236300_c_)->withPlacement(Placements::COUNT_MULTILAYER->withConfiguration(new FeatureSpreadConfig(8))));
