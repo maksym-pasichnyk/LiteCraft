@@ -641,7 +641,7 @@ void ConfiguredFeatures::configureFeatures() {
     DISK_GRAVEL = registerFeature("disk_gravel", Features::DISK->withConfiguration(SphereReplaceConfig{Blocks::GRAVEL->getDefaultState(), FeatureSpread{2, 3}, 2, {Blocks::DIRT->getDefaultState(), Blocks::GRASS_BLOCK->getDefaultState()}})->withPlacement(DISK_PLACEMENT));
     DISK_SAND = registerFeature("disk_sand", Features::DISK->withConfiguration(SphereReplaceConfig{Blocks::SAND->getDefaultState(), FeatureSpread{2, 4}, 2, {Blocks::DIRT->getDefaultState(), Blocks::GRASS_BLOCK->getDefaultState()}})->withPlacement(DISK_PLACEMENT)->withSpreadPlacement(3));
     FREEZE_TOP_LAYER = registerFeature("freeze_top_layer", Features::FREEZE_TOP_LAYER->withConfiguration(NoFeatureConfig{}));
-// BONUS_CHEST = registerFeature("bonus_chest", Features::BONUS_CHEST->withConfiguration(NoFeatureConfig{}));
+    BONUS_CHEST = registerFeature("bonus_chest", Features::BONUS_CHEST->withConfiguration(NoFeatureConfig{}));
     VOID_START_PLATFORM = registerFeature("void_start_platform", Features::VOID_START_PLATFORM->withConfiguration(NoFeatureConfig{}));
     MONSTER_ROOM = registerFeature("monster_room", Features::MONSTER_ROOM->withConfiguration(NoFeatureConfig{})->range(256)->square()->withSpreadPlacement(8));
     DESERT_WELL = registerFeature("desert_well", Features::DESERT_WELL->withConfiguration(NoFeatureConfig{})->withPlacement(HEIGHTMAP_PLACEMENT)->chance(1000));

@@ -6,15 +6,12 @@
 #include <map>
 
 struct Feature;
-struct FlowersFeature;
-struct SeaGrassFeature;
-struct BonusChestFeature;
 struct Features {
     static Registry<Feature> features;
     static Feature* NO_OP;
     static Feature* TREE;
-    static FlowersFeature* FLOWER;
-    static FlowersFeature* NO_BONEMEAL_FLOWER;
+    static Feature* FLOWER;
+    static Feature* NO_BONEMEAL_FLOWER;
     static Feature* RANDOM_PATCH;
     static Feature* BLOCK_PILE;
     static Feature* SPRING_FEATURE;
@@ -40,7 +37,7 @@ struct Features {
     static Feature* END_SPIKE;
     static Feature* END_ISLAND;
     static Feature* END_GATEWAY;
-    static SeaGrassFeature* SEAGRASS;
+    static Feature* SEAGRASS;
     static Feature* KELP;
     static Feature* CORAL_TREE;
     static Feature* CORAL_MUSHROOM;
@@ -56,7 +53,7 @@ struct Features {
     static Feature* DELTA_FEATURE;
     static Feature* NETHERRACK_REPLACE_BLOBS;
     static Feature* FILL_LAYER;
-    static BonusChestFeature* BONUS_CHEST;
+    static Feature* BONUS_CHEST;
     static Feature* BASALT_PILLAR;
     static Feature* NO_SURFACE_ORE;
     static Feature* RANDOM_SELECTOR;

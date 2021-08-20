@@ -43,7 +43,7 @@ struct DefaultBiomeFeatures {
     }
 
     static void withMonsterRoom(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_STRUCTURES, ConfiguredFeatures::MONSTER_ROOM);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_STRUCTURES, ConfiguredFeatures::MONSTER_ROOM);
     }
 
     static void withCommonOverworldBlocks(BiomeGenerationSettings::Builder& builder) {
@@ -68,11 +68,11 @@ struct DefaultBiomeFeatures {
     }
 
     static void withEmeraldOre(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_EMERALD);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::ORE_EMERALD);
     }
 
     static void withInfestedStone(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_INFESTED);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_INFESTED);
     }
 
     static void withDisks(BiomeGenerationSettings::Builder& builder) {

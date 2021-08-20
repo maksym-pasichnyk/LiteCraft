@@ -14,6 +14,7 @@
 #include "BlockBlobFeature.hpp"
 #include "BlockPileFeature.hpp"
 #include "DecoratedFeature.hpp"
+#include "BonusChestFeature.hpp"
 #include "IceAndSnowFeature.hpp"
 #include "DesertWellsFeature.hpp"
 #include "RandomPatchFeature.hpp"
@@ -32,8 +33,8 @@
 Registry<Feature> Features::features{};
 Feature* Features::NO_OP;
 Feature* Features::TREE;
-FlowersFeature* Features::FLOWER;
-FlowersFeature* Features::NO_BONEMEAL_FLOWER;
+Feature* Features::FLOWER;
+Feature* Features::NO_BONEMEAL_FLOWER;
 Feature* Features::RANDOM_PATCH;
 Feature* Features::BLOCK_PILE;
 Feature* Features::SPRING_FEATURE;
@@ -59,7 +60,7 @@ Feature* Features::ORE;
 Feature* Features::END_SPIKE;
 Feature* Features::END_ISLAND;
 Feature* Features::END_GATEWAY;
-SeaGrassFeature* Features::SEAGRASS;
+Feature* Features::SEAGRASS;
 Feature* Features::KELP;
 Feature* Features::CORAL_TREE;
 Feature* Features::CORAL_MUSHROOM;
@@ -75,7 +76,7 @@ Feature* Features::BASALT_COLUMNS;
 Feature* Features::DELTA_FEATURE;
 Feature* Features::NETHERRACK_REPLACE_BLOBS;
 Feature* Features::FILL_LAYER;
-BonusChestFeature* Features::BONUS_CHEST;
+Feature* Features::BONUS_CHEST;
 Feature* Features::BASALT_PILLAR;
 Feature* Features::NO_SURFACE_ORE;
 Feature* Features::RANDOM_SELECTOR;
@@ -134,7 +135,7 @@ void Features::registerFeatures() {
 //    DELTA_FEATURE = createFeature<BasaltDeltasStructure>("delta_feature");
 //    NETHERRACK_REPLACE_BLOBS = createFeature<NetherackBlobReplacementStructure>("netherrack_replace_blobs");
     FILL_LAYER = createFeature<FillLayerFeature>("fill_layer");
-//    BONUS_CHEST = createFeature<BonusChestFeature>("bonus_chest");
+    BONUS_CHEST = createFeature<BonusChestFeature>("bonus_chest");
 //    BASALT_PILLAR = createFeature<BasaltPillarFeature>("basalt_pillar");
     NO_SURFACE_ORE = createFeature<NoExposedOreFeature>("no_surface_ore");
     RANDOM_SELECTOR = createFeature<MultipleWithChanceRandomFeature>("random_selector");
