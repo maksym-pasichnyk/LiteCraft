@@ -29,33 +29,30 @@ struct Connection {
             return false;
         }
 
-        PacketHeader header {
-            .id = static_cast<int>(Packet::ID),
-            .size = sizeof(Packet)
-        };
+        auto buf = PacketData::with_write_offset(sizeof(PacketHeader));
+        packet.write(buf);
 
-        std::array<std::byte, sizeof(PacketHeader) + sizeof(Packet)> bytes;
-        std::memcpy(bytes.data(), &header, sizeof(PacketHeader));
-        std::memcpy(bytes.data() + sizeof(PacketHeader), &packet, sizeof(Packet));
+        auto header = PacketHeader::from(static_cast<int>(Packet::ID), static_cast<int>(buf.data.size() - sizeof(PacketHeader)));
 
-        return socket->send(bytes).has_value();
+        std::memcpy(buf.data.data(), &header, sizeof(PacketHeader));
+
+        return socket->send(buf.data).has_value();
     }
 
-    auto recv() -> std::optional<std::pair<PacketHeader, std::vector<std::byte>>> {
+    auto recv() -> std::optional<std::pair<int, PacketData>> {
         if (!socket.has_value()) {
             return std::nullopt;
         }
 
         std::array<std::byte, sizeof(PacketHeader)> data{};
-        auto len = socket->recv(std::as_writable_bytes(std::span(data)));
+        auto len = socket->recv(data);
         if (!len.has_value() || len->first == 0) {
             return std::nullopt;
         }
-
         const auto header = std::bit_cast<PacketHeader>(data);
         std::vector<std::byte> bytes{static_cast<size_t>(header.size)};
-        socket->recv(std::span(bytes));
-        return std::pair{header, bytes};
+        socket->recv(bytes);
+        return std::pair{header.id, PacketData::from(std::move(bytes))};
     }
 
 private:

@@ -15,7 +15,7 @@ const ChunkStatus ChunkStatus::StructureStart = create(&ChunkStatus::Empty, 0, [
 //    generator.generateStructures(region, chunk);
 });
 
-const ChunkStatus ChunkStatus::StructureReferences = create(&ChunkStatus::StructureStart, 8, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::weak_ptr<Chunk>> chunks, int64_t seed) {
+const ChunkStatus ChunkStatus::StructureReferences = create(&ChunkStatus::StructureStart, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::weak_ptr<Chunk>> chunks, int64_t seed) {
 //    WorldGenRegion region{world, chunks, 8, x, z, seed};
 //    generator.getStructureReferences(region, chunk);
 });

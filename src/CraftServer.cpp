@@ -103,12 +103,12 @@ void CraftServer::processPlayerDigging(Connection& connection, const CPlayerDigg
 
             connection.send(SChangeBlockPacket{
                 .pos = pos,
-                .data = new_block
+                .block = new_block
             });
         } else {
             connection.send(SChangeBlockPacket{
                 .pos = pos,
-                .data = old_block
+                .block = old_block
             });
         }
     }
