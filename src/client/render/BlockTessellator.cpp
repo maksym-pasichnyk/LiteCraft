@@ -46,15 +46,15 @@ void renderBlockWithAO(const glm::ivec3& pos, Block* block, RenderBuffer& rb, Ch
         const auto packedLight = blocks.getLightPacked(ix, iy, iz - 1);
         const auto coords = graphics.southTexture->get(val);
 
-        const auto uf = blocks.getData(ix, iy + 1, iz - 1).isSolid();
-        const auto ub = blocks.getData(ix, iy - 1, iz - 1).isSolid();
-        const auto ul = blocks.getData(ix - 1, iy, iz - 1).isSolid();
-        const auto ur = blocks.getData(ix + 1, iy, iz - 1).isSolid();
+        const auto c0 = blocks.getData(ix, iy + 1, iz - 1).isSolid();
+        const auto c1 = blocks.getData(ix, iy - 1, iz - 1).isSolid();
+        const auto c2 = blocks.getData(ix - 1, iy, iz - 1).isSolid();
+        const auto c3 = blocks.getData(ix + 1, iy, iz - 1).isSolid();
 
-        const int ao0 = vertexAO(ub, ul, blocks.getData(ix - 1, iy - 1, iz - 1).isSolid());
-        const int ao1 = vertexAO(uf, ul, blocks.getData(ix - 1, iy + 1, iz - 1).isSolid());
-        const int ao2 = vertexAO(uf, ur, blocks.getData(ix + 1, iy + 1, iz - 1).isSolid());
-        const int ao3 = vertexAO(ub, ur, blocks.getData(ix + 1, iy - 1, iz - 1).isSolid());
+        const int ao0 = vertexAO(c1, c2, blocks.getData(ix - 1, iy - 1, iz - 1).isSolid());
+        const int ao1 = vertexAO(c0, c2, blocks.getData(ix - 1, iy + 1, iz - 1).isSolid());
+        const int ao2 = vertexAO(c0, c3, blocks.getData(ix + 1, iy + 1, iz - 1).isSolid());
+        const int ao3 = vertexAO(c1, c3, blocks.getData(ix + 1, iy - 1, iz - 1).isSolid());
 
 		builder.quad();
 		builder.vertex(fx + 0, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 0.7f);
@@ -67,15 +67,15 @@ void renderBlockWithAO(const glm::ivec3& pos, Block* block, RenderBuffer& rb, Ch
         const auto packedLight = blocks.getLightPacked(ix + 1, iy, iz);
         const auto coords = graphics.eastTexture->get(val);
 
-        const auto uf = blocks.getData(ix + 1, iy - 1, iz).isSolid();
-        const auto ub = blocks.getData(ix + 1, iy + 1, iz).isSolid();
-        const auto ul = blocks.getData(ix + 1, iy, iz + 1).isSolid();
-        const auto ur = blocks.getData(ix + 1, iy, iz - 1).isSolid();
+        const auto c0 = blocks.getData(ix + 1, iy - 1, iz).isSolid();
+        const auto c1 = blocks.getData(ix + 1, iy + 1, iz).isSolid();
+        const auto c2 = blocks.getData(ix + 1, iy, iz + 1).isSolid();
+        const auto c3 = blocks.getData(ix + 1, iy, iz - 1).isSolid();
 
-        const int ao0 = vertexAO(uf, ur, blocks.getData(ix + 1, iy - 1, iz - 1).isSolid());
-        const int ao1 = vertexAO(ub, ur, blocks.getData(ix + 1, iy + 1, iz - 1).isSolid());
-        const int ao2 = vertexAO(ub, ul, blocks.getData(ix + 1, iy + 1, iz + 1).isSolid());
-        const int ao3 = vertexAO(uf, ul, blocks.getData(ix + 1, iy - 1, iz + 1).isSolid());
+        const int ao0 = vertexAO(c0, c3, blocks.getData(ix + 1, iy - 1, iz - 1).isSolid());
+        const int ao1 = vertexAO(c1, c3, blocks.getData(ix + 1, iy + 1, iz - 1).isSolid());
+        const int ao2 = vertexAO(c1, c2, blocks.getData(ix + 1, iy + 1, iz + 1).isSolid());
+        const int ao3 = vertexAO(c0, c2, blocks.getData(ix + 1, iy - 1, iz + 1).isSolid());
 
 		builder.quad();
 		builder.vertex(fx + 1, fy + 0, fz + 0, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 0.8f);
@@ -88,15 +88,15 @@ void renderBlockWithAO(const glm::ivec3& pos, Block* block, RenderBuffer& rb, Ch
         const auto packedLight = blocks.getLightPacked(ix, iy, iz + 1);
         const auto coords = graphics.northTexture->get(val);
 
-        const auto uf = blocks.getData(ix, iy - 1, iz + 1).isSolid();
-        const auto ub = blocks.getData(ix, iy + 1, iz + 1).isSolid();
-        const auto ul = blocks.getData(ix - 1, iy, iz + 1).isSolid();
-        const auto ur = blocks.getData(ix + 1, iy, iz + 1).isSolid();
+        const auto c0 = blocks.getData(ix, iy - 1, iz + 1).isSolid();
+        const auto c1 = blocks.getData(ix, iy + 1, iz + 1).isSolid();
+        const auto c2 = blocks.getData(ix - 1, iy, iz + 1).isSolid();
+        const auto c3 = blocks.getData(ix + 1, iy, iz + 1).isSolid();
 
-        const int ao0 = vertexAO(uf, ur, blocks.getData(ix + 1, iy - 1, iz + 1).isSolid());
-        const int ao1 = vertexAO(ub, ur, blocks.getData(ix + 1, iy + 1, iz + 1).isSolid());
-        const int ao2 = vertexAO(ub, ul, blocks.getData(ix - 1, iy + 1, iz + 1).isSolid());
-        const int ao3 = vertexAO(uf, ul, blocks.getData(ix - 1, iy - 1, iz + 1).isSolid());
+        const int ao0 = vertexAO(c0, c3, blocks.getData(ix + 1, iy - 1, iz + 1).isSolid());
+        const int ao1 = vertexAO(c1, c3, blocks.getData(ix + 1, iy + 1, iz + 1).isSolid());
+        const int ao2 = vertexAO(c1, c2, blocks.getData(ix - 1, iy + 1, iz + 1).isSolid());
+        const int ao3 = vertexAO(c0, c2, blocks.getData(ix - 1, iy - 1, iz + 1).isSolid());
 
 		builder.quad();
 		builder.vertex(fx + 1, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 0.8f);
@@ -109,15 +109,15 @@ void renderBlockWithAO(const glm::ivec3& pos, Block* block, RenderBuffer& rb, Ch
         const auto packedLight = blocks.getLightPacked(ix - 1, iy, iz);
         const auto coords = graphics.westTexture->get(val);
 
-        const auto uf = blocks.getData(ix - 1, iy - 1, iz).isSolid();
-        const auto ub = blocks.getData(ix - 1, iy + 1, iz).isSolid();
-        const auto ul = blocks.getData(ix - 1, iy, iz - 1).isSolid();
-        const auto ur = blocks.getData(ix - 1, iy, iz + 1).isSolid();
+        const auto c0 = blocks.getData(ix - 1, iy - 1, iz).isSolid();
+        const auto c1 = blocks.getData(ix - 1, iy + 1, iz).isSolid();
+        const auto c2 = blocks.getData(ix - 1, iy, iz - 1).isSolid();
+        const auto c3 = blocks.getData(ix - 1, iy, iz + 1).isSolid();
 
-        const int ao0 = vertexAO(uf, ur, blocks.getData(ix - 1, iy - 1, iz + 1).isSolid());
-        const int ao1 = vertexAO(ub, ur, blocks.getData(ix - 1, iy + 1, iz + 1).isSolid());
-        const int ao2 = vertexAO(ub, ul, blocks.getData(ix - 1, iy + 1, iz - 1).isSolid());
-        const int ao3 = vertexAO(uf, ul, blocks.getData(ix - 1, iy - 1, iz - 1).isSolid());
+        const int ao0 = vertexAO(c0, c3, blocks.getData(ix - 1, iy - 1, iz + 1).isSolid());
+        const int ao1 = vertexAO(c1, c3, blocks.getData(ix - 1, iy + 1, iz + 1).isSolid());
+        const int ao2 = vertexAO(c1, c2, blocks.getData(ix - 1, iy + 1, iz - 1).isSolid());
+        const int ao3 = vertexAO(c0, c2, blocks.getData(ix - 1, iy - 1, iz - 1).isSolid());
 
         builder.quad();
 		builder.vertex(fx + 0, fy + 0, fz + 1, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 0.7f);
@@ -130,15 +130,15 @@ void renderBlockWithAO(const glm::ivec3& pos, Block* block, RenderBuffer& rb, Ch
         const auto packedLight = blocks.getLightPacked(ix, iy + 1, iz);
 		const auto coords = graphics.topTexture->get(val);
 
-        const auto uf = blocks.getData(ix, iy + 1, iz + 1).isSolid();
-        const auto ub = blocks.getData(ix, iy + 1, iz - 1).isSolid();
-        const auto ul = blocks.getData(ix - 1, iy + 1, iz).isSolid();
-        const auto ur = blocks.getData(ix + 1, iy + 1, iz).isSolid();
+        const auto c0 = blocks.getData(ix, iy + 1, iz + 1).isSolid();
+        const auto c1 = blocks.getData(ix, iy + 1, iz - 1).isSolid();
+        const auto c2 = blocks.getData(ix - 1, iy + 1, iz).isSolid();
+        const auto c3 = blocks.getData(ix + 1, iy + 1, iz).isSolid();
 
-        const int ao0 = vertexAO(ub, ul, blocks.getData(ix - 1, iy + 1, iz - 1).isSolid());
-        const int ao1 = vertexAO(uf, ul, blocks.getData(ix - 1, iy + 1, iz + 1).isSolid());
-        const int ao2 = vertexAO(uf, ur, blocks.getData(ix + 1, iy + 1, iz + 1).isSolid());
-        const int ao3 = vertexAO(ub, ur, blocks.getData(ix + 1, iy + 1, iz - 1).isSolid());
+        const int ao0 = vertexAO(c1, c2, blocks.getData(ix - 1, iy + 1, iz - 1).isSolid());
+        const int ao1 = vertexAO(c0, c2, blocks.getData(ix - 1, iy + 1, iz + 1).isSolid());
+        const int ao2 = vertexAO(c0, c3, blocks.getData(ix + 1, iy + 1, iz + 1).isSolid());
+        const int ao3 = vertexAO(c1, c3, blocks.getData(ix + 1, iy + 1, iz - 1).isSolid());
 
 		builder.quad();
 		builder.vertex(fx + 0, fy + 1, fz + 0, coords.minU, coords.minV, r, g, b, packedLight, aoLights[ao0] * 1.0f);
