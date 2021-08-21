@@ -32,11 +32,11 @@ struct FoliagePlacer {
     void placeLeaves(WorldGenRegion& reader, Random& random, const BaseTreeFeatureConfig& config, const BlockPos& pos, int p_236753_5_, std::set<BlockPos>& set1, int height, bool p_236753_8_, BoundingBox& boundingBox);
 
     virtual int getRadius(Random& random, int p_230376_2_) {
-        return radius.getCount(random);
+        return radius.get(random);
     }
 
     virtual int getOffset(Random& p_236755_1_) {
-        return offset.getCount(p_236755_1_);
+        return offset.get(p_236755_1_);
     }
 
     virtual bool func_230375_b_(Random& random, int p_230375_2_, int p_230375_3_, int p_230375_4_, int p_230375_5_, bool flag) {

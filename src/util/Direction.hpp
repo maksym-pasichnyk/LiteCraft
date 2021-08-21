@@ -13,10 +13,12 @@ enum class Direction {
     EAST
 };
 
+enum class DirectionAxis {
+    X, Y, Z
+};
+
 struct DirectionUtil {
-    enum class Axis {
-        X, Y, Z
-    };
+    using Axis = DirectionAxis;
 
     static constexpr std::array VALUES{
         Direction::DOWN,

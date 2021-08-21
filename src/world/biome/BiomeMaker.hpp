@@ -1427,7 +1427,7 @@ struct BiomeMaker {
         DefaultBiomeFeatures::withNormalMushroomGeneration(generation);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_OPEN);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::PATCH_FIRE);
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::PATCH_SOUL_FIRE)
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::PATCH_SOUL_FIRE);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::GLOWSTONE_EXTRA);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::GLOWSTONE);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::BROWN_MUSHROOM_NETHER);
@@ -1483,13 +1483,13 @@ struct BiomeMaker {
 //            .withStructure(StructureFeatures::BASTION_REMNANT)
 //            .withCarver(GenerationStage::Carving.AIR, ConfiguredCarvers.NETHER_CAVE)
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRING_LAVA);
-//            .withFeature(GenerationStage::Decoration::LOCAL_MODIFICATIONS, Features::BASALT_PILLAR)
+        generation.withFeature(GenerationStage::Decoration::LOCAL_MODIFICATIONS, ConfiguredFeatures::BASALT_PILLAR);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_OPEN);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::GLOWSTONE_EXTRA);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::GLOWSTONE);
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::PATCH_CRIMSON_ROOTS)
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::PATCH_CRIMSON_ROOTS);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::PATCH_FIRE);
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::PATCH_SOUL_FIRE)
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::PATCH_SOUL_FIRE);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_MAGMA);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_CLOSED);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_SOUL_SAND);
@@ -1534,15 +1534,15 @@ struct BiomeMaker {
 //            .withStructure(StructureFeatures::RUINED_PORTAL_NETHER)
 //            .withCarver(GenerationStage::Carving.AIR, ConfiguredCarvers.NETHER_CAVE)
 //            .withStructure(StructureFeatures::FORTRESS)
-//            .withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, Features::DELTA)
+        generation.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, ConfiguredFeatures::DELTA);
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRING_LAVA_DOUBLE);
-//            .withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, Features::SMALL_BASALT_COLUMNS)
-//            .withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, Features::LARGE_BASALT_COLUMNS)
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::BASALT_BLOBS)
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::BLACKSTONE_BLOBS)
+        generation.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, ConfiguredFeatures::SMALL_BASALT_COLUMNS);
+        generation.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, ConfiguredFeatures::LARGE_BASALT_COLUMNS);
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::BASALT_BLOBS);
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::BLACKSTONE_BLOBS);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_DELTA);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::PATCH_FIRE);
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::PATCH_SOUL_FIRE)
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::PATCH_SOUL_FIRE);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::GLOWSTONE_EXTRA);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::GLOWSTONE);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::BROWN_MUSHROOM_NETHER);
@@ -1602,7 +1602,7 @@ struct BiomeMaker {
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_MAGMA);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_CLOSED);
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::WEEPING_VINES);
-//            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::CRIMSON_FUNGI)
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::CRIMSON_FUNGI);
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::CRIMSON_FOREST_VEGETATION);
         DefaultBiomeFeatures::withCommonNetherBlocks(generation);
         return new Biome {
@@ -1650,14 +1650,14 @@ struct BiomeMaker {
         DefaultBiomeFeatures::withNormalMushroomGeneration(generation);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_OPEN);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::PATCH_FIRE);
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::PATCH_SOUL_FIRE)
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::PATCH_SOUL_FIRE);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::GLOWSTONE_EXTRA);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::GLOWSTONE);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_MAGMA);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_CLOSED);
-//            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::WARPED_FUNGI)
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::WARPED_FUNGI);
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::WARPED_FOREST_VEGETATION);
-//            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::NETHER_SPROUTS)
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::NETHER_SPROUTS);
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TWISTING_VINES);
         DefaultBiomeFeatures::withCommonNetherBlocks(generation);
         return new Biome {

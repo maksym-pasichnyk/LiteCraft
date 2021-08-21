@@ -14,25 +14,30 @@
 #include "BlockBlobFeature.hpp"
 #include "BlockPileFeature.hpp"
 #include "DecoratedFeature.hpp"
+#include "HugeFungusFeature.hpp"
 #include "BonusChestFeature.hpp"
 #include "IceAndSnowFeature.hpp"
 #include "DesertWellsFeature.hpp"
 #include "RandomPatchFeature.hpp"
 #include "WeepingVineFeature.hpp"
+#include "BasaltPillarFeature.hpp"
 #include "TwistingVineFeature.hpp"
 #include "NoExposedOreFeature.hpp"
 #include "ReplaceBlockFeature.hpp"
 #include "SingleRandomFeature.hpp"
+#include "BasaltColumnFeature.hpp"
 #include "GlowstoneBlobFeature.hpp"
 #include "SphereReplaceFeature.hpp"
 #include "DefaultFlowersFeature.hpp"
 #include "BigRedMushroomFeature.hpp"
+#include "BasaltDeltasStructure.hpp"
 #include "NetherVegetationFeature.hpp"
 #include "BigBrownMushroomFeature.hpp"
 #include "BlockWithContextFeature.hpp"
 #include "TwoFeatureChoiceFeature.hpp"
 #include "VoidStartPlatformFeature.hpp"
 #include "MultipleWithChanceRandomFeature.hpp"
+#include "NetherackBlobReplacementStructure.hpp"
 
 Registry<Feature> Features::features{};
 Feature* Features::NO_OP;
@@ -131,16 +136,16 @@ void Features::registerFeatures() {
 //    SEA_PICKLE = createFeature<SeaPickleFeature>("sea_pickle");
     SIMPLE_BLOCK = createFeature<BlockWithContextFeature>("simple_block");
     BAMBOO = createFeature<BambooFeature>("bamboo");
-//    HUGE_FUNGUS = createFeature<HugeFungusFeature>("huge_fungus");
+    HUGE_FUNGUS = createFeature<HugeFungusFeature>("huge_fungus");
     NETHER_FOREST_VEGETATION = createFeature<NetherVegetationFeature>("nether_forest_vegetation");
     WEEPING_VINES = createFeature<WeepingVineFeature>("weeping_vines");
     TWISTING_VINES = createFeature<TwistingVineFeature>("twisting_vines");
-//    BASALT_COLUMNS = createFeature<BasaltColumnFeature>("basalt_columns");
-//    DELTA_FEATURE = createFeature<BasaltDeltasStructure>("delta_feature");
-//    NETHERRACK_REPLACE_BLOBS = createFeature<NetherackBlobReplacementStructure>("netherrack_replace_blobs");
+    BASALT_COLUMNS = createFeature<BasaltColumnFeature>("basalt_columns");
+    DELTA_FEATURE = createFeature<BasaltDeltasStructure>("delta_feature");
+    NETHERRACK_REPLACE_BLOBS = createFeature<NetherackBlobReplacementStructure>("netherrack_replace_blobs");
     FILL_LAYER = createFeature<FillLayerFeature>("fill_layer");
     BONUS_CHEST = createFeature<BonusChestFeature>("bonus_chest");
-//    BASALT_PILLAR = createFeature<BasaltPillarFeature>("basalt_pillar");
+    BASALT_PILLAR = createFeature<BasaltPillarFeature>("basalt_pillar");
     NO_SURFACE_ORE = createFeature<NoExposedOreFeature>("no_surface_ore");
     RANDOM_SELECTOR = createFeature<MultipleWithChanceRandomFeature>("random_selector");
     SIMPLE_RANDOM_SELECTOR = createFeature<SingleRandomFeature>("simple_random_selector");

@@ -7,7 +7,7 @@ struct SpruceFoliagePlacer : FoliagePlacer {
     SpruceFoliagePlacer(FeatureSpread radius, FeatureSpread offset, FeatureSpread spread) : FoliagePlacer(radius, offset), spread(spread) {}
 
     int getHeight(Random &random, int heightIn, const BaseTreeFeatureConfig &config) override {
-        return std::max(4, heightIn - spread.getCount(random));
+        return std::max(4, heightIn - spread.get(random));
     }
 
     bool func_230373_a_(Random &random, int p_230373_2_, int p_230373_3_, int p_230373_4_, int radius, bool p_230373_6_) override {

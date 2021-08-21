@@ -6,7 +6,7 @@ bool AbstractSphereReplaceFeature::generate(WorldGenRegion &reader, ChunkGenerat
 
     bool flag = false;
 
-    const int radius = cfg.radius.getCount(random);
+    const int radius = cfg.radius.get(random);
     for (int x = pos.x - radius; x <= pos.x + radius; ++x) {
         for (int z = pos.z - radius; z <= pos.z + radius; ++z) {
             const int dx = x - pos.x;

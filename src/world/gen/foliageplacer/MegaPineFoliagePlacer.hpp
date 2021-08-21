@@ -7,7 +7,7 @@ struct MegaPineFoliagePlacer : FoliagePlacer {
     MegaPineFoliagePlacer(FeatureSpread radius, FeatureSpread offset, FeatureSpread spread) : FoliagePlacer(radius, offset), spread(spread) {}
 
     int getHeight(Random &random, int heightIn, const BaseTreeFeatureConfig &config) override {
-        return spread.getCount(random);
+        return spread.get(random);
     }
 
     bool func_230373_a_(Random &random, int p_230373_2_, int p_230373_3_, int p_230373_4_, int radius, bool p_230373_6_) override {
