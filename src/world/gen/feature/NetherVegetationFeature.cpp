@@ -11,7 +11,7 @@ bool NetherVegetationFeature::generate(WorldGenRegion &reader, ChunkGenerator &g
 bool NetherVegetationFeature::place(WorldGenRegion &reader, Random& random, const BlockPos& start, const BlockStateProvidingFeatureConfig& config, int xz_range, int y_range) {
     if (start.y >= 1 && start.y < 255) {
         auto block = reader.getData(start.down()).getBlock();
-        if (!block->isIn(BlockTags::NYLIUM)) {
+        if (!block->in(BlockTags::NYLIUM)) {
             return false;
         }
         

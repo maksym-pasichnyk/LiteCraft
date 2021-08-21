@@ -11,6 +11,7 @@
 #include "ReplaceBlockConfig.hpp"
 #include "SphereReplaceConfig.hpp"
 #include "BasaltDeltasFeature.hpp"
+#include "FeatureSpreadConfig.hpp"
 #include "EndSpikeFeatureConfig.hpp"
 #include "BlobReplacementConfig.hpp"
 #include "BaseTreeFeatureConfig.hpp"
@@ -38,6 +39,7 @@ using FeatureConfig = std::variant<
     ReplaceBlockConfig,
     SphereReplaceConfig,
     BasaltDeltasFeature,
+    FeatureSpreadConfig,
     EndSpikeFeatureConfig,
     BlobReplacementConfig,
     BaseTreeFeatureConfig,

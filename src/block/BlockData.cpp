@@ -5,7 +5,7 @@
 #include <range/v3/algorithm.hpp>
 
 bool BlockData::in(const BlockTag &tag) const {
-    return getBlock()->isIn(tag);
+    return getBlock()->in(tag);
 }
 
 bool BlockData::isAir() const {

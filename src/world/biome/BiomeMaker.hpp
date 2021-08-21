@@ -791,7 +791,7 @@ struct BiomeMaker {
 //        mobSpawnInfo.withSpawner(EntityClassification::WATER_AMBIENT, MobSpawnInfo::Spawners(EntityType::SALMON, 15, 1, 5));
         bool flag = !isDeepVariant;
         auto generation = getOceanGenerationSettingsBuilder(ConfiguredSurfaceBuilders::GRASS, isDeepVariant, false, flag);
-//        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, isDeepVariant ? Features::SEAGRASS_DEEP_COLD : Features::SEAGRASS_COLD);
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, isDeepVariant ? ConfiguredFeatures::SEAGRASS_DEEP_COLD : ConfiguredFeatures::SEAGRASS_COLD);
         DefaultBiomeFeatures::withSimpleSeagrass(generation);
         DefaultBiomeFeatures::withColdKelp(generation);
         DefaultBiomeFeatures::withFrozenTopLayer(generation);
@@ -803,7 +803,7 @@ struct BiomeMaker {
 //        DefaultBiomeFeatures::withOceanMobs(mobSpawnInfo, 1, 4, 10);
 //        mobSpawnInfo.withSpawner(EntityClassification::WATER_CREATURE, MobSpawnInfo::Spawners(EntityType::DOLPHIN, 1, 1, 2));
         auto generation = getOceanGenerationSettingsBuilder(ConfiguredSurfaceBuilders::GRASS, isDeepVariant, false, true);
-//        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, isDeepVariant ? Features::SEAGRASS_DEEP : Features::SEAGRASS_NORMAL);
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, isDeepVariant ? ConfiguredFeatures::SEAGRASS_DEEP : ConfiguredFeatures::SEAGRASS_NORMAL);
         DefaultBiomeFeatures::withSimpleSeagrass(generation);
         DefaultBiomeFeatures::withColdKelp(generation);
         DefaultBiomeFeatures::withFrozenTopLayer(generation);
@@ -823,7 +823,7 @@ struct BiomeMaker {
 //            .withSpawner(EntityClassification::WATER_AMBIENT, MobSpawnInfo::Spawners(EntityType::TROPICAL_FISH, 25, 8, 8))
 //            .withSpawner(EntityClassification::WATER_CREATURE, MobSpawnInfo::Spawners(EntityType::DOLPHIN, 2, 1, 2));
         auto generation = getOceanGenerationSettingsBuilder(ConfiguredSurfaceBuilders::OCEAN_SAND, isDeepVariant, true, false);
-//        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, isDeepVariant ? Features::SEAGRASS_DEEP_WARM : Features::SEAGRASS_WARM);
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, isDeepVariant ? ConfiguredFeatures::SEAGRASS_DEEP_WARM : ConfiguredFeatures::SEAGRASS_WARM);
         if (isDeepVariant) {
             DefaultBiomeFeatures::withSimpleSeagrass(generation);
         }
@@ -839,8 +839,8 @@ struct BiomeMaker {
 //        DefaultBiomeFeatures::withWarmOceanMobs(mobSpawnInfo, 10, 4);
         auto generation = getOceanGenerationSettingsBuilder(ConfiguredSurfaceBuilders::FULL_SAND, false, true, false);
 //            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::WARM_OCEAN_VEGETATION)
-//            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::SEAGRASS_WARM)
-//            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::SEA_PICKLE);
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SEAGRASS_WARM);
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SEA_PICKLE);
         DefaultBiomeFeatures::withFrozenTopLayer(generation);
         return makeOceanBiome(/*mobSpawnInfo,*/ 4445678, 270131, false, generation);
     }
@@ -851,7 +851,7 @@ struct BiomeMaker {
 //        mobSpawnInfo.withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::DROWNED, 5, 1, 1));
         BiomeGenerationSettings::Builder
         generation = getOceanGenerationSettingsBuilder(ConfiguredSurfaceBuilders::FULL_SAND, true, true, false);
-//            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::SEAGRASS_DEEP_WARM);
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SEAGRASS_DEEP_WARM);
         DefaultBiomeFeatures::withSimpleSeagrass(generation);
         DefaultBiomeFeatures::withFrozenTopLayer(generation);
         return makeOceanBiome(/*mobSpawnInfo,*/ 4445678, 270131, true, generation);
@@ -1162,7 +1162,7 @@ struct BiomeMaker {
         if (isHillsVariant) {
             DefaultBiomeFeatures::withFossils(generation);
         } else {
-//            generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::SEAGRASS_SWAMP);
+            generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SEAGRASS_SWAMP);
         }
 
         DefaultBiomeFeatures::withFrozenTopLayer(generation);
@@ -1283,7 +1283,7 @@ struct BiomeMaker {
         DefaultBiomeFeatures::withSugarCaneAndPumpkins(generation);
         DefaultBiomeFeatures::withLavaAndWaterSprings(generation);
         if (!isSnowy) {
-//            generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::SEAGRASS_RIVER);
+            generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SEAGRASS_RIVER);
         }
 
         DefaultBiomeFeatures::withFrozenTopLayer(generation);

@@ -1,6 +1,7 @@
 #include "Features.hpp"
 #include "OreFeature.hpp"
 #include "TreeFeature.hpp"
+#include "KelpFeature.hpp"
 #include "LakesFeature.hpp"
 #include "VinesFeature.hpp"
 #include "SpringFeature.hpp"
@@ -8,6 +9,7 @@
 #include "IcePathFeature.hpp"
 #include "BlueIceFeature.hpp"
 #include "IcebergFeature.hpp"
+#include "SeaGrassFeature.hpp"
 #include "DungeonsFeature.hpp"
 #include "IceSpikeFeature.hpp"
 #include "EndSpikeFeature.hpp"
@@ -16,6 +18,9 @@
 #include "BlockBlobFeature.hpp"
 #include "BlockPileFeature.hpp"
 #include "DecoratedFeature.hpp"
+#include "CoralTreeFeature.hpp"
+#include "CoralClawFeature.hpp"
+#include "SeaPickleFeature.hpp"
 #include "EndGatewayFeature.hpp"
 #include "HugeFungusFeature.hpp"
 #include "BonusChestFeature.hpp"
@@ -30,6 +35,7 @@
 #include "ReplaceBlockFeature.hpp"
 #include "SingleRandomFeature.hpp"
 #include "BasaltColumnFeature.hpp"
+#include "CoralMushroomFeature.hpp"
 #include "GlowstoneBlobFeature.hpp"
 #include "SphereReplaceFeature.hpp"
 #include "DefaultFlowersFeature.hpp"
@@ -132,12 +138,12 @@ void Features::registerFeatures() {
     END_SPIKE = createFeature<EndSpikeFeature>("end_spike");
     END_ISLAND = createFeature<EndIslandFeature>("end_island");
     END_GATEWAY = createFeature<EndGatewayFeature>("end_gateway");
-//    SEAGRASS = createFeature<SeaGrassFeature>("seagrass");
-//    KELP = createFeature<KelpFeature>("kelp");
-//    CORAL_TREE = createFeature<CoralTreeFeature>("coral_tree");
-//    CORAL_MUSHROOM = createFeature<CoralMushroomFeature>("coral_mushroom");
-//    CORAL_CLAW = createFeature<CoralClawFeature>("coral_claw");
-//    SEA_PICKLE = createFeature<SeaPickleFeature>("sea_pickle");
+    SEAGRASS = createFeature<SeaGrassFeature>("seagrass");
+    KELP = createFeature<KelpFeature>("kelp");
+    CORAL_TREE = createFeature<CoralTreeFeature>("coral_tree");
+    CORAL_MUSHROOM = createFeature<CoralMushroomFeature>("coral_mushroom");
+    CORAL_CLAW = createFeature<CoralClawFeature>("coral_claw");
+    SEA_PICKLE = createFeature<SeaPickleFeature>("sea_pickle");
     SIMPLE_BLOCK = createFeature<BlockWithContextFeature>("simple_block");
     BAMBOO = createFeature<BambooFeature>("bamboo");
     HUGE_FUNGUS = createFeature<HugeFungusFeature>("huge_fungus");

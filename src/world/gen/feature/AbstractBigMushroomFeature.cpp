@@ -36,7 +36,7 @@ bool AbstractBigMushroomFeature::checkPosition(WorldGenRegion &world, const Bloc
     const int starty = pos.y;
     if (starty >= 1 && starty + height + 1 < 256) {
         auto block = world.getData(pos.down()).getBlock();
-        if (!isDirt(block) && !block->isIn(BlockTags::MUSHROOM_GROW_BLOCK)) {
+        if (!isDirt(block) && !block->in(BlockTags::MUSHROOM_GROW_BLOCK)) {
             return false;
         }
         for (int j = 0; j <= height; ++j) {

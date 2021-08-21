@@ -9,7 +9,7 @@ bool SugarCaneBlock::isValidPosition(const BlockData &data, WorldReader &reader,
     if (block == this) {
         return true;
     }
-    if (block->isIn(BlockTags::SAND) ||
+    if (block->in(BlockTags::SAND) ||
         (block == Blocks::GRASS_BLOCK) ||
         (block == Blocks::DIRT) ||
         (block == Blocks::COARSE_DIRT) ||

@@ -287,15 +287,15 @@ struct DefaultBiomeFeatures {
     }
 
     static void withColdKelp(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::KELP_COLD);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::KELP_COLD);
     }
 
     static void withSimpleSeagrass(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SEAGRASS_SIMPLE);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SEAGRASS_SIMPLE);
     }
 
     static void withWarmKelp(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::KELP_WARM);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::KELP_WARM);
     }
 
     static void withLavaAndWaterSprings(BiomeGenerationSettings::Builder& builder) {

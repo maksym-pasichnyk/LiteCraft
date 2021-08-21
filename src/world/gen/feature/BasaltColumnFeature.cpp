@@ -63,7 +63,7 @@ bool BasaltColumnFeature::func_236248_a_(WorldGenRegion &reader, int max_y, cons
 //                if (func_236247_a_(reader, max_y, blockpos)) {
 //                    setBlockState(reader, blockpos, BASALT);
 //                    flag = true;
-//                } else if (!reader.getBlockState(blockpos).isIn(Blocks::BASALT)) {
+//                } else if (!reader.getBlockState(blockpos).in(Blocks::BASALT)) {
 //                    break;
 //                }
 //            }

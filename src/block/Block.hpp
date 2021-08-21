@@ -20,7 +20,7 @@ struct Block : AbstractBlock {
         return defaultState;
     }
 
-    bool isIn(const BlockTag &tag) const {
+    bool in(const BlockTag &tag) const {
         return tag.items.contains(this);
     }
 
