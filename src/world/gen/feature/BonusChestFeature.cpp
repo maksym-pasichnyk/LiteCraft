@@ -11,9 +11,9 @@ bool BonusChestFeature::generate(WorldGenRegion& reader, ChunkGenerator& generat
     const auto CHEST = Blocks::CHEST->getDefaultState();
     const auto TORCH = Blocks::TORCH->getDefaultState();
 
-    for (auto x : ranges::views::iota(chunkpos.getXStart(), chunkpos.getXEnd())) { // todo: shuffle
-        for (auto z : ranges::views::iota(chunkpos.getZStart(), chunkpos.getZEnd())) { // todo: shuffle
-            const auto blockpos = reader.getHeight(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, BlockPos::from(x, 0, z));
+    for (auto x : ranges::views::iota(chunkpos.getStartX(), chunkpos.getEndX())) { // todo: shuffle
+        for (auto z : ranges::views::iota(chunkpos.getStartZ(), chunkpos.getEndZ())) { // todo: shuffle
+            const auto blockpos = reader.getHeight(HeightmapType::MOTION_BLOCKING_NO_LEAVES, BlockPos::from(x, 0, z));
             if (reader.isAirBlock(blockpos) /*|| reader.getData(blockpos).getCollisionShape(reader, blockpos).isEmpty()*/) {
                 reader.setData(blockpos, CHEST/*, 2*/);
 //                LockableLootTileEntity.setLootTable(reader, rand, blockpos, LootTables.CHESTS_SPAWN_BONUS_CHEST);

@@ -12,10 +12,6 @@
 struct StructureFeature;
 struct ConfiguredFeature;
 struct BiomeGenerationSettings {
-//    BiomeGenerationSettings() = default;
-//    BiomeGenerationSettings(const BiomeGenerationSettings&) = delete;
-//    BiomeGenerationSettings& operator=(const BiomeGenerationSettings&) = delete;
-
     ConfiguredSurfaceBuilder* surfaceBuilder;
     std::array<std::vector<ConfiguredCarver>, 2> carvers;
     std::array<std::vector<ConfiguredFeature*>, 10> features;
@@ -42,12 +38,12 @@ struct BiomeGenerationSettings {
         }
 
         Builder& withCarver(GenerationStage::Carving carving, const ConfiguredCarver& carver) {
-            carvers.at(static_cast<int>(carving)).emplace_back(carver);
+            carvers.at(static_cast<size_t>(carving)).emplace_back(carver);
             return *this;
         }
 
         Builder& withFeature(GenerationStage::Decoration decoration, ConfiguredFeature* feature) {
-            features.at(static_cast<int>(decoration)).emplace_back(feature);
+            features.at(static_cast<size_t>(decoration)).emplace_back(feature);
             return *this;
         }
 

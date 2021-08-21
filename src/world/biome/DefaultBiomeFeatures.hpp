@@ -299,8 +299,8 @@ struct DefaultBiomeFeatures {
     }
 
     static void withLavaAndWaterSprings(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRING_WATER);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRING_LAVA);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRING_WATER);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRING_LAVA);
     }
 
     static void withIcebergs(BiomeGenerationSettings::Builder& builder) {
@@ -325,8 +325,8 @@ struct DefaultBiomeFeatures {
     }
 
     static void withDebrisOre(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_DEBRIS_LARGE);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_DEBRIS_SMALL);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_DEBRIS_LARGE);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_DEBRIS_SMALL);
     }
 
 //    static void withPassiveMobs(MobSpawnInfo::Builder& builder) {

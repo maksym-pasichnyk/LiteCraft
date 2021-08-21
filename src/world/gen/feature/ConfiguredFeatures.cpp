@@ -340,9 +340,22 @@ void ConfiguredFeatures::configureFeatures() {
             Blocks::NETHERRACK
         }
     };
-//static BlockStateProvidingFeatureConfig CRIMSON_FOREST_VEGETATION_CONFIG = new BlockStateProvidingFeatureConfig((new WeightedBlockStateProvider()).addWeightedBlockstate(Features.States.CRIMSON_ROOTS, 87).addWeightedBlockstate(Features.States.CRIMSON_FUNGUS, 11).addWeightedBlockstate(Features.States.WARPED_FUNGUS, 1));
-//static BlockStateProvidingFeatureConfig WARPED_FOREST_VEGETATION_CONFIG = new BlockStateProvidingFeatureConfig((new WeightedBlockStateProvider()).addWeightedBlockstate(Features.States.WARPED_ROOTS, 85).addWeightedBlockstate(Features.States.CRIMSON_ROOTS, 1).addWeightedBlockstate(Features.States.WARPED_FUNGUS, 13).addWeightedBlockstate(Features.States.CRIMSON_FUNGUS, 1));
-//static BlockStateProvidingFeatureConfig NETHER_SPROUTS_CONFIG = new BlockStateProvidingFeatureConfig(new SimpleBlockStateProvider(Features.States.NETHER_SPROUTS));
+    static BlockStateProvidingFeatureConfig CRIMSON_FOREST_VEGETATION_CONFIG{
+        .stateProvider = new WeightedBlockStateProvider(WeightedList<BlockData>()
+            .add(Blocks::CRIMSON_ROOTS->getDefaultState(), 87)
+            .add(Blocks::CRIMSON_FUNGUS->getDefaultState(), 11)
+            .add(Blocks::WARPED_FUNGUS->getDefaultState(), 1))
+    };
+    static BlockStateProvidingFeatureConfig WARPED_FOREST_VEGETATION_CONFIG {
+        .stateProvider = new WeightedBlockStateProvider(WeightedList<BlockData>()
+            .add(Blocks::WARPED_ROOTS->getDefaultState(), 85)
+            .add(Blocks::CRIMSON_ROOTS->getDefaultState(), 1)
+            .add(Blocks::WARPED_FUNGUS->getDefaultState(), 13)
+            .add(Blocks::CRIMSON_FUNGUS->getDefaultState(), 1))
+    };
+    static BlockStateProvidingFeatureConfig NETHER_SPROUTS_CONFIG{
+        .stateProvider = new SimpleBlockStateProvider(Blocks::NETHER_SPROUTS->getDefaultState())
+    };
     static BlockClusterFeatureConfig PLAINS_FLOWER_CONFIG {
         .stateProvider = new PlainFlowerBlockStateProvider(),
         .blockPlacer = new SimpleBlockPlacer(),
@@ -366,7 +379,6 @@ void ConfiguredFeatures::configureFeatures() {
         .tries = 64,
         .project = false
     };
-//    (new BlockClusterFeatureConfig.Builder(new SimpleBlockStateProvider(Blocks::SUNFLOWER->getDefaultState()), new DoublePlantBlockPlacer())).tries(64).project().build()
     static BlockClusterFeatureConfig PATCH_SUNFLOWER_CONFIG {
         .stateProvider = new SimpleBlockStateProvider(Blocks::SUNFLOWER->getDefaultState()),
         .blockPlacer = new DoublePlantBlockPlacer(),
@@ -606,13 +618,13 @@ void ConfiguredFeatures::configureFeatures() {
 // LARGE_BASALT_COLUMNS = registerFeature("large_basalt_columns", Features::BASALT_COLUMNS->withConfiguration(new ColumnConfig(FeatureSpread.create(2, 1), FeatureSpread.create(5, 5)))->withPlacement(Placements::COUNT_MULTILAYER->withConfiguration(new FeatureSpreadConfig(2))));
 // BASALT_BLOBS = registerFeature("basalt_blobs", Features::NETHERRACK_REPLACE_BLOBS->withConfiguration(new BlobReplacementConfig(Features.States.NETHERRACK, Features.States.BASALT, FeatureSpread.create(3, 4)))->range(128)->square()->withSpreadPlacement(75));
 // BLACKSTONE_BLOBS = registerFeature("blackstone_blobs", Features::NETHERRACK_REPLACE_BLOBS->withConfiguration(new BlobReplacementConfig(Features.States.NETHERRACK, Features.States.BLACKSTONE, FeatureSpread.create(3, 4)))->range(128)->square()->withSpreadPlacement(25));
-// GLOWSTONE_EXTRA = registerFeature("glowstone_extra", Features::GLOWSTONE_BLOB->withConfiguration(NoFeatureConfig{})->withPlacement(Placements::GLOWSTONE->withConfiguration(new FeatureSpreadConfig(10))));
-// GLOWSTONE = registerFeature("glowstone", Features::GLOWSTONE_BLOB->withConfiguration(NoFeatureConfig{})->range(128)->square()->withSpreadPlacement(10));
-// CRIMSON_FOREST_VEGETATION = registerFeature("crimson_forest_vegetation", Features::NETHER_FOREST_VEGETATION->withConfiguration(CRIMSON_FOREST_VEGETATION_CONFIG)->withPlacement(Placements::COUNT_MULTILAYER->withConfiguration(new FeatureSpreadConfig(6))));
-// WARPED_FOREST_VEGETATION = registerFeature("warped_forest_vegetation", Features::NETHER_FOREST_VEGETATION->withConfiguration(WARPED_FOREST_VEGETATION_CONFIG)->withPlacement(Placements::COUNT_MULTILAYER->withConfiguration(new FeatureSpreadConfig(5))));
+    GLOWSTONE_EXTRA = registerFeature("glowstone_extra", Features::GLOWSTONE_BLOB->withConfiguration(NoFeatureConfig{})->withPlacement(Placements::GLOWSTONE->withConfiguration(FeatureSpreadConfig{10})));
+    GLOWSTONE = registerFeature("glowstone", Features::GLOWSTONE_BLOB->withConfiguration(NoFeatureConfig{})->range(128)->square()->withSpreadPlacement(10));
+    CRIMSON_FOREST_VEGETATION = registerFeature("crimson_forest_vegetation", Features::NETHER_FOREST_VEGETATION->withConfiguration(CRIMSON_FOREST_VEGETATION_CONFIG)->withPlacement(Placements::COUNT_MULTILAYER->withConfiguration(FeatureSpreadConfig{6})));
+    WARPED_FOREST_VEGETATION = registerFeature("warped_forest_vegetation", Features::NETHER_FOREST_VEGETATION->withConfiguration(WARPED_FOREST_VEGETATION_CONFIG)->withPlacement(Placements::COUNT_MULTILAYER->withConfiguration(FeatureSpreadConfig{5})));
 // NETHER_SPROUTS = registerFeature("nether_sprouts", Features::NETHER_FOREST_VEGETATION->withConfiguration(NETHER_SPROUTS_CONFIG)->withPlacement(Placements::COUNT_MULTILAYER->withConfiguration(new FeatureSpreadConfig(4))));
-// TWISTING_VINES = registerFeature("twisting_vines", Features::TWISTING_VINES->withConfiguration(NoFeatureConfig{})->range(128)->square()->withSpreadPlacement(10));
-// WEEPING_VINES = registerFeature("weeping_vines", Features::WEEPING_VINES->withConfiguration(NoFeatureConfig{})->range(128)->square()->withSpreadPlacement(10));
+    TWISTING_VINES = registerFeature("twisting_vines", Features::TWISTING_VINES->withConfiguration(NoFeatureConfig{})->range(128)->square()->withSpreadPlacement(10));
+    WEEPING_VINES = registerFeature("weeping_vines", Features::WEEPING_VINES->withConfiguration(NoFeatureConfig{})->range(128)->square()->withSpreadPlacement(10));
 // BASALT_PILLAR = registerFeature("basalt_pillar", Features::BASALT_PILLAR->withConfiguration(NoFeatureConfig{})->range(128)->square()->withSpreadPlacement(10));
 // SEAGRASS_COLD = registerFeature("seagrass_cold", Features::SEAGRASS->withConfiguration(new ProbabilityConfig(0.3F))->withSpreadPlacement(32)->withPlacement(DISK_PLACEMENT));
 // SEAGRASS_DEEP_COLD = registerFeature("seagrass_deep_cold", Features::SEAGRASS->withConfiguration(new ProbabilityConfig(0.8F))->withSpreadPlacement(40)->withPlacement(DISK_PLACEMENT));
@@ -724,8 +736,8 @@ void ConfiguredFeatures::configureFeatures() {
     ORE_LAPIS = registerFeature("ore_lapis", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::LAPIS_ORE->getDefaultState(), 7})->withPlacement(Placements::DEPTH_AVERAGE->withConfiguration(DepthAverageConfig{16, 16}))->square());
     ORE_INFESTED = registerFeature("ore_infested", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::INFESTED_STONE->getDefaultState(), 9})->range(64)->square()->withSpreadPlacement(7));
     ORE_EMERALD = registerFeature("ore_emerald", Features::EMERALD_ORE->withConfiguration(ReplaceBlockConfig{Blocks::STONE->getDefaultState(), Blocks::EMERALD_ORE->getDefaultState()})->withPlacement(Placements::EMERALD_ORE->withConfiguration(NoPlacementConfig{})));
-// ORE_DEBRIS_LARGE = registerFeature("ore_debris_large", Features::NO_SURFACE_ORE->withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.BASE_STONE_NETHER, Blocks::ANCIENT_DEBRIS->getDefaultState(), 3))->withPlacement(Placements::DEPTH_AVERAGE->withConfiguration(new DepthAverageConfig(16, 8)))->square());
-// ORE_DEBRIS_SMALL = registerFeature("ore_debris_small", Features::NO_SURFACE_ORE->withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.BASE_STONE_NETHER, Blocks::ANCIENT_DEBRIS->getDefaultState(), 2))->withPlacement(Placements::RANGE->withConfiguration(new TopSolidRangeConfig(8, 16, 128)))->square());
+    ORE_DEBRIS_LARGE = registerFeature("ore_debris_large", Features::NO_SURFACE_ORE->withConfiguration(OreFeatureConfig{BASE_STONE_NETHER, Blocks::ANCIENT_DEBRIS->getDefaultState(), 3})->withPlacement(Placements::DEPTH_AVERAGE->withConfiguration(DepthAverageConfig{16, 8}))->square());
+    ORE_DEBRIS_SMALL = registerFeature("ore_debris_small", Features::NO_SURFACE_ORE->withConfiguration(OreFeatureConfig{BASE_STONE_NETHER, Blocks::ANCIENT_DEBRIS->getDefaultState(), 2})->withPlacement(Placements::RANGE->withConfiguration(TopSolidRangeConfig{8, 16, 128}))->square());
 // CRIMSON_FUNGI = registerFeature("crimson_fungi", Features::HUGE_FUNGUS->withConfiguration(HugeFungusConfig.field_236300_c_)->withPlacement(Placements::COUNT_MULTILAYER->withConfiguration(new FeatureSpreadConfig(8))));
 // CRIMSON_FUNGI_PLANTED = registerFeature("crimson_fungi_planted", Features::HUGE_FUNGUS->withConfiguration(HugeFungusConfig.field_236299_b_));
 // WARPED_FUNGI = registerFeature("warped_fungi", Features::HUGE_FUNGUS->withConfiguration(HugeFungusConfig.field_236302_e_)->withPlacement(Placements::COUNT_MULTILAYER->withConfiguration(new FeatureSpreadConfig(8))));
@@ -764,7 +776,7 @@ void ConfiguredFeatures::configureFeatures() {
     FLOWER_SWAMP = registerFeature("flower_swamp", Features::FLOWER->withConfiguration(FLOWER_SWAMP_CONFIG)->withPlacement(VEGETATION_PLACEMENT)->withPlacement(HEIGHTMAP_PLACEMENT));
     FLOWER_PLAIN = registerFeature("flower_plain", Features::FLOWER->withConfiguration(PLAINS_FLOWER_CONFIG));
     FLOWER_PLAIN_DECORATED = registerFeature("flower_plain_decorated", FLOWER_PLAIN->withPlacement(VEGETATION_PLACEMENT)->withPlacement(FLOWER_TALL_GRASS_PLACEMENT)->square()->withPlacement(Placements::COUNT_NOISE->withConfiguration(NoiseDependantConfig{-0.8, 15, 4})));
-    std::vector<ConfiguredFeature*> FOREST_FLOWER_VEGETATION_LIST {
+    std::vector FOREST_FLOWER_VEGETATION_LIST {
         Features::RANDOM_PATCH->withConfiguration(BlockClusterFeatureConfig{
             .stateProvider = new SimpleBlockStateProvider(Blocks::LILAC->getDefaultState()),
             .blockPlacer = new DoublePlantBlockPlacer(),

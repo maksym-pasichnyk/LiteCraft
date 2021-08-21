@@ -25,8 +25,8 @@ struct BiomeMaker {
 //            DefaultBiomeFeatures::withHostileMobs(mobSpawnInfo, 100, 25, 100);
 //        }
 
-        auto generation = BiomeGenerationSettings::Builder{}
-                .withSurfaceBuilder(ConfiguredSurfaceBuilders::GIANT_TREE_TAIGA);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GIANT_TREE_TAIGA);
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
 //        generation.withStructure(StructureFeatures::RUINED_PORTAL);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
@@ -83,8 +83,8 @@ struct BiomeMaker {
 //        MobSpawnInfo::Builder mobSpawnInfo{};
 //        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
 //        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
 //        generation.withStructure(StructureFeatures::RUINED_PORTAL);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
@@ -195,8 +195,8 @@ struct BiomeMaker {
     }
 
     static Biome* makeTropicalBiome(float depth, float scale, float downfall, bool hasOnlyBambooVegetation, bool isEdgeBiome, bool isModified/*, MobSpawnInfo::Builder mobSpawnBuilder*/) {
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
         if (!isEdgeBiome && !isModified) {
 //            generation.withStructure(StructureFeatures::JUNGLE_PYRAMID);
         }
@@ -264,8 +264,8 @@ struct BiomeMaker {
 //        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
 //        mobSpawnInfo.withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::LLAMA, 5, 4, 6));
 //        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(surfaceBuilder);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(surfaceBuilder);
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
 //        generation.withStructure(StructureFeatures::RUINED_PORTAL_MOUNTAIN);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
@@ -320,8 +320,8 @@ struct BiomeMaker {
     static Biome* makeDesertBiome(float depth, float scale, bool hasVillageAndOutpost, bool hasDesertPyramid, bool hasFossils) {
 //        MobSpawnInfo::Builder mobSpawnInfo{};
 //        DefaultBiomeFeatures::withDesertMobs(mobSpawnInfo);
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(ConfiguredSurfaceBuilders::DESERT);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::DESERT);
         if (hasVillageAndOutpost) {
 //            generation.withStructure(StructureFeatures::VILLAGE_DESERT);
 //            generation.withStructure(StructureFeatures::PILLAGER_OUTPOST);
@@ -387,9 +387,8 @@ struct BiomeMaker {
 //            mobSpawnInfo.isValidSpawnBiomeForPlayer();
         }
 
-        BiomeGenerationSettings::Builder
-        generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
         if (!isSunflowerVariant) {
 //            generation
 //                .withStructure(StructureFeatures::VILLAGE_PLAINS)
@@ -484,28 +483,28 @@ struct BiomeMaker {
     }
 
     static Biome* makeEndBarrensBiome() {
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(ConfiguredSurfaceBuilders::END);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::END);
         return makeEndBiome(generation);
     }
 
     static Biome* makeTheEndBiome() {
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(ConfiguredSurfaceBuilders::END);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::END);
 //            .withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, Features::END_SPIKE);
         return makeEndBiome(generation);
     }
 
     static Biome* makeEndMidlandsBiome() {
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(ConfiguredSurfaceBuilders::END);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::END);
 //            .withStructure(StructureFeatures::END_CITY);
         return makeEndBiome(generation);
     }
 
     static Biome* makeEndHighlandsBiome() {
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(ConfiguredSurfaceBuilders::END);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::END);
 //            .withStructure(StructureFeatures::END_CITY)
 //            .withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, Features::END_GATEWAY)
 //            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::CHORUS_PLANT);
@@ -513,8 +512,8 @@ struct BiomeMaker {
     }
 
     static Biome* makeSmallEndIslandsBiome() {
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(ConfiguredSurfaceBuilders::END);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::END);
 //            .withFeature(GenerationStage::Decoration::RAW_GENERATION, Features::END_ISLAND_DECORATED);
         return makeEndBiome(generation);
     }
@@ -522,8 +521,8 @@ struct BiomeMaker {
     static Biome* makeMushroomBiome(float depth, float scale) {
 //        MobSpawnInfo::Builder mobSpawnInfo{};
 //        DefaultBiomeFeatures::withMooshroomsAndBats(mobSpawnInfo);
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(ConfiguredSurfaceBuilders::MYCELIUM);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::MYCELIUM);
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
 //        generation.withStructure(StructureFeatures::RUINED_PORTAL);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
@@ -569,8 +568,8 @@ struct BiomeMaker {
 
 
     static Biome* makeGenericSavannaBiome(float depth, float scale, float temperature, bool isHighland, bool isShatteredSavanna/*, MobSpawnInfo::Builder mobSpawnBuilder*/) {
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(isShatteredSavanna ? ConfiguredSurfaceBuilders::SHATTERED_SAVANNA : ConfiguredSurfaceBuilders::GRASS);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(isShatteredSavanna ? ConfiguredSurfaceBuilders::SHATTERED_SAVANNA : ConfiguredSurfaceBuilders::GRASS);
         if (!isHighland && !isShatteredSavanna) {
 //            generation
 //                .withStructure(StructureFeatures::VILLAGE_SAVANNA)
@@ -657,8 +656,8 @@ struct BiomeMaker {
     static Biome* makeGenericBadlandsBiome(ConfiguredSurfaceBuilder* surfaceBuilder, float depth, float scale, bool isHighland, bool hasOakTrees) {
 //        MobSpawnInfo::Builder mobSpawnInfo{};
 //        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(surfaceBuilder);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(surfaceBuilder);
         DefaultBiomeFeatures::withBadlandsStructures(generation);
 //        generation.withStructure(isHighland ? StructureFeatures::RUINED_PORTAL_MOUNTAIN : StructureFeatures::RUINED_PORTAL);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
@@ -749,8 +748,8 @@ struct BiomeMaker {
     }
 
  static BiomeGenerationSettings::Builder getOceanGenerationSettingsBuilder(ConfiguredSurfaceBuilder* surfaceBuilder, bool hasOceanMonument, bool isWarmOcean, bool isDeepVariant) {
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(surfaceBuilder);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(surfaceBuilder);
 //        StructureFeature structurefeature = isWarmOcean
 //                ? StructureFeatures::OCEAN_RUIN_WARM
 //                : StructureFeatures::OCEAN_RUIN_COLD;
@@ -866,9 +865,8 @@ struct BiomeMaker {
 //        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
 //        mobSpawnInfo.withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::DROWNED, 5, 1, 1));
         const float temperature = isDeepVariant ? 0.5F : 0.0F;
-        BiomeGenerationSettings::Builder
-        generation = BiomeGenerationSettings::Builder{}
-                .withSurfaceBuilder(ConfiguredSurfaceBuilders::FROZEN_OCEAN);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::FROZEN_OCEAN);
 //        generation.withStructure(StructureFeatures::OCEAN_RUIN_COLD);
         if (isDeepVariant) {
 //            generation.withStructure(StructureFeatures::MONUMENT);
@@ -924,8 +922,8 @@ struct BiomeMaker {
 
 
     static Biome* makeGenericForestBiome(float depth, float scale, bool isFlowerForestVariant/*, MobSpawnInfo::Builder mobSpawnBuilder*/) {
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
 //        generation.withStructure(StructureFeatures::RUINED_PORTAL);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
@@ -1016,8 +1014,8 @@ struct BiomeMaker {
 
 //        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
         float temperature = isSnowyVariant ? -0.5F : 0.25F;
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
         if (hasVillageAndOutpost) {
 //            generation.withStructure(StructureFeatures::VILLAGE_TAIGA);
 //            generation.withStructure(StructureFeatures::PILLAGER_OUTPOST);
@@ -1082,8 +1080,8 @@ struct BiomeMaker {
 //        MobSpawnInfo::Builder mobSpawnInfo{};
 //        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
 //        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
 //        generation.withStructure(StructureFeatures::MANSION);
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
 //        generation.withStructure(StructureFeatures::RUINED_PORTAL);
@@ -1139,9 +1137,8 @@ struct BiomeMaker {
 //        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
 //        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
 //        mobSpawnInfo.withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::SLIME, 1, 1, 1));
-        BiomeGenerationSettings::Builder
-        generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(ConfiguredSurfaceBuilders::SWAMP);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::SWAMP);
         if (!isHillsVariant) {
 //            generation.withStructure(StructureFeatures::SWAMP_HUT);
         }
@@ -1202,8 +1199,8 @@ struct BiomeMaker {
 //        MobSpawnInfo::Builder mobSpawnInfo = MobSpawnInfo::Builder{}
 //            .withCreatureSpawnProbability(0.07F);
 //        DefaultBiomeFeatures::withSnowyBiomeMobs(mobSpawnInfo);
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(isIceSpikesBiome ? ConfiguredSurfaceBuilders::ICE_SPIKES : ConfiguredSurfaceBuilders::GRASS);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(isIceSpikesBiome ? ConfiguredSurfaceBuilders::ICE_SPIKES : ConfiguredSurfaceBuilders::GRASS);
         if (!isIceSpikesBiome && !isMountainVariant) {
 //            generation
 //                .withStructure(StructureFeatures::VILLAGE_SNOWY)
@@ -1269,8 +1266,8 @@ struct BiomeMaker {
 //            .withSpawner(EntityClassification::WATER_AMBIENT, MobSpawnInfo::Spawners(EntityType::SALMON, 5, 1, 5));
 //        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
 //        mobSpawnInfo.withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::DROWNED, isSnowy ? 1 : 100, 1, 1));
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
         generation.withStructure(StructureFeatures::MINESHAFT);
 //        generation.withStructure(StructureFeatures::RUINED_PORTAL);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
@@ -1326,8 +1323,8 @@ struct BiomeMaker {
 //        }
 
 //        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(isStoneVariant ? ConfiguredSurfaceBuilders::STONE : ConfiguredSurfaceBuilders::DESERT);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(isStoneVariant ? ConfiguredSurfaceBuilders::STONE : ConfiguredSurfaceBuilders::DESERT);
         if (isStoneVariant) {
             DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
         } else {
@@ -1420,23 +1417,23 @@ struct BiomeMaker {
 //            .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::PIGLIN, 15, 4, 4))
 //            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::STRIDER, 60, 1, 2))
 //            .copy();
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(ConfiguredSurfaceBuilders::NETHER);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::NETHER);
 //            .withStructure(StructureFeatures::RUINED_PORTAL_NETHER)
 //            .withStructure(StructureFeatures::FORTRESS)
 //            .withStructure(StructureFeatures::BASTION_REMNANT)
 //            .withCarver(GenerationStage::Carving.AIR, ConfiguredCarvers.NETHER_CAVE)
-//            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::SPRING_LAVA);
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRING_LAVA);
         DefaultBiomeFeatures::withNormalMushroomGeneration(generation);
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::SPRING_OPEN)
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_OPEN);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::PATCH_FIRE);
 //            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::PATCH_SOUL_FIRE)
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::GLOWSTONE_EXTRA)
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::GLOWSTONE)
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::GLOWSTONE_EXTRA);
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::GLOWSTONE);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::BROWN_MUSHROOM_NETHER);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::RED_MUSHROOM_NETHER);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_MAGMA);
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::SPRING_CLOSED);
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_CLOSED);
         DefaultBiomeFeatures::withCommonNetherBlocks(generation);
         return new Biome {
             .climate{
@@ -1478,23 +1475,23 @@ struct BiomeMaker {
 //            .withSpawnCost(EntityType::ENDERMAN, 0.7, 0.15)
 //            .withSpawnCost(EntityType::STRIDER, 0.7, 0.15)
 //            .copy();
-        BiomeGenerationSettings::Builder generation{};
+        auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::SOUL_SAND_VALLEY);
 //            .withStructure(StructureFeatures::FORTRESS)
 //            .withStructure(StructureFeatures::NETHER_FOSSIL)
 //            .withStructure(StructureFeatures::RUINED_PORTAL_NETHER)
 //            .withStructure(StructureFeatures::BASTION_REMNANT)
 //            .withCarver(GenerationStage::Carving.AIR, ConfiguredCarvers.NETHER_CAVE)
-//            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::SPRING_LAVA)
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRING_LAVA);
 //            .withFeature(GenerationStage::Decoration::LOCAL_MODIFICATIONS, Features::BASALT_PILLAR)
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::SPRING_OPEN)
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::GLOWSTONE_EXTRA)
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::GLOWSTONE)
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_OPEN);
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::GLOWSTONE_EXTRA);
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::GLOWSTONE);
 //            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::PATCH_CRIMSON_ROOTS)
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::PATCH_FIRE);
 //            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::PATCH_SOUL_FIRE)
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_MAGMA);
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::SPRING_CLOSED)
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_CLOSED);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_SOUL_SAND);
         DefaultBiomeFeatures::withCommonNetherBlocks(generation);
         return new Biome {
@@ -1532,27 +1529,26 @@ struct BiomeMaker {
 //            .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::MAGMA_CUBE, 100, 2, 5))
 //            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::STRIDER, 60, 1, 2))
 //            .copy();
-        BiomeGenerationSettings::Builder generation{};
+        auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::BASALT_DELTAS);
 //            .withStructure(StructureFeatures::RUINED_PORTAL_NETHER)
 //            .withCarver(GenerationStage::Carving.AIR, ConfiguredCarvers.NETHER_CAVE)
 //            .withStructure(StructureFeatures::FORTRESS)
 //            .withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, Features::DELTA)
-//            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::SPRING_LAVA_DOUBLE)
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRING_LAVA_DOUBLE);
 //            .withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, Features::SMALL_BASALT_COLUMNS)
 //            .withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, Features::LARGE_BASALT_COLUMNS)
 //            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::BASALT_BLOBS)
 //            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::BLACKSTONE_BLOBS)
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::SPRING_DELTA)
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_DELTA);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::PATCH_FIRE);
 //            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::PATCH_SOUL_FIRE)
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::GLOWSTONE_EXTRA)
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::GLOWSTONE)
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::GLOWSTONE_EXTRA);
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::GLOWSTONE);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::BROWN_MUSHROOM_NETHER);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::RED_MUSHROOM_NETHER);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_MAGMA);
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::SPRING_CLOSED_DOUBLE)
-        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_GOLD_DELTAS);
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_CLOSED_DOUBLE);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_QUARTZ_DELTAS);
         DefaultBiomeFeatures::withDebrisOre(generation);
         return new Biome {
@@ -1591,23 +1587,23 @@ struct BiomeMaker {
 //            .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::PIGLIN, 5, 3, 4))
 //            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::STRIDER, 60, 1, 2))
 //            .copy();
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(ConfiguredSurfaceBuilders::CRIMSON_FOREST);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::CRIMSON_FOREST);
 //            .withStructure(StructureFeatures::RUINED_PORTAL_NETHER)
 //            .withCarver(GenerationStage::Carving.AIR, ConfiguredCarvers.NETHER_CAVE)
 //            .withStructure(StructureFeatures::FORTRESS)
 //            .withStructure(StructureFeatures::BASTION_REMNANT)
-//            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::SPRING_LAVA);
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRING_LAVA);
         DefaultBiomeFeatures::withNormalMushroomGeneration(generation);
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::SPRING_OPEN)
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_OPEN);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::PATCH_FIRE);
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::GLOWSTONE_EXTRA)
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::GLOWSTONE)
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::GLOWSTONE_EXTRA);
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::GLOWSTONE);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_MAGMA);
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::SPRING_CLOSED)
-//            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::WEEPING_VINES)
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_CLOSED);
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::WEEPING_VINES);
 //            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::CRIMSON_FUNGI)
-//            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::CRIMSON_FOREST_VEGETATION);
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::CRIMSON_FOREST_VEGETATION);
         DefaultBiomeFeatures::withCommonNetherBlocks(generation);
         return new Biome {
             .climate{
@@ -1644,25 +1640,25 @@ struct BiomeMaker {
 //            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::STRIDER, 60, 1, 2))
 //            .withSpawnCost(EntityType::ENDERMAN, 1.0, 0.12)
 //            .copy();
-        auto generation = BiomeGenerationSettings::Builder{}
-            .withSurfaceBuilder(ConfiguredSurfaceBuilders::WARPED_FOREST);
+        auto generation = BiomeGenerationSettings::Builder{};
+        generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::WARPED_FOREST);
 //            .withStructure(StructureFeatures::FORTRESS)
 //            .withStructure(StructureFeatures::BASTION_REMNANT)
 //            .withStructure(StructureFeatures::RUINED_PORTAL_NETHER)
 //            .withCarver(GenerationStage::Carving.AIR, ConfiguredCarvers.NETHER_CAVE)
-//            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::SPRING_LAVA);
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRING_LAVA);
         DefaultBiomeFeatures::withNormalMushroomGeneration(generation);
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::SPRING_OPEN)
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_OPEN);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::PATCH_FIRE);
 //            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::PATCH_SOUL_FIRE)
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::GLOWSTONE_EXTRA)
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::GLOWSTONE)
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::GLOWSTONE_EXTRA);
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::GLOWSTONE);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_MAGMA);
-//            .withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, Features::SPRING_CLOSED)
+        generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_CLOSED);
 //            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::WARPED_FUNGI)
-//            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::WARPED_FOREST_VEGETATION)
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::WARPED_FOREST_VEGETATION);
 //            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::NETHER_SPROUTS)
-//            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::TWISTING_VINES);
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::TWISTING_VINES);
         DefaultBiomeFeatures::withCommonNetherBlocks(generation);
         return new Biome {
             .climate{

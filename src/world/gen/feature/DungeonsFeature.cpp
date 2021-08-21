@@ -1,7 +1,7 @@
 #include "DungeonsFeature.hpp"
 #include <world/WorldGenRegion.hpp>
-#include <block/Block.hpp>
 #include <block/Blocks.hpp>
+#include <block/Block.hpp>
 
 bool DungeonsFeature::generate(WorldGenRegion& reader, ChunkGenerator& generator, Random& random, BlockPos pos, const FeatureConfig& config) {
     int j = random.nextInt(2) + 2;

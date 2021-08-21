@@ -18,12 +18,16 @@
 #include "IceAndSnowFeature.hpp"
 #include "DesertWellsFeature.hpp"
 #include "RandomPatchFeature.hpp"
+#include "WeepingVineFeature.hpp"
+#include "TwistingVineFeature.hpp"
 #include "NoExposedOreFeature.hpp"
 #include "ReplaceBlockFeature.hpp"
 #include "SingleRandomFeature.hpp"
+#include "GlowstoneBlobFeature.hpp"
 #include "SphereReplaceFeature.hpp"
 #include "DefaultFlowersFeature.hpp"
 #include "BigRedMushroomFeature.hpp"
+#include "NetherVegetationFeature.hpp"
 #include "BigBrownMushroomFeature.hpp"
 #include "BlockWithContextFeature.hpp"
 #include "TwoFeatureChoiceFeature.hpp"
@@ -105,7 +109,7 @@ void Features::registerFeatures() {
     HUGE_RED_MUSHROOM = createFeature<BigRedMushroomFeature>("huge_red_mushroom");
     HUGE_BROWN_MUSHROOM = createFeature<BigBrownMushroomFeature>("huge_brown_mushroom");
     ICE_SPIKE = createFeature<IceSpikeFeature>("ice_spike");
-//    GLOWSTONE_BLOB = createFeature<GlowstoneBlobFeature>("glowstone_blob");
+    GLOWSTONE_BLOB = createFeature<GlowstoneBlobFeature>("glowstone_blob");
     FREEZE_TOP_LAYER = createFeature<IceAndSnowFeature>("freeze_top_layer");
     VINES = createFeature<VinesFeature>("vines");
     MONSTER_ROOM = createFeature<DungeonsFeature>("monster_room");
@@ -128,9 +132,9 @@ void Features::registerFeatures() {
     SIMPLE_BLOCK = createFeature<BlockWithContextFeature>("simple_block");
     BAMBOO = createFeature<BambooFeature>("bamboo");
 //    HUGE_FUNGUS = createFeature<HugeFungusFeature>("huge_fungus");
-//    NETHER_FOREST_VEGETATION = createFeature<NetherVegetationFeature>("nether_forest_vegetation");
-//    WEEPING_VINES = createFeature<WeepingVineFeature>("weeping_vines");
-//    TWISTING_VINES = createFeature<TwistingVineFeature>("twisting_vines");
+    NETHER_FOREST_VEGETATION = createFeature<NetherVegetationFeature>("nether_forest_vegetation");
+    WEEPING_VINES = createFeature<WeepingVineFeature>("weeping_vines");
+    TWISTING_VINES = createFeature<TwistingVineFeature>("twisting_vines");
 //    BASALT_COLUMNS = createFeature<BasaltColumnFeature>("basalt_columns");
 //    DELTA_FEATURE = createFeature<BasaltDeltasStructure>("delta_feature");
 //    NETHERRACK_REPLACE_BLOBS = createFeature<NetherackBlobReplacementStructure>("netherrack_replace_blobs");
