@@ -651,12 +651,12 @@ void ConfiguredFeatures::configureFeatures() {
     RuleTest NETHERRACK = BlockMatchRuleTest{Blocks::NETHERRACK};
     RuleTest BASE_STONE_NETHER = TagMatchRuleTest{BlockTags::BASE_STONE_NETHER};
     
-// END_SPIKE = registerFeature("end_spike", Features::END_SPIKE->withConfiguration(new EndSpikeFeatureConfig(false, ImmutableList.of(), null)));
-// END_GATEWAY = registerFeature("end_gateway", Features::END_GATEWAY->withConfiguration(EndGatewayConfig.func_214702_a(ServerWorld.field_241108_a_, true))->withPlacement(Placements::END_GATEWAY->withConfiguration(IPlacementConfig.NO_PLACEMENT_CONFIG)));
-// END_GATEWAY_DELAYED = registerFeature("end_gateway_delayed", Features::END_GATEWAY->withConfiguration(EndGatewayConfig.func_214698_a()));
-// CHORUS_PLANT = registerFeature("chorus_plant", Features::CHORUS_PLANT->withConfiguration(NoFeatureConfig{})->withPlacement(HEIGHTMAP_PLACEMENT)->func_242732_c(4));
-// END_ISLAND = registerFeature("end_island", Features::END_ISLAND->withConfiguration(NoFeatureConfig{}));
-// END_ISLAND_DECORATED = registerFeature("end_island_decorated", END_ISLAND->withPlacement(Placements::END_ISLAND->withConfiguration(IPlacementConfig.NO_PLACEMENT_CONFIG)));
+    END_SPIKE = registerFeature("end_spike", Features::END_SPIKE->withConfiguration(EndSpikeFeatureConfig{false, {}, std::nullopt}));
+    END_GATEWAY = registerFeature("end_gateway", Features::END_GATEWAY->withConfiguration(EndGatewayConfig{BlockPos::from(100, 50, 0), true})->withPlacement(Placements::END_GATEWAY->withConfiguration(NoPlacementConfig{})));
+    END_GATEWAY_DELAYED = registerFeature("end_gateway_delayed", Features::END_GATEWAY->withConfiguration(EndGatewayConfig{std::nullopt, false}));
+    CHORUS_PLANT = registerFeature("chorus_plant", Features::CHORUS_PLANT->withConfiguration(NoFeatureConfig{})->withPlacement(HEIGHTMAP_PLACEMENT)->func_242732_c(4));
+    END_ISLAND = registerFeature("end_island", Features::END_ISLAND->withConfiguration(NoFeatureConfig{}));
+    END_ISLAND_DECORATED = registerFeature("end_island_decorated", END_ISLAND->withPlacement(Placements::END_ISLAND->withConfiguration(NoPlacementConfig{})));
     DELTA = registerFeature("delta", Features::DELTA_FEATURE->withConfiguration(BasaltDeltasFeature{Blocks::LAVA->getDefaultState(), Blocks::MAGMA_BLOCK->getDefaultState(), FeatureSpread{3, 4}, FeatureSpread{0, 2}})->withPlacement(Placements::COUNT_MULTILAYER->withConfiguration(FeatureSpreadConfig::create(40))));
     SMALL_BASALT_COLUMNS = registerFeature("small_basalt_columns", Features::BASALT_COLUMNS->withConfiguration(ColumnConfig{FeatureSpread{1}, FeatureSpread{1, 3}})->withPlacement(Placements::COUNT_MULTILAYER->withConfiguration(FeatureSpreadConfig::create(4))));
     LARGE_BASALT_COLUMNS = registerFeature("large_basalt_columns", Features::BASALT_COLUMNS->withConfiguration(ColumnConfig{FeatureSpread{2, 1}, FeatureSpread{5, 5}})->withPlacement(Placements::COUNT_MULTILAYER->withConfiguration(FeatureSpreadConfig::create(2))));

@@ -4,12 +4,14 @@
 #include "LiquidsConfig.hpp"
 #include "NoFeatureConfig.hpp"
 #include "FillLayerConfig.hpp"
+#include "EndGatewayConfig.hpp"
 #include "OreFeatureConfig.hpp"
 #include "HugeFungusConfig.hpp"
 #include "ProbabilityConfig.hpp"
 #include "ReplaceBlockConfig.hpp"
 #include "SphereReplaceConfig.hpp"
 #include "BasaltDeltasFeature.hpp"
+#include "EndSpikeFeatureConfig.hpp"
 #include "BlobReplacementConfig.hpp"
 #include "BaseTreeFeatureConfig.hpp"
 #include "BlockWithContextConfig.hpp"
@@ -29,12 +31,14 @@ using FeatureConfig = std::variant<
     ColumnConfig,
     LiquidsConfig,
     FillLayerConfig,
+    EndGatewayConfig,
     OreFeatureConfig,
     HugeFungusConfig,
     ProbabilityConfig,
     ReplaceBlockConfig,
     SphereReplaceConfig,
     BasaltDeltasFeature,
+    EndSpikeFeatureConfig,
     BlobReplacementConfig,
     BaseTreeFeatureConfig,
     BlockWithContextConfig,

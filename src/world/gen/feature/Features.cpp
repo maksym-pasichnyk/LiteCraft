@@ -10,16 +10,20 @@
 #include "IcebergFeature.hpp"
 #include "DungeonsFeature.hpp"
 #include "IceSpikeFeature.hpp"
+#include "EndSpikeFeature.hpp"
+#include "EndIslandFeature.hpp"
 #include "FillLayerFeature.hpp"
 #include "BlockBlobFeature.hpp"
 #include "BlockPileFeature.hpp"
 #include "DecoratedFeature.hpp"
+#include "EndGatewayFeature.hpp"
 #include "HugeFungusFeature.hpp"
 #include "BonusChestFeature.hpp"
 #include "IceAndSnowFeature.hpp"
 #include "DesertWellsFeature.hpp"
 #include "RandomPatchFeature.hpp"
 #include "WeepingVineFeature.hpp"
+#include "ChorusPlantFeature.hpp"
 #include "BasaltPillarFeature.hpp"
 #include "TwistingVineFeature.hpp"
 #include "NoExposedOreFeature.hpp"
@@ -106,7 +110,7 @@ void Features::registerFeatures() {
     RANDOM_PATCH = createFeature<RandomPatchFeature>("random_patch");
     BLOCK_PILE = createFeature<BlockPileFeature>("block_pile");
     SPRING_FEATURE = createFeature<SpringFeature>("spring_feature");
-//    CHORUS_PLANT = createFeature<ChorusPlantFeature>("chorus_plant");
+    CHORUS_PLANT = createFeature<ChorusPlantFeature>("chorus_plant");
     EMERALD_ORE = createFeature<ReplaceBlockFeature>("emerald_ore");
     VOID_START_PLATFORM = createFeature<VoidStartPlatformFeature>("void_start_platform");
     DESERT_WELL = createFeature<DesertWellsFeature>("desert_well");
@@ -125,9 +129,9 @@ void Features::registerFeatures() {
     ICE_PATCH = createFeature<IcePathFeature>("ice_patch");
     LAKE = createFeature<LakesFeature>("lake");
     ORE = createFeature<OreFeature>("ore");
-//    END_SPIKE = createFeature<EndSpikeFeature>("end_spike");
-//    END_ISLAND = createFeature<EndIslandFeature>("end_island");
-//    END_GATEWAY = createFeature<EndGatewayFeature>("end_gateway");
+    END_SPIKE = createFeature<EndSpikeFeature>("end_spike");
+    END_ISLAND = createFeature<EndIslandFeature>("end_island");
+    END_GATEWAY = createFeature<EndGatewayFeature>("end_gateway");
 //    SEAGRASS = createFeature<SeaGrassFeature>("seagrass");
 //    KELP = createFeature<KelpFeature>("kelp");
 //    CORAL_TREE = createFeature<CoralTreeFeature>("coral_tree");

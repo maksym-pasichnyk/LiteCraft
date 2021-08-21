@@ -491,7 +491,7 @@ struct BiomeMaker {
     static Biome* makeTheEndBiome() {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::END);
-//            .withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, Features::END_SPIKE);
+        generation.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, ConfiguredFeatures::END_SPIKE);
         return makeEndBiome(generation);
     }
 
@@ -506,15 +506,15 @@ struct BiomeMaker {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::END);
 //            .withStructure(StructureFeatures::END_CITY)
-//            .withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, Features::END_GATEWAY)
-//            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::CHORUS_PLANT);
+        generation.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, ConfiguredFeatures::END_GATEWAY);
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::CHORUS_PLANT);
         return makeEndBiome(generation);
     }
 
     static Biome* makeSmallEndIslandsBiome() {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::END);
-//            .withFeature(GenerationStage::Decoration::RAW_GENERATION, Features::END_ISLAND_DECORATED);
+        generation.withFeature(GenerationStage::Decoration::RAW_GENERATION, ConfiguredFeatures::END_ISLAND_DECORATED);
         return makeEndBiome(generation);
     }
 
