@@ -2,11 +2,10 @@
 
 #include "../tags/BlockTags.hpp"
 #include "../util/math/BlockPos.hpp"
+#include <state/BlockStateProperties.hpp>
 
 #include <cstdint>
 #include <compare>
-
-enum class BlockStateProperty;
 
 struct Block;
 struct Material;
@@ -29,5 +28,18 @@ struct BlockData {
     auto isSolid() const -> bool;
     auto getLightLevel() const -> int32_t;
     auto isValidPosition(WorldReader& reader, const glm::vec3& pos) const -> bool;
-    auto hasProperty(BlockStateProperty property) const -> bool;
+
+    auto has(BlockStateProperty property) const -> bool;
+
+    auto get(BlockStateProperty prop) -> Property;
+    auto set(BlockStateProperty prop, const Property& property) -> BlockData;
+
+    template<BlockStateProperty prop>
+    auto get() -> typename BlockStatePropertyType<prop>::type {
+        return std::get<typename BlockStatePropertyType<prop>::type>(get(prop));
+    }
+    template<BlockStateProperty prop>
+    auto set(typename BlockStatePropertyType<prop>::type property) -> BlockData {
+        return set(prop, property);
+    }
 };

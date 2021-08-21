@@ -20,9 +20,9 @@ bool IceAndSnowFeature::generate(WorldGenRegion& region, ChunkGenerator &generat
 
             if (biome->doesSnowGenerate(region, blockpos1)) {
                 region.setData(blockpos1, Blocks::SNOW->getDefaultState()/*, 2*/);
-                const auto data = region.getData(blockpos2);
-                if (data.hasProperty(SnowyDirtBlock::SNOWY)) {
-//                    region.setData(blockpos2, data.with(SnowyDirtBlock::SNOWY, true)/*, 2*/);
+                const auto state = region.getData(blockpos2);
+                if (state.has(SnowyDirtBlock::SNOWY)) {
+//                    region.setData(blockpos2, state.set<SnowyDirtBlock::SNOWY>(true)/*, 2*/);
                 }
             }
         }

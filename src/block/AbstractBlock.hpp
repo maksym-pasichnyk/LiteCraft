@@ -4,10 +4,13 @@
 #include "material/DyeColors.hpp"
 #include "BlockData.hpp"
 
+#include <state/BlockStateProperties.hpp>
 #include <glm/vec3.hpp>
 #include <functional>
 #include <utility>
+#include <vector>
 #include <span>
+#include <map>
 
 enum class TintType {
     None,
@@ -91,7 +94,6 @@ struct EntityType;
 struct WorldReader;
 struct BlockReader;
 struct BlockGraphics;
-enum class BlockStateProperty;
 
 struct AbstractBlock {
     using IBlockColor = std::function<MaterialColor(const BlockData& data)>;
@@ -283,8 +285,12 @@ struct AbstractBlock {
 
     int id;
     Properties properties;
-    std::vector<BlockStateProperty> blockStateProperties;
     BlockGraphics* graphics{nullptr};
+
+    using PropertyGet = auto(*)(BlockData) -> Property;
+    using PropertySet = auto(*)(BlockData, const Property&) -> BlockData;
+
+    std::map<BlockStateProperty, std::pair<PropertyGet, PropertySet>> binds{};
 
     explicit AbstractBlock(int id, Properties properties) : id(id), properties(std::move(properties)) {}
 
@@ -302,10 +308,6 @@ struct AbstractBlock {
 
     int32_t getLightLevel(const BlockData& data) {
         return properties.lightLevel(data);
-    }
-
-    std::span<BlockStateProperty> getBlockStateProperties() {
-        return blockStateProperties;
     }
 
     bool isOpaque(BlockReader &reader, const BlockData &data, const BlockPos &pos) const {
@@ -326,5 +328,19 @@ struct AbstractBlock {
 
     virtual bool isValidPosition(const BlockData& data, WorldReader &reader, const BlockPos &pos) {
         return true;
+    }
+
+    template <BlockStateProperty prop, auto get, auto set>
+    void bind() {
+        using T = typename BlockStatePropertyType<prop>::type;
+
+        binds[prop] = std::pair<PropertyGet, PropertySet>{
+            [](BlockData state) -> Property {
+                return get(state);
+            },
+            [](BlockData state, const Property& property) -> BlockData {
+                return set(state, std::get<T>(property));
+            }
+        };
     }
 };

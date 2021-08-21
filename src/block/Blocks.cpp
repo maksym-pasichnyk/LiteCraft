@@ -1024,7 +1024,7 @@ static bool isntExtended(BlockReader &reader, const BlockData &data, const Block
 };
 
 template<typename T, typename... Args>
-static T* createBlock(std::string name, Args &&...args) {
+static T* createBlock(const std::string& name, Args &&...args) {
     const auto id = static_cast<int>(Blocks::pallete.getId(name));
     if (Blocks::blocks.size() < id + 1) {
         Blocks::blocks.resize(id + 1);
@@ -1039,11 +1039,12 @@ static T* createBlock(std::string name, Args &&...args) {
     }
 
     Blocks::blocks[id] = block;
+    block->fillStateContainer();
     return block;
 }
 
-static Block *createLogBlock(std::string name, MaterialColor topColor, MaterialColor barkColor) {
-    return createBlock<RotatedPillarBlock>(std::move(name), Properties::create(Materials::WOOD,
+static Block *createLogBlock(const std::string& name, MaterialColor topColor, MaterialColor barkColor) {
+    return createBlock<RotatedPillarBlock>(name, Properties::create(Materials::WOOD,
         [topColor, barkColor](const BlockData &data) -> MaterialColor {
             return topColor;// data.get(RotatedPillarBlock::AXIS) == Direction::Axis::Y ? topColor : barkColor;
         })
@@ -1051,16 +1052,16 @@ static Block *createLogBlock(std::string name, MaterialColor topColor, MaterialC
         .setSound(SoundType::WOOD));
 }
 
-static Block *createPiston(std::string name, bool sticky) {
-    return createBlock<PistonBlock>(std::move(name), sticky, Properties::create(Materials::PISTON)
+static Block *createPiston(const std::string& name, bool sticky) {
+    return createBlock<PistonBlock>(name, sticky, Properties::create(Materials::PISTON)
          .setHardnessAndResistance(1.5F)
          .setOpaque(isntSolid)
          .setSuffocates(isntExtended)
          .setBlocksVision(isntExtended));
 }
 
-static Block *createLeavesBlock(std::string name) {
-    return createBlock<LeavesBlock>(std::move(name), Properties::create(Materials::LEAVES)
+static Block *createLeavesBlock(const std::string& name) {
+    return createBlock<LeavesBlock>(name, Properties::create(Materials::LEAVES)
         .setHardnessAndResistance(0.2F)
         .setTickRandomly()
         .setSound(SoundType::PLANT)
@@ -1070,8 +1071,8 @@ static Block *createLeavesBlock(std::string name) {
         .setBlocksVision(isntSolid));
 }
 
-static Block *createBed(std::string name, DyeColors color) {
-    return createBlock<BedBlock>(std::move(name), color, Properties::create(Materials::WOOL,
+static Block *createBed(const std::string& name, DyeColors color) {
+    return createBlock<BedBlock>(name, color, Properties::create(Materials::WOOL,
         [](const BlockData &data) -> MaterialColor {
             return MaterialColors::WOOL;// data.get(BedBlock::PART) == BedPart::FOOT ? color.getMapColor() : MaterialColors::WOOL;
         }).setSound(SoundType::WOOD)
@@ -1079,8 +1080,8 @@ static Block *createBed(std::string name, DyeColors color) {
         .notSolid());
 }
 
-static Block *createStainedGlass(std::string name, DyeColors color) {
-    return createBlock<StainedGlassBlock>(std::move(name), color, Properties::create(Materials::GLASS, color)
+static Block *createStainedGlass(const std::string& name, DyeColors color) {
+    return createBlock<StainedGlassBlock>(name, color, Properties::create(Materials::GLASS, color)
           .setHardnessAndResistance(0.3F)
           .setSound(SoundType::GLASS)
           .notSolid()
@@ -1090,7 +1091,7 @@ static Block *createStainedGlass(std::string name, DyeColors color) {
           .setBlocksVision(isntSolid));
 }
 
-static Block *createShulkerBox(std::string name, std::optional<DyeColors> color, Properties properties) {
+static Block *createShulkerBox(const std::string& name, std::optional<DyeColors> color, Properties properties) {
     static constexpr auto isBlocksVision = [](BlockReader &reader, const BlockData &data, const BlockPos &pos) -> bool {
 //        TileEntity tileentity = p_235444_1_.getTileEntity(p_235444_2_);
 //        if (!(tileentity instanceof ShulkerBoxTileEntity)) {
@@ -1101,17 +1102,17 @@ static Block *createShulkerBox(std::string name, std::optional<DyeColors> color,
 //        }
         return true;
     };
-    return createBlock<ShulkerBoxBlock>(std::move(name), color, std::move(properties).setHardnessAndResistance(2.0F).setVariableOpacity().notSolid().setSuffocates(isBlocksVision).setBlocksVision(isBlocksVision));
+    return createBlock<ShulkerBoxBlock>(name, color, std::move(properties).setHardnessAndResistance(2.0F).setVariableOpacity().notSolid().setSuffocates(isBlocksVision).setBlocksVision(isBlocksVision));
 }
 
-static Block *createRotatableNetherBlock(std::string name, MaterialColor color) {
-    return createBlock<RotatedPillarBlock>(std::move(name), Properties::create(Materials::NETHER_WOOD, getMaterialColor(color))
+static Block *createRotatableNetherBlock(const std::string& name, MaterialColor color) {
+    return createBlock<RotatedPillarBlock>(name, Properties::create(Materials::NETHER_WOOD, getMaterialColor(color))
         .setHardnessAndResistance(2.0F)
         .setSound(SoundType::HYPHAE));
 }
 
-static Block* createBanner(std::string name, DyeColors color) {
-    return createBlock<BannerBlock>(std::move(name), color, Properties::create(Materials::WOOD).doesNotBlockMovement().setHardnessAndResistance(1.0F).setSound(SoundType::WOOD));
+static Block* createBanner(const std::string& name, DyeColors color) {
+    return createBlock<BannerBlock>(name, color, Properties::create(Materials::WOOD).doesNotBlockMovement().setHardnessAndResistance(1.0F).setSound(SoundType::WOOD));
 }
 
 void Blocks::registerBlocks() {

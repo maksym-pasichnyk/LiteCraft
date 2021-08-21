@@ -29,7 +29,12 @@ auto BlockData::getLightLevel() const -> int32_t {
 auto BlockData::isValidPosition(WorldReader &reader, const glm::vec3 &pos) const -> bool {
     return getBlock()->isValidPosition(*this, reader, pos);
 }
-auto BlockData::hasProperty(BlockStateProperty property) const -> bool {
-    auto properties = getBlock()->getBlockStateProperties();
-    return ranges::find(properties, property) != properties.end();
+auto BlockData::has(BlockStateProperty property) const -> bool {
+    return getBlock()->binds.contains(property);
+}
+auto BlockData::get(BlockStateProperty prop) -> Property {
+    return getBlock()->binds.at(prop).first(*this);
+}
+auto BlockData::set(BlockStateProperty prop, const Property &property) -> BlockData {
+	return getBlock()->binds.at(prop).second(*this, property);
 }

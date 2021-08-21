@@ -2,6 +2,9 @@
 
 #include "AbstractBlock.hpp"
 #include "BlockData.hpp"
+#include <util/Mirror.hpp>
+#include <util/Rotation.hpp>
+#include <state/BlockStateProperties.hpp>
 
 struct Block : AbstractBlock {
     BlockData baseState;
@@ -29,4 +32,12 @@ struct Block : AbstractBlock {
     }
 
     virtual void fillStateContainer() {}
+
+    virtual auto rotate(BlockData state, Rotation rotation) -> BlockData {
+        return state;
+    }
+
+    virtual auto mirror(BlockData state, Mirror mirror) -> BlockData {
+        return state;
+    }
 };

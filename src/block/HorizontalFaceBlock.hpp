@@ -1,7 +1,9 @@
 #pragma once
 
-#include "Block.hpp"
+#include "HorizontalBlock.hpp"
 
-struct HorizontalFaceBlock : Block {
-    using Block::Block;
+struct HorizontalFaceBlock : HorizontalBlock {
+    static constexpr auto FACE = BlockStateProperty::FACE;
+
+    using HorizontalBlock::HorizontalBlock;
 };
