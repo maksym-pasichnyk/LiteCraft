@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "ChestBlock.hpp"
 
-struct TrappedChestBlock : Block {
-    using Block::Block;
+struct TrappedChestBlock : ChestBlock {
+    using ChestBlock::ChestBlock;
 };

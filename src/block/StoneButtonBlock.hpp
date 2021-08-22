@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "AbstractButtonBlock.hpp"
 
-struct StoneButtonBlock : Block {
-    using Block::Block;
+struct StoneButtonBlock : AbstractButtonBlock {
+    using AbstractButtonBlock::AbstractButtonBlock;
 };
