@@ -11,7 +11,7 @@ struct WallSignBlock : AbstractSignBlock {
 
     static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
 
-    WallSignBlock(int id, Properties properties, WoodType woodType) : AbstractSignBlock(id, std::move(properties)) {}
+    using AbstractSignBlock::AbstractSignBlock;
 
     void fillStateContainer() override {
         bind<FACING, get_FACING, set_FACING>();
