@@ -1,7 +1,7 @@
 #include "TwistingVineFeature.hpp"
 #include <world/WorldGenRegion.hpp>
 #include <block/Blocks.hpp>
-#include <block/Block.hpp>
+#include <block/AbstractTopPlantBlock.hpp>
 
 bool TwistingVineFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Random &random, BlockPos pos, const FeatureConfig &config) {
     return tryGenerateVines(reader, random, pos, 8, 4, 8);
@@ -65,7 +65,7 @@ void TwistingVineFeature::placeVines(WorldGenRegion &reader, Random& random, con
             if (i == height || !reader.isAirBlock(pos.up())) {
                 const auto age = random.nextInt(min_age, max_age);
 
-                reader.setData(pos, TWISTING_VINES/*.with<AbstractTopPlantBlock.AGE>(age)*//*, 2*/);
+                reader.setData(pos, TWISTING_VINES.set<AbstractTopPlantBlock::AGE>(age)/*, 2*/);
                 break;
             }
 

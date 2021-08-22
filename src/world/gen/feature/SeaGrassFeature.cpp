@@ -1,6 +1,6 @@
 #include "SeaGrassFeature.hpp"
-#include <block/Block.hpp>
 #include <block/Blocks.hpp>
+#include <block/TallSeaGrassBlock.hpp>
 #include <world/WorldGenRegion.hpp>
 
 bool SeaGrassFeature::generate(WorldGenRegion& reader, ChunkGenerator& generator, Random& random, BlockPos pos, const FeatureConfig& config) {
@@ -23,7 +23,7 @@ bool SeaGrassFeature::generate(WorldGenRegion& reader, ChunkGenerator& generator
                 const auto up_pos = ocen_top.up();
                 if (reader.getData(up_pos).is(Blocks::WATER)) {
                     reader.setData(ocen_top, state/*, 2*/);
-                    reader.setData(up_pos, state/*.with<TallSeaGrassBlock.HALF>(DoubleBlockHalf.UPPER)*//*, 2*/);
+                    reader.setData(up_pos, state.set<TallSeaGrassBlock::HALF>(DoubleBlockHalf::UPPER)/*, 2*/);
                 }
             } else {
                 reader.setData(ocen_top, state/*, 2*/);

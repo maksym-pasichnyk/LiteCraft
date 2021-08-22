@@ -1,7 +1,7 @@
 #include "CoralFeature.hpp"
-#include <block/Block.hpp>
-#include <block/Blocks.hpp>
 #include <tags/BlockTags.hpp>
+#include <block/Blocks.hpp>
+#include <block/SeaPickleBlock.hpp>
 #include <world/WorldGenRegion.hpp>
 
 bool CoralFeature::generate(WorldGenRegion& reader, ChunkGenerator& generator, Random& random, BlockPos pos, const FeatureConfig& config) {
@@ -20,14 +20,14 @@ bool CoralFeature::generateCorals(WorldGenRegion& reader, Random& random, const 
 //            reader.setData(blockpos, BlockTags::CORALS.getRandomElement(random).getDefaultState(), 2);
         } else if (random.nextFloat() < 0.05F) {
             const auto age = random.nextInt(4) + 1;
-            reader.setData(blockpos, Blocks::SEA_PICKLE->getDefaultState()/*.with<SeaPickleBlock.PICKLES>(age)*//*, 2*/);
+            reader.setData(blockpos, Blocks::SEA_PICKLE->getDefaultState().set<SeaPickleBlock::PICKLES>(age)/*, 2*/);
         }
 
         for (const auto direction : DirectionUtil::Plane::HORIZONTAL) {
             if (random.nextFloat() < 0.2F) {
                 const auto blockpos1 = pos.offset(direction);
                 if (reader.getData(blockpos1).is(Blocks::WATER)) {
-//                    const auto state = BlockTags::WALL_CORALS.getRandomElement(random).getDefaultState().with<DeadCoralWallFanBlock.FACING>(direction);
+//                    const auto state = BlockTags::WALL_CORALS.getRandomElement(random).getDefaultState().with<DeadCoralWallFanBlock::FACING>(direction);
 //                    reader.setData(blockpos1, state, 2);
                 }
             }

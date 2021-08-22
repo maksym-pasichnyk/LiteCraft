@@ -1,7 +1,7 @@
 #include "WeepingVineFeature.hpp"
 #include <world/WorldGenRegion.hpp>
 #include <block/Blocks.hpp>
-#include <block/Block.hpp>
+#include <block/AbstractTopPlantBlock.hpp>
 
 bool WeepingVineFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Random &random, BlockPos pos, const FeatureConfig &config) {
     if (reader.isAirBlock(pos)) {
@@ -89,7 +89,7 @@ void WeepingVineFeature::placeVines(WorldGenRegion &reader, Random &random, cons
         if (reader.isAirBlock(pos)) {
             if (i == height || !reader.isAirBlock(pos.down())) {
                 const auto age = random.nextInt(min_age, max_age);
-                reader.setData(pos, WEEPING_VINES/*.with<AbstractTopPlantBlock.AGE>(age)*//*, 2*/);
+                reader.setData(pos, WEEPING_VINES.set<AbstractTopPlantBlock::AGE>(age)/*, 2*/);
                 break;
             }
 

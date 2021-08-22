@@ -1,8 +1,8 @@
 #define _USE_MATH_DEFINES
 
 #include "EndSpikeFeature.hpp"
-#include <block/Block.hpp>
 #include <block/Blocks.hpp>
+#include <block/PaneBlock.hpp>
 #include <world/WorldGenRegion.hpp>
 #include <cmath>
 
@@ -72,11 +72,11 @@ void EndSpikeFeature::placeSpike(WorldGenRegion &reader, Random &random, const E
                     if (flag0 || flag1 || flag2) {
                         const auto flag3 = dx == -2 || dx == 2 || flag2;
                         const auto flag4 = dz == -2 || dz == 2 || flag2;
-                        const auto state = Blocks::IRON_BARS->getDefaultState();
-//                                                .with(PaneBlock::NORTH, flag3 && dz != -2)
-//                                                .with(PaneBlock::SOUTH, flag3 && dz != 2)
-//                                                .with(PaneBlock::WEST, flag4 && dx != -2)
-//                                                .with(PaneBlock::EAST, flag4 && dx != 2);
+                        const auto state = Blocks::IRON_BARS->getDefaultState()
+                                                .set<PaneBlock::NORTH>(flag3 && dz != -2)
+                                                .set<PaneBlock::SOUTH>(flag3 && dz != 2)
+                                                .set<PaneBlock::WEST>(flag4 && dx != -2)
+                                                .set<PaneBlock::EAST>(flag4 && dx != 2);
                                            
                         setBlockState(reader, max_pos.add(dx, dy, dz), state);
                     }

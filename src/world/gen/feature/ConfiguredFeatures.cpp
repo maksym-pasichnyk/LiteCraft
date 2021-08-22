@@ -33,7 +33,9 @@
 #include "../treedecorator/LeaveVineTreeDecorator.hpp"
 #include "../treedecorator/TrunkVineTreeDecorator.hpp"
 #include "../treedecorator/AlterGroundTreeDecorator.hpp"
-#include "../../../block/Blocks.hpp"
+
+#include <block/Blocks.hpp>
+#include <block/HugeMushroomBlock.hpp>
 
 Registry<ConfiguredFeature> ConfiguredFeatures::features{};
 ConfiguredFeature* ConfiguredFeatures::END_SPIKE;
@@ -413,13 +415,13 @@ void ConfiguredFeatures::configureFeatures() {
         .project = false
     };
     static BigMushroomFeatureConfig HUGE_BROWN_MUSHROOM_CONFIG {
-        .capProvider = new SimpleBlockStateProvider(Blocks::BROWN_MUSHROOM_BLOCK->getStateWithMeta(14)), //.with(HugeMushroomBlock.UP, true).with(HugeMushroomBlock.DOWN, false)
-        .stemProvider = new SimpleBlockStateProvider(Blocks::BROWN_MUSHROOM_BLOCK->getStateWithMeta(15)),
+        .capProvider = new SimpleBlockStateProvider(Blocks::BROWN_MUSHROOM_BLOCK->getDefaultState().set<HugeMushroomBlock::UP>(true).set<HugeMushroomBlock::DOWN>(false)),
+        .stemProvider = new SimpleBlockStateProvider(Blocks::MUSHROOM_STEM->getDefaultState().set<HugeMushroomBlock::UP>(false).set<HugeMushroomBlock::DOWN>(false)),
         .foliageRadius = 3
     };
     static BigMushroomFeatureConfig HUGE_RED_MUSHROOM_CONFIG {
-        .capProvider = new SimpleBlockStateProvider(Blocks::RED_MUSHROOM_BLOCK->getStateWithMeta(14)), //.with(HugeMushroomBlock.UP, true).with(HugeMushroomBlock.DOWN, false)
-        .stemProvider = new SimpleBlockStateProvider(Blocks::RED_MUSHROOM_BLOCK->getStateWithMeta(15)),
+        .capProvider = new SimpleBlockStateProvider(Blocks::RED_MUSHROOM_BLOCK->getDefaultState().set<HugeMushroomBlock::UP>(true).set<HugeMushroomBlock::DOWN>(false)),
+        .stemProvider = new SimpleBlockStateProvider(Blocks::MUSHROOM_STEM->getDefaultState().set<HugeMushroomBlock::UP>(false).set<HugeMushroomBlock::DOWN>(false)),
         .foliageRadius = 2
     };
     static BlockStateFeatureConfig LAKE_WATER_CONFIG {
