@@ -1,8 +1,17 @@
 #pragma once
 
 #include "HorizontalFaceBlock.hpp"
+#include <bit>
 
 struct AbstractButtonBlock : HorizontalFaceBlock {
+    struct Payload {
+        uint16_t face : 2;
+        uint16_t facing : 3;
+        uint16_t : 2;
+        uint16_t powered : 1;
+        uint16_t : 8;
+    };
+
     static constexpr auto POWERED = BlockStateProperty::POWERED;
 
     using HorizontalFaceBlock::HorizontalFaceBlock;
@@ -14,26 +23,38 @@ struct AbstractButtonBlock : HorizontalFaceBlock {
     }
 
     static auto set_FACING(BlockData state, Direction facing) -> BlockData {
+        auto payload = std::bit_cast<Payload>(state.dv);
+        payload.facing = static_cast<uint16_t>(facing);
+        state.dv = std::bit_cast<uint16_t>(payload);
         return state;
     }
 
-    static auto set_POWERED(BlockData state, bool powered) -> BlockData {
+    static auto set_POWERED(BlockData state, bool flag) -> BlockData {
+        auto payload = std::bit_cast<Payload>(state.dv);
+        payload.powered = flag ? 1 : 0;
+        state.dv = std::bit_cast<uint16_t>(payload);
         return state;
     }
 
     static auto set_FACE(BlockData state, AttachFace face) -> BlockData {
+        auto payload = std::bit_cast<Payload>(state.dv);
+        payload.face = static_cast<uint16_t>(face);
+        state.dv = std::bit_cast<uint16_t>(payload);
         return state;
     }
 
     static auto get_FACING(BlockData state) -> Direction {
-        return Direction::NORTH;
+        auto payload = std::bit_cast<Payload>(state.dv);
+        return static_cast<Direction>(payload.facing);
     }
 
     static auto get_POWERED(BlockData state) -> bool {
-        return false;
+        auto payload = std::bit_cast<Payload>(state.dv);
+        return payload.powered == 1;
     }
 
     static auto get_FACE(BlockData state) -> AttachFace {
-        return AttachFace::FLOOR;
+        auto payload = std::bit_cast<Payload>(state.dv);
+        return static_cast<AttachFace>(payload.face);
     }
 };

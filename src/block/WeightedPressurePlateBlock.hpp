@@ -1,7 +1,30 @@
 #pragma once
 
-#include "Block.hpp"
+#include "AbstractPressurePlateBlock.hpp"
 
-struct WeightedPressurePlateBlock : Block {
-    WeightedPressurePlateBlock(int id, int preassure, Properties properties) : Block(id, std::move(properties)) {}
+struct WeightedPressurePlateBlock : AbstractPressurePlateBlock {
+    struct Payload {
+        uint16_t power : 8;
+        uint16_t : 8;
+    };
+
+    static constexpr auto POWER = BlockStateProperty::POWER_0_15;
+
+    WeightedPressurePlateBlock(int id, int preassure, Properties properties) : AbstractPressurePlateBlock(id, std::move(properties)) {}
+
+    void fillStateContainer() override {
+        bind<POWER, get_POWER, set_POWER>();
+    }
+
+    static auto get_POWER(BlockData state) -> int {
+        auto payload = std::bit_cast<Payload>(state.dv);
+        return payload.power;
+    }
+
+    static auto set_POWER(BlockData state, int power) -> BlockData {
+        auto payload = std::bit_cast<Payload>(state.dv);
+        payload.power = power;
+        state.dv = std::bit_cast<uint16_t>(payload);
+        return state;
+    }
 };

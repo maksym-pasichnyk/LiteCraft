@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Block.hpp"
+#include "AbstractSkullBlock.hpp"
 
-struct SkullBlock : Block {
-    enum class Types {
+struct SkullBlock : AbstractSkullBlock {
+    enum class Type {
         SKELETON,
         WITHER_SKELETON,
         PLAYER,
@@ -12,5 +12,5 @@ struct SkullBlock : Block {
         DRAGON
     };
 
-    SkullBlock(int id, Types type, Properties properties) : Block(id, std::move(properties)) {}
+    SkullBlock(int id, Type type, Properties properties) : AbstractSkullBlock(id, std::move(properties)) {}
 };

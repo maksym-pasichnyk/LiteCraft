@@ -2108,9 +2108,9 @@ void Blocks::registerBlocks() {
         .doesNotBlockMovement()
         .setHardnessAndResistance(0.5F)
         .setSound(SoundType::WOOD));
-    SKELETON_SKULL = createBlock<SkullBlock>("skeleton_skull", SkullBlock::Types::SKELETON, Properties::create(Materials::MISCELLANEOUS)
+    SKELETON_SKULL = createBlock<SkullBlock>("skeleton_skull", SkullBlock::Type::SKELETON, Properties::create(Materials::MISCELLANEOUS)
         .setHardnessAndResistance(1.0F));
-    SKELETON_WALL_SKULL = createBlock<WallSkullBlock>("skeleton_wall_skull", SkullBlock::Types::SKELETON, Properties::create(Materials::MISCELLANEOUS)
+    SKELETON_WALL_SKULL = createBlock<WallSkullBlock>("skeleton_wall_skull", SkullBlock::Type::SKELETON, Properties::create(Materials::MISCELLANEOUS)
         .setHardnessAndResistance(1.0F)
         .setLootFrom(SKELETON_SKULL));
     WITHER_SKELETON_SKULL = createBlock<WitherSkeletonSkullBlock>("wither_skeleton_skull", Properties::create(Materials::MISCELLANEOUS)
@@ -2118,9 +2118,9 @@ void Blocks::registerBlocks() {
     WITHER_SKELETON_WALL_SKULL = createBlock<WitherSkeletonWallSkullBlock>("wither_skeleton_wall_skull", Properties::create(Materials::MISCELLANEOUS)
         .setHardnessAndResistance(1.0F)
         .setLootFrom(WITHER_SKELETON_SKULL));
-    ZOMBIE_HEAD = createBlock<SkullBlock>("zombie_head", SkullBlock::Types::ZOMBIE, Properties::create(Materials::MISCELLANEOUS)
+    ZOMBIE_HEAD = createBlock<SkullBlock>("zombie_head", SkullBlock::Type::ZOMBIE, Properties::create(Materials::MISCELLANEOUS)
         .setHardnessAndResistance(1.0F));
-    ZOMBIE_WALL_HEAD = createBlock<WallSkullBlock>("zombie_wall_head", SkullBlock::Types::ZOMBIE, Properties::create(Materials::MISCELLANEOUS)
+    ZOMBIE_WALL_HEAD = createBlock<WallSkullBlock>("zombie_wall_head", SkullBlock::Type::ZOMBIE, Properties::create(Materials::MISCELLANEOUS)
         .setHardnessAndResistance(1.0F)
         .setLootFrom(ZOMBIE_HEAD));
     PLAYER_HEAD = createBlock<SkullPlayerBlock>("player_head", Properties::create(Materials::MISCELLANEOUS)
@@ -2128,14 +2128,14 @@ void Blocks::registerBlocks() {
     PLAYER_WALL_HEAD = createBlock<SkullWallPlayerBlock>("player_wall_head", Properties::create(Materials::MISCELLANEOUS)
         .setHardnessAndResistance(1.0F)
         .setLootFrom(PLAYER_HEAD));
-    CREEPER_HEAD = createBlock<SkullBlock>("creeper_head", SkullBlock::Types::CREEPER, Properties::create(Materials::MISCELLANEOUS)
+    CREEPER_HEAD = createBlock<SkullBlock>("creeper_head", SkullBlock::Type::CREEPER, Properties::create(Materials::MISCELLANEOUS)
         .setHardnessAndResistance(1.0F));
-    CREEPER_WALL_HEAD = createBlock<WallSkullBlock>("creeper_wall_head", SkullBlock::Types::CREEPER, Properties::create(Materials::MISCELLANEOUS)
+    CREEPER_WALL_HEAD = createBlock<WallSkullBlock>("creeper_wall_head", SkullBlock::Type::CREEPER, Properties::create(Materials::MISCELLANEOUS)
         .setHardnessAndResistance(1.0F)
         .setLootFrom(CREEPER_HEAD));
-    DRAGON_HEAD = createBlock<SkullBlock>("dragon_head", SkullBlock::Types::DRAGON, Properties::create(Materials::MISCELLANEOUS)
+    DRAGON_HEAD = createBlock<SkullBlock>("dragon_head", SkullBlock::Type::DRAGON, Properties::create(Materials::MISCELLANEOUS)
         .setHardnessAndResistance(1.0F));
-    DRAGON_WALL_HEAD = createBlock<WallSkullBlock>("dragon_wall_head", SkullBlock::Types::DRAGON, Properties::create(Materials::MISCELLANEOUS)
+    DRAGON_WALL_HEAD = createBlock<WallSkullBlock>("dragon_wall_head", SkullBlock::Type::DRAGON, Properties::create(Materials::MISCELLANEOUS)
         .setHardnessAndResistance(1.0F)
         .setLootFrom(DRAGON_HEAD));
     ANVIL = createBlock<AnvilBlock>("anvil", Properties::create(Materials::ANVIL, MaterialColors::IRON)

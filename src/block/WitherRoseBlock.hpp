@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Block.hpp"
+#include "FlowerBlock.hpp"
 #include "../potion/Effects.hpp"
 
-struct WitherRoseBlock : Block {
-    WitherRoseBlock(int id, Effects effect, Properties properties) : Block(id, std::move(properties)) {}
+struct WitherRoseBlock : FlowerBlock {
+    WitherRoseBlock(int id, Effects effect, Properties properties) : FlowerBlock(id, effect, 8, std::move(properties)) {}
 };

@@ -31,15 +31,15 @@ struct BlockData {
 
     auto has(BlockStateProperty property) const -> bool;
 
-    auto get(BlockStateProperty prop) -> Property;
-    auto set(BlockStateProperty prop, const Property& property) -> BlockData;
+    auto get(BlockStateProperty prop) const -> Property;
+    auto set(BlockStateProperty prop, const Property& property) const -> BlockData;
 
     template<BlockStateProperty prop>
-    auto get() -> typename BlockStatePropertyType<prop>::type {
+    auto get() const -> typename BlockStatePropertyType<prop>::type {
         return std::get<typename BlockStatePropertyType<prop>::type>(get(prop));
     }
     template<BlockStateProperty prop>
-    auto set(typename BlockStatePropertyType<prop>::type property) -> BlockData {
+    auto set(typename BlockStatePropertyType<prop>::type property) const -> BlockData {
         return set(prop, property);
     }
 };

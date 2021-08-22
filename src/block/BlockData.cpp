@@ -32,9 +32,9 @@ auto BlockData::isValidPosition(WorldReader &reader, const glm::vec3 &pos) const
 auto BlockData::has(BlockStateProperty property) const -> bool {
     return getBlock()->binds.contains(property);
 }
-auto BlockData::get(BlockStateProperty prop) -> Property {
+auto BlockData::get(BlockStateProperty prop) const -> Property {
     return getBlock()->binds.at(prop).first(*this);
 }
-auto BlockData::set(BlockStateProperty prop, const Property &property) -> BlockData {
+auto BlockData::set(BlockStateProperty prop, const Property &property) const -> BlockData {
 	return getBlock()->binds.at(prop).second(*this, property);
 }

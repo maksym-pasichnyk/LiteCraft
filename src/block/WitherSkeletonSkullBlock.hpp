@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "SkullBlock.hpp"
 
-struct WitherSkeletonSkullBlock : Block {
-    using Block::Block;
+struct WitherSkeletonSkullBlock : SkullBlock {
+    WitherSkeletonSkullBlock(int id, Properties properties) : SkullBlock(id, Type::WITHER_SKELETON, std::move(properties)) {}
 };
