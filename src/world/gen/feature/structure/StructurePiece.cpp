@@ -5,17 +5,17 @@
 #include "../../../../block/Blocks.hpp"
 
 BlockData StructurePiece::getBlockStateFromPos(WorldReader &reader, int x, int y, int z, const BoundingBox &bb) const {
-    const auto pos = BlockPos::from(getXWithOffset(x, z), getYWithOffset(y), getZWithOffset(x, z));
+    const auto pos = getRelativePosition(x, y, z);
     return !bb.isVecInside(pos) ? Blocks::AIR->getDefaultState() : reader.getData(pos);
 }
 
 bool StructurePiece::isLiquidInStructureBoundingBox(WorldReader &reader, const BoundingBox &bb) const {
-    const int xmin = std::max(bounds.minX - 1, bb.minX);
-    const int ymin = std::max(bounds.minY - 1, bb.minY);
-    const int zmin = std::max(bounds.minZ - 1, bb.minZ);
-    const int xmax = std::min(bounds.maxX + 1, bb.maxX);
-    const int ymax = std::min(bounds.maxY + 1, bb.maxY);
-    const int zmax = std::min(bounds.maxZ + 1, bb.maxZ);
+    const auto xmin = std::max(bounds.minX - 1, bb.minX);
+    const auto ymin = std::max(bounds.minY - 1, bb.minY);
+    const auto zmin = std::max(bounds.minZ - 1, bb.minZ);
+    const auto xmax = std::min(bounds.maxX + 1, bb.maxX);
+    const auto ymax = std::min(bounds.maxY + 1, bb.maxY);
+    const auto zmax = std::min(bounds.maxZ + 1, bb.maxZ);
 
     for (int x = xmin; x <= xmax; ++x) {
         for (int z = zmin; z <= zmax; ++z) {
@@ -57,13 +57,11 @@ bool StructurePiece::isLiquidInStructureBoundingBox(WorldReader &reader, const B
 }
 
 bool StructurePiece::isUnderOceanFloor(WorldGenRegion &region, int x, int y, int z, const BoundingBox &bb) const {
-    const int i = getXWithOffset(x, z);
-    const int j = getYWithOffset(y + 1);
-    const int k = getZWithOffset(x, z);
-    if (!bb.contains(i, j, k)) {
+    const auto pos = getRelativePosition(x, y + 1, z);
+    if (!bb.isVecInside(pos)) {
         return false;
     }
-    return j < region.getHeight(HeightmapType::OCEAN_FLOOR_WG, i, k);
+    return pos.y < region.getHeight(HeightmapType::OCEAN_FLOOR_WG, pos).y;
 }
 
 void StructurePiece::fillWithAir(WorldGenRegion &region, const BoundingBox &bb, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) const {
@@ -128,7 +126,7 @@ void StructurePiece::generateMaybeBox(WorldGenRegion &region, const BoundingBox 
 }
 
 void StructurePiece::setBlockState(WorldGenRegion &region, BlockData state, int x, int y, int z, const BoundingBox &bb) const {
-    const auto pos = BlockPos(getXWithOffset(x, z), getYWithOffset(y), getZWithOffset(x, z));
+    const auto pos = getRelativePosition(x, y, z);
     if (bb.isVecInside(pos)) {
 //        if (mirror != Mirror::NONE) {
 //            state = state.mirror(mirror);
@@ -151,22 +149,22 @@ void StructurePiece::setBlockState(WorldGenRegion &region, BlockData state, int 
 }
 
 void StructurePiece::randomlyRareFillWithBlocks(WorldGenRegion &region, const BoundingBox &bb, int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockData state, bool excludeAir) const {
-    const float f0 = static_cast<float>(maxX - minX + 1);
-    const float f1 = static_cast<float>(maxY - minY + 1);
-    const float f2 = static_cast<float>(maxZ - minZ + 1);
-    const float f3 = static_cast<float>(minX) + f0 / 2.0F;
-    const float f4 = static_cast<float>(minZ) + f2 / 2.0F;
+    const auto f0 = static_cast<float>(maxX - minX + 1);
+    const auto f1 = static_cast<float>(maxY - minY + 1);
+    const auto f2 = static_cast<float>(maxZ - minZ + 1);
+    const auto f3 = static_cast<float>(minX) + f0 * 0.5F;
+    const auto f4 = static_cast<float>(minZ) + f2 * 0.5F;
 
     for (int i = minY; i <= maxY; ++i) {
-        const float f5 = static_cast<float>(i - minY) / f1;
+        const auto f5 = static_cast<float>(i - minY) / f1;
 
         for (int j = minX; j <= maxX; ++j) {
-            const float f6 = (static_cast<float>(j) - f3) / (f0 * 0.5F);
+            const auto f6 = (static_cast<float>(j) - f3) / (f0 * 0.5F);
 
             for (int k = minZ; k <= maxZ; ++k) {
-                const float f7 = (static_cast<float>(k) - f4) / (f2 * 0.5F);
+                const auto f7 = (static_cast<float>(k) - f4) / (f2 * 0.5F);
                 if (!excludeAir || !getBlockStateFromPos(region, j, i, k, bb).isAir()) {
-                    const float f8 = f6 * f6 + f5 * f5 + f7 * f7;
+                    const auto f8 = f6 * f6 + f5 * f5 + f7 * f7;
                     if (f8 <= 1.05F) {
                         setBlockState(region, state, j, i, k, bb);
                     }

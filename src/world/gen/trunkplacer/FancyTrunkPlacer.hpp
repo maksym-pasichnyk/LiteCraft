@@ -42,7 +42,7 @@ struct FancyTrunkPlacer : AbstractTrunkPlacer {
 
     void func_236886_a_(WorldGenRegion &reader, Random& random, int p_236886_3_, const BlockPos& pos, const std::list<Foliage>& foliages, std::set<BlockPos>& set1, BoundingBox& boundingBox, const BaseTreeFeatureConfig &config) {
         for (const auto& [foliage, y] : foliages) {
-            const BlockPos blockpos(pos.x, y, pos.z);
+            const auto blockpos = BlockPos::from(pos.x, y, pos.z);
             if ((blockpos != foliage.position) && func_236885_a_(p_236886_3_, y - pos.y)) {
                 placeTrunk(reader, random, blockpos, foliage.position, true, set1, boundingBox, config);
             }

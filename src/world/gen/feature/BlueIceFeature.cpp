@@ -30,26 +30,23 @@ bool BlueIceFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator,
     reader.setData(pos, BLUE_ICE/*, 2*/);
 
     for (int i = 0; i < 200; ++i) {
-        const int g0 = random.nextInt(5);
-        const int j = g0 - random.nextInt(6);
+        const auto g0 = random.nextInt(5);
+        const auto j = g0 - random.nextInt(6);
         int k = 3;
         if (j < 2) {
             k += j / 2;
         }
 
         if (k >= 1) {
-            const int dx0 = random.nextInt(k);
-            const int dx1 = random.nextInt(k);
-            const int dx2 = random.nextInt(k);
-            const int dx3 = random.nextInt(k);
+            const auto dx0 = random.nextInt(k);
+            const auto dx1 = random.nextInt(k);
+            const auto dx2 = random.nextInt(k);
+            const auto dx3 = random.nextInt(k);
 
-            const BlockPos blockpos = pos + BlockPos(dx0 - dx1, j, dx2 - dx3);
+            const auto blockpos = pos.add(dx0 - dx1, j, dx2 - dx3);
             const auto state = reader.getData(blockpos);
-            if (state.getMaterial() == Materials::AIR ||
-                    state.is(Blocks::WATER) ||
-                state.is(Blocks::PACKED_ICE) ||
-                state.is(Blocks::ICE)) {
-                for (Direction direction : DirectionUtil::values()) {
+            if (state.getMaterial() == Materials::AIR || state.is(Blocks::WATER) || state.is(Blocks::PACKED_ICE) || state.is(Blocks::ICE)) {
+                for (const auto direction : DirectionUtil::values()) {
                     if (reader.getData(blockpos.offset(direction)).is(Blocks::BLUE_ICE)) {
                         reader.setData(blockpos, BLUE_ICE/*, 2*/);
                         break;

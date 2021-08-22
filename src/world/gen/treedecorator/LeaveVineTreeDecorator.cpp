@@ -1,13 +1,14 @@
 #include "LeaveVineTreeDecorator.hpp"
 #include "../feature/Feature.hpp"
 #include "../../WorldGenRegion.hpp"
+#include <block/VineBlock.hpp>
 
-void LeaveVineTreeDecorator::placeVines(WorldGenRegion& reader, const BlockPos& pos/*, BooleanProperty p_227420_3_*/, std::set<BlockPos>& p_227420_4_, BoundingBox& boundingBox) {
-    placeVine(reader, pos/*, p_227420_3_*/, p_227420_4_, boundingBox);
+void LeaveVineTreeDecorator::placeVines(WorldGenRegion& reader, const BlockPos& pos, BlockStateProperty property, std::set<BlockPos>& positions, BoundingBox& boundingBox) {
+    placeVine(reader, pos, property, positions, boundingBox);
 
     auto blockpos = pos.down();
     for (int i = 4; i > 0 && Feature::isAirAt(reader, blockpos); --i) {
-        placeVine(reader, blockpos/*, p_227420_3_*/, p_227420_4_, boundingBox);
+        placeVine(reader, blockpos, property, positions, boundingBox);
         blockpos.y--;
     }
 }
@@ -17,28 +18,28 @@ void LeaveVineTreeDecorator::decorate(WorldGenRegion &reader, Random &random, st
         if (random.nextInt(4) == 0) {
             const auto blockpos = pos.west();
             if (Feature::isAirAt(reader, blockpos)) {
-                placeVines(reader, blockpos/*, VineBlock::EAST*/, positions3, boundingBox);
+                placeVines(reader, blockpos, VineBlock::EAST, positions3, boundingBox);
             }
         }
 
         if (random.nextInt(4) == 0) {
-            const auto blockpos1 = pos.east();
-            if (Feature::isAirAt(reader, blockpos1)) {
-                placeVines(reader, blockpos1/*, VineBlock::WEST*/, positions3, boundingBox);
+            const auto blockpos = pos.east();
+            if (Feature::isAirAt(reader, blockpos)) {
+                placeVines(reader, blockpos, VineBlock::WEST, positions3, boundingBox);
             }
         }
 
         if (random.nextInt(4) == 0) {
-            const auto blockpos2 = pos.north();
-            if (Feature::isAirAt(reader, blockpos2)) {
-                placeVines(reader, blockpos2/*, VineBlock::SOUTH*/, positions3, boundingBox);
+            const auto blockpos = pos.north();
+            if (Feature::isAirAt(reader, blockpos)) {
+                placeVines(reader, blockpos, VineBlock::SOUTH, positions3, boundingBox);
             }
         }
 
         if (random.nextInt(4) == 0) {
-            const auto blockpos3 = pos.south();
-            if (Feature::isAirAt(reader, blockpos3)) {
-                placeVines(reader, blockpos3/*, VineBlock::NORTH*/, positions3, boundingBox);
+            const auto blockpos = pos.south();
+            if (Feature::isAirAt(reader, blockpos)) {
+                placeVines(reader, blockpos, VineBlock::NORTH, positions3, boundingBox);
             }
         }
     }

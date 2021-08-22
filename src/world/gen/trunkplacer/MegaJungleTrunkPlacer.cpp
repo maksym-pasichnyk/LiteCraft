@@ -11,15 +11,15 @@ std::list<FoliagePlacer::Foliage> MegaJungleTrunkPlacer::getFoliages(WorldGenReg
         const auto [sf, cf] = std::sincos(random.nextFloat() * (static_cast<float>(M_PI) * 2.0F));
 
         for (int l = 0; l < 5; ++l) {
-            const int j = static_cast<int>(1.5F + cf * static_cast<float>(l));
-            const int k = static_cast<int>(1.5F + sf * static_cast<float>(l));
-            const auto blockpos = pos + BlockPos(j, i - 3 + l / 2, k);
+            const auto j = static_cast<int>(1.5F + cf * static_cast<float>(l));
+            const auto k = static_cast<int>(1.5F + sf * static_cast<float>(l));
+            const auto blockpos = pos.add(j, i - 3 + l / 2, k);
             placeTrunk(reader, random, blockpos, set1, boundingBox, config);
         }
 
-        const int j = static_cast<int>(1.5F + cf * static_cast<float>(4));
-        const int k = static_cast<int>(1.5F + sf * static_cast<float>(4));
-        foliages.emplace_back(pos + BlockPos(j, i, k), -2, false);
+        const auto j = static_cast<int>(1.5F + cf * static_cast<float>(4));
+        const auto k = static_cast<int>(1.5F + sf * static_cast<float>(4));
+        foliages.emplace_back(pos.add(j, i, k), -2, false);
     }
 
     return foliages;

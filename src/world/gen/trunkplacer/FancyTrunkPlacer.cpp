@@ -31,7 +31,7 @@ std::list<FoliagePlacer::Foliage> FancyTrunkPlacer::getFoliages(WorldGenRegion &
             const double d3 = static_cast<double>(random.nextFloat() * 2.0F) * M_PI;
             const double d4 = d2 * std::sin(d3) + 0.5;
             const double d5 = d2 * std::cos(d3) + 0.5;
-            const BlockPos blockpos = pos + BlockPos(d4, j1 - 1, d5);
+            const auto blockpos = pos.add(d4, j1 - 1, d5);
             const auto blockpos1 = blockpos.up(5);
             if (placeTrunk(reader, random, blockpos, blockpos1, false, set1, boundingBox, config)) {
                 const int dx = pos.x - blockpos.x;
@@ -69,7 +69,7 @@ bool FancyTrunkPlacer::placeTrunk(WorldGenRegion &reader, Random& random, const 
         const auto blockpos1 = glm::vec3(pos1) + glm::vec3(0.5F + (float)j * f, 0.5F + (float)j * f1, 0.5F + (float)j * f2);
         if (needPlace) {
             const auto state = config.trunkProvider->getBlockState(random, blockpos1);
-//                    .with(RotatedPillarBlock::AXIS, func_236889_a_(pos1, blockpos1));
+//                .set<RotatedPillarBlock::AXIS>(func_236889_a_(pos1, blockpos1));
             placeBlockState(reader, blockpos1, state, boundingBox);
             set1.emplace(blockpos1);
         } else if (!TreeFeature::isReplaceableOrLogAt(reader, blockpos1)) {

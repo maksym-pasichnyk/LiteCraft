@@ -23,13 +23,13 @@ bool RandomPatchFeature::generate(WorldGenRegion &reader, ChunkGenerator &genera
 
     int i = 0;
     for (int j = 0; j < cfg.tries; ++j) {
-        const int x0 = random.nextInt(cfg.xspread + 1);
-        const int x1 = random.nextInt(cfg.xspread + 1);
-        const int y0 = random.nextInt(cfg.yspread + 1);
-        const int y1 = random.nextInt(cfg.yspread + 1);
-        const int z0 = random.nextInt(cfg.zspread + 1);
-        const int z1 = random.nextInt(cfg.zspread + 1);
-        const BlockPos nearbypos = projected + BlockPos(x0 - x1, y0 - y1,  z0 - z1);
+        const auto x0 = random.nextInt(cfg.xspread + 1);
+        const auto x1 = random.nextInt(cfg.xspread + 1);
+        const auto y0 = random.nextInt(cfg.yspread + 1);
+        const auto y1 = random.nextInt(cfg.yspread + 1);
+        const auto z0 = random.nextInt(cfg.zspread + 1);
+        const auto z1 = random.nextInt(cfg.zspread + 1);
+        const auto nearbypos = projected.add(x0 - x1, y0 - y1,  z0 - z1);
         const auto underPos = nearbypos.down();
         const auto underBlock = reader.getData(underPos);
         if (reader.isAirBlock(nearbypos) || cfg.can_replace && reader.getData(nearbypos).getMaterial()->isReplaceable) {

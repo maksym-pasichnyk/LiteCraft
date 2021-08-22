@@ -1,7 +1,9 @@
 #include "MineshaftCorridor.hpp"
 #include "../../../WorldGenRegion.hpp"
-#include "../../../../block/Block.hpp"
-#include "../../../../block/Blocks.hpp"
+#include <block/Blocks.hpp>
+#include <block/RailBlock.hpp>
+#include <block/FenceBlock.hpp>
+#include <block/WallTorchBlock.hpp>
 
 std::optional<BoundingBox> MineshaftPieces::Corridor::findCorridor(std::span<StructurePiece *> pieces, Random &random, int x, int y, int z, Direction facing) {
     BoundingBox bounds{x, y, z, x, y + 3 - 1, z};
@@ -115,7 +117,7 @@ bool MineshaftPieces::Corridor::addComponentParts(WorldGenRegion &region, Struct
     const auto CAVE_AIR = Blocks::CAVE_AIR->getDefaultState();
     const auto COBWEB = Blocks::COBWEB->getDefaultState();
 
-    const int i1 = sectionCount * 5 - 1;
+    const auto i1 = sectionCount * 5 - 1;
     const auto blockstate = getPlanksBlock();
     fillWithBlocks(region, bb, 0, 0, 0, 2, 1, i1, CAVE_AIR, CAVE_AIR, false);
     generateMaybeBox(region, bb, random, 0.8F, 0, 2, 0, 2, 2, i1, CAVE_AIR, CAVE_AIR, false, false);
@@ -151,7 +153,7 @@ bool MineshaftPieces::Corridor::addComponentParts(WorldGenRegion &region, Struct
             const auto blockpos = BlockPos::from(j2, l1, k2);
             if (bb.isVecInside(blockpos) && isUnderOceanFloor(region, 1, 0, i2, bb)) {
                 spawnerPlaced = true;
-                region.setData(blockpos, Blocks::SPAWNER->getDefaultState()/*, 2*/);
+                region.setData(blockpos, Blocks::SPAWNER->getDefaultState() /*, 2*/);
 //                TileEntity tileentity = region.getTileEntity(blockpos);
 //                if (tileentity instanceof MobSpawnerTileEntity) {
 //                    ((MobSpawnerTileEntity)tileentity).getSpawnerBaseLogic().setEntityType(EntityType.CAVE_SPIDER);
@@ -170,12 +172,12 @@ bool MineshaftPieces::Corridor::addComponentParts(WorldGenRegion &region, Struct
     }
 
     if (hasRails) {
-        const auto rail = Blocks::RAIL->getDefaultState();//.with(RailBlock.SHAPE, RailShape.NORTH_SOUTH);
+        const auto rail = Blocks::RAIL->getDefaultState().set<RailBlock::SHAPE>(RailShape::NORTH_SOUTH);
 
-        for(int j3 = 0; j3 <= i1; ++j3) {
+        for (int j3 = 0; j3 <= i1; ++j3) {
             const auto state = getBlockStateFromPos(region, 1, -1, j3, bb);
             if (!state.isAir() && state.isOpaque() /* && state.isOpaqueCube(region, BlockPos{getXWithOffset(1, j3), getYWithOffset(-1), getZWithOffset(1, j3)})*/) {
-                const float f = isUnderOceanFloor(region, 1, 0, j3, bb) ? 0.7F : 0.9F;
+                const auto f = isUnderOceanFloor(region, 1, 0, j3, bb) ? 0.7F : 0.9F;
                 randomlyPlaceBlock(region, bb, random, f, 1, 0, j3, rail);
             }
         }
@@ -189,17 +191,17 @@ void MineshaftPieces::Corridor::placeSupport(WorldGenRegion &region, const Bound
         const auto CAVE_AIR = Blocks::CAVE_AIR->getDefaultState();
         const auto WALL_TORCH = Blocks::WALL_TORCH->getDefaultState();
 
-        const auto blockstate = getPlanksBlock();
-        const auto blockstate1 = getFenceBlock();
-        fillWithBlocks(region, bb, xmin, ymin, z, xmin, ymax - 1, z, blockstate1/*.with(FenceBlock.WEST, true)*/, CAVE_AIR, false);
-        fillWithBlocks(region, bb, xmax, ymin, z, xmax, ymax - 1, z, blockstate1/*.with(FenceBlock.EAST, true)*/, CAVE_AIR, false);
+        const auto planks = getPlanksBlock();
+        const auto fence = getFenceBlock();
+        fillWithBlocks(region, bb, xmin, ymin, z, xmin, ymax - 1, z, fence.set<FenceBlock::WEST>(true), CAVE_AIR, false);
+        fillWithBlocks(region, bb, xmax, ymin, z, xmax, ymax - 1, z, fence.set<FenceBlock::EAST>(true), CAVE_AIR, false);
         if (random.nextInt(4) == 0) {
-            fillWithBlocks(region, bb, xmin, ymax, z, xmin, ymax, z, blockstate, CAVE_AIR, false);
-            fillWithBlocks(region, bb, xmax, ymax, z, xmax, ymax, z, blockstate, CAVE_AIR, false);
+            fillWithBlocks(region, bb, xmin, ymax, z, xmin, ymax, z, planks, CAVE_AIR, false);
+            fillWithBlocks(region, bb, xmax, ymax, z, xmax, ymax, z, planks, CAVE_AIR, false);
         } else {
-            fillWithBlocks(region, bb, xmin, ymax, z, xmax, ymax, z, blockstate, CAVE_AIR, false);
-            randomlyPlaceBlock(region, bb, random, 0.05F, xmin + 1, ymax, z - 1, WALL_TORCH/*.with(WallTorchBlock.HORIZONTAL_FACING, Direction::NORTH)*/);
-            randomlyPlaceBlock(region, bb, random, 0.05F, xmin + 1, ymax, z + 1, WALL_TORCH/*.with(WallTorchBlock.HORIZONTAL_FACING, Direction::SOUTH)*/);
+            fillWithBlocks(region, bb, xmin, ymax, z, xmax, ymax, z, planks, CAVE_AIR, false);
+            randomlyPlaceBlock(region, bb, random, 0.05F, xmin + 1, ymax, z - 1, WALL_TORCH.set<WallTorchBlock::FACING>(Direction::NORTH));
+            randomlyPlaceBlock(region, bb, random, 0.05F, xmin + 1, ymax, z + 1, WALL_TORCH.set<WallTorchBlock::FACING>(Direction::SOUTH));
         }
     }
 }

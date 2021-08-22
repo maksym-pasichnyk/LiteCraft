@@ -17,7 +17,7 @@ bool AbstractBigMushroomFeature::generate(WorldGenRegion &reader, ChunkGenerator
 
 void AbstractBigMushroomFeature::generateStem(WorldGenRegion &world, Random &random, const BlockPos &pos, const BigMushroomFeatureConfig &config, int height) {
     for (int i = 0; i < height; ++i) {
-        const auto blockpos = pos + BlockPos(0, i, 0);
+        const auto blockpos = pos.up(i);
         if (!world.getData(blockpos).isOpaque() /*isOpaqueCube(world, mutpos)*/) {
             world.setData(blockpos, config.stemProvider->getBlockState(random, pos)/*, 3*/);
         }
@@ -44,7 +44,7 @@ bool AbstractBigMushroomFeature::checkPosition(WorldGenRegion &world, const Bloc
 
             for (int l = -k; l <= k; ++l) {
                 for (int i1 = -k; i1 <= k; ++i1) {
-                    const auto state = world.getData(pos + BlockPos(l, j, i1));
+                    const auto state = world.getData(pos.add(l, j, i1));
                     if (!state.isAir() && !state.in(BlockTags::LEAVES)) {
                         return false;
                     }

@@ -11,9 +11,9 @@ std::list<FoliagePlacer::Foliage> GiantTrunkPlacer::getFoliages(WorldGenRegion &
     for (int i = 0; i < heightIn; ++i) {
         tryPlaceTrunk(reader, random, pos.up(i), set1, boundingBox, config);
         if (i < heightIn - 1) {
-            tryPlaceTrunk(reader, random, pos + BlockPos(1, i, 0), set1, boundingBox, config);
-            tryPlaceTrunk(reader, random, pos + BlockPos(1, i, 1), set1, boundingBox, config);
-            tryPlaceTrunk(reader, random, pos + BlockPos(0, i, 1), set1, boundingBox, config);
+            tryPlaceTrunk(reader, random, pos.add(1, i, 0), set1, boundingBox, config);
+            tryPlaceTrunk(reader, random, pos.add(1, i, 1), set1, boundingBox, config);
+            tryPlaceTrunk(reader, random, pos.add(0, i, 1), set1, boundingBox, config);
         }
     }
     

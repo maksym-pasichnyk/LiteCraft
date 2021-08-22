@@ -17,7 +17,7 @@ void AlterGroundTreeDecorator::decorate(WorldGenRegion &reader, Random &random, 
                 const int x = k % 8;
                 const int z = k / 8;
                 if (x == 0 || x == 7 || z == 0 || z == 7) {
-                    placeBlocks(reader, random, pos + BlockPos(x - 3, 0, z - 3));
+                    placeBlocks(reader, random, pos.add(x - 3, 0, z - 3));
                 }
             }
         }
@@ -26,7 +26,7 @@ void AlterGroundTreeDecorator::decorate(WorldGenRegion &reader, Random &random, 
 
 void AlterGroundTreeDecorator::placeColumn(WorldGenRegion &reader, Random &random, const BlockPos &pos) {
     for (int y = 2; y >= -3; --y) {
-        BlockPos blockpos = pos.up(y);
+        auto blockpos = pos.up(y);
         if (Feature::isDirtAt(reader, blockpos)) {
             reader.setData(blockpos, provider->getBlockState(random, pos)/*, 19*/);
             break;
@@ -42,7 +42,7 @@ void AlterGroundTreeDecorator::placeBlocks(WorldGenRegion &reader, Random &rando
     for (int x = -2; x <= 2; ++x) {
         for (int z = -2; z <= 2; ++z) {
             if (std::abs(x) != 2 || std::abs(z) != 2) {
-                placeColumn(reader, random, pos + BlockPos(x, 0, z));
+                placeColumn(reader, random, pos.add(x, 0, z));
             }
         }
     }

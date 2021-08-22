@@ -97,6 +97,10 @@ struct StructurePiece {
         }
     }
 
+    auto getRelativePosition(int x, int y, int z) const -> BlockPos {
+        return BlockPos::from(getXWithOffset(x, z), getYWithOffset(y), getZWithOffset(x, z));
+    }
+
     BoundingBox getBoundingBox() const {
         return bounds;
     }

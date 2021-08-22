@@ -293,14 +293,14 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
     ThreadLocal<Cache> cache{};
 
     void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
-        const int xpos = xStart & 15;
-        const int zpos = zStart & 15;
+        const auto xpos = xStart & 15;
+        const auto zpos = zStart & 15;
         const auto biomeSurfaceConfig = biome.getGenerationSettings().getSurfaceBuilderConfig();
         const auto underBlockDefault = biomeSurfaceConfig.getUnder();
         const auto topBlockDefault = biomeSurfaceConfig.getTop();
         auto underBlock = underBlockDefault;
         auto topBlock = WHITE_TERRACOTTA;
-        const int k = static_cast<int>(noise / 3.0 + 3.0 + rand.nextDouble() * 0.25);
+        const auto k = static_cast<int>(noise / 3.0 + 3.0 + rand.nextDouble() * 0.25);
         bool flag = std::cos(noise / 3.0 * M_PI) > 0.0;
         int l = -1;
         bool flag1 = false;
@@ -310,7 +310,7 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
 
         for(int j1 = startHeight; j1 >= 0; --j1) {
             if (i1 < 15) {
-                const BlockPos blockpos{xpos, j1, zpos};
+                const auto blockpos = BlockPos::from(xpos, j1, zpos);
                 const auto data = chunk.getData(blockpos);
                 if (data.isAir()) {
                     l = -1;
@@ -400,15 +400,15 @@ struct WoodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
     const BlockData COARSE_DIRT = Blocks::COARSE_DIRT->getDefaultState();
 
     void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
-        const int xpos = xStart & 15;
-        const int zpos = zStart & 15;
+        const auto xpos = xStart & 15;
+        const auto zpos = zStart & 15;
         const auto biomeSurfaceConfig = biome.getGenerationSettings().getSurfaceBuilderConfig();
         const auto underBlockDefault = biomeSurfaceConfig.getUnder();
         const auto topBlockDefault = biomeSurfaceConfig.getTop();
         auto underBlock = underBlockDefault;
         auto topBlock = WHITE_TERRACOTTA;
-        const int k = static_cast<int>(noise / 3.0 + 3.0 + rand.nextDouble() * 0.25);
-        const bool flag = std::cos(noise / 3.0 * M_PI) > 0.0;
+        const auto k = static_cast<int>(noise / 3.0 + 3.0 + rand.nextDouble() * 0.25);
+        const auto flag = std::cos(noise / 3.0 * M_PI) > 0.0;
         int l = -1;
         bool flag1 = false;
         int i1 = 0;
@@ -417,7 +417,7 @@ struct WoodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
 
         for (int j1 = startHeight; j1 >= 0; --j1) {
             if (i1 < 15) {
-                const BlockPos blockpos{xpos, j1, zpos};
+                const auto blockpos = BlockPos::from(xpos, j1, zpos);
                 const auto data = chunk.getData(blockpos);
                 if (data.isAir()) {
                     l = -1;
@@ -499,20 +499,20 @@ struct ErodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
             d0 = d0 + 64.0;
         }
 
-        const int xpos = xStart & 15;
-        const int zpos = zStart & 15;
+        const auto xpos = xStart & 15;
+        const auto zpos = zStart & 15;
         const auto biomeSurfaceConfig = biome.getGenerationSettings().getSurfaceBuilderConfig();
         const auto underBlockDefault = biomeSurfaceConfig.getUnder();
         const auto topBlockDefault = biomeSurfaceConfig.getTop();
         auto underBlock = underBlockDefault;
         auto topBlock = WHITE_TERRACOTTA;
-        const int j = static_cast<int>(noise / 3.0 + 3.0 + rand.nextDouble() * 0.25);
-        const bool flag = std::cos(noise / 3.0 * M_PI) > 0.0;
+        const auto j = static_cast<int>(noise / 3.0 + 3.0 + rand.nextDouble() * 0.25);
+        const auto flag = std::cos(noise / 3.0 * M_PI) > 0.0;
         int k = -1;
         bool flag1 = false;
 
         for(int l = std::max(startHeight, static_cast<int>(d0) + 1); l >= 0; --l) {
-            const BlockPos blockpos{xpos, l, zpos};
+            const auto blockpos = BlockPos::from(xpos, l, zpos);
             const auto data = chunk.getData(blockpos);
             if (data.isAir() && l < static_cast<int>(d0)) {
                 chunk.setData(blockpos, defaultBlock/*, false*/);
@@ -652,21 +652,21 @@ struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
             }
         }
 
-        const int xpos = xStart & 15;
-        const int zpos = zStart & 15;
+        const auto xpos = xStart & 15;
+        const auto zpos = zStart & 15;
         const auto biomeSurfaceConfig = biome.getGenerationSettings().getSurfaceBuilderConfig();
         const auto midDefault = biomeSurfaceConfig.getUnder();
         const auto topDefault = biomeSurfaceConfig.getTop();
         auto blockstate1 = midDefault;
         auto blockstate2 = topDefault;
-        const int j = static_cast<int>(noise / 3.0 + 3.0 + rand.nextDouble() * 0.25);
+        const auto j = static_cast<int>(noise / 3.0 + 3.0 + rand.nextDouble() * 0.25);
         int k = -1;
         int l = 0;
-        const int i1 = 2 + rand.nextInt(4);
-        const int j1 = seaLevel + 18 + rand.nextInt(10);
+        const auto i1 = 2 + rand.nextInt(4);
+        const auto j1 = seaLevel + 18 + rand.nextInt(10);
 
         for (int k1 = std::max(startHeight, static_cast<int>(d0) + 1); k1 >= 0; --k1) {
-            const BlockPos blockpos{xpos, k1, zpos};
+            const auto blockpos = BlockPos::from(xpos, k1, zpos);
             auto data = chunk.getData(blockpos);
             if (data.isAir() && k1 < static_cast<int>(d0) && rand.nextDouble() > 0.01) {
                 chunk.setData(blockpos, PACKED_ICE/*, false*/);

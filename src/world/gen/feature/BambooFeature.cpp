@@ -21,17 +21,17 @@ bool BambooFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, 
 
     const auto& cfg = std::get<ProbabilityConfig>(config);
 
-    const int height = random.nextInt(12) + 5;
+    const auto height = random.nextInt(12) + 5;
     if (random.nextFloat() < cfg.probability) {
-        int k = random.nextInt(4) + 1;
+        auto k = random.nextInt(4) + 1;
 
         for(int l = pos.x - k; l <= pos.x + k; ++l) {
             for(int i1 = pos.z - k; i1 <= pos.z + k; ++i1) {
-                const int j1 = l - pos.x;
-                const int k1 = i1 - pos.z;
+                const auto j1 = l - pos.x;
+                const auto k1 = i1 - pos.z;
                 if (j1 * j1 + k1 * k1 <= k * k) {
                     const auto y = reader.getHeight(HeightmapType::WORLD_SURFACE, l, i1);
-                    const BlockPos blockpos(l, y, i1);
+                    const auto blockpos = BlockPos::from(l, y, i1);
                     if (isDirt(reader.getData(blockpos).getBlock())) {
                         reader.setData(blockpos, Blocks::PODZOL->getDefaultState()/*, 2*/);
                     }
@@ -40,7 +40,7 @@ bool BambooFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, 
         }
     }
 
-    BlockPos blockpos = pos;
+    auto blockpos = pos;
     for (int l1 = 0; l1 < height && reader.isAirBlock(blockpos); ++l1) {
         reader.setData(blockpos, BAMBOO_BASE/*, 2*/);
         blockpos.y += 1;

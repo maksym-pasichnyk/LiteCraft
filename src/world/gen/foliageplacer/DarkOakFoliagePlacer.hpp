@@ -20,7 +20,7 @@ struct DarkOakFoliagePlacer : FoliagePlacer {
     }
 
     void func_230372_a_(WorldGenRegion &reader, Random &random, const BaseTreeFeatureConfig &config, int p_230372_4_, const Foliage &foliage, int p_230372_6_, int p_230372_7_, std::set<BlockPos> &set1, int p_230372_9_, BoundingBox &boundingBox) override {
-        const auto blockpos = foliage.position + BlockPos(0, p_230372_9_, 0);
+        const auto blockpos = foliage.position.up(p_230372_9_);
         bool flag = foliage.persistence;
         if (flag) {
             placeLeaves(reader, random, config, blockpos, p_230372_7_ + 2, set1, -1, flag, boundingBox);
