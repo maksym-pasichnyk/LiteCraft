@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "ContainerBlock.hpp"
 
-struct AbstractSignBlock : Block {
-    using Block::Block;
+struct AbstractSignBlock : ContainerBlock {
+    using ContainerBlock::ContainerBlock;
 };
