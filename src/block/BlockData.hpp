@@ -4,8 +4,9 @@
 #include "../util/math/BlockPos.hpp"
 #include <state/BlockStateProperties.hpp>
 
-#include <cstdint>
 #include <compare>
+#include <cstdint>
+#include <util/Mirror.hpp>
 
 struct Block;
 struct Material;
@@ -42,4 +43,7 @@ struct BlockData {
     auto set(typename BlockStatePropertyType<prop>::type property) const -> BlockData {
         return set(prop, property);
     }
+
+    auto rotate(Rotation rotation) const -> BlockData;
+    auto mirror(Mirror mirror) const -> BlockData;
 };

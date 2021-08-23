@@ -12,6 +12,7 @@
 #include <vector>
 #include <memory>
 #include <optional>
+#include <range/v3/algorithm.hpp>
 
 struct BlockData;
 struct WorldReader;
@@ -19,8 +20,15 @@ struct BlockSelector;
 struct WorldGenRegion;
 struct ChunkGenerator;
 struct StructureManager;
+
+
+struct BlockSelector {
+    virtual ~BlockSelector() = default;
+    virtual auto select(Random& random, int x, int y, int z, bool wall) -> BlockData = 0;
+};
+
 struct StructurePiece {
-    static StructurePiece* findIntersecting(std::span<StructurePiece*> pieces, const BoundingBox& bb) {
+    static auto findIntersecting(std::span<StructurePiece*> pieces, const BoundingBox& bb) -> StructurePiece* {
         for (auto piece : pieces) {
             if (piece->getBoundingBox().intersectsWith(bb)) {
                 return piece;
@@ -29,25 +37,22 @@ struct StructurePiece {
         return nullptr;
     }
 
-    static bool hasIntersecting(std::span<StructurePiece*> pieces, const BoundingBox& bb) {
-        for (auto piece : pieces) {
-            if (piece->getBoundingBox().intersectsWith(bb)) {
-                return true;
-            }
-        }
-        return false;
+    static auto hasIntersecting(std::span<StructurePiece*> pieces, const BoundingBox& bb) -> bool {
+        return ranges::any_of(pieces, [&bb](auto piece) {
+            return piece->getBoundingBox().intersectsWith(bb);
+        });
     }
 
-    BoundingBox bounds;
-    std::optional<Direction> coordBaseMode;
-    Mirror mirror;
-    Rotation rotation;
+    BoundingBox bounds{};
+    std::optional<Direction> coordBaseMode = std::nullopt;
+    Mirror mirror = Mirror::NONE;
+    Rotation rotation = Rotation::NONE;
     int componentIndex;
 
     explicit StructurePiece(int componentIndex) : componentIndex(componentIndex) {}
     virtual ~StructurePiece() = default;
 
-    int getComponentType() const {
+    auto getComponentType() const -> int {
         return componentIndex;
     }
 
@@ -56,10 +61,13 @@ struct StructurePiece {
         if (facing.has_value()) {
             mirror = MirrorUtil::from(*facing);
             rotation = RotationUtil::from(*facing);
+        } else {
+            mirror = Mirror::NONE;
+            rotation = Rotation::NONE;
         }
     }
 
-    int getXWithOffset(int x, int z) const {
+    auto getXWithOffset(int x, int z) const -> int {
         if (!coordBaseMode.has_value()) {
             return x;
         }
@@ -76,11 +84,11 @@ struct StructurePiece {
         }
     }
 
-    int getYWithOffset(int y) const {
+    auto getYWithOffset(int y) const -> int {
         return coordBaseMode.has_value() ? y + bounds.minY : y;
     }
 
-    int getZWithOffset(int x, int z) const {
+    auto getZWithOffset(int x, int z) const -> int {
         if (!coordBaseMode.has_value()) {
             return z;
         }
@@ -101,7 +109,7 @@ struct StructurePiece {
         return BlockPos::from(getXWithOffset(x, z), getYWithOffset(y), getZWithOffset(x, z));
     }
 
-    BoundingBox getBoundingBox() const {
+    auto getBoundingBox() const -> BoundingBox {
         return bounds;
     }
 
@@ -113,6 +121,7 @@ struct StructurePiece {
     void fillWithRandomizedBlocks(WorldGenRegion &region, const BoundingBox& bb, int minX, int minY, int minZ, int maxX, int maxY, int maxZ, bool alwaysReplace, Random& random, BlockSelector& selector) const;
     void generateMaybeBox(WorldGenRegion &region, const BoundingBox& bb, Random& random, float chance, int x1, int y1, int z1, int x2, int y2, int z2, BlockData edgeState, BlockData state, bool requireNonAir, bool requiredSkylight) const;
     void setBlockState(WorldGenRegion& region, BlockData state, int x, int y, int z, const BoundingBox& bb) const;
+    void replaceAirAndLiquidDownwards(WorldGenRegion& region, BlockData state, int x, int y, int z, const BoundingBox& bb) const;
     void randomlyRareFillWithBlocks(WorldGenRegion& region, const BoundingBox& bb, int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockData state, bool excludeAir) const;
     void randomlyPlaceBlock(WorldGenRegion& region, const BoundingBox& bb, Random& random, float chance, int x, int y, int z, BlockData state) const;
 

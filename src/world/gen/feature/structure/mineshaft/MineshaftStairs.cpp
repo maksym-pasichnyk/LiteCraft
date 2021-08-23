@@ -1,7 +1,7 @@
 #include "MineshaftStairs.hpp"
-#include "../../../WorldGenRegion.hpp"
-#include "../../../../block/Block.hpp"
-#include "../../../../block/Blocks.hpp"
+#include <block/Block.hpp>
+#include <block/Blocks.hpp>
+#include <world/WorldGenRegion.hpp>
 
 std::optional<BoundingBox> MineshaftPieces::Stairs::findStairs(std::span<StructurePiece *> pieces, Random &random, int x, int y, int z, Direction facing) {
     BoundingBox bounds{x, y - 5, z, x, y + 3 - 1, z};

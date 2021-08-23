@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StructurePiece.hpp"
+#include <world/gen/feature/structure/StructurePiece.hpp>
 
 struct MineshaftPieces {
     struct Piece;

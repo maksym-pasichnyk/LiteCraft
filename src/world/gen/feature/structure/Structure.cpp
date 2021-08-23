@@ -7,7 +7,7 @@ StructureStart* Structure::generate(ChunkGenerator &generator, BiomeProvider &pr
     const auto chunkpos = getChunkPosForStructure(settings, seed, random, pos.x, pos.z);
     if (pos == chunkpos && canGenerate(generator, provider, seed, random, pos.x, pos.z, biome, chunkpos, config)) {
         auto start = createStart(pos.x, pos.z, BoundingBox::getNewBoundingBox(), refCount, seed);
-        start->createComponents(/*dynamicRegistries,*/ generator, templateManager, pos.x, pos.z, biome, config);
+        start->createComponents(generator, templateManager, pos.x, pos.z, biome, config, seed);
         if (start->isValid()) {
             return start;
         }

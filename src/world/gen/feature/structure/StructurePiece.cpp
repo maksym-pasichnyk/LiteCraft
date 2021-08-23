@@ -97,13 +97,12 @@ void StructurePiece::fillWithRandomizedBlocks(WorldGenRegion &region, const Boun
         for (int x = minX; x <= maxX; ++x) {
             for (int z = minZ; z <= maxZ; ++z) {
                 if (!alwaysReplace || !getBlockStateFromPos(region, x, y, z, bb).isAir()) {
-//                    selector.selectBlocks(random, x, y, z, y == minY || y == maxY || x == minX || x == maxX || z == minZ || z == maxZ);
-//                    setBlockState(region, selector.getBlockState(), x, y, z, bb);
+                    const auto state = selector.select(random, x, y, z, y == minY || y == maxY || x == minX || x == maxX || z == minZ || z == maxZ);
+                    setBlockState(region, state, x, y, z, bb);
                 }
             }
         }
     }
-
 }
 
 void StructurePiece::generateMaybeBox(WorldGenRegion &region, const BoundingBox &bb, Random &random, float chance, int x1, int y1, int z1, int x2, int y2, int z2, BlockData edgeState, BlockData state, bool requireNonAir, bool requiredSkylight) const {
@@ -122,19 +121,18 @@ void StructurePiece::generateMaybeBox(WorldGenRegion &region, const BoundingBox 
             }
         }
     }
-
 }
 
 void StructurePiece::setBlockState(WorldGenRegion &region, BlockData state, int x, int y, int z, const BoundingBox &bb) const {
     const auto pos = getRelativePosition(x, y, z);
     if (bb.isVecInside(pos)) {
-//        if (mirror != Mirror::NONE) {
-//            state = state.mirror(mirror);
-//        }
-//
-//        if (rotation != Rotation::NONE) {
-//            state = state.rotate(rotation);
-//        }
+        if (mirror != Mirror::NONE) {
+            state = state.mirror(mirror);
+        }
+
+        if (rotation != Rotation::NONE) {
+            state = state.rotate(rotation);
+        }
 
         region.setData(pos, state/*, 2*/);
 //        FluidState fluidstate = region.getFluidState(pos);
@@ -145,6 +143,16 @@ void StructurePiece::setBlockState(WorldGenRegion &region, BlockData state, int 
 //        if (BLOCKS_NEEDING_POSTPROCESSING.contains(state.getBlock())) {
 //            region.getChunk(pos).markBlockForPostprocessing(pos);
 //        }
+    }
+}
+
+void StructurePiece::replaceAirAndLiquidDownwards(WorldGenRegion& region, BlockData state, int x, int y, int z, const BoundingBox& bb) const {
+    auto pos = getRelativePosition(x, y, z);
+    if (bb.isVecInside(pos)) {
+        while (pos.y > 1 && (region.isAirBlock(pos) || region.getData(pos).getMaterial()->isLiquid)) {
+            region.setData(pos, state/*, 2*/);
+            pos = pos.down();
+        }
     }
 }
 

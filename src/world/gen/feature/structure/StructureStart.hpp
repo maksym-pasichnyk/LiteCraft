@@ -27,7 +27,7 @@ struct StructureStart {
         rand.setLargeFeatureSeed(seed, chunkx, chunkz);
     }
 
-    virtual void createComponents(/*DynamicRegistries p_230364_1_,*/ ChunkGenerator& generator, TemplateManager& templateManager, int chunkx, int chunkz, Biome& biome, const StructureConfig& config) = 0;
+    virtual void createComponents(ChunkGenerator& generator, TemplateManager& templateManager, int chunkx, int chunkz, Biome& biome, const StructureConfig& config, int64_t seed) = 0;
     virtual void generate(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos);
 
     virtual void recalculateStructureSize() {

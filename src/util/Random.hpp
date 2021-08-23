@@ -5,10 +5,10 @@
 #include <span>
 
 struct Random {
-	inline static constexpr auto RANDOM_MULTIPLIER = 0x5DEECE66DULL;
-	inline static constexpr auto RANDOM_ADDEND = 0xBULL;
-	inline static constexpr auto RANDOM_MASK = ((1ULL << 48u) - 1);
-	inline static constexpr auto RANDOM_SCALE = 0x1.0p-53;
+	static constexpr auto RANDOM_MULTIPLIER = 0x5DEECE66DULL;
+	static constexpr auto RANDOM_ADDEND = 0xBULL;
+	static constexpr auto RANDOM_MASK = ((1ULL << 48u) - 1);
+	static constexpr auto RANDOM_SCALE = 0x1.0p-53;
 
     Random() = default;
     Random(const Random&) = delete;
@@ -17,10 +17,38 @@ struct Random {
     Random& operator=(Random&&) = default;
 
 	static constexpr auto from(uint64_t seed) -> Random {
-		Random rand;
-		rand.setSeed(seed);
-		return rand;
+		Random random{};
+		random.setSeed(seed);
+		return random;
 	}
+
+	static constexpr auto fromBaseChunkSeed(int32_t x, int32_t z) -> Random {
+	    return from(static_cast<int64_t>(x) * 0x4F9939F508LL + static_cast<int64_t>(z) * 0x1ef1565bd5LL);
+	}
+
+	static constexpr auto fromDecorationSeed(int64_t baseSeed, int32_t x, int32_t z) -> Random {
+	    auto random = from(baseSeed);
+	    const int64_t i = random.nextLong() | 1L;
+	    const int64_t j = random.nextLong() | 1L;
+	    return from(static_cast<int64_t>(x) * i + static_cast<int64_t>(z) * j ^ baseSeed);
+	}
+
+	static constexpr auto fromFeatureSeed(int64_t baseSeed, int32_t x, int32_t z) -> Random {
+	    return from(baseSeed + static_cast<int64_t>(x) + static_cast<int64_t>(10000 * z));
+	}
+
+	static constexpr auto fromLargeFeatureSeed(int64_t baseSeed, int32_t x, int32_t z) -> Random {
+	    auto random = from(baseSeed);
+	    const int64_t i = random.nextLong();
+	    const int64_t j = random.nextLong();
+	    return from(static_cast<int64_t>(x) * i ^ static_cast<int64_t>(z) * j ^ baseSeed);
+	}
+
+	static constexpr auto fromLargeFeatureSeedWithSalt(int64_t baseSeed, int32_t x, int32_t z, int32_t salt) -> Random {
+	    return from(static_cast<int64_t>(x) * 0x4F9939F508LL + static_cast<int64_t>(z) * 0x1ef1565bd5LL + baseSeed + static_cast<int64_t>(salt));
+	}
+
+    /*-------------------------------------------------------------------------------------------------------*/
 
 	static constexpr auto seedSlimeChunk(int32_t x, int32_t z, int64_t baseSeed, int64_t modifier) -> Random {
 		return from(baseSeed

@@ -1,7 +1,7 @@
 #include "MineshaftCross.hpp"
-#include "../../../WorldGenRegion.hpp"
-#include "../../../../block/Block.hpp"
-#include "../../../../block/Blocks.hpp"
+#include <block/Block.hpp>
+#include <block/Blocks.hpp>
+#include <world/WorldGenRegion.hpp>
 
 std::optional<BoundingBox> MineshaftPieces::Cross::findCrossing(std::span<StructurePiece *> pieces, Random &random, int x, int y, int z, Direction facing) {
     BoundingBox bounds{x, y, z, x, y + 3 - 1, z};

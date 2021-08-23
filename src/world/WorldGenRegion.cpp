@@ -40,7 +40,7 @@ auto WorldGenRegion::getLightFor(int32_t x, int32_t y, int32_t z, int32_t channe
 Biome *WorldGenRegion::getNoiseBiomeRaw(int x, int y, int z) {
     return world->getNoiseBiomeRaw(x, y, z);
 }
-int WorldGenRegion::getHeight(HeightmapType type, int x, int z) {
+auto WorldGenRegion::getHeight(HeightmapType type, int x, int z) -> int {
     return getChunk(x >> 4, z >> 4)->getHeight(type, x & 15, z & 15);
 }
 int32_t WorldGenRegion::getBlockLight(const BlockPos& pos) const {

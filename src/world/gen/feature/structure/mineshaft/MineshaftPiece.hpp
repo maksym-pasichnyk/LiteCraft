@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MineshaftPieces.hpp"
-#include "../../../../block/BlockData.hpp"
+#include <block/BlockData.hpp>
 
 struct MineshaftPieces::Piece : StructurePiece {
     MineshaftType mineShaftType;

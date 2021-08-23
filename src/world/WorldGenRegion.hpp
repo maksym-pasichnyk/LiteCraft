@@ -18,7 +18,11 @@
 
 struct ServerWorld;
 
-struct WorldGenRegion : virtual WorldReader, virtual WorldWriter {
+struct HeightReader {
+    virtual auto getHeight(HeightmapType type, int x, int z) -> int = 0;
+};
+
+struct WorldGenRegion : virtual HeightReader, virtual WorldReader, virtual WorldWriter {
     WorldGenRegion(const WorldGenRegion&) = delete;
     WorldGenRegion& operator=(const WorldGenRegion&) = delete;
 
@@ -135,9 +139,11 @@ struct WorldGenRegion : virtual WorldReader, virtual WorldWriter {
 
     Biome *getNoiseBiomeRaw(int x, int y, int z) override;
 
-    int getHeight(HeightmapType type, int x, int z);
-    BlockPos getHeight(HeightmapType type, const BlockPos& pos) {
-        return BlockPos(pos.x, getHeight(type, pos.x, pos.z), pos.z);
+    auto getHeight(HeightmapType type, int x, int z) -> int override;
+
+    auto getHeight(HeightmapType type, const BlockPos& pos) -> BlockPos {
+        return BlockPos::from(pos.x, getHeight(type, pos.x, pos.z), pos.z);
     }
+
     int32_t getBlockLight(const BlockPos& pos) const override;
 };

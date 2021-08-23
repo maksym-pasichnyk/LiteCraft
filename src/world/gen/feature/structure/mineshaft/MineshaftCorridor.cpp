@@ -1,9 +1,9 @@
 #include "MineshaftCorridor.hpp"
-#include "../../../WorldGenRegion.hpp"
 #include <block/Blocks.hpp>
-#include <block/RailBlock.hpp>
 #include <block/FenceBlock.hpp>
+#include <block/RailBlock.hpp>
 #include <block/WallTorchBlock.hpp>
+#include <world/WorldGenRegion.hpp>
 
 std::optional<BoundingBox> MineshaftPieces::Corridor::findCorridor(std::span<StructurePiece *> pieces, Random &random, int x, int y, int z, Direction facing) {
     BoundingBox bounds{x, y, z, x, y + 3 - 1, z};

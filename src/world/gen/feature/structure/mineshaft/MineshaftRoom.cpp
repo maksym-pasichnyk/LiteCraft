@@ -1,12 +1,12 @@
 #include "MineshaftRoom.hpp"
-#include "../../../WorldGenRegion.hpp"
-#include "../../../../block/Block.hpp"
-#include "../../../../block/Blocks.hpp"
+#include <block/Block.hpp>
+#include <block/Blocks.hpp>
+#include <world/WorldGenRegion.hpp>
 
 MineshaftPieces::Room::Room(int componentIndex, Random &random, int x, int z, MineshaftType type) : MineshaftPieces::Piece(componentIndex, type) {
-    const int dx = random.nextInt(6);
-    const int dy = random.nextInt(6);
-    const int dz = random.nextInt(6);
+    const auto dx = random.nextInt(6);
+    const auto dy = random.nextInt(6);
+    const auto dz = random.nextInt(6);
     bounds = BoundingBox{x, 50, z, x + 7 + dx, 54 + dy, z + 7 + dz};
 }
 

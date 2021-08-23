@@ -38,3 +38,11 @@ auto BlockData::get(BlockStateProperty prop) const -> Property {
 auto BlockData::set(BlockStateProperty prop, const Property &property) const -> BlockData {
 	return getBlock()->binds.at(prop).second(*this, property);
 }
+
+auto BlockData::rotate(Rotation rotation) const -> BlockData {
+    return getBlock()->rotate(*this, rotation);
+}
+
+auto BlockData::mirror(Mirror mirror) const -> BlockData {
+    return getBlock()->mirror(*this, mirror);
+}

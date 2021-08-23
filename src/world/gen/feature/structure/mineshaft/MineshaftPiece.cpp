@@ -1,6 +1,6 @@
 #include "MineshaftPiece.hpp"
-#include "../../../../block/Block.hpp"
-#include "../../../../block/Blocks.hpp"
+#include <block/Block.hpp>
+#include <block/Blocks.hpp>
 
 MineshaftPieces::Piece::Piece(int componentIndex, MineshaftType type) : StructurePiece(componentIndex), mineShaftType(type) {
     switch (mineShaftType) {
