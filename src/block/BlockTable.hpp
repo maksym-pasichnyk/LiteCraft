@@ -17,7 +17,7 @@ struct BlockTable {
         name_to_id.emplace("air", 0);
     }
 
-    int32_t getId(std::string name) {
+    auto getId(std::string name) -> int32_t {
         auto it = name_to_id.find(name);
         if (it != name_to_id.end()) {
             return it->second;
@@ -31,7 +31,7 @@ struct BlockTable {
         return id;
     }
 
-    std::string_view getName(int32_t id) {
+    auto getName(int32_t id) -> std::string_view {
         return id_to_name.at(static_cast<size_t>(id));
     }
 };

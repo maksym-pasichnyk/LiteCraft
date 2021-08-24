@@ -1,5 +1,6 @@
 #pragma once
 
+#include <util/Registry.hpp>
 #include <vector>
 #include <string>
 #include <map>
@@ -9,8 +10,7 @@ struct BlockTable;
 
 struct Blocks {
     static BlockTable pallete;
-    static std::vector<Block *> blocks;
-    static std::map<std::string, Block *> registry;
+    static Registry<Block> blocks;
 
     [[maybe_unused]] static Block* AIR;
     [[maybe_unused]] static Block* STONE;

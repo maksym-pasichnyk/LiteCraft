@@ -12,7 +12,7 @@ bool BlockData::isAir() const {
     return getBlock()->properties.isAir;
 }
 auto BlockData::getBlock() const -> Block* {
-    return Blocks::blocks[static_cast<size_t>(id)];
+    return Blocks::blocks.entries[static_cast<size_t>(id)].get();
 }
 auto BlockData::getMaterial() const -> Material * {
     return getBlock()->getMaterial();

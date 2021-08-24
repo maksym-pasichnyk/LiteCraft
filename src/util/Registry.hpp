@@ -22,4 +22,13 @@ struct Registry {
         objects.insert_or_assign(std::move(name), ptr);
         return ptr;
     }
+
+    auto add(size_t id, std::string name, std::unique_ptr<T>&& obj) -> T* {
+        if (entries.size() < id + 1) {
+            entries.resize(id + 1);
+        }
+        auto ptr = (entries[id] = std::move(obj)).get();
+        objects.insert_or_assign(std::move(name), ptr);
+        return ptr;
+    }
 };
