@@ -1,12 +1,11 @@
 #pragma once
 
-
-#include <ranges>
 #include <cstdint>
 #include <glm/glm.hpp>
-#include <util/Direction.hpp>
 #include <range/v3/view.hpp>
 #include <range/v3/algorithm.hpp>
+#include <util/RotationUtil.hpp>
+#include <util/DirectionUtil.hpp>
 
 struct BlockPos : glm::ivec3 {
     using glm::ivec3::ivec3;

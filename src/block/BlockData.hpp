@@ -1,12 +1,11 @@
 #pragma once
 
-#include "../tags/BlockTags.hpp"
-#include "../util/math/BlockPos.hpp"
-#include <state/BlockStateProperties.hpp>
-
 #include <compare>
 #include <cstdint>
 #include <util/Mirror.hpp>
+#include <tags/BlockTags.hpp>
+#include <util/math/BlockPos.hpp>
+#include <state/util/BlockStatePropertyUtil.hpp>
 
 struct Block;
 struct Material;
@@ -36,11 +35,11 @@ struct BlockData {
     auto set(BlockStateProperty prop, const Property& property) const -> BlockData;
 
     template<BlockStateProperty prop>
-    auto get() const -> typename BlockStatePropertyType<prop>::type {
-        return std::get<typename BlockStatePropertyType<prop>::type>(get(prop));
+    auto get() const -> typename TypeFrom<prop>::type {
+        return std::get<typename TypeFrom<prop>::type>(get(prop));
     }
     template<BlockStateProperty prop>
-    auto set(typename BlockStatePropertyType<prop>::type property) const -> BlockData {
+    auto set(typename TypeFrom<prop>::type property) const -> BlockData {
         return set(prop, property);
     }
 

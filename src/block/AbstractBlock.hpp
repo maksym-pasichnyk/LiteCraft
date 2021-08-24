@@ -4,7 +4,6 @@
 #include "material/DyeColors.hpp"
 #include "BlockData.hpp"
 
-#include <state/BlockStateProperties.hpp>
 #include <glm/vec3.hpp>
 #include <functional>
 #include <utility>
@@ -290,7 +289,8 @@ struct AbstractBlock {
     using PropertyGet = auto(*)(BlockData) -> Property;
     using PropertySet = auto(*)(BlockData, const Property&) -> BlockData;
 
-    std::map<BlockStateProperty, std::pair<PropertyGet, PropertySet>> binds{};
+    std::map<BlockStateProperty, std::pair<PropertyGet, PropertySet>> state_properties_binds{};
+    std::map<std::string, BlockStateProperty> state_properties_names{};
 
     explicit AbstractBlock(int id, Properties properties) : id(id), properties(std::move(properties)) {}
 
@@ -330,17 +330,18 @@ struct AbstractBlock {
         return true;
     }
 
-    template <BlockStateProperty prop, auto get, auto set>
+    template <BlockStateProperty property, auto get, auto set>
     void bind() {
-        using T = typename BlockStatePropertyType<prop>::type;
+        using T = typename TypeFrom<property>::type;
 
-        binds[prop] = std::pair<PropertyGet, PropertySet>{
+        state_properties_binds.insert_or_assign(property, std::pair<PropertyGet, PropertySet>{
             [](BlockData state) -> Property {
                 return get(state);
             },
-            [](BlockData state, const Property& property) -> BlockData {
-                return set(state, std::get<T>(property));
+            [](BlockData state, const Property& value) -> BlockData {
+                return set(state, std::get<T>(value));
             }
-        };
+        });
+        state_properties_names.insert_or_assign(BlockStatePropertyUtil::name(property).value(), property);
     }
 };

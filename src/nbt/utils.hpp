@@ -4,17 +4,17 @@
 #include <string>
 #include <istream>
 
-struct NamedTag {
+struct NamedCompoundTag {
     std::string name;
     CompoundTag tag;
 };
 
 struct NbtUtil {
-    static auto read(std::istream &&io) -> std::optional<NamedTag> {
+    static auto read(std::istream &&io) -> std::optional<NamedCompoundTag> {
         return read(io);
     }
 
-    static auto read(std::istream &io) -> std::optional<NamedTag> {
+    static auto read(std::istream &io) -> std::optional<NamedCompoundTag> {
         if (readID(io).value_or(ID::END) != ID::COMPOUND) {
             return std::nullopt;
         }
@@ -28,7 +28,7 @@ struct NbtUtil {
             return std::nullopt;
         }
 
-        return {std::move(*name), std::move(*tag)};
+        return NamedCompoundTag{std::move(*name), std::move(*tag)};
     }
 
 private:

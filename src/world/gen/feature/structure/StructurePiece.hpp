@@ -1,13 +1,13 @@
 #pragma once
 
 #include "config/StructureConfig.hpp"
-#include "../../../../util/Random.hpp"
-#include "../../../../util/Mirror.hpp"
-#include "../../../../util/Rotation.hpp"
-#include "../../../../util/Direction.hpp"
-#include "../../../../util/math/BlockPos.hpp"
-#include "../../../../util/math/ChunkPos.hpp"
-#include "../../../../util/math/BoundingBox.hpp"
+#include <util/Random.hpp>
+#include <util/MirrorUtil.hpp>
+#include <util/RotationUtil.hpp>
+#include <util/DirectionUtil.hpp>
+#include <util/math/BlockPos.hpp>
+#include <util/math/ChunkPos.hpp>
+#include <util/math/BoundingBox.hpp>
 
 #include <vector>
 #include <memory>
