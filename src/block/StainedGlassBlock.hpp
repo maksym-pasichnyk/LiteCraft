@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Block.hpp"
+#include "AbstractGlassBlock.hpp"
 #include "material/DyeColors.hpp"
 
-struct StainedGlassBlock : Block {
-    StainedGlassBlock(int id, DyeColors color, Properties properties) : Block(id, std::move(properties)) {}
+struct StainedGlassBlock : AbstractGlassBlock {
+    StainedGlassBlock(int id, DyeColors color, Properties properties) : AbstractGlassBlock(id, std::move(properties)) {}
 };

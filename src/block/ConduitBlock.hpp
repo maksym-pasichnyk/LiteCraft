@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "ContainerBlock.hpp"
 
-struct ConduitBlock : Block {
-    using Block::Block;
+struct ConduitBlock : ContainerBlock {
+    using ContainerBlock::ContainerBlock;
 };

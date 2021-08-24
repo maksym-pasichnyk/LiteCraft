@@ -10,11 +10,11 @@ struct MineshaftPieces::Piece : StructurePiece {
 
     Piece(int componentIndex, MineshaftType type);
 
-    BlockData getPlanksBlock() const {
+    auto getPlanksBlock() const -> BlockData {
         return planks;
     }
 
-    BlockData getFenceBlock() const {
+    auto getFenceBlock() const -> BlockData {
         return fence;
     }
 

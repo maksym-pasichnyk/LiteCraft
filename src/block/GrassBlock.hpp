@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Block.hpp"
+#include "SpreadableSnowyDirtBlock.hpp"
 
-struct GrassBlock : Block {
-    using Block::Block;
+struct GrassBlock : SpreadableSnowyDirtBlock {
+    using SpreadableSnowyDirtBlock::SpreadableSnowyDirtBlock;
 
     TintType getTintType() const override {
         return TintType::Grass;

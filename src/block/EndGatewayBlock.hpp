@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "ContainerBlock.hpp"
 
-struct EndGatewayBlock : Block {
-    using Block::Block;
+struct EndGatewayBlock : ContainerBlock {
+    using ContainerBlock::ContainerBlock;
 };

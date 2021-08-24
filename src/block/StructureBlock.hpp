@@ -11,4 +11,20 @@ struct StructureBlock : ContainerBlock {
     static constexpr auto MODE = BlockStateProperty::STRUCTURE_BLOCK_MODE;
 
     using ContainerBlock::ContainerBlock;
+
+    void fillStateContainer() override {
+        bind<MODE, get_MODE, set_MODE>();
+    }
+
+    static auto set_MODE(BlockData state, StructureMode mode) -> BlockData {
+        auto payload = std::bit_cast<Payload>(state.dv);
+        payload.mode = static_cast<uint16_t>(mode);
+        state.dv = std::bit_cast<uint16_t>(payload);
+        return state;
+    }
+
+    static auto get_MODE(BlockData state) -> StructureMode {
+        auto payload = std::bit_cast<Payload>(state.dv);
+        return static_cast<StructureMode>(payload.mode);
+    }
 };

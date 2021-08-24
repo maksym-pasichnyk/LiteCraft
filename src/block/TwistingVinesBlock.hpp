@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "AbstractBodyPlantBlock.hpp"
 
-struct TwistingVinesBlock : Block {
-    using Block::Block;
+struct TwistingVinesBlock : AbstractBodyPlantBlock {
+    using AbstractBodyPlantBlock::AbstractBodyPlantBlock;
 };

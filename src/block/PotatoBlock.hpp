@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "CropsBlock.hpp"
 
-struct PotatoBlock : Block {
-    using Block::Block;
+struct PotatoBlock : CropsBlock {
+    using CropsBlock::CropsBlock;
 };

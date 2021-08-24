@@ -72,5 +72,6 @@ enum class ParticleTypes {
     FALLING_OBSIDIAN_TEAR,
     LANDING_OBSIDIAN_TEAR,
     REVERSE_PORTAL,
-    WHITE_ASH
+    WHITE_ASH,
+    REDSTONE_DUST
 };

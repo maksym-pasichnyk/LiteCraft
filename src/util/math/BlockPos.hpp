@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../Direction.hpp"
 
 #include <ranges>
 #include <cstdint>
 #include <glm/glm.hpp>
+#include <util/Direction.hpp>
 #include <range/v3/view.hpp>
 #include <range/v3/algorithm.hpp>
 

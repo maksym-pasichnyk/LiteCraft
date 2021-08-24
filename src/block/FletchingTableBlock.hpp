@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "CraftingTableBlock.hpp"
 
-struct FletchingTableBlock : Block {
-    using Block::Block;
+struct FletchingTableBlock : CraftingTableBlock {
+    using CraftingTableBlock::CraftingTableBlock;
 };

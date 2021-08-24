@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "RotatedPillarBlock.hpp"
 
-struct HayBlock : Block {
-    using Block::Block;
+struct HayBlock : RotatedPillarBlock {
+    using RotatedPillarBlock::RotatedPillarBlock;
 };

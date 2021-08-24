@@ -1,6 +1,7 @@
 #include "Structures.hpp"
 #include <world/gen/feature/structure/swamp_hut/SwampHutStructure.hpp>
 #include <world/gen/feature/structure/mineshaft/MineshaftStructure.hpp>
+#include <world/gen/feature/structure/stronghold/StrongholdStructure.hpp>
 #include <world/gen/feature/structure/jungle_pyramid/JunglePyramidStructure.hpp>
 #include <world/gen/feature/structure/desert_pyramid/DesertPyramidStructure.hpp>
 
@@ -9,6 +10,7 @@ std::array<std::vector<Structure*>, 10> Structures::stages{};
 
 Structure* Structures::MINESHAFT = nullptr;
 Structure* Structures::SWAMP_HUT = nullptr;
+//Structure* Structures::STRONGHOLD = nullptr;
 Structure* Structures::JUNGLE_PYRAMID = nullptr;
 Structure* Structures::DESERT_PYRAMID = nullptr;
 

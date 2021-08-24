@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "WallSkullBlock.hpp"
 
-struct SkullWallPlayerBlock : Block {
-    using Block::Block;
+struct SkullWallPlayerBlock : WallSkullBlock {
+    SkullWallPlayerBlock(int id, Properties properties) : WallSkullBlock(id, SkullBlock::Type::PLAYER, std::move(properties)) {}
 };

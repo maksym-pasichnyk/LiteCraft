@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "BushBlock.hpp"
 
-struct NetherSproutsBlock : Block {
-    using Block::Block;
+struct NetherSproutsBlock : BushBlock {
+    using BushBlock::BushBlock;
 };

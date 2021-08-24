@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "AbstractFurnaceBlock.hpp"
 
-struct FurnaceBlock : Block {
-    using Block::Block;
+struct FurnaceBlock : AbstractFurnaceBlock {
+    using AbstractFurnaceBlock::AbstractFurnaceBlock;
 };

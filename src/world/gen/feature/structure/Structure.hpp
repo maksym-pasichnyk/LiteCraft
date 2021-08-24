@@ -2,8 +2,8 @@
 
 #include "StructureFeature.hpp"
 #include "../../settings/StructureSeparation.hpp"
-#include "../../../../util/math/ChunkPos.hpp"
-#include "../../../../util/math/BoundingBox.hpp"
+#include <util/math/ChunkPos.hpp>
+#include <util/math/BoundingBox.hpp>
 
 #include <map>
 #include <vector>
@@ -29,10 +29,10 @@ struct Structure {
         return true;
     }
 
-    StructureFeature* withConfiguration(StructureConfig config) {
+    auto withConfiguration(StructureConfig config) -> StructureFeature* {
         return new StructureFeature{
             .structure = this,
-            .config = std::move(config)
+            .config = config
         };
     }
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "FallingBlock.hpp"
 
-struct ConcretePowderBlock : Block {
-    ConcretePowderBlock(int id, Block* block, Properties properties) : Block(id, std::move(properties)) {}
+struct ConcretePowderBlock : FallingBlock {
+    ConcretePowderBlock(int id, Block* block, Properties properties) : FallingBlock(id, std::move(properties)) {}
 };

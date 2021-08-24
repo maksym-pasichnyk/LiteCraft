@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "AbstractCoralPlantBlock.hpp"
 
-struct DeadCoralPlantBlock : Block {
-    using Block::Block;
+struct DeadCoralPlantBlock : AbstractCoralPlantBlock {
+    using AbstractCoralPlantBlock::AbstractCoralPlantBlock;
 };

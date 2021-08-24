@@ -16,6 +16,7 @@ struct Structures {
 
     static Structure* MINESHAFT;
     static Structure* SWAMP_HUT;
+//    static Structure* STRONGHOLD;
     static Structure* JUNGLE_PYRAMID;
     static Structure* DESERT_PYRAMID;
 

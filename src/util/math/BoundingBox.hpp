@@ -3,20 +3,21 @@
 #include <cmath>
 #include <type_traits>
 #include <glm/vec3.hpp>
+#include <util/math/BlockPos.hpp>
 
 struct BoundingBox {
-    static constexpr BoundingBox from(const glm::ivec3& vec1, const glm::ivec3& vec2) {
-        return {
-            .minX = std::min(vec1.x, vec2.x),
-            .minY = std::min(vec1.y, vec2.y),
-            .minZ = std::min(vec1.z, vec2.z),
-            .maxX = std::max(vec1.x, vec2.x),
-            .maxY = std::max(vec1.y, vec2.y),
-            .maxZ = std::max(vec1.z, vec2.z)
+    static constexpr auto from(const BlockPos& from, const BlockPos& to) -> BoundingBox {
+        return BoundingBox{
+            .minX = std::min(from.x, to.x),
+            .minY = std::min(from.y, to.y),
+            .minZ = std::min(from.z, to.z),
+            .maxX = std::max(from.x, to.x),
+            .maxY = std::max(from.y, to.y),
+            .maxZ = std::max(from.z, to.z)
         };
     }
     
-    static constexpr BoundingBox withSize(int x, int y, int z, int size_x, int size_y, int size_z) {
+    static constexpr auto withSize(int x, int y, int z, int size_x, int size_y, int size_z) -> BoundingBox {
         return BoundingBox{
             .minX = x,
             .minY = y,
@@ -27,9 +28,9 @@ struct BoundingBox {
         };
     }
 
-    static constexpr BoundingBox fromChunkPos(int chunk_x, int chunk_z) {
-        const int pos_x = chunk_x << 4;
-        const int pos_z = chunk_z << 4;
+    static constexpr auto fromChunkPos(int chunk_x, int chunk_z) -> BoundingBox {
+        const auto pos_x = chunk_x << 4;
+        const auto pos_z = chunk_z << 4;
 
         return BoundingBox{
             .minX = pos_x,
@@ -41,7 +42,7 @@ struct BoundingBox {
         };
     }
 
-    static constexpr BoundingBox getNewBoundingBox() {
+    static constexpr auto getNewBoundingBox() -> BoundingBox {
         return BoundingBox{
             .minX = std::numeric_limits<int>::max(),
             .minY = std::numeric_limits<int>::max(),
@@ -52,7 +53,7 @@ struct BoundingBox {
         };
     }
 
-    static constexpr BoundingBox newInfinityBoundingBox() {
+    static constexpr auto newInfinityBoundingBox() -> BoundingBox {
         return BoundingBox{
             .minX = std::numeric_limits<int>::min(),
             .minY = std::numeric_limits<int>::min(),
@@ -79,13 +80,13 @@ struct BoundingBox {
         maxZ += z;
     }
 
-    constexpr bool contains(int x, int y, int z) const noexcept {
+    constexpr auto contains(int x, int y, int z) const noexcept -> bool {
         return minX <= x && x <= maxX &&
                minY <= y && y <= maxY &&
                minZ <= z && z <= maxZ;
     }
 
-    constexpr bool intersectsWith(const BoundingBox& boundingBox) const noexcept {
+    constexpr auto intersectsWith(const BoundingBox& boundingBox) const noexcept -> bool {
         return minX <= boundingBox.maxX && maxX >= boundingBox.minX &&
                minY <= boundingBox.maxY && maxY >= boundingBox.minY &&
                minZ <= boundingBox.maxZ && maxZ >= boundingBox.minZ;
@@ -100,23 +101,42 @@ struct BoundingBox {
         maxZ = std::max(maxZ, boundingBox.maxZ);
     }
     
-    constexpr bool isVecInside(const glm::ivec3& pos) const noexcept {
+    constexpr auto isVecInside(const BlockPos& pos) const noexcept -> bool {
         return contains(pos.x, pos.y, pos.z);
     }
 
-    constexpr int getXSize() const noexcept{
+    constexpr auto getXSize() const noexcept -> int {
         return maxX - minX + 1;
     }
 
-    constexpr int getYSize() const noexcept {
+    constexpr auto getYSize() const noexcept -> int {
         return maxY - minY + 1;
     }
 
-    constexpr int getZSize() const noexcept {
+    constexpr auto getZSize() const noexcept -> int {
         return maxZ - minZ + 1;
     }
 
-    constexpr glm::ivec3 getPivotCenter() const noexcept {
-        return glm::ivec3(minX + getXSize() / 2, minY + getYSize() / 2, minZ + getZSize() / 2);
+    constexpr auto getSize() const noexcept -> BlockPos {
+        return BlockPos::from(getXSize(), getYSize(), getZSize());
+    }
+
+    constexpr auto getPivotCenter() const noexcept -> BlockPos {
+        return BlockPos::from(minX, minY, minZ) + getSize() / 2;
+    }
+
+    static auto getComponentToAddBoundingBox(int structureMinX, int structureMinY, int structureMinZ, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax, Direction facing) -> BoundingBox {
+        switch (facing) {
+            case Direction::NORTH:
+                return BoundingBox{structureMinX + xMin, structureMinY + yMin, structureMinZ - zMax + 1 + zMin, structureMinX + xMax - 1 + xMin, structureMinY + yMax - 1 + yMin, structureMinZ + zMin};
+            case Direction::SOUTH:
+                return BoundingBox{structureMinX + xMin, structureMinY + yMin, structureMinZ + zMin, structureMinX + xMax - 1 + xMin, structureMinY + yMax - 1 + yMin, structureMinZ + zMax - 1 + zMin};
+            case Direction::WEST:
+                return BoundingBox{structureMinX - zMax + 1 + zMin, structureMinY + yMin, structureMinZ + xMin, structureMinX + zMin, structureMinY + yMax - 1 + yMin, structureMinZ + xMax - 1 + xMin};
+            case Direction::EAST:
+                return BoundingBox{structureMinX + zMin, structureMinY + yMin, structureMinZ + xMin, structureMinX + zMax - 1 + zMin, structureMinY + yMax - 1 + yMin, structureMinZ + xMax - 1 + xMin};
+            default:
+                return BoundingBox{structureMinX + xMin, structureMinY + yMin, structureMinZ + zMin, structureMinX + xMax - 1 + xMin, structureMinY + yMax - 1 + yMin, structureMinZ + zMax - 1 + zMin};
+        }
     }
 };

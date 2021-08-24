@@ -45,7 +45,8 @@ bool JunglePyramidPiece::addComponentParts(WorldGenRegion& region, StructureMana
     const auto REDSTONE_WIRE_NORTH_SOUTH = REDSTONE_WIRE
         .set<RedstoneWireBlock::NORTH>(RedstoneSide::SIDE)
         .set<RedstoneWireBlock::SOUTH>(RedstoneSide::SIDE);
-    const auto REDSTONE_WIRE_NORTH_SOUTH_EAST_WEST = REDSTONE_WIRE.set<RedstoneWireBlock::NORTH>(RedstoneSide::SIDE)
+    const auto REDSTONE_WIRE_NORTH_SOUTH_EAST_WEST = REDSTONE_WIRE
+        .set<RedstoneWireBlock::NORTH>(RedstoneSide::SIDE)
         .set<RedstoneWireBlock::SOUTH>(RedstoneSide::SIDE)
         .set<RedstoneWireBlock::EAST>(RedstoneSide::SIDE)
         .set<RedstoneWireBlock::WEST>(RedstoneSide::SIDE);

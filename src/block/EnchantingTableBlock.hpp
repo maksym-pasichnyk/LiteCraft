@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "ContainerBlock.hpp"
 
-struct EnchantingTableBlock : Block {
-    using Block::Block;
+struct EnchantingTableBlock : ContainerBlock {
+    using ContainerBlock::ContainerBlock;
 };

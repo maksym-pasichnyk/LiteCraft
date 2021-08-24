@@ -4,8 +4,8 @@
 
 struct StandingSignBlock : AbstractSignBlock {
     struct Payload {
-        uint16_t rotation : 8;
-        uint16_t : 8;
+        uint16_t rotation : 4;
+        uint16_t : 12;
     };
 
     static constexpr auto ROTATION = BlockStateProperty::ROTATION_0_15;

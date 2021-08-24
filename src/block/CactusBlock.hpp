@@ -4,8 +4,8 @@
 
 struct CactusBlock : Block {
     struct Payload {
-        uint16_t age : 8;
-        uint16_t : 8;
+        uint16_t age : 4;
+        uint16_t : 12;
     };
 
     static constexpr auto AGE = BlockStateProperty::AGE_0_15;

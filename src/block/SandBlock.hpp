@@ -1,9 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "FallingBlock.hpp"
 
-struct SandBlock : Block {
-    explicit SandBlock(int id, int color, Properties properties) : Block(id, std::move(properties)) {
-
-    }
+struct SandBlock : FallingBlock {
+    explicit SandBlock(int id, int color, Properties properties) : FallingBlock(id, std::move(properties)) {}
 };

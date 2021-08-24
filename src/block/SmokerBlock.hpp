@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "AbstractFurnaceBlock.hpp"
 
-struct SmokerBlock : Block {
-    using Block::Block;
+struct SmokerBlock : AbstractFurnaceBlock {
+    using AbstractFurnaceBlock::AbstractFurnaceBlock;
 };

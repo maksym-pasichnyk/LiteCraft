@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "FallingBlock.hpp"
 
-struct DragonEggBlock : Block {
-    using Block::Block;
+struct DragonEggBlock : FallingBlock {
+    using FallingBlock::FallingBlock;
 };

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "SpreadableSnowyDirtBlock.hpp"
 
-struct MyceliumBlock : Block {
-    using Block::Block;
+struct MyceliumBlock : SpreadableSnowyDirtBlock {
+    using SpreadableSnowyDirtBlock::SpreadableSnowyDirtBlock;
 };

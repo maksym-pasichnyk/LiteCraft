@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "CoralFanBlock.hpp"
 
-struct CoralFinBlock : Block {
-    CoralFinBlock(int id, Block* block, Properties properties) : Block(id, std::move(properties)) {}
+struct CoralFinBlock : CoralFanBlock {
+    CoralFinBlock(int id, Block* block, Properties properties) : CoralFanBlock(id, std::move(properties)) {}
 };

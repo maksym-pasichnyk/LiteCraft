@@ -4,8 +4,8 @@
 
 struct WeightedPressurePlateBlock : AbstractPressurePlateBlock {
     struct Payload {
-        uint16_t power : 8;
-        uint16_t : 8;
+        uint16_t power : 4;
+        uint16_t : 12;
     };
 
     static constexpr auto POWER = BlockStateProperty::POWER_0_15;

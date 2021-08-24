@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "BreakableBlock.hpp"
 
-struct HoneyBlock : Block {
-    using Block::Block;
+struct HoneyBlock : BreakableBlock {
+    using BreakableBlock::BreakableBlock;
 };

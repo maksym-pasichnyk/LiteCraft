@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Block.hpp"
+#include "DispenserBlock.hpp"
 
-struct DropperBlock : Block {
-    using Block::Block;
+struct DropperBlock : DispenserBlock {
+    using DispenserBlock::DispenserBlock;
 };

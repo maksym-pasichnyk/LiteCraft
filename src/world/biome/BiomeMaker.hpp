@@ -198,7 +198,7 @@ struct BiomeMaker {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
         if (!isEdgeBiome && !isModified) {
-//            generation.withStructure(StructureFeatures::JUNGLE_PYRAMID);
+            generation.withStructure(StructureFeatures::JUNGLE_PYRAMID);
         }
 
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
@@ -328,7 +328,7 @@ struct BiomeMaker {
         }
 
         if (hasDesertPyramid) {
-//            generation.withStructure(StructureFeatures::DESERT_PYRAMID);
+            generation.withStructure(StructureFeatures::DESERT_PYRAMID);
         }
 
         if (hasFossils) {
@@ -1140,7 +1140,7 @@ struct BiomeMaker {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::SWAMP);
         if (!isHillsVariant) {
-//            generation.withStructure(StructureFeatures::SWAMP_HUT);
+            generation.withStructure(StructureFeatures::SWAMP_HUT);
         }
 
         generation.withStructure(StructureFeatures::MINESHAFT);

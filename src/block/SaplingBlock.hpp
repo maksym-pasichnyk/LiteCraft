@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Block.hpp"
+#include "BushBlock.hpp"
 
 struct Tree {
     virtual ~Tree() = default;
@@ -12,6 +12,31 @@ struct JungleTree : Tree {};
 struct AcaciaTree : Tree {};
 struct DarkOakTree : Tree {};
 
-struct SaplingBlock : Block {
-    SaplingBlock(int id, Tree* tree, Properties properties) : Block(id, std::move(properties)) {}
+struct SaplingBlock : BushBlock {
+    SaplingBlock(int id, Tree* tree, Properties properties) : BushBlock(id, std::move(properties)) {}
+    
+    struct Payload {
+        uint16_t stage : 1;
+        uint16_t : 15;
+    };
+
+    static constexpr auto STAGE = BlockStateProperty::STAGE_0_1;
+
+    using BushBlock::BushBlock;
+
+    void fillStateContainer() override {
+        bind<STAGE, get_STAGE, set_STAGE>();
+    }
+
+    static auto get_STAGE(BlockData state) -> int {
+        auto payload = std::bit_cast<Payload>(state.dv);
+        return payload.stage;
+    }
+
+    static auto set_STAGE(BlockData state, int stage) -> BlockData {
+        auto payload = std::bit_cast<Payload>(state.dv);
+        payload.stage = stage;
+        state.dv = std::bit_cast<uint16_t>(payload);
+        return state;
+    }
 };
