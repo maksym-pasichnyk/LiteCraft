@@ -66,8 +66,8 @@ void ChunkGenerator::generateCarvers(WorldGenRegion& region, int64_t seed, Chunk
 
                 for (size_t i = 0; i < carvers.size(); ++i) {
                     random.setLargeFeatureSeed(seed + static_cast<int64_t>(i), xoffset, zoffset);
-                    if (carvers[i].shouldCarve(random, xoffset, zoffset)) {
-                        carvers[i].carveRegion(chunk, getBiome, random, seaLevel, xoffset, zoffset, xpos, zpos);
+                    if (carvers[i]->shouldCarve(random, xoffset, zoffset)) {
+                        carvers[i]->carveRegion(chunk, getBiome, random, seaLevel, xoffset, zoffset, xpos, zpos);
                     }
                 }
             }

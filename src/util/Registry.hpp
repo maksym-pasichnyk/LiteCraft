@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <memory>
 #include <vector>
 #include <string>
@@ -9,6 +10,15 @@ template <typename T>
 struct Registry {
     std::vector<std::unique_ptr<T>> entries{};
     std::map<std::string, T*> objects{};
+
+    auto name(T* obj) const -> std::optional<std::string> {
+        for (const auto& [key, val] : objects) {
+            if (val == obj) {
+                return key;
+            }
+        }
+        return std::nullopt;
+    }
 
     auto get(const std::string& name) -> T* {
         if (auto it = objects.find(name); it != objects.end()) {

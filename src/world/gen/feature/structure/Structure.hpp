@@ -29,13 +29,6 @@ struct Structure {
         return true;
     }
 
-    auto withConfiguration(StructureConfig config) -> StructureFeature* {
-        return new StructureFeature{
-            .structure = this,
-            .config = config
-        };
-    }
-
     StructureStart* generate(ChunkGenerator& generator, BiomeProvider& provider, TemplateManager& templateManager, int64_t seed, const ChunkPos& pos, Biome& biome, int refCount, Random& random, const StructureSeparation& settings, const StructureConfig& config);
 
     ChunkPos getChunkPosForStructure(const StructureSeparation& settings, int64_t seed, Random& random, int x, int z);

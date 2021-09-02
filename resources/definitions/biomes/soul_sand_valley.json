@@ -1,0 +1,58 @@
+{
+    "name": "soul_sand_valley",
+    "category": "nether",
+    "depth": 0.1,
+    "scale": 0.2,
+    "climate": {
+        "precipitation": "none",
+        "temperature": 2,
+        "temperature_modifier": "none",
+        "downfall": 0
+    },
+    "effects": {
+        "fog_color": 1787717,
+        "water_color": 4159204,
+        "water_fog_color": 329011,
+        "sky_color": 0
+    },
+    "settings": {
+        "surface": "soul_sand_valley",
+        "carvers": [
+            [],
+            []
+        ],
+        "features": [
+            [],
+            [],
+            [
+                "basalt_pillar"
+            ],
+            [],
+            [],
+            [],
+            [],
+            [
+                "spring_open",
+                "glowstone_extra",
+                "glowstone",
+                "patch_crimson_roots",
+                "patch_fire",
+                "patch_soul_fire",
+                "ore_magma",
+                "spring_closed",
+                "ore_soul_sand",
+                "ore_gravel_nether",
+                "ore_blackstone",
+                "ore_gold_nether",
+                "ore_quartz_nether",
+                "ore_debris_large",
+                "ore_debris_small"
+            ],
+            [
+                "spring_lava"
+            ],
+            []
+        ],
+        "structures": []
+    }
+}

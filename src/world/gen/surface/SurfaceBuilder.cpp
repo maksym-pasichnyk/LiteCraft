@@ -13,21 +13,23 @@
 #include <cmath>
 #include <range/v3/view.hpp>
 
-std::unique_ptr<SurfaceBuilder> SurfaceBuilder::Noop{nullptr};
-std::unique_ptr<SurfaceBuilder> SurfaceBuilder::Default{nullptr};
-std::unique_ptr<SurfaceBuilder> SurfaceBuilder::Mountain{nullptr};
-std::unique_ptr<SurfaceBuilder> SurfaceBuilder::ShatteredSavanna{nullptr};
-std::unique_ptr<SurfaceBuilder> SurfaceBuilder::GravellyMountain{nullptr};
-std::unique_ptr<SurfaceBuilder> SurfaceBuilder::GiantTreeTaiga{nullptr};
-std::unique_ptr<SurfaceBuilder> SurfaceBuilder::Swamp{nullptr};
-std::unique_ptr<SurfaceBuilder> SurfaceBuilder::Badlands{nullptr};
-std::unique_ptr<SurfaceBuilder> SurfaceBuilder::WoodedBadlands{nullptr};
-std::unique_ptr<SurfaceBuilder> SurfaceBuilder::ErodedBadlands{nullptr};
-std::unique_ptr<SurfaceBuilder> SurfaceBuilder::FrozenOcean{nullptr};
-std::unique_ptr<SurfaceBuilder> SurfaceBuilder::Nether{nullptr};
-std::unique_ptr<SurfaceBuilder> SurfaceBuilder::NetherForest{nullptr};
-std::unique_ptr<SurfaceBuilder> SurfaceBuilder::SoulSandValley{nullptr};
-std::unique_ptr<SurfaceBuilder> SurfaceBuilder::BasaltDeltas{nullptr};
+Registry<SurfaceBuilder> SurfaceBuilder::builders;
+
+SurfaceBuilder* SurfaceBuilder::Noop;
+SurfaceBuilder* SurfaceBuilder::Default;
+SurfaceBuilder* SurfaceBuilder::Mountain;
+SurfaceBuilder* SurfaceBuilder::ShatteredSavanna;
+SurfaceBuilder* SurfaceBuilder::GravellyMountain;
+SurfaceBuilder* SurfaceBuilder::GiantTreeTaiga;
+SurfaceBuilder* SurfaceBuilder::Swamp;
+SurfaceBuilder* SurfaceBuilder::Badlands;
+SurfaceBuilder* SurfaceBuilder::WoodedBadlands;
+SurfaceBuilder* SurfaceBuilder::ErodedBadlands;
+SurfaceBuilder* SurfaceBuilder::FrozenOcean;
+SurfaceBuilder* SurfaceBuilder::Nether;
+SurfaceBuilder* SurfaceBuilder::NetherForest;
+SurfaceBuilder* SurfaceBuilder::SoulSandValley;
+SurfaceBuilder* SurfaceBuilder::BasaltDeltas;
 
 struct NoopSurfaceBuilder : public SurfaceBuilder {
     void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
@@ -742,20 +744,25 @@ struct BasaltDeltasSurfaceBuilder : public SurfaceBuilder {
     }
 };
 
+template <typename T, typename... Args>
+static auto create(std::string name, Args&&... args) -> T* {
+    return dynamic_cast<T*>(SurfaceBuilder::builders.add(std::move(name), std::make_unique<T>(std::forward<Args>(args)...)));
+}
+
 void SurfaceBuilder::registerBuilders() {
-    Noop             = std::make_unique<NoopSurfaceBuilder>();
-    Default          = std::make_unique<DefaultSurfaceBuilder>();
-    Mountain         = std::make_unique<MountainSurfaceBuilder>();
-    ShatteredSavanna = std::make_unique<ShatteredSavannaSurfaceBuilder>();
-    GravellyMountain = std::make_unique<GravellyMountainSurfaceBuilder>();
-    GiantTreeTaiga   = std::make_unique<GiantTreeTaigaSurfaceBuilder>();
-    Swamp            = std::make_unique<SwampSurfaceBuilder>();
-    Badlands         = std::make_unique<BadlandsSurfaceBuilder>();
-    WoodedBadlands   = std::make_unique<WoodedBadlandsSurfaceBuilder>();
-    ErodedBadlands   = std::make_unique<ErodedBadlandsSurfaceBuilder>();
-    FrozenOcean      = std::make_unique<FrozenOceanSurfaceBuilder>();
-    Nether           = std::make_unique<NetherSurfaceBuilder>();
-    NetherForest     = std::make_unique<NetherForestsSurfaceBuilder>();
-    SoulSandValley   = std::make_unique<SoulSandValleySurfaceBuilder>();
-    BasaltDeltas     = std::make_unique<BasaltDeltasSurfaceBuilder>();
+    Noop             = create<NoopSurfaceBuilder>("noop");
+    Default          = create<DefaultSurfaceBuilder>("default");
+    Mountain         = create<MountainSurfaceBuilder>("mountain");
+    ShatteredSavanna = create<ShatteredSavannaSurfaceBuilder>("shattered_savanna");
+    GravellyMountain = create<GravellyMountainSurfaceBuilder>("gravelly_mountain");
+    GiantTreeTaiga   = create<GiantTreeTaigaSurfaceBuilder>("giant_tree_taiga");
+    Swamp            = create<SwampSurfaceBuilder>("swamp");
+    Badlands         = create<BadlandsSurfaceBuilder>("badlands");
+    WoodedBadlands   = create<WoodedBadlandsSurfaceBuilder>("wooded_badlands");
+    ErodedBadlands   = create<ErodedBadlandsSurfaceBuilder>("eroded_badlands");
+    FrozenOcean      = create<FrozenOceanSurfaceBuilder>("frozen_ocean");
+    Nether           = create<NetherSurfaceBuilder>("nether");
+    NetherForest     = create<NetherForestsSurfaceBuilder>("nether_forest");
+    SoulSandValley   = create<SoulSandValleySurfaceBuilder>("soul_sand_valley");
+    BasaltDeltas     = create<BasaltDeltasSurfaceBuilder>("basalt_deltas");
 }

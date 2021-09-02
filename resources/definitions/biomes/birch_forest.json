@@ -1,0 +1,73 @@
+{
+    "name": "birch_forest",
+    "category": "forest",
+    "depth": 0.1,
+    "scale": 0.2,
+    "climate": {
+        "precipitation": "rain",
+        "temperature": 0.6,
+        "temperature_modifier": "none",
+        "downfall": 0.6
+    },
+    "effects": {
+        "fog_color": 12638463,
+        "water_color": 4159204,
+        "water_fog_color": 329011,
+        "sky_color": 0
+    },
+    "settings": {
+        "surface": "grass",
+        "carvers": [
+            [
+                "cave",
+                "canyon"
+            ],
+            []
+        ],
+        "features": [
+            [],
+            [
+                "lake_water",
+                "lake_lava"
+            ],
+            [],
+            [
+                "monster_room"
+            ],
+            [],
+            [],
+            [
+                "ore_dirt",
+                "ore_gravel",
+                "ore_granite",
+                "ore_diorite",
+                "ore_andesite",
+                "ore_coal",
+                "ore_iron",
+                "ore_gold",
+                "ore_redstone",
+                "ore_diamond",
+                "ore_lapis"
+            ],
+            [],
+            [
+                "forest_flower_vegetation",
+                "trees_birch",
+                "flower_default",
+                "patch_grass_forest",
+                "brown_mushroom_normal",
+                "red_mushroom_normal",
+                "patch_sugar_cane",
+                "patch_pumpkin",
+                "spring_water",
+                "spring_lava"
+            ],
+            [
+                "freeze_top_layer"
+            ]
+        ],
+        "structures": [
+            "mineshaft"
+        ]
+    }
+}

@@ -1,0 +1,73 @@
+{
+    "name": "savanna",
+    "category": "savanna",
+    "depth": 0.125,
+    "scale": 0.05,
+    "climate": {
+        "precipitation": "rain",
+        "temperature": 1.2,
+        "temperature_modifier": "none",
+        "downfall": 0
+    },
+    "effects": {
+        "fog_color": 12638463,
+        "water_color": 4159204,
+        "water_fog_color": 329011,
+        "sky_color": 0
+    },
+    "settings": {
+        "surface": "grass",
+        "carvers": [
+            [
+                "cave",
+                "canyon"
+            ],
+            []
+        ],
+        "features": [
+            [],
+            [
+                "lake_water",
+                "lake_lava"
+            ],
+            [],
+            [
+                "monster_room"
+            ],
+            [],
+            [],
+            [
+                "ore_dirt",
+                "ore_gravel",
+                "ore_granite",
+                "ore_diorite",
+                "ore_andesite",
+                "ore_coal",
+                "ore_iron",
+                "ore_gold",
+                "ore_redstone",
+                "ore_diamond",
+                "ore_lapis"
+            ],
+            [],
+            [
+                "patch_tall_grass",
+                "trees_savanna",
+                "flower_warm",
+                "patch_grass_savanna",
+                "brown_mushroom_normal",
+                "red_mushroom_normal",
+                "patch_sugar_cane",
+                "patch_pumpkin",
+                "spring_water",
+                "spring_lava"
+            ],
+            [
+                "freeze_top_layer"
+            ]
+        ],
+        "structures": [
+            "mineshaft"
+        ]
+    }
+}

@@ -13,7 +13,7 @@ struct StructureFeature;
 struct ConfiguredFeature;
 struct BiomeGenerationSettings {
     ConfiguredSurfaceBuilder* surfaceBuilder;
-    std::array<std::vector<ConfiguredCarver>, 2> carvers;
+    std::array<std::vector<ConfiguredCarver*>, 2> carvers;
     std::array<std::vector<ConfiguredFeature*>, 10> features;
     std::vector<StructureFeature*> structures;
 //    std::vector<ConfiguredFeature> flowerFeatures;
@@ -28,7 +28,7 @@ struct BiomeGenerationSettings {
 
     struct Builder {
         ConfiguredSurfaceBuilder* surfaceBuilder;
-        std::array<std::vector<ConfiguredCarver>, 2> carvers;
+        std::array<std::vector<ConfiguredCarver*>, 2> carvers;
         std::array<std::vector<ConfiguredFeature*>, 10> features;
         std::vector<StructureFeature*> structures;
 
@@ -37,7 +37,7 @@ struct BiomeGenerationSettings {
             return *this;
         }
 
-        Builder& withCarver(GenerationStage::Carving carving, const ConfiguredCarver& carver) {
+        Builder& withCarver(GenerationStage::Carving carving, ConfiguredCarver* carver) {
             carvers.at(static_cast<size_t>(carving)).emplace_back(carver);
             return *this;
         }
