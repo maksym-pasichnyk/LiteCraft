@@ -1,0 +1,8 @@
+{
+    "type": "default",
+    "config": {
+        "top_material": "stone",
+        "under_material": "stone",
+        "underwater_material": "gravel"
+    }
+}

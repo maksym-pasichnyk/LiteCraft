@@ -3,7 +3,7 @@
 
 #include "../../../../util/math/Math.hpp"
 
-StructureStart* Structure::generate(ChunkGenerator &generator, BiomeProvider &provider, TemplateManager &templateManager, int64_t seed, const ChunkPos &pos, Biome &biome, int refCount, Random &random, const StructureSeparation& settings, const StructureConfig &config) {
+auto Structure::generate(ChunkGenerator &generator, BiomeProvider &provider, TemplateManager &templateManager, int64_t seed, const ChunkPos &pos, Biome &biome, int refCount, Random &random, const StructureSeparation& settings, const StructureConfig &config) -> StructureStart* {
     const auto chunkpos = getChunkPosForStructure(settings, seed, random, pos.x, pos.z);
     if (pos == chunkpos && canGenerate(generator, provider, seed, random, pos.x, pos.z, biome, chunkpos, config)) {
         auto start = createStart(pos.x, pos.z, BoundingBox::getNewBoundingBox(), refCount, seed);
@@ -15,7 +15,7 @@ StructureStart* Structure::generate(ChunkGenerator &generator, BiomeProvider &pr
     return nullptr;/*StructureStart.DUMMY*/;
 }
 
-ChunkPos Structure::getChunkPosForStructure(const StructureSeparation &settings, int64_t seed, Random &random, int x, int z) {
+auto Structure::getChunkPosForStructure(const StructureSeparation &settings, int64_t seed, Random &random, int x, int z) -> ChunkPos {
     const auto [spacing, separation, salt] = settings;
     const int ix = Math::floorDiv(x, spacing);
     const int iz = Math::floorDiv(z, spacing);

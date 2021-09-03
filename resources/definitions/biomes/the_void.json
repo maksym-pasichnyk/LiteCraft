@@ -1,40 +1,35 @@
 {
-    "name": "the_void",
-    "category": "none",
     "depth": 0.1,
     "scale": 0.2,
-    "climate": {
-        "precipitation": "none",
-        "temperature": 0.5,
-        "temperature_modifier": "none",
-        "downfall": 0.5
-    },
+    "precipitation": "none",
+    "category": "none",
+    "temperature": 0.5,
+    "temperature_modifier": "none",
+    "downfall": 0.5,
     "effects": {
         "fog_color": 12638463,
         "water_color": 4159204,
         "water_fog_color": 329011,
         "sky_color": 0
     },
-    "settings": {
-        "surface": "nope",
-        "carvers": [
-            [],
-            []
-        ],
-        "features": [
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [
-                "void_start_platform"
-            ]
-        ],
-        "structures": []
-    }
+    "surface_builder": "nope",
+    "carvers": [
+        [],
+        []
+    ],
+    "features": [
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [
+            "void_start_platform"
+        ]
+    ],
+    "structures": []
 }

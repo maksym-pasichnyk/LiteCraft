@@ -1,0 +1,8 @@
+{
+    "type": "nether",
+    "config": {
+        "top_material": "netherrack",
+        "under_material": "netherrack",
+        "underwater_material": "netherrack"
+    }
+}

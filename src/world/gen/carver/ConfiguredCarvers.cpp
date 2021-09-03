@@ -2,7 +2,8 @@
 #include "ConfiguredCarver.hpp"
 #include "Carvers.hpp"
 
-#include <memory>
+#include <fstream>
+#include <configs.hpp>
 
 Registry<ConfiguredCarver> ConfiguredCarvers::carvers;
 
@@ -23,4 +24,12 @@ void ConfiguredCarvers::configureCarvers() {
     CANYON = configure("canyon", Carvers::CANYON, { .probability = 0.02F });
     OCEAN_CAVE = configure("ocean_cave", Carvers::CAVE, { .probability = 0.06666667F });
     NETHER_CAVE = configure("nether_cave", Carvers::NETHER_CAVE, { .probability = 0.2F });
+
+    for (const auto& [name, carver] : carvers.objects) {
+        std::ofstream out{fmt::format("definitions/configured_carvers/{}.json", name), std::ios::binary};
+        out << Json{
+            {"type", carver->carver},
+            {"config", carver->config}
+        };
+    }
 }

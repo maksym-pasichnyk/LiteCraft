@@ -1,0 +1,7 @@
+{
+    "type": "mineshaft",
+    "config": {
+        "probability": 0.004,
+        "type": "normal"
+    }
+}

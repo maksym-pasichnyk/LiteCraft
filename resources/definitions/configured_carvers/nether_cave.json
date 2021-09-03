@@ -1,0 +1,6 @@
+{
+    "type": "nether_cave",
+    "config": {
+        "probability": 0.2
+    }
+}

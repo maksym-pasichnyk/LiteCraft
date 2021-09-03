@@ -1,58 +1,53 @@
 {
-    "name": "crimson_forest",
-    "category": "nether",
     "depth": 0.1,
     "scale": 0.2,
-    "climate": {
-        "precipitation": "none",
-        "temperature": 2,
-        "temperature_modifier": "none",
-        "downfall": 0
-    },
+    "precipitation": "none",
+    "category": "nether",
+    "temperature": 2,
+    "temperature_modifier": "none",
+    "downfall": 0,
     "effects": {
         "fog_color": 3343107,
         "water_color": 4159204,
         "water_fog_color": 329011,
         "sky_color": 0
     },
-    "settings": {
-        "surface": "crimson_forest",
-        "carvers": [
-            [],
-            []
+    "surface_builder": "crimson_forest",
+    "carvers": [
+        [],
+        []
+    ],
+    "features": [
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [
+            "spring_open",
+            "patch_fire",
+            "glowstone_extra",
+            "glowstone",
+            "ore_magma",
+            "spring_closed",
+            "ore_gravel_nether",
+            "ore_blackstone",
+            "ore_gold_nether",
+            "ore_quartz_nether",
+            "ore_debris_large",
+            "ore_debris_small"
         ],
-        "features": [
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [
-                "spring_open",
-                "patch_fire",
-                "glowstone_extra",
-                "glowstone",
-                "ore_magma",
-                "spring_closed",
-                "ore_gravel_nether",
-                "ore_blackstone",
-                "ore_gold_nether",
-                "ore_quartz_nether",
-                "ore_debris_large",
-                "ore_debris_small"
-            ],
-            [
-                "spring_lava",
-                "brown_mushroom_normal",
-                "red_mushroom_normal",
-                "weeping_vines",
-                "crimson_fungi",
-                "crimson_forest_vegetation"
-            ],
-            []
+        [
+            "spring_lava",
+            "brown_mushroom_normal",
+            "red_mushroom_normal",
+            "weeping_vines",
+            "crimson_fungi",
+            "crimson_forest_vegetation"
         ],
-        "structures": []
-    }
+        []
+    ],
+    "structures": []
 }

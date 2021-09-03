@@ -1,0 +1,8 @@
+{
+    "type": "default",
+    "config": {
+        "top_material": "end_stone",
+        "under_material": "end_stone",
+        "underwater_material": "end_stone"
+    }
+}

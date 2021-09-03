@@ -1,72 +1,67 @@
 {
-    "name": "snowy_tundra",
-    "category": "icy",
     "depth": 0.125,
     "scale": 0.05,
-    "climate": {
-        "precipitation": "snow",
-        "temperature": 0,
-        "temperature_modifier": "none",
-        "downfall": 0.5
-    },
+    "precipitation": "snow",
+    "category": "icy",
+    "temperature": 0,
+    "temperature_modifier": "none",
+    "downfall": 0.5,
     "effects": {
         "fog_color": 12638463,
         "water_color": 4159204,
         "water_fog_color": 329011,
         "sky_color": 0
     },
-    "settings": {
-        "surface": "grass",
-        "carvers": [
-            [
-                "cave",
-                "canyon"
-            ],
-            []
+    "surface_builder": "grass",
+    "carvers": [
+        [
+            "cave",
+            "canyon"
         ],
-        "features": [
-            [],
-            [
-                "lake_water",
-                "lake_lava"
-            ],
-            [],
-            [
-                "monster_room"
-            ],
-            [],
-            [],
-            [
-                "ore_dirt",
-                "ore_gravel",
-                "ore_granite",
-                "ore_diorite",
-                "ore_andesite",
-                "ore_coal",
-                "ore_iron",
-                "ore_gold",
-                "ore_redstone",
-                "ore_diamond",
-                "ore_lapis"
-            ],
-            [],
-            [
-                "spruce_snowy",
-                "flower_default",
-                "patch_grass_badlands",
-                "brown_mushroom_normal",
-                "red_mushroom_normal",
-                "patch_sugar_cane",
-                "patch_pumpkin",
-                "spring_water",
-                "spring_lava"
-            ],
-            [
-                "freeze_top_layer"
-            ]
+        []
+    ],
+    "features": [
+        [],
+        [
+            "lake_water",
+            "lake_lava"
         ],
-        "structures": [
-            "mineshaft"
+        [],
+        [
+            "monster_room"
+        ],
+        [],
+        [],
+        [
+            "ore_dirt",
+            "ore_gravel",
+            "ore_granite",
+            "ore_diorite",
+            "ore_andesite",
+            "ore_coal",
+            "ore_iron",
+            "ore_gold",
+            "ore_redstone",
+            "ore_diamond",
+            "ore_lapis"
+        ],
+        [],
+        [
+            "spruce_snowy",
+            "flower_default",
+            "patch_grass_badlands",
+            "brown_mushroom_normal",
+            "red_mushroom_normal",
+            "patch_sugar_cane",
+            "patch_pumpkin",
+            "spring_water",
+            "spring_lava"
+        ],
+        [
+            "freeze_top_layer"
         ]
-    }
+    ],
+    "structures": [
+        "mineshaft"
+    ]
 }

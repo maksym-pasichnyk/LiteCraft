@@ -3,6 +3,9 @@
 
 #include "BiomeMaker.hpp"
 
+#include <fstream>
+#include <configs.hpp>
+
 Registry<Biome> Biomes::biomes;
 
 Biome* Biomes::OCEAN;
@@ -171,4 +174,23 @@ void Biomes::registerBiomes() {
     CRIMSON_FOREST = registerBiome(171, "crimson_forest"s, BiomeMaker::makeCrimsonForestBiome());
     WARPED_FOREST = registerBiome(172, "warped_forest"s, BiomeMaker::makeWarpedForestBiome());
     BASALT_DELTAS = registerBiome(173, "basalt_deltas"s, BiomeMaker::makeBasaltDeltasBiome());
+
+    for (const auto& [name, biome] : Biomes::biomes.objects) {
+        std::ofstream out{fmt::format("definitions/biomes/{}.json", name), std::ios::binary};
+        out << Json{
+            {"depth", biome->depth},
+            {"scale", biome->scale},
+            {"precipitation", biome->climate.precipitation},
+            {"category", biome->category},
+            {"temperature", biome->climate.temperature},
+            {"temperature_modifier", biome->climate.temperatureModifier},
+            {"downfall", biome->climate.downfall},
+            {"effects", biome->effects},
+            {"surface_builder", biome->biomeGenerationSettings.surfaceBuilder},
+            {"carvers", biome->biomeGenerationSettings.carvers},
+            {"features", biome->biomeGenerationSettings.features},
+            {"structures", biome->biomeGenerationSettings.structures},
+//            {"spawn", biome->mobSpawnInfo},
+        };
+    }
 }

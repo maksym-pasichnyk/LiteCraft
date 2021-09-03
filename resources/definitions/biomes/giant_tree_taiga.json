@@ -1,79 +1,74 @@
 {
-    "name": "giant_tree_taiga",
-    "category": "taiga",
     "depth": 0.2,
     "scale": 0.2,
-    "climate": {
-        "precipitation": "rain",
-        "temperature": 0.3,
-        "temperature_modifier": "none",
-        "downfall": 0.8
-    },
+    "precipitation": "rain",
+    "category": "taiga",
+    "temperature": 0.3,
+    "temperature_modifier": "none",
+    "downfall": 0.8,
     "effects": {
         "fog_color": 12638463,
         "water_color": 4159204,
         "water_fog_color": 329011,
         "sky_color": 0
     },
-    "settings": {
-        "surface": "giant_tree_taiga",
-        "carvers": [
-            [
-                "cave",
-                "canyon"
-            ],
-            []
+    "surface_builder": "giant_tree_taiga",
+    "carvers": [
+        [
+            "cave",
+            "canyon"
         ],
-        "features": [
-            [],
-            [
-                "lake_water",
-                "lake_lava"
-            ],
-            [
-                "forest_rock"
-            ],
-            [
-                "monster_room"
-            ],
-            [],
-            [],
-            [
-                "ore_dirt",
-                "ore_gravel",
-                "ore_granite",
-                "ore_diorite",
-                "ore_andesite",
-                "ore_coal",
-                "ore_iron",
-                "ore_gold",
-                "ore_redstone",
-                "ore_diamond",
-                "ore_lapis"
-            ],
-            [],
-            [
-                "patch_large_fern",
-                "trees_giant",
-                "flower_default",
-                "patch_grass_taiga",
-                "patch_dead_bush",
-                "brown_mushroom_giant",
-                "red_mushroom_giant",
-                "brown_mushroom_normal",
-                "red_mushroom_normal",
-                "patch_sugar_cane",
-                "patch_pumpkin",
-                "spring_water",
-                "spring_lava",
-                "patch_berry_sparse"
-            ],
-            [
-                "freeze_top_layer"
-            ]
+        []
+    ],
+    "features": [
+        [],
+        [
+            "lake_water",
+            "lake_lava"
         ],
-        "structures": [
-            "mineshaft"
+        [
+            "forest_rock"
+        ],
+        [
+            "monster_room"
+        ],
+        [],
+        [],
+        [
+            "ore_dirt",
+            "ore_gravel",
+            "ore_granite",
+            "ore_diorite",
+            "ore_andesite",
+            "ore_coal",
+            "ore_iron",
+            "ore_gold",
+            "ore_redstone",
+            "ore_diamond",
+            "ore_lapis"
+        ],
+        [],
+        [
+            "patch_large_fern",
+            "trees_giant",
+            "flower_default",
+            "patch_grass_taiga",
+            "patch_dead_bush",
+            "brown_mushroom_giant",
+            "red_mushroom_giant",
+            "brown_mushroom_normal",
+            "red_mushroom_normal",
+            "patch_sugar_cane",
+            "patch_pumpkin",
+            "spring_water",
+            "spring_lava",
+            "patch_berry_sparse"
+        ],
+        [
+            "freeze_top_layer"
         ]
-    }
+    ],
+    "structures": [
+        "mineshaft"
+    ]
 }

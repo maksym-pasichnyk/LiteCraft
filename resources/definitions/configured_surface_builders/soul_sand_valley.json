@@ -1,0 +1,8 @@
+{
+    "type": "soul_sand_valley",
+    "config": {
+        "top_material": "soul_sand",
+        "under_material": "soul_sand",
+        "underwater_material": "soul_sand"
+    }
+}

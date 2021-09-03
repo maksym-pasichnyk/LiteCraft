@@ -1,0 +1,8 @@
+{
+    "type": "eroded_badlands",
+    "config": {
+        "top_material": "red_sand",
+        "under_material": "white_terracotta",
+        "underwater_material": "gravel"
+    }
+}

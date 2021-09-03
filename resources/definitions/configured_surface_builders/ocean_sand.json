@@ -1,0 +1,8 @@
+{
+    "type": "default",
+    "config": {
+        "top_material": "grass_block",
+        "under_material": "dirt",
+        "underwater_material": "sand"
+    }
+}

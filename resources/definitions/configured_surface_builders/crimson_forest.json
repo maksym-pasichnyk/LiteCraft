@@ -1,0 +1,8 @@
+{
+    "type": "nether_forest",
+    "config": {
+        "top_material": "crimson_nylium",
+        "under_material": "netherrack",
+        "underwater_material": "nether_wart_block"
+    }
+}

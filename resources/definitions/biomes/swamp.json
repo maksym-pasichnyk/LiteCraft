@@ -1,78 +1,73 @@
 {
-    "name": "swamp",
-    "category": "swamp",
     "depth": -0.2,
     "scale": 0.1,
-    "climate": {
-        "precipitation": "rain",
-        "temperature": 0.8,
-        "temperature_modifier": "none",
-        "downfall": 0.9
-    },
+    "precipitation": "rain",
+    "category": "swamp",
+    "temperature": 0.8,
+    "temperature_modifier": "none",
+    "downfall": 0.9,
     "effects": {
         "fog_color": 12638463,
         "water_color": 6388580,
         "water_fog_color": 2302743,
         "sky_color": 0
     },
-    "settings": {
-        "surface": "swamp",
-        "carvers": [
-            [
-                "cave",
-                "canyon"
-            ],
-            []
+    "surface_builder": "swamp",
+    "carvers": [
+        [
+            "cave",
+            "canyon"
         ],
-        "features": [
-            [],
-            [
-                "lake_water",
-                "lake_lava"
-            ],
-            [],
-            [
-                "monster_room"
-            ],
-            [],
-            [],
-            [
-                "ore_dirt",
-                "ore_gravel",
-                "ore_granite",
-                "ore_diorite",
-                "ore_andesite",
-                "ore_coal",
-                "ore_iron",
-                "ore_gold",
-                "ore_redstone",
-                "ore_diamond",
-                "ore_lapis"
-            ],
-            [],
-            [
-                "swamp_tree",
-                "flower_swamp",
-                "patch_grass_normal",
-                "patch_dead_bush",
-                "patch_waterlilly",
-                "brown_mushroom_swamp",
-                "red_mushroom_swamp",
-                "brown_mushroom_normal",
-                "red_mushroom_normal",
-                "patch_sugar_cane_swamp",
-                "patch_pumpkin",
-                "spring_water",
-                "spring_lava",
-                "seagrass_swamp"
-            ],
-            [
-                "freeze_top_layer"
-            ]
+        []
+    ],
+    "features": [
+        [],
+        [
+            "lake_water",
+            "lake_lava"
         ],
-        "structures": [
-            "swamp_hut",
-            "mineshaft"
+        [],
+        [
+            "monster_room"
+        ],
+        [],
+        [],
+        [
+            "ore_dirt",
+            "ore_gravel",
+            "ore_granite",
+            "ore_diorite",
+            "ore_andesite",
+            "ore_coal",
+            "ore_iron",
+            "ore_gold",
+            "ore_redstone",
+            "ore_diamond",
+            "ore_lapis"
+        ],
+        [],
+        [
+            "swamp_tree",
+            "flower_swamp",
+            "patch_grass_normal",
+            "patch_dead_bush",
+            "patch_waterlilly",
+            "brown_mushroom_swamp",
+            "red_mushroom_swamp",
+            "brown_mushroom_normal",
+            "red_mushroom_normal",
+            "patch_sugar_cane_swamp",
+            "patch_pumpkin",
+            "spring_water",
+            "spring_lava",
+            "seagrass_swamp"
+        ],
+        [
+            "freeze_top_layer"
         ]
-    }
+    ],
+    "structures": [
+        "swamp_hut",
+        "mineshaft"
+    ]
 }

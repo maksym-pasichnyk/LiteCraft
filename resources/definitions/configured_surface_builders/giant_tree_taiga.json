@@ -1,0 +1,8 @@
+{
+    "type": "giant_tree_taiga",
+    "config": {
+        "top_material": "grass_block",
+        "under_material": "dirt",
+        "underwater_material": "gravel"
+    }
+}

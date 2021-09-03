@@ -2,6 +2,46 @@
 #include "Structure.hpp"
 #include "Structures.hpp"
 
+#include <fstream>
+#include <configs.hpp>
+
+template<>
+struct Json::Serialize<NoFeatureConfig> {
+    static auto to_json(const NoFeatureConfig &config) -> Json {
+        return Json::Object{};
+    }
+};
+
+template<>
+struct Json::Serialize<MineshaftType> {
+    static auto to_json(const MineshaftType &type) -> Json {
+        switch (type) {
+            case MineshaftType::NORMAL: return "normal";
+            case MineshaftType::MESA: return "mesa";
+            default: return {};
+        }
+    }
+};
+
+template<>
+struct Json::Serialize<MineshaftConfig> {
+    static auto to_json(const MineshaftConfig &config) -> Json {
+        return {
+            {"probability", config.probability},
+            {"type", config.type}
+        };
+    }
+};
+
+template<>
+struct Json::Serialize<StructureConfig> {
+    static auto to_json(const StructureConfig &config) -> Json {
+        return match(config, []<typename T>(T&& cfg) -> Json {
+            return std::forward<T>(cfg);
+        });
+    }
+};
+
 Registry<StructureFeature> StructureFeatures::registry{};
 
 StructureFeature* StructureFeatures::PILLAGER_OUTPOST;
@@ -89,4 +129,12 @@ void StructureFeatures::configureStructures() {
 //    RUINED_PORTAL_MOUNTAIN = configure("ruined_portal_mountain", Structures::RUINED_PORTAL, new RuinedPortalFeatureConfig(RuinedPortalStructures::Location.MOUNTAIN)));
 //    RUINED_PORTAL_OCEAN = configure("ruined_portal_ocean", Structures::RUINED_PORTAL, new RuinedPortalFeatureConfig(RuinedPortalStructures::Location.OCEAN)));
 //    RUINED_PORTAL_NETHER = configure("ruined_portal_nether", Structures::RUINED_PORTAL, new RuinedPortalFeatureConfig(RuinedPortalStructures::Location.NETHER)));
+
+    for (auto&& [name, structure] : registry.objects) {
+        std::ofstream out{fmt::format("definitions/configured_structure_features/{}.json", name), std::ios::binary};
+        out << Json{
+            {"type", structure->structure},
+            {"config", structure->config}
+        };
+    }
 }

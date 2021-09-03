@@ -1,0 +1,8 @@
+{
+    "type": "default",
+    "config": {
+        "top_material": "sand",
+        "under_material": "sand",
+        "underwater_material": "sand"
+    }
+}

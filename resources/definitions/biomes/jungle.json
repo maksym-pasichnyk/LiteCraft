@@ -1,76 +1,71 @@
 {
-    "name": "jungle",
-    "category": "jungle",
     "depth": 0.1,
     "scale": 0.2,
-    "climate": {
-        "precipitation": "rain",
-        "temperature": 0.95,
-        "temperature_modifier": "none",
-        "downfall": 0.9
-    },
+    "precipitation": "rain",
+    "category": "jungle",
+    "temperature": 0.95,
+    "temperature_modifier": "none",
+    "downfall": 0.9,
     "effects": {
         "fog_color": 12638463,
         "water_color": 4159204,
         "water_fog_color": 329011,
         "sky_color": 0
     },
-    "settings": {
-        "surface": "grass",
-        "carvers": [
-            [
-                "cave",
-                "canyon"
-            ],
-            []
+    "surface_builder": "grass",
+    "carvers": [
+        [
+            "cave",
+            "canyon"
         ],
-        "features": [
-            [],
-            [
-                "lake_water",
-                "lake_lava"
-            ],
-            [],
-            [
-                "monster_room"
-            ],
-            [],
-            [],
-            [
-                "ore_dirt",
-                "ore_gravel",
-                "ore_granite",
-                "ore_diorite",
-                "ore_andesite",
-                "ore_coal",
-                "ore_iron",
-                "ore_gold",
-                "ore_redstone",
-                "ore_diamond",
-                "ore_lapis"
-            ],
-            [],
-            [
-                "bamboo_light",
-                "trees_jungle",
-                "flower_warm",
-                "patch_grass_jungle",
-                "brown_mushroom_normal",
-                "red_mushroom_normal",
-                "patch_sugar_cane",
-                "patch_pumpkin",
-                "spring_water",
-                "spring_lava",
-                "patch_melon",
-                "vines"
-            ],
-            [
-                "freeze_top_layer"
-            ]
+        []
+    ],
+    "features": [
+        [],
+        [
+            "lake_water",
+            "lake_lava"
         ],
-        "structures": [
-            "jungle_pyramid",
-            "mineshaft"
+        [],
+        [
+            "monster_room"
+        ],
+        [],
+        [],
+        [
+            "ore_dirt",
+            "ore_gravel",
+            "ore_granite",
+            "ore_diorite",
+            "ore_andesite",
+            "ore_coal",
+            "ore_iron",
+            "ore_gold",
+            "ore_redstone",
+            "ore_diamond",
+            "ore_lapis"
+        ],
+        [],
+        [
+            "bamboo_light",
+            "trees_jungle",
+            "flower_warm",
+            "patch_grass_jungle",
+            "brown_mushroom_normal",
+            "red_mushroom_normal",
+            "patch_sugar_cane",
+            "patch_pumpkin",
+            "spring_water",
+            "spring_lava",
+            "patch_melon",
+            "vines"
+        ],
+        [
+            "freeze_top_layer"
         ]
-    }
+    ],
+    "structures": [
+        "jungle_pyramid",
+        "mineshaft"
+    ]
 }

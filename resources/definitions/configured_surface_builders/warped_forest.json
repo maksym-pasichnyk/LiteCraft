@@ -1,0 +1,8 @@
+{
+    "type": "nether_forest",
+    "config": {
+        "top_material": "warped_nylium",
+        "under_material": "netherrack",
+        "underwater_material": "warped_wart_block"
+    }
+}

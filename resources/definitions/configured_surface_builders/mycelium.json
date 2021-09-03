@@ -1,0 +1,8 @@
+{
+    "type": "default",
+    "config": {
+        "top_material": "mycelium",
+        "under_material": "dirt",
+        "underwater_material": "gravel"
+    }
+}
