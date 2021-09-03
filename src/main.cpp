@@ -73,7 +73,18 @@ struct Json::Serialize<RainType> {
 template <>
 struct Json::Deserialize<RainType> {
     static auto from_json(const Json& obj) -> std::optional<RainType> {
-        return {};
+        using namespace std::string_literals;
+
+        static auto table = std::map<std::string, RainType> {
+            {"none"s, RainType::NONE},
+            {"rain"s, RainType::RAIN},
+            {"snow"s, RainType::SNOW}
+        };
+
+        if (auto it = table.find(obj.to_string()); it != table.end()) {
+            return it->second;
+        }
+        return std::nullopt;
     }
 };
 
@@ -108,7 +119,32 @@ struct Json::Serialize<BiomeCategory> {
 template <>
 struct Json::Deserialize<BiomeCategory> {
     static auto from_json(const Json &obj) -> std::optional<BiomeCategory> {
-        return {};
+        using namespace std::string_literals;
+
+        static auto table = std::map<std::string, BiomeCategory> {
+            {"none"s, BiomeCategory::NONE},
+            {"taiga"s, BiomeCategory::TAIGA},
+            {"extreme_hills"s, BiomeCategory::EXTREME_HILLS},
+            {"jungle"s, BiomeCategory::JUNGLE},
+            {"mesa"s, BiomeCategory::MESA},
+            {"plains"s, BiomeCategory::PLAINS},
+            {"savanna"s, BiomeCategory::SAVANNA},
+            {"icy"s, BiomeCategory::ICY},
+            {"theend"s, BiomeCategory::THEEND},
+            {"beach"s, BiomeCategory::BEACH},
+            {"forest"s, BiomeCategory::FOREST},
+            {"ocean"s, BiomeCategory::OCEAN},
+            {"desert"s, BiomeCategory::DESERT},
+            {"river"s, BiomeCategory::RIVER},
+            {"swamp"s, BiomeCategory::SWAMP},
+            {"mushroom"s, BiomeCategory::MUSHROOM},
+            {"nether"s, BiomeCategory::NETHER}
+        };
+
+        if (auto it = table.find(obj.to_string()); it != table.end()) {
+            return it->second;
+        }
+        return std::nullopt;
     }
 };
 
@@ -117,25 +153,30 @@ struct Json::Serialize<TemperatureModifier> {
     static auto to_json(const TemperatureModifier& modifier) -> Json {
         using namespace std::string_literals;
 
+        if (modifier == TemperatureModifiers::none) {
+            return "none"s;
+        }
         if (modifier == TemperatureModifiers::frozen) {
             return "frozen"s;
-        } else if (modifier == TemperatureModifiers::none) {
-            return "none"s;
-        } else {
-            return {};
         }
+        return {};
     }
 };
 
 template <>
 struct Json::Deserialize<TemperatureModifier> {
     static auto from_json(const Json& obj) -> std::optional<TemperatureModifier> {
-//        if (j.get<std::string>() == "frozen") {
-//            modifier = TemperatureModifiers::frozen;
-//        } else {
-//            modifier = TemperatureModifiers::none;
-//        }
-        return {};
+        using namespace std::string_literals;
+
+        static auto table = std::map<std::string, TemperatureModifier> {
+            {"none"s, TemperatureModifiers::none},
+            {"frozen"s, TemperatureModifiers::frozen}
+        };
+
+        if (auto it = table.find(obj.to_string()); it != table.end()) {
+            return it->second;
+        }
+        return std::nullopt;
     }
 };
 
@@ -155,14 +196,14 @@ struct Json::Serialize<BiomeAmbience> {
 
 template<>
 struct Json::Deserialize<BiomeAmbience> {
-    static auto from_json(Json& obj) -> std::optional<BiomeAmbience> {
-//        j.at("fogColor").get_to(ambience.fogColor);
-//        j.at("waterColor").get_to(ambience.waterColor);
-//        j.at("waterFogColor").get_to(ambience.waterFogColor);
-//        j.at("skyColor").get_to(ambience.skyColor);
-//        j.at("foliageColor").get_to(ambience.foliageColor);
-//        j.at("grassColor").get_to(ambience.grassColor);
-        return {};
+    static auto from_json(const Json& obj) -> std::optional<BiomeAmbience> {
+        auto&& o = obj.to_object();
+        return BiomeAmbience{
+            .fogColor = o.at("fog_color"),
+            .waterColor = o.at("water_color"),
+            .waterFogColor = o.at("water_fog_color"),
+            .skyColor = o.at("sky_color")
+        };
     }
 };
 
@@ -180,12 +221,14 @@ struct Json::Serialize<BiomeClimate> {
 
 template<>
 struct Json::Deserialize<BiomeClimate> {
-    static auto from_json(Json& obj) -> std::optional<BiomeClimate> {
-//        j.at("precipitation").get_to(climate.precipitation);
-//        j.at("temperature").get_to(climate.temperature);
-//        j.at("temprerature_modifier").get_to(climate.temperatureModifier);
-//        j.at("downfall").get_to(climate.downfall);
-        return {};
+    static auto from_json(const Json& obj) -> std::optional<BiomeClimate> {
+        auto&& o = obj.to_object();
+        return BiomeClimate{
+            .precipitation = o.at("precipitation"),
+            .temperature = o.at("temperature"),
+            .temperatureModifier = o.at("temperature_modifier"),
+            .downfall = o.at("downfall")
+        };
     }
 };
 
@@ -197,9 +240,23 @@ struct Json::Serialize<ConfiguredSurfaceBuilder*> {
 };
 
 template<>
+struct Json::Deserialize<ConfiguredSurfaceBuilder*> {
+    static auto from_json(const Json& obj) -> std::optional<ConfiguredSurfaceBuilder*> {
+        return ConfiguredSurfaceBuilders::builders.get(obj.to_string());
+    }
+};
+
+template<>
 struct Json::Serialize<ConfiguredFeature*> {
     static auto to_json(ConfiguredFeature* feature) -> Json {
         return ConfiguredFeatures::features.name(feature).value();
+    }
+};
+
+template<>
+struct Json::Deserialize<ConfiguredFeature*> {
+    static auto from_json(const Json& obj) -> std::optional<ConfiguredFeature*> {
+        return ConfiguredFeatures::features.get(obj.to_string());
     }
 };
 
@@ -211,9 +268,23 @@ struct Json::Serialize<StructureFeature*> {
 };
 
 template<>
+struct Json::Deserialize<StructureFeature*> {
+    static auto from_json(const Json& obj) -> std::optional<StructureFeature*> {
+        return StructureFeatures::registry.get(obj.to_string());
+    }
+};
+
+template<>
 struct Json::Serialize<ConfiguredCarver*> {
     static auto to_json(ConfiguredCarver* carver) -> Json {
         return ConfiguredCarvers::carvers.name(carver).value();
+    }
+};
+
+template<>
+struct Json::Deserialize<ConfiguredCarver*> {
+    static auto from_json(const Json& obj) -> std::optional<ConfiguredCarver*> {
+        return ConfiguredCarvers::carvers.get(obj.to_string());
     }
 };
 
@@ -231,8 +302,14 @@ struct Json::Serialize<BiomeGenerationSettings> {
 
 template<>
 struct Json::Deserialize<BiomeGenerationSettings> {
-    static auto from_json(Json& obj) -> std::optional<BiomeGenerationSettings> {
-        return {};
+    static auto from_json(const Json& obj) -> std::optional<BiomeGenerationSettings> {
+        auto&& o = obj.to_object();
+        return BiomeGenerationSettings{
+            .surfaceBuilder = o.at("surface"),
+            .carvers = o.at("carvers"),
+            .features = o.at("features"),
+            .structures = o.at("structures")
+        };
     }
 };
 
@@ -311,8 +388,7 @@ struct App {
         StructureFeatures::configureStructures();
         Biomes::registerBiomes();
 
-
-//        for (const auto& [name, biome] : Biomes::table) {
+//        for (const auto& [name, biome] : Biomes::biomes.objects) {
 //            std::ofstream out{fmt::format("definitions/biomes/{}.json", name), std::ios::binary};
 //            out << Json{
 //                {"name", name},
@@ -324,12 +400,21 @@ struct App {
 //                {"settings", biome->biomeGenerationSettings},
 ////                {"spawn", biome->mobSpawnInfo},
 //            };
+//            out.close();
+//
 //            std::ifstream in{fmt::format("definitions/biomes/{}.json", name), std::ios::binary};
-//            std::cout << Json::Read::read(in).value();
+//            auto obj = Json::Read::read(in).value().to_object();
+//
+//            biome->category = obj.at("category");
+//            biome->depth = obj.at("depth");
+//            biome->scale = obj.at("scale");
+//            biome->climate = obj.at("climate");
+//            biome->effects = obj.at("effects");
+//            biome->biomeGenerationSettings = obj.at("settings");
 //        }
 
-
         /**************************************************************************************************************/
+
 //        {
 //            std::ifstream file{"file.nbt", std::ios::binary};
 //            auto root = NbtUtil::read(zlib_istream(file)).value().tag;

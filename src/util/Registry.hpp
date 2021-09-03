@@ -20,11 +20,11 @@ struct Registry {
         return std::nullopt;
     }
 
-    auto get(const std::string& name) -> T* {
+    auto get(const std::string& name) -> std::optional<T*> {
         if (auto it = objects.find(name); it != objects.end()) {
             return it->second;
         }
-        return nullptr;
+        return std::nullopt;
     }
 
     auto add(std::string name, std::unique_ptr<T>&& obj) -> T* {

@@ -3,8 +3,7 @@
 
 #include "BiomeMaker.hpp"
 
-std::map<int, std::unique_ptr<Biome>> Biomes::biomes;
-std::map<std::string, Biome*> Biomes::table;
+Registry<Biome> Biomes::biomes;
 
 Biome* Biomes::OCEAN;
 Biome* Biomes::PLAINS;
@@ -86,10 +85,8 @@ Biome* Biomes::CRIMSON_FOREST;
 Biome* Biomes::WARPED_FOREST;
 Biome* Biomes::BASALT_DELTAS;
 
-Biome* Biomes::registerBiome(int id, const std::string& name, Biome* biome) {
-    biomes[id] = std::unique_ptr<Biome>(biome);
-    table[name] = biome;
-    return biome;
+static auto registerBiome(int id, std::string name, Biome* biome) -> Biome* {
+    return Biomes::biomes.add(id, std::move(name), std::unique_ptr<Biome>(biome));
 }
 
 void Biomes::registerBiomes() {

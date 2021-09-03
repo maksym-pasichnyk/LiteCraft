@@ -2,13 +2,12 @@
 
 #include <map>
 #include <memory>
-#include <string_view>
+#include <util/Registry.hpp>
 
 struct Biome;
 
 struct Biomes {
-    static std::map<int, std::unique_ptr<Biome>> biomes;
-    static std::map<std::string, Biome*> table;
+    static Registry<Biome> biomes;
 
     static Biome* OCEAN;
     static Biome* PLAINS;
@@ -90,10 +89,9 @@ struct Biomes {
     static Biome* WARPED_FOREST;
     static Biome* BASALT_DELTAS;
 
-    static Biome* findByName(const std::string& name) {
-        return table.at(name);
+    static auto findByName(const std::string& name) -> Biome* {
+        return biomes.get(name).value_or(nullptr);
     }
 
-    static Biome* registerBiome(int id, const std::string& name, Biome* biome);
     static void registerBiomes();
 };

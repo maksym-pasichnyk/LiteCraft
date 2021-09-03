@@ -101,6 +101,11 @@ struct Json {
     Json& operator=(Json&&) = default;
     Json& operator=(const Json&) = default;
 
+    template<typename T>
+    operator T() const {
+        return Deserialize<std::decay_t<T>>::from_json(*this).value();
+    }
+
 	auto is_null() const noexcept -> bool {
 		return m_storage.index() == 0;
 	}
@@ -187,14 +192,59 @@ struct Json::Serialize<T> {
 template<typename T, size_t N>
 struct Json::Serialize<std::array<T, N>> {
     static auto to_json(const std::array<T, N>& elements) -> Json {
-        return elements | ranges::views::transform([](auto element) -> Json { return element; }) | ranges::to<Json::Array>();
+        return elements | ranges::views::transform([](auto element) -> Json { return std::move(element); }) | ranges::to<Json::Array>();
     }
 };
 
 template<typename T>
 struct Json::Serialize<std::vector<T>> {
     static auto to_json(const std::vector<T> &elements) -> Json {
-        return elements | ranges::views::transform([](auto element) -> Json { return element; }) | ranges::to<Json::Array>();
+        return elements | ranges::views::transform([](auto element) -> Json { return std::move(element); }) | ranges::to<Json::Array>();
+    }
+};
+
+template <typename T> requires (
+    std::is_same_v<T, float> ||
+    std::is_same_v<T, double>
+)
+struct Json::Deserialize<T> {
+    static auto from_json(const Json& obj) -> std::optional<T> {
+        return obj.to_decimal();
+    }
+};
+
+template <typename T> requires (
+    std::is_same_v<T, int8_t> ||
+    std::is_same_v<T, int16_t> ||
+    std::is_same_v<T, int32_t> ||
+    std::is_same_v<T, int64_t> ||
+    std::is_same_v<T, uint8_t> ||
+    std::is_same_v<T, uint16_t> ||
+    std::is_same_v<T, uint32_t> ||
+    std::is_same_v<T, uint64_t>
+)
+struct Json::Deserialize<T> {
+    static auto from_json(const Json& obj) -> std::optional<T> {
+        return obj.to_integer();
+    }
+};
+
+template<typename T, size_t N>
+struct Json::Deserialize<std::array<T, N>> {
+    template <size_t... I>
+    static auto to_array(const Json::Array& elements, std::index_sequence<I...>) -> std::array<T, N> {
+        return { elements.at(I)... };
+    }
+
+    static auto from_json(const Json& obj) -> std::optional<std::array<T, N>> {
+        return to_array(obj.to_array(), std::make_index_sequence<N>{});
+    }
+};
+
+template<typename T>
+struct Json::Deserialize<std::vector<T>> {
+    static auto from_json(const Json& obj) -> std::optional<std::vector<T>> {
+        return obj.to_array() | ranges::views::transform([](const auto& element) -> T { return element; }) | ranges::to<std::vector<T>>();
     }
 };
 
@@ -213,19 +263,19 @@ struct Json::Read {
     using Null = Json::Null;
 
     using Token = std::variant<
-            End,
-            Comma,
-            Column,
-            Lbrace,
-            Rbrace,
-            Lcurve,
-            Rcurve,
+        End,
+        Comma,
+        Column,
+        Lbrace,
+        Rbrace,
+        Lcurve,
+        Rcurve,
 
-            String,
-            Number,
-            Bool,
-            Null
-            >;
+        String,
+        Number,
+        Bool,
+        Null
+    >;
 
     template <typename Fn, typename... Args>
     static auto take_while(std::istream& stream, Fn&& fn, Args&&... args) /*-> std::pair<size_t, size_t>*/ {
@@ -512,12 +562,22 @@ struct Json::Dump {
     }
 };
 
-inline static auto operator<<(std::ostream& out, const Json& obj) noexcept -> std::ostream& {
+static auto operator<<(std::ostream& out, const Json& obj) noexcept -> std::ostream& {
     Json::Dump::dump(out, obj, 0);
     return out;
 }
 
-inline static auto operator>>(std::istream& in, Json& obj) noexcept -> std::istream& {
+static auto operator<<(std::ostream&& out, const Json& obj) noexcept -> std::ostream&& {
+    Json::Dump::dump(out, obj, 0);
+    return std::move(out);
+}
+
+static auto operator>>(std::istream& in, Json& obj) noexcept -> std::istream& {
     obj = Json::Read::read(in).value();
     return in;
+}
+
+static auto operator>>(std::istream&& in, Json& obj) noexcept -> std::istream&& {
+    obj = Json::Read::read(in).value();
+    return std::move(in);
 }

@@ -3,6 +3,7 @@
 #include "../area/IArea.hpp"
 
 #include <memory>
+#include <util/Registry.hpp>
 
 class Layer {
     LazyArea area;
@@ -10,13 +11,8 @@ class Layer {
 public:
     Layer(LazyArea&& area) : area(std::move(area)) {}
 
-    [[gnu::pure]]
-    int getBiomeId(int x, int z) const {
-        return area.getValue(x, z);
-    }
-
-    Biome* getBiome(std::map<int, std::unique_ptr<Biome>>& biomes, int x, int z) {
-        const auto biomeId = area.getValue(x, z);
-        return biomes.at(biomeId).get();
+    auto getBiome(const Registry<Biome>& biomes, int x, int z) -> Biome* {
+        const auto id = area.getValue(x, z);
+        return biomes.entries.at(id).get();
     }
 };
