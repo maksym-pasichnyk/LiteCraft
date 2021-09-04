@@ -5,6 +5,6 @@
 
 template <typename T>
 struct Codec {
-    auto (*parse)(const Tag& tag) -> std::optional<T> = nullptr;
-    auto (*write)(const T& value) -> std::optional<Tag> = nullptr;
+    auto (*parse)(const Nbt::Tag& tag) -> std::optional<T> = nullptr;
+    auto (*write)(const T& value) -> std::optional<Nbt::Tag> = nullptr;
 };

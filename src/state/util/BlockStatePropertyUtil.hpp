@@ -285,7 +285,7 @@ template <> struct TypeFrom<BlockStateProperty::ROTATION_0_15> {
 
 struct BlockStatePropertyUtil {
     static auto name(BlockStateProperty property) -> std::optional<std::string>;
-    static auto parse(BlockStateProperty property, const Tag& tag) -> std::optional<Property>;
-    static auto write(BlockStateProperty property, const Property& value) -> std::optional<Tag>;
+    static auto parse(BlockStateProperty property, const Nbt::Tag& tag) -> std::optional<Property>;
+    static auto write(BlockStateProperty property, const Property& value) -> std::optional<Nbt::Tag>;
 };
 

@@ -26,6 +26,7 @@ namespace {
             PHYSFS_init(nullptr);
             curl_global_init(CURL_GLOBAL_DEFAULT);
 
+            PHYSFS_mount("client-extra.zip", "/client-extra", 1);
             PHYSFS_mount("Vanilla_Behavior_Pack_1.16.220.zip", "/behavior_packs/vanilla", 1);
             PHYSFS_mount("Vanilla_Resource_Pack_1.16.220.zip", "/resource_packs/vanilla", 1);
         }

@@ -370,11 +370,11 @@ namespace {
 
     template<BlockStateProperty property>
     constexpr auto codec = Codec<Property>{
-        .parse = [](const Tag& tag) -> std::optional<Property> {
+        .parse = [](const Nbt::Tag& tag) -> std::optional<Property> {
             using T = typename TypeFrom<property>::type;
-            return FromString<T>::from(std::get<StringTag>(tag).value);
+            return FromString<T>::from(std::get<Nbt::StringTag>(tag).value);
         },
-        .write = [](const Property& value) -> std::optional<Tag> {
+        .write = [](const Property& value) -> std::optional<Nbt::Tag> {
             return std::nullopt;
         }
     };
@@ -483,10 +483,10 @@ auto BlockStatePropertyUtil::name(BlockStateProperty property) -> std::optional<
     return properties[static_cast<size_t>(property)].name;
 }
 
-auto BlockStatePropertyUtil::parse(BlockStateProperty property, const Tag& tag) -> std::optional<Property> {
+auto BlockStatePropertyUtil::parse(BlockStateProperty property, const Nbt::Tag& tag) -> std::optional<Property> {
     return properties[static_cast<size_t>(property)].codec.parse(tag);
 }
 
-auto BlockStatePropertyUtil::write(BlockStateProperty property, const Property& value) -> std::optional<Tag> {
+auto BlockStatePropertyUtil::write(BlockStateProperty property, const Property& value) -> std::optional<Nbt::Tag> {
     return properties[static_cast<size_t>(property)].codec.write(value);
 }
