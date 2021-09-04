@@ -21,6 +21,7 @@ jobs:
       # We'll use this as our working directory for all subsequent commands
       run: |
         sudo apt-get install mesa-common-dev
+        sudo apt-get install libxrandr-dev
         git submodule update --init --recursive
         cmake -E make_directory ${{github.workspace}}/build
 
