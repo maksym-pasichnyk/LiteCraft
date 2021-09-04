@@ -6,6 +6,8 @@
     "temperature": 0.5,
     "temperature_modifier": "none",
     "downfall": 0.5,
+    "player_spawn_friendly": "false",
+    "creature_spawn_probability": 0.1,
     "effects": {
         "fog_color": 10518688,
         "water_color": 4159204,
@@ -33,5 +35,14 @@
         ],
         []
     ],
-    "structures": []
+    "structures": [],
+    "spawners": {
+        "monster": {
+            "type": "enderman",
+            "weight": 10,
+            "min_count": 4,
+            "max_count": 4
+        }
+    },
+    "spawn_costs": {}
 }

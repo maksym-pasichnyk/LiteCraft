@@ -92,6 +92,164 @@ static auto registerBiome(int id, std::string name, Biome* biome) -> Biome* {
     return Biomes::biomes.add(id, std::move(name), std::unique_ptr<Biome>(biome));
 }
 
+template<>
+struct Json::Serialize<EntityType> {
+    static auto to_json(const EntityType& type) -> Json {
+        using namespace std::string_literals;
+
+        switch (type) {
+            case EntityType::AREA_EFFECT_CLOUD: return "area_effect_cloud"s;
+            case EntityType::ARMOR_STAND: return "armor_stand"s;
+            case EntityType::ARROW: return "arrow"s;
+            case EntityType::BAT: return "bat"s;
+            case EntityType::BEE: return "bee"s;
+            case EntityType::BLAZE: return "blaze"s;
+            case EntityType::BOAT: return "boat"s;
+            case EntityType::CAT: return "cat"s;
+            case EntityType::CAVE_SPIDER: return "cave_spider"s;
+            case EntityType::CHICKEN: return "chicken"s;
+            case EntityType::COD: return "cod"s;
+            case EntityType::COW: return "cow"s;
+            case EntityType::CREEPER: return "creeper"s;
+            case EntityType::DOLPHIN: return "dolphin"s;
+            case EntityType::DONKEY: return "donkey"s;
+            case EntityType::DRAGON_FIREBALL: return "dragon_fireball"s;
+            case EntityType::DROWNED: return "drowned"s;
+            case EntityType::ELDER_GUARDIAN: return "elder_guardian"s;
+            case EntityType::END_CRYSTAL: return "end_crystal"s;
+            case EntityType::ENDER_DRAGON: return "ender_dragon"s;
+            case EntityType::ENDERMAN: return "enderman"s;
+            case EntityType::ENDERMITE: return "endermite"s;
+            case EntityType::EVOKER: return "evoker"s;
+            case EntityType::EVOKER_FANGS: return "evoker_fangs"s;
+            case EntityType::EXPERIENCE_ORB: return "experience_orb"s;
+            case EntityType::EYE_OF_ENDER: return "eye_of_ender"s;
+            case EntityType::FALLING_BLOCK: return "falling_block"s;
+            case EntityType::FIREWORK_ROCKET: return "firework_rocket"s;
+            case EntityType::FOX: return "fox"s;
+            case EntityType::GHAST: return "ghast"s;
+            case EntityType::GIANT: return "giant"s;
+            case EntityType::GUARDIAN: return "guardian"s;
+            case EntityType::HOGLIN: return "hoglin"s;
+            case EntityType::HORSE: return "horse"s;
+            case EntityType::HUSK: return "husk"s;
+            case EntityType::ILLUSIONER: return "illusioner"s;
+            case EntityType::IRON_GOLEM: return "iron_golem"s;
+            case EntityType::ITEM: return "item"s;
+            case EntityType::ITEM_FRAME: return "item_frame"s;
+            case EntityType::FIREBALL: return "fireball"s;
+            case EntityType::LEASH_KNOT: return "leash_knot"s;
+            case EntityType::LIGHTNING_BOLT: return "lightning_bolt"s;
+            case EntityType::LLAMA: return "llama"s;
+            case EntityType::LLAMA_SPIT: return "llama_spit"s;
+            case EntityType::MAGMA_CUBE: return "magma_cube"s;
+            case EntityType::MINECART: return "minecart"s;
+            case EntityType::CHEST_MINECART: return "chest_minecart"s;
+            case EntityType::COMMAND_BLOCK_MINECART: return "command_block_minecart"s;
+            case EntityType::FURNACE_MINECART: return "furnace_minecart"s;
+            case EntityType::HOPPER_MINECART: return "hopper_minecart"s;
+            case EntityType::SPAWNER_MINECART: return "spawner_minecart"s;
+            case EntityType::TNT_MINECART: return "tnt_minecart"s;
+            case EntityType::MULE: return "mule"s;
+            case EntityType::MOOSHROOM: return "mooshroom"s;
+            case EntityType::OCELOT: return "ocelot"s;
+            case EntityType::PAINTING: return "painting"s;
+            case EntityType::PANDA: return "panda"s;
+            case EntityType::PARROT: return "parrot"s;
+            case EntityType::PHANTOM: return "phantom"s;
+            case EntityType::PIG: return "pig"s;
+            case EntityType::PIGLIN: return "piglin"s;
+            case EntityType::field_242287_aj: return "field_242287_aj"s;
+            case EntityType::PILLAGER: return "pillager"s;
+            case EntityType::POLAR_BEAR: return "polar_bear"s;
+            case EntityType::TNT: return "tnt"s;
+            case EntityType::PUFFERFISH: return "pufferfish"s;
+            case EntityType::RABBIT: return "rabbit"s;
+            case EntityType::RAVAGER: return "ravager"s;
+            case EntityType::SALMON: return "salmon"s;
+            case EntityType::SHEEP: return "sheep"s;
+            case EntityType::SHULKER: return "shulker"s;
+            case EntityType::SHULKER_BULLET: return "shulker_bullet"s;
+            case EntityType::SILVERFISH: return "silverfish"s;
+            case EntityType::SKELETON: return "skeleton"s;
+            case EntityType::SKELETON_HORSE: return "skeleton_horse"s;
+            case EntityType::SLIME: return "slime"s;
+            case EntityType::SMALL_FIREBALL: return "small_fireball"s;
+            case EntityType::SNOW_GOLEM: return "snow_golem"s;
+            case EntityType::SNOWBALL: return "snowball"s;
+            case EntityType::SPECTRAL_ARROW: return "spectral_arrow"s;
+            case EntityType::SPIDER: return "spider"s;
+            case EntityType::SQUID: return "squid"s;
+            case EntityType::STRAY: return "stray"s;
+            case EntityType::STRIDER: return "strider"s;
+            case EntityType::EGG: return "egg"s;
+            case EntityType::ENDER_PEARL: return "ender_pearl"s;
+            case EntityType::EXPERIENCE_BOTTLE: return "experience_bottle"s;
+            case EntityType::POTION: return "potion"s;
+            case EntityType::TRIDENT: return "trident"s;
+            case EntityType::TRADER_LLAMA: return "trader_llama"s;
+            case EntityType::TROPICAL_FISH: return "tropical_fish"s;
+            case EntityType::TURTLE: return "turtle"s;
+            case EntityType::VEX: return "vex"s;
+            case EntityType::VILLAGER: return "villager"s;
+            case EntityType::VINDICATOR: return "vindicator"s;
+            case EntityType::WANDERING_TRADER: return "wandering_trader"s;
+            case EntityType::WITCH: return "witch"s;
+            case EntityType::WITHER: return "wither"s;
+            case EntityType::WITHER_SKELETON: return "wither_skeleton"s;
+            case EntityType::WITHER_SKULL: return "wither_skull"s;
+            case EntityType::WOLF: return "wolf"s;
+            case EntityType::ZOGLIN: return "zoglin"s;
+            case EntityType::ZOMBIE: return "zombie"s;
+            case EntityType::ZOMBIE_HORSE: return "zombie_horse"s;
+            case EntityType::ZOMBIE_VILLAGER: return "zombie_villager"s;
+            case EntityType::ZOMBIFIED_PIGLIN: return "zombified_piglin"s;
+            case EntityType::PLAYER: return "player"s;
+            case EntityType::FISHING_BOBBER: return "fishing_bobber"s;
+            default: return {};
+        }
+    }
+};
+
+template<>
+struct Json::Serialize<EntityClassification> {
+    static auto to_json(const EntityClassification& entity) -> Json {
+        using namespace std::string_literals;
+
+        switch (entity) {
+            case EntityClassification::MONSTER: return "monster"s;
+            case EntityClassification::CREATURE: return "creature"s;
+            case EntityClassification::AMBIENT: return "ambient"s;
+            case EntityClassification::WATER_CREATURE: return "water_creature"s;
+            case EntityClassification::WATER_AMBIENT: return "water_ambient"s;
+            case EntityClassification::MISC: return "misc"s;
+            default: return {};
+        }
+    }
+};
+
+template<>
+struct Json::Serialize<MobSpawnInfo::SpawnCosts> {
+    static auto to_json(const MobSpawnInfo::SpawnCosts& costs) -> Json {
+        return {
+            {"maxSpawnCost", costs.maxSpawnCost},
+            {"entitySpawnCost", costs.entitySpawnCost}
+        };
+    }
+};
+
+template<>
+struct Json::Serialize<MobSpawnInfo::Spawners> {
+    static auto to_json(const MobSpawnInfo::Spawners& spawners) -> Json {
+        return {
+            {"type", spawners.type},
+            {"weight", spawners.weight},
+            {"min_count", spawners.minCount},
+            {"max_count", spawners.maxCount},
+        };
+    }
+};
+
 void Biomes::registerBiomes() {
     using namespace std::string_literals;
 
@@ -185,12 +343,15 @@ void Biomes::registerBiomes() {
             {"temperature", biome->climate.temperature},
             {"temperature_modifier", biome->climate.temperatureModifier},
             {"downfall", biome->climate.downfall},
+            {"player_spawn_friendly", biome->mobSpawnInfo.playerSpawnFriendly},
+            {"creature_spawn_probability", biome->mobSpawnInfo.creatureSpawnProbability},
             {"effects", biome->effects},
             {"surface_builder", biome->biomeGenerationSettings.surfaceBuilder},
             {"carvers", biome->biomeGenerationSettings.carvers},
             {"features", biome->biomeGenerationSettings.features},
             {"structures", biome->biomeGenerationSettings.structures},
-//            {"spawn", biome->mobSpawnInfo},
+            {"spawners", biome->mobSpawnInfo.spawners},
+            {"spawn_costs", biome->mobSpawnInfo.spawnCosts}
         };
     }
 }

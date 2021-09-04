@@ -6,6 +6,8 @@
     "temperature": 2,
     "temperature_modifier": "none",
     "downfall": 0,
+    "player_spawn_friendly": "false",
+    "creature_spawn_probability": 0.1,
     "effects": {
         "fog_color": 1705242,
         "water_color": 4159204,
@@ -51,5 +53,25 @@
         ],
         []
     ],
-    "structures": []
+    "structures": [],
+    "spawners": {
+        "monster": {
+            "type": "enderman",
+            "weight": 1,
+            "min_count": 4,
+            "max_count": 4
+        },
+        "creature": {
+            "type": "strider",
+            "weight": 60,
+            "min_count": 1,
+            "max_count": 2
+        }
+    },
+    "spawn_costs": {
+        "enderman": {
+            "maxSpawnCost": 1,
+            "entitySpawnCost": 0.12
+        }
+    }
 }

@@ -13,17 +13,17 @@ struct BiomeMaker {
     }
 
     static Biome* makeGiantTaigaBiome(float depth, float scale, float temperature, bool isSpruceVariant) {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
-//        mobSpawnInfo.withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::WOLF, 8, 4, 4));
-//        mobSpawnInfo.withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::RABBIT, 4, 2, 3));
-//        mobSpawnInfo.withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::FOX, 8, 2, 4));
-//        if (isSpruceVariant) {
-//            DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
-//        } else {
-//            DefaultBiomeFeatures::withBats(mobSpawnInfo);
-//            DefaultBiomeFeatures::withHostileMobs(mobSpawnInfo, 100, 25, 100);
-//        }
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::WOLF, 8, 4, 4});
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::RABBIT, 4, 2, 3});
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::FOX, 8, 2, 4});
+        if (isSpruceVariant) {
+            DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
+        } else {
+            DefaultBiomeFeatures::withBats(mobSpawnInfo);
+            DefaultBiomeFeatures::withHostileMobs(mobSpawnInfo, 100, 25, 100);
+        }
 
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GIANT_TREE_TAIGA);
@@ -57,7 +57,7 @@ struct BiomeMaker {
                 .downfall = 0.8F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = depth,
             .scale = scale,
             .category = BiomeCategory::TAIGA,
@@ -80,9 +80,9 @@ struct BiomeMaker {
     }
 
     static Biome* makeBirchForestBiome(float depth, float scale, bool isTallVariant) {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
-//        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
+        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
@@ -114,7 +114,7 @@ struct BiomeMaker {
                 .downfall = 0.6F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = depth,
             .scale = scale,
             .category = BiomeCategory::FOREST,
@@ -140,23 +140,23 @@ struct BiomeMaker {
     }
 
     static Biome* makeJungleEdgeBiome() {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withSpawnsWithExtraChickens(mobSpawnInfo);
-        return makeTropicalBiome(0.1F, 0.2F, 0.8F, false, true, false/*, mobSpawnInfo*/);
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withSpawnsWithExtraChickens(mobSpawnInfo);
+        return makeTropicalBiome(0.1F, 0.2F, 0.8F, false, true, false, mobSpawnInfo);
     }
 
     static Biome* makeModifiedJungleEdgeBiome() {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withSpawnsWithExtraChickens(mobSpawnInfo);
-        return makeTropicalBiome(0.2F, 0.4F, 0.8F, false, true, true/*, mobSpawnInfo*/);
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withSpawnsWithExtraChickens(mobSpawnInfo);
+        return makeTropicalBiome(0.2F, 0.4F, 0.8F, false, true, true, mobSpawnInfo);
     }
 
     static Biome* makeModifiedJungleBiome() {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withSpawnsWithExtraChickens(mobSpawnInfo);
-//        mobSpawnInfo.withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::PARROT, 10, 1, 1))
-//        .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::OCELOT, 2, 1, 1));
-        return makeTropicalBiome(0.2F, 0.4F, 0.9F, false, false, true/*, mobSpawnInfo*/);
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withSpawnsWithExtraChickens(mobSpawnInfo);
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::PARROT, 10, 1, 1});
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::OCELOT, 2, 1, 1});
+        return makeTropicalBiome(0.2F, 0.4F, 0.9F, false, false, true, mobSpawnInfo);
     }
 
     static Biome* makeJungleHillsBiome() {
@@ -172,29 +172,25 @@ struct BiomeMaker {
     }
 
     static Biome* makeGenericJungleBiome(float depth, float scale, int parrotWeight, int parrotMaxCount, int ocelotMaxCount) {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withSpawnsWithExtraChickens(mobSpawnInfo);
-//        mobSpawnInfo
-//            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::PARROT, parrotWeight, 1, parrotMaxCount))
-//            .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::OCELOT, 2, 1, ocelotMaxCount))
-//            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::PANDA, 1, 1, 2));
-//        mobSpawnInfo.isValidSpawnBiomeForPlayer();
-        return makeTropicalBiome(depth, scale, 0.9F, false, false, false/*, mobSpawnInfo*/);
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withSpawnsWithExtraChickens(mobSpawnInfo);
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::PARROT, parrotWeight, 1, parrotMaxCount});
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::OCELOT, 2, 1, ocelotMaxCount});
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::PANDA, 1, 1, 2});
+        mobSpawnInfo.playerSpawnFriendly = true;
+        return makeTropicalBiome(depth, scale, 0.9F, false, false, false, mobSpawnInfo);
     }
-
-
 
     static Biome* makeGenericBambooBiome(float depth, float scale, int parrotWeight, int parrotMaxCount) {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withSpawnsWithExtraChickens(mobSpawnInfo);
-//        mobSpawnInfo
-//            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::PARROT, parrotWeight, 1, parrotMaxCount))
-//            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::PANDA, 80, 1, 2))
-//            .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::OCELOT, 2, 1, 1));
-        return makeTropicalBiome(depth, scale, 0.9F, true, false, false/*, mobSpawnInfo*/);
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withSpawnsWithExtraChickens(mobSpawnInfo);
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::PARROT, parrotWeight, 1, parrotMaxCount});
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::PANDA, 80, 1, 2});
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::OCELOT, 2, 1, 1});
+        return makeTropicalBiome(depth, scale, 0.9F, true, false, false, mobSpawnInfo);
     }
 
-    static Biome* makeTropicalBiome(float depth, float scale, float downfall, bool hasOnlyBambooVegetation, bool isEdgeBiome, bool isModified/*, MobSpawnInfo::Builder mobSpawnBuilder*/) {
+    static Biome* makeTropicalBiome(float depth, float scale, float downfall, bool hasOnlyBambooVegetation, bool isEdgeBiome, bool isModified, MobSpawnInfo mobSpawnInfo) {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
         if (!isEdgeBiome && !isModified) {
@@ -238,7 +234,7 @@ struct BiomeMaker {
                 .downfall = downfall
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = depth,
             .scale = scale,
             .category = BiomeCategory::JUNGLE,
@@ -260,10 +256,10 @@ struct BiomeMaker {
     }
 
     static Biome* makeMountainBiome(float depth, float scale, ConfiguredSurfaceBuilder* surfaceBuilder, bool isEdgeBiome) {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
-//        mobSpawnInfo.withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::LLAMA, 5, 4, 6));
-//        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::LLAMA, 5, 4, 6});
+        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(surfaceBuilder);
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
@@ -296,7 +292,7 @@ struct BiomeMaker {
                 .downfall = 0.3F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = depth,
             .scale = scale,
             .category = BiomeCategory::EXTREME_HILLS,
@@ -318,8 +314,8 @@ struct BiomeMaker {
     }
 
     static Biome* makeDesertBiome(float depth, float scale, bool hasVillageAndOutpost, bool hasDesertPyramid, bool hasFossils) {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withDesertMobs(mobSpawnInfo);
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withDesertMobs(mobSpawnInfo);
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::DESERT);
         if (hasVillageAndOutpost) {
@@ -359,7 +355,7 @@ struct BiomeMaker {
                 .downfall = 0.0F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = depth,
             .scale = scale,
             .category = BiomeCategory::DESERT,
@@ -381,10 +377,10 @@ struct BiomeMaker {
     }
 
     static Biome* makePlainsBiome(bool isSunflowerVariant) {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withSpawnsWithHorseAndDonkey(mobSpawnInfo);
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withSpawnsWithHorseAndDonkey(mobSpawnInfo);
         if (!isSunflowerVariant) {
-//            mobSpawnInfo.isValidSpawnBiomeForPlayer();
+//            mobSpawnInfo.playerSpawnFriendly = true;
         }
 
         auto generation = BiomeGenerationSettings::Builder{};
@@ -430,7 +426,7 @@ struct BiomeMaker {
                 .downfall = 0.4F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = 0.125F,
             .scale = 0.05F,
             .category = BiomeCategory::PLAINS,
@@ -451,8 +447,8 @@ struct BiomeMaker {
         };
     }
     static Biome* makeEndBiome(BiomeGenerationSettings::Builder generationSettingsBuilder) {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withEndermen(mobSpawnInfo);
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withEndermen(mobSpawnInfo);
         return new Biome {
             .climate{
                 .precipitation = RainType::NONE,
@@ -461,7 +457,7 @@ struct BiomeMaker {
                 .downfall = 0.5F
             },
             .biomeGenerationSettings = generationSettingsBuilder.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = 0.1F,
             .scale = 0.2F,
             .category = BiomeCategory::THEEND,
@@ -519,8 +515,8 @@ struct BiomeMaker {
     }
 
     static Biome* makeMushroomBiome(float depth, float scale) {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withMooshroomsAndBats(mobSpawnInfo);
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withMooshroomsAndBats(mobSpawnInfo);
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::MYCELIUM);
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
@@ -544,7 +540,7 @@ struct BiomeMaker {
                 .downfall = 1.0F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = depth,
             .scale = scale,
             .category = BiomeCategory::MUSHROOM,
@@ -567,7 +563,7 @@ struct BiomeMaker {
 
 
 
-    static Biome* makeGenericSavannaBiome(float depth, float scale, float temperature, bool isHighland, bool isShatteredSavanna/*, MobSpawnInfo::Builder mobSpawnBuilder*/) {
+    static Biome* makeGenericSavannaBiome(float depth, float scale, float temperature, bool isHighland, bool isShatteredSavanna, MobSpawnInfo mobSpawnInfo) {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(isShatteredSavanna ? ConfiguredSurfaceBuilders::SHATTERED_SAVANNA : ConfiguredSurfaceBuilders::GRASS);
         if (!isHighland && !isShatteredSavanna) {
@@ -611,7 +607,7 @@ struct BiomeMaker {
                 .downfall = 0.0F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = depth,
             .scale = scale,
             .category = BiomeCategory::SAVANNA,
@@ -633,29 +629,28 @@ struct BiomeMaker {
     }
 
     static Biome* makeSavannaBiome(float depth, float scale, float temperature, bool isHighland, bool isShatteredSavanna) {
-//        MobSpawnInfo::Builder mobSpawnInfo = getSpawnsWithHorseAndDonkey();
-        return makeGenericSavannaBiome(depth, scale, temperature, isHighland, isShatteredSavanna/*, mobSpawnInfo*/);
+        MobSpawnInfo mobSpawnInfo = getSpawnsWithHorseAndDonkey();
+        return makeGenericSavannaBiome(depth, scale, temperature, isHighland, isShatteredSavanna, mobSpawnInfo);
     }
 
-//    static MobSpawnInfo::Builder getSpawnsWithHorseAndDonkey() {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
-//        mobSpawnInfo
-//            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::HORSE, 1, 2, 6))
-//            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::DONKEY, 1, 1, 1));
-//        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
-//        return mobSpawnInfo;
-//    }
+    static MobSpawnInfo getSpawnsWithHorseAndDonkey() {
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::HORSE, 1, 2, 6});
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::DONKEY, 1, 1, 1});
+        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
+        return mobSpawnInfo;
+    }
 
     static Biome* makeSavannaPlateauBiome() {
-//        MobSpawnInfo::Builder mobSpawnInfo = getSpawnsWithHorseAndDonkey();
-//        mobSpawnInfo.withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::LLAMA, 8, 4, 4));
-        return makeGenericSavannaBiome(1.5F, 0.025F, 1.0F, true, false/*, mobSpawnInfo*/);
+        MobSpawnInfo mobSpawnInfo = getSpawnsWithHorseAndDonkey();
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::LLAMA, 8, 4, 4});
+        return makeGenericSavannaBiome(1.5F, 0.025F, 1.0F, true, false, mobSpawnInfo);
     }
 
     static Biome* makeGenericBadlandsBiome(ConfiguredSurfaceBuilder* surfaceBuilder, float depth, float scale, bool isHighland, bool hasOakTrees) {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(surfaceBuilder);
         DefaultBiomeFeatures::withBadlandsStructures(generation);
@@ -684,7 +679,7 @@ struct BiomeMaker {
                 .downfall = 0.0F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = depth,
             .scale = scale,
             .category = BiomeCategory::MESA,
@@ -717,7 +712,7 @@ struct BiomeMaker {
         return makeGenericBadlandsBiome(ConfiguredSurfaceBuilders::ERODED_BADLANDS, 0.1F, 0.2F, true, false);
     }
 
-    static Biome* makeOceanBiome(/*MobSpawnInfo::Builder mobSpawnBuilder,*/ int waterColor, int waterFogColor, bool isDeepVariant, BiomeGenerationSettings::Builder generationSettingsBuilder) {
+    static Biome* makeOceanBiome(MobSpawnInfo mobSpawnInfo, int waterColor, int waterFogColor, bool isDeepVariant, BiomeGenerationSettings::Builder generationSettingsBuilder) {
         return new Biome {
             .climate{
                 .precipitation = RainType::RAIN,
@@ -726,7 +721,7 @@ struct BiomeMaker {
                 .downfall = 0.5F
             },
             .biomeGenerationSettings = generationSettingsBuilder.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = isDeepVariant ? -1.8F : -1.0F,
             .scale = 0.1F,
             .category = BiomeCategory::OCEAN,
@@ -747,7 +742,7 @@ struct BiomeMaker {
         };
     }
 
- static BiomeGenerationSettings::Builder getOceanGenerationSettingsBuilder(ConfiguredSurfaceBuilder* surfaceBuilder, bool hasOceanMonument, bool isWarmOcean, bool isDeepVariant) {
+    static BiomeGenerationSettings::Builder getOceanGenerationSettingsBuilder(ConfiguredSurfaceBuilder* surfaceBuilder, bool hasOceanMonument, bool isWarmOcean, bool isDeepVariant) {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(surfaceBuilder);
 //        StructureFeature structurefeature = isWarmOcean
@@ -786,42 +781,43 @@ struct BiomeMaker {
     }
 
     static Biome* makeColdOceanBiome(bool isDeepVariant) {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withOceanMobs(mobSpawnInfo, 3, 4, 15);
-//        mobSpawnInfo.withSpawner(EntityClassification::WATER_AMBIENT, MobSpawnInfo::Spawners(EntityType::SALMON, 15, 1, 5));
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withOceanMobs(mobSpawnInfo, 3, 4, 15);
+        mobSpawnInfo.spawners.emplace(EntityClassification::WATER_AMBIENT, MobSpawnInfo::Spawners{EntityType::SALMON, 15, 1, 5});
         bool flag = !isDeepVariant;
         auto generation = getOceanGenerationSettingsBuilder(ConfiguredSurfaceBuilders::GRASS, isDeepVariant, false, flag);
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, isDeepVariant ? ConfiguredFeatures::SEAGRASS_DEEP_COLD : ConfiguredFeatures::SEAGRASS_COLD);
         DefaultBiomeFeatures::withSimpleSeagrass(generation);
         DefaultBiomeFeatures::withColdKelp(generation);
         DefaultBiomeFeatures::withFrozenTopLayer(generation);
-        return makeOceanBiome(/*mobSpawnInfo,*/ 4020182, 329011, isDeepVariant, generation);
+        return makeOceanBiome(mobSpawnInfo, 4020182, 329011, isDeepVariant, generation);
     }
 
     static Biome* makeOceanBiome(bool isDeepVariant) {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withOceanMobs(mobSpawnInfo, 1, 4, 10);
-//        mobSpawnInfo.withSpawner(EntityClassification::WATER_CREATURE, MobSpawnInfo::Spawners(EntityType::DOLPHIN, 1, 1, 2));
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withOceanMobs(mobSpawnInfo, 1, 4, 10);
+        mobSpawnInfo.spawners.emplace(EntityClassification::WATER_CREATURE, MobSpawnInfo::Spawners{EntityType::DOLPHIN, 1, 1, 2});
+        
         auto generation = getOceanGenerationSettingsBuilder(ConfiguredSurfaceBuilders::GRASS, isDeepVariant, false, true);
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, isDeepVariant ? ConfiguredFeatures::SEAGRASS_DEEP : ConfiguredFeatures::SEAGRASS_NORMAL);
         DefaultBiomeFeatures::withSimpleSeagrass(generation);
         DefaultBiomeFeatures::withColdKelp(generation);
         DefaultBiomeFeatures::withFrozenTopLayer(generation);
-        return makeOceanBiome(/*mobSpawnInfo,*/ 4159204, 329011, isDeepVariant, generation);
+        return makeOceanBiome(mobSpawnInfo, 4159204, 329011, isDeepVariant, generation);
     }
 
     static Biome* makeLukewarmOceanBiome(bool isDeepVariant) {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        if (isDeepVariant) {
-//            DefaultBiomeFeatures::withOceanMobs(mobSpawnInfo, 8, 4, 8);
-//        } else {
-//            DefaultBiomeFeatures::withOceanMobs(mobSpawnInfo, 10, 2, 15);
-//        }
+        MobSpawnInfo mobSpawnInfo{};
+        if (isDeepVariant) {
+            DefaultBiomeFeatures::withOceanMobs(mobSpawnInfo, 8, 4, 8);
+        } else {
+            DefaultBiomeFeatures::withOceanMobs(mobSpawnInfo, 10, 2, 15);
+        }
 
-//        mobSpawnInfo
-//            .withSpawner(EntityClassification::WATER_AMBIENT, MobSpawnInfo::Spawners(EntityType::PUFFERFISH, 5, 1, 3))
-//            .withSpawner(EntityClassification::WATER_AMBIENT, MobSpawnInfo::Spawners(EntityType::TROPICAL_FISH, 25, 8, 8))
-//            .withSpawner(EntityClassification::WATER_CREATURE, MobSpawnInfo::Spawners(EntityType::DOLPHIN, 2, 1, 2));
+        mobSpawnInfo.spawners.emplace(EntityClassification::WATER_AMBIENT, MobSpawnInfo::Spawners{EntityType::PUFFERFISH, 5, 1, 3});
+        mobSpawnInfo.spawners.emplace(EntityClassification::WATER_AMBIENT, MobSpawnInfo::Spawners{EntityType::TROPICAL_FISH, 25, 8, 8});
+        mobSpawnInfo.spawners.emplace(EntityClassification::WATER_CREATURE, MobSpawnInfo::Spawners{EntityType::DOLPHIN, 2, 1, 2});
+
         auto generation = getOceanGenerationSettingsBuilder(ConfiguredSurfaceBuilders::OCEAN_SAND, isDeepVariant, true, false);
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, isDeepVariant ? ConfiguredFeatures::SEAGRASS_DEEP_WARM : ConfiguredFeatures::SEAGRASS_WARM);
         if (isDeepVariant) {
@@ -830,40 +826,42 @@ struct BiomeMaker {
 
         DefaultBiomeFeatures::withWarmKelp(generation);
         DefaultBiomeFeatures::withFrozenTopLayer(generation);
-        return makeOceanBiome(/*mobSpawnInfo,*/ 4566514, 267827, isDeepVariant, generation);
+        return makeOceanBiome(mobSpawnInfo, 4566514, 267827, isDeepVariant, generation);
     }
 
     static Biome* makeWarmOceanBiome() {
-//        MobSpawnInfo::Builder mobSpawnInfo = MobSpawnInfo::Builder{}
-//            .withSpawner(EntityClassification::WATER_AMBIENT, MobSpawnInfo::Spawners(EntityType::PUFFERFISH, 15, 1, 3));
-//        DefaultBiomeFeatures::withWarmOceanMobs(mobSpawnInfo, 10, 4);
+        MobSpawnInfo mobSpawnInfo{};
+        mobSpawnInfo.spawners.emplace(EntityClassification::WATER_AMBIENT, MobSpawnInfo::Spawners{EntityType::PUFFERFISH, 15, 1, 3});
+        DefaultBiomeFeatures::withWarmOceanMobs(mobSpawnInfo, 10, 4);
+
         auto generation = getOceanGenerationSettingsBuilder(ConfiguredSurfaceBuilders::FULL_SAND, false, true, false);
 //            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::WARM_OCEAN_VEGETATION)
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SEAGRASS_WARM);
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SEA_PICKLE);
         DefaultBiomeFeatures::withFrozenTopLayer(generation);
-        return makeOceanBiome(/*mobSpawnInfo,*/ 4445678, 270131, false, generation);
+        return makeOceanBiome(mobSpawnInfo, 4445678, 270131, false, generation);
     }
 
     static Biome* makeDeepWarmOceanBiome() {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withWarmOceanMobs(mobSpawnInfo, 5, 1);
-//        mobSpawnInfo.withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::DROWNED, 5, 1, 1));
-        BiomeGenerationSettings::Builder
-        generation = getOceanGenerationSettingsBuilder(ConfiguredSurfaceBuilders::FULL_SAND, true, true, false);
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withWarmOceanMobs(mobSpawnInfo, 5, 1);
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::DROWNED, 5, 1, 1});
+
+        auto generation = getOceanGenerationSettingsBuilder(ConfiguredSurfaceBuilders::FULL_SAND, true, true, false);
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SEAGRASS_DEEP_WARM);
         DefaultBiomeFeatures::withSimpleSeagrass(generation);
         DefaultBiomeFeatures::withFrozenTopLayer(generation);
-        return makeOceanBiome(/*mobSpawnInfo,*/ 4445678, 270131, true, generation);
+        return makeOceanBiome(mobSpawnInfo, 4445678, 270131, true, generation);
     }
 
     static Biome* makeFrozenOceanBiome(bool isDeepVariant) {
-//        MobSpawnInfo::Builder mobSpawnInfo = MobSpawnInfo::Builder{}
-//                .withSpawner(EntityClassification::WATER_CREATURE, MobSpawnInfo::Spawners(EntityType::SQUID, 1, 1, 4))
-//                .withSpawner(EntityClassification::WATER_AMBIENT, MobSpawnInfo::Spawners(EntityType::SALMON, 15, 1, 5))
-//                .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::POLAR_BEAR, 1, 1, 2));
-//        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
-//        mobSpawnInfo.withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::DROWNED, 5, 1, 1));
+        MobSpawnInfo mobSpawnInfo{};
+        mobSpawnInfo.spawners.emplace(EntityClassification::WATER_CREATURE, MobSpawnInfo::Spawners{EntityType::SQUID, 1, 1, 4});
+        mobSpawnInfo.spawners.emplace(EntityClassification::WATER_AMBIENT, MobSpawnInfo::Spawners{EntityType::SALMON, 15, 1, 5});
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::POLAR_BEAR, 1, 1, 2});
+        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::DROWNED, 5, 1, 1});
+
         const float temperature = isDeepVariant ? 0.5F : 0.0F;
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::FROZEN_OCEAN);
@@ -898,7 +896,7 @@ struct BiomeMaker {
                 .downfall = 0.5F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = isDeepVariant ? -1.8F : -1.0F,
             .scale = 0.1F,
             .category = BiomeCategory::OCEAN,
@@ -919,9 +917,7 @@ struct BiomeMaker {
         };
     }
 
-
-
-    static Biome* makeGenericForestBiome(float depth, float scale, bool isFlowerForestVariant/*, MobSpawnInfo::Builder mobSpawnBuilder*/) {
+    static Biome* makeGenericForestBiome(float depth, float scale, bool isFlowerForestVariant, MobSpawnInfo mobSpawnInfo) {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
@@ -960,7 +956,7 @@ struct BiomeMaker {
                 .downfall = 0.8F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = depth,
             .scale = scale,
             .category = BiomeCategory::FOREST,
@@ -981,38 +977,37 @@ struct BiomeMaker {
         };
     }
 
-//    static MobSpawnInfo::Builder getStandardMobSpawnBuilder() {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
-//        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
-//        return mobSpawnInfo;
-//    }
+    static MobSpawnInfo getStandardMobSpawnBuilder() {
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
+        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
+        return mobSpawnInfo;
+    }
 
     static Biome* makeForestBiome(float depth, float scale) {
-//        MobSpawnInfo::Builder mobSpawnInfo = getStandardMobSpawnBuilder()
-//            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::WOLF, 5, 4, 4))
-//            .isValidSpawnBiomeForPlayer();
-        return makeGenericForestBiome(depth, scale, false/*, mobSpawnInfo*/);
+        MobSpawnInfo mobSpawnInfo = getStandardMobSpawnBuilder();
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::WOLF, 5, 4, 4});
+        mobSpawnInfo.playerSpawnFriendly = true;
+        return makeGenericForestBiome(depth, scale, false, mobSpawnInfo);
     }
 
     static Biome* makeFlowerForestBiome() {
-//        MobSpawnInfo::Builder mobSpawnInfo = getStandardMobSpawnBuilder()
-//            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::RABBIT, 4, 2, 3));
-        return makeGenericForestBiome(0.1F, 0.4F, true/*, mobSpawnInfo*/);
+        MobSpawnInfo mobSpawnInfo = getStandardMobSpawnBuilder();
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::RABBIT, 4, 2, 3});
+        return makeGenericForestBiome(0.1F, 0.4F, true, mobSpawnInfo);
     }
 
     static Biome* makeTaigaBiome(float depth, float scale, bool isSnowyVariant, bool isMountainVariant, bool hasVillageAndOutpost, bool hasIgloos) {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
-//        mobSpawnInfo
-//            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::WOLF, 8, 4, 4))
-//            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::RABBIT, 4, 2, 3))
-//            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::FOX, 8, 2, 4));
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::WOLF, 8, 4, 4});
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::RABBIT, 4, 2, 3});
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::FOX, 8, 2, 4});
         if (!isSnowyVariant && !isMountainVariant) {
-//            mobSpawnInfo.isValidSpawnBiomeForPlayer();
+            mobSpawnInfo.playerSpawnFriendly = true;
         }
+        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
 
-//        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
         float temperature = isSnowyVariant ? -0.5F : 0.25F;
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
@@ -1055,7 +1050,7 @@ struct BiomeMaker {
                 .downfall = isSnowyVariant ? 0.4F : 0.8F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = depth,
             .scale = scale,
             .category = BiomeCategory::TAIGA,
@@ -1077,9 +1072,10 @@ struct BiomeMaker {
     }
 
     static Biome* makeDarkForestBiome(float depth, float scale, bool isHillsVariant) {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
-//        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
+        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
+
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
 //        generation.withStructure(StructureFeatures::MANSION);
@@ -1111,7 +1107,7 @@ struct BiomeMaker {
                 .downfall = 0.8F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = depth,
             .scale = scale,
             .category = BiomeCategory::FOREST,
@@ -1133,10 +1129,11 @@ struct BiomeMaker {
     }
 
     static Biome* makeGenericSwampBiome(float depth, float scale, bool isHillsVariant) {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
-//        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
-//        mobSpawnInfo.withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::SLIME, 1, 1, 1));
+        MobSpawnInfo mobSpawnInfo{};
+        DefaultBiomeFeatures::withPassiveMobs(mobSpawnInfo);
+        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::SLIME, 1, 1, 1});
+
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::SWAMP);
         if (!isHillsVariant) {
@@ -1174,7 +1171,7 @@ struct BiomeMaker {
                 .downfall = 0.9F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = depth,
             .scale = scale,
             .category = BiomeCategory::SWAMP,
@@ -1196,9 +1193,9 @@ struct BiomeMaker {
     }
 
     static Biome* makeSnowyBiome(float depth, float scale, bool isIceSpikesBiome, bool isMountainVariant) {
-//        MobSpawnInfo::Builder mobSpawnInfo = MobSpawnInfo::Builder{}
-//            .withCreatureSpawnProbability(0.07F);
-//        DefaultBiomeFeatures::withSnowyBiomeMobs(mobSpawnInfo);
+        MobSpawnInfo mobSpawnInfo{};
+        mobSpawnInfo.creatureSpawnProbability = 0.07F;
+        DefaultBiomeFeatures::withSnowyBiomeMobs(mobSpawnInfo);
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(isIceSpikesBiome ? ConfiguredSurfaceBuilders::ICE_SPIKES : ConfiguredSurfaceBuilders::GRASS);
         if (!isIceSpikesBiome && !isMountainVariant) {
@@ -1239,7 +1236,7 @@ struct BiomeMaker {
                 .downfall = 0.5F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = depth,
             .scale = scale,
             .category = BiomeCategory::ICY,
@@ -1261,11 +1258,11 @@ struct BiomeMaker {
     }
 
     static Biome* makeRiverBiome(float depth, float scale, float temperature, int waterColor, bool isSnowy) {
-//        MobSpawnInfo::Builder mobSpawnInfo = MobSpawnInfo::Builder{}
-//            .withSpawner(EntityClassification::WATER_CREATURE, MobSpawnInfo::Spawners(EntityType::SQUID, 2, 1, 4))
-//            .withSpawner(EntityClassification::WATER_AMBIENT, MobSpawnInfo::Spawners(EntityType::SALMON, 5, 1, 5));
-//        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
-//        mobSpawnInfo.withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::DROWNED, isSnowy ? 1 : 100, 1, 1));
+        MobSpawnInfo mobSpawnInfo{};
+        mobSpawnInfo.spawners.emplace(EntityClassification::WATER_CREATURE, MobSpawnInfo::Spawners{EntityType::SQUID, 2, 1, 4});
+        mobSpawnInfo.spawners.emplace(EntityClassification::WATER_AMBIENT, MobSpawnInfo::Spawners{EntityType::SALMON, 5, 1, 5});
+        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::DROWNED, isSnowy ? 1 : 100, 1, 1});
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
         generation.withStructure(StructureFeatures::MINESHAFT);
@@ -1295,7 +1292,7 @@ struct BiomeMaker {
                 .downfall = 0.5F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = depth,
             .scale = scale,
             .category = BiomeCategory::RIVER,
@@ -1317,12 +1314,12 @@ struct BiomeMaker {
     }
 
     static Biome* makeBeachBiome(float depth, float scale, float temperature, float downfall, int waterColor, bool isColdBiome, bool isStoneVariant) {
-//        MobSpawnInfo::Builder mobSpawnInfo{};
-//        if (!isStoneVariant && !isColdBiome) {
-//            mobSpawnInfo.withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::TURTLE, 5, 2, 5));
-//        }
+        MobSpawnInfo mobSpawnInfo{};
+        if (!isStoneVariant && !isColdBiome) {
+            mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::TURTLE, 5, 2, 5});
+        }
 
-//        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
+        DefaultBiomeFeatures::withBatsAndHostiles(mobSpawnInfo);
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(isStoneVariant ? ConfiguredSurfaceBuilders::STONE : ConfiguredSurfaceBuilders::DESERT);
         if (isStoneVariant) {
@@ -1354,7 +1351,7 @@ struct BiomeMaker {
                 .downfall = downfall
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = depth,
             .scale = scale,
             .category = isStoneVariant ? BiomeCategory::NONE : BiomeCategory::BEACH,
@@ -1387,7 +1384,7 @@ struct BiomeMaker {
                 .downfall = 0.5F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = {},
             .depth = 0.1F,
             .scale = 0.2F,
             .category = BiomeCategory::NONE,
@@ -1409,14 +1406,14 @@ struct BiomeMaker {
     }
 
     static Biome* makeNetherWastesBiome() {
-//        MobSpawnInfo mobspawninfo = MobSpawnInfo::Builder{}
-//            .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::GHAST, 50, 4, 4))
-//            .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::ZOMBIFIED_PIGLIN, 100, 4, 4))
-//            .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::MAGMA_CUBE, 2, 4, 4))
-//            .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::ENDERMAN, 1, 4, 4))
-//            .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::PIGLIN, 15, 4, 4))
-//            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::STRIDER, 60, 1, 2))
-//            .copy();
+        MobSpawnInfo mobSpawnInfo{};
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::GHAST, 50, 4, 4});
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::ZOMBIFIED_PIGLIN, 100, 4, 4});
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::MAGMA_CUBE, 2, 4, 4});
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::ENDERMAN, 1, 4, 4});
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::PIGLIN, 15, 4, 4});
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::STRIDER, 60, 1, 2});
+
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::NETHER);
 //            .withStructure(StructureFeatures::RUINED_PORTAL_NETHER)
@@ -1443,7 +1440,7 @@ struct BiomeMaker {
                 .downfall = 0.0F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = 0.1F,
             .scale = 0.2F,
             .category = BiomeCategory::NETHER,
@@ -1465,16 +1462,16 @@ struct BiomeMaker {
     }
 
     static Biome* makeSoulSandValleyBiome() {
-//        MobSpawnInfo mobspawninfo = MobSpawnInfo::Builder{}
-//            .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::SKELETON, 20, 5, 5))
-//            .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::GHAST, 50, 4, 4))
-//            .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::ENDERMAN, 1, 4, 4))
-//            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::STRIDER, 60, 1, 2))
-//            .withSpawnCost(EntityType::SKELETON, 0.7, 0.15)
-//            .withSpawnCost(EntityType::GHAST, 0.7, 0.15)
-//            .withSpawnCost(EntityType::ENDERMAN, 0.7, 0.15)
-//            .withSpawnCost(EntityType::STRIDER, 0.7, 0.15)
-//            .copy();
+        MobSpawnInfo mobSpawnInfo{};
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::SKELETON, 20, 5, 5});
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::GHAST, 50, 4, 4});
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::ENDERMAN, 1, 4, 4});
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::STRIDER, 60, 1, 2});
+        mobSpawnInfo.spawnCosts.emplace(EntityType::SKELETON, MobSpawnInfo::SpawnCosts{0.7, 0.15});
+        mobSpawnInfo.spawnCosts.emplace(EntityType::GHAST, MobSpawnInfo::SpawnCosts{0.7, 0.15});
+        mobSpawnInfo.spawnCosts.emplace(EntityType::ENDERMAN, MobSpawnInfo::SpawnCosts{0.7, 0.15});
+        mobSpawnInfo.spawnCosts.emplace(EntityType::STRIDER, MobSpawnInfo::SpawnCosts{0.7, 0.15});
+        
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::SOUL_SAND_VALLEY);
 //            .withStructure(StructureFeatures::FORTRESS)
@@ -1502,7 +1499,7 @@ struct BiomeMaker {
                 .downfall = 0.0F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = 0.1F,
             .scale = 0.2F,
             .category = BiomeCategory::NETHER,
@@ -1524,11 +1521,11 @@ struct BiomeMaker {
     }
 
     static Biome* makeBasaltDeltasBiome() {
-//        MobSpawnInfo mobspawninfo = MobSpawnInfo::Builder{}
-//            .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::GHAST, 40, 1, 1))
-//            .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::MAGMA_CUBE, 100, 2, 5))
-//            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::STRIDER, 60, 1, 2))
-//            .copy();
+        MobSpawnInfo mobSpawnInfo{};
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::GHAST, 40, 1, 1});
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::MAGMA_CUBE, 100, 2, 5});
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::STRIDER, 60, 1, 2});
+                
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::BASALT_DELTAS);
 //            .withStructure(StructureFeatures::RUINED_PORTAL_NETHER)
@@ -1559,7 +1556,7 @@ struct BiomeMaker {
                 .downfall = 0.0F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = 0.1F,
             .scale = 0.2F,
             .category = BiomeCategory::NETHER,
@@ -1581,12 +1578,12 @@ struct BiomeMaker {
     }
 
     static Biome* makeCrimsonForestBiome() {
-//        MobSpawnInfo mobspawninfo = MobSpawnInfo::Builder{}
-//            .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::ZOMBIFIED_PIGLIN, 1, 2, 4))
-//            .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::HOGLIN, 9, 3, 4))
-//            .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::PIGLIN, 5, 3, 4))
-//            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::STRIDER, 60, 1, 2))
-//            .copy();
+        MobSpawnInfo mobSpawnInfo{};
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::ZOMBIFIED_PIGLIN, 1, 2, 4});
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::HOGLIN, 9, 3, 4});
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::PIGLIN, 5, 3, 4});
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::STRIDER, 60, 1, 2});
+        
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::CRIMSON_FOREST);
 //            .withStructure(StructureFeatures::RUINED_PORTAL_NETHER)
@@ -1613,7 +1610,7 @@ struct BiomeMaker {
                 .downfall = 0.0F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = 0.1F,
             .scale = 0.2F,
             .category = BiomeCategory::NETHER,
@@ -1635,11 +1632,11 @@ struct BiomeMaker {
     }
 
     static Biome* makeWarpedForestBiome() {
-//        MobSpawnInfo mobspawninfo = MobSpawnInfo::Builder{}
-//            .withSpawner(EntityClassification::MONSTER, MobSpawnInfo::Spawners(EntityType::ENDERMAN, 1, 4, 4))
-//            .withSpawner(EntityClassification::CREATURE, MobSpawnInfo::Spawners(EntityType::STRIDER, 60, 1, 2))
-//            .withSpawnCost(EntityType::ENDERMAN, 1.0, 0.12)
-//            .copy();
+        MobSpawnInfo mobSpawnInfo{};
+        mobSpawnInfo.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::ENDERMAN, 1, 4, 4});
+        mobSpawnInfo.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::STRIDER, 60, 1, 2});
+        mobSpawnInfo.spawnCosts.emplace(EntityType::ENDERMAN, MobSpawnInfo::SpawnCosts{1.0, 0.12});
+
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::WARPED_FOREST);
 //            .withStructure(StructureFeatures::FORTRESS)
@@ -1668,7 +1665,7 @@ struct BiomeMaker {
                 .downfall = 0.0F
             },
             .biomeGenerationSettings = generation.build(),
-//            .mobSpawnInfo = mobSpawnInfo.copy(),
+            .mobSpawnInfo = mobSpawnInfo,
             .depth = 0.1F,
             .scale = 0.2F,
             .category = BiomeCategory::NETHER,

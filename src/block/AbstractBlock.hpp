@@ -89,7 +89,7 @@ enum class SoundType {
 
 struct Block;
 struct BlockData;
-struct EntityType;
+enum class EntityType;
 struct WorldReader;
 struct BlockReader;
 struct BlockGraphics;

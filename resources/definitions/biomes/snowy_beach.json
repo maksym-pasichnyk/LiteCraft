@@ -6,6 +6,8 @@
     "temperature": 0.05,
     "temperature_modifier": "none",
     "downfall": 0.3,
+    "player_spawn_friendly": "false",
+    "creature_spawn_probability": 0.1,
     "effects": {
         "fog_color": 12638463,
         "water_color": 4020182,
@@ -62,5 +64,20 @@
     ],
     "structures": [
         "mineshaft"
-    ]
+    ],
+    "spawners": {
+        "monster": {
+            "type": "spider",
+            "weight": 100,
+            "min_count": 4,
+            "max_count": 4
+        },
+        "ambient": {
+            "type": "bat",
+            "weight": 10,
+            "min_count": 8,
+            "max_count": 8
+        }
+    },
+    "spawn_costs": {}
 }

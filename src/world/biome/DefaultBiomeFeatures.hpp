@@ -1,5 +1,6 @@
 #pragma once
 
+#include "MobSpawnInfo.hpp"
 #include "BiomeGenerationSettings.hpp"
 #include "../gen/carver/ConfiguredCarvers.hpp"
 #include "../gen/feature/ConfiguredFeatures.hpp"
@@ -329,81 +330,81 @@ struct DefaultBiomeFeatures {
         builder.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::ORE_DEBRIS_SMALL);
     }
 
-//    static void withPassiveMobs(MobSpawnInfo::Builder& builder) {
-//        builder.withSpawner(EntityClassification::CREATURE, new MobSpawnInfo::Spawners(EntityType::SHEEP, 12, 4, 4));
-//        builder.withSpawner(EntityClassification::CREATURE, new MobSpawnInfo::Spawners(EntityType::PIG, 10, 4, 4));
-//        builder.withSpawner(EntityClassification::CREATURE, new MobSpawnInfo::Spawners(EntityType::CHICKEN, 10, 4, 4));
-//        builder.withSpawner(EntityClassification::CREATURE, new MobSpawnInfo::Spawners(EntityType::COW, 8, 4, 4));
-//    }
+    static void withPassiveMobs(MobSpawnInfo& builder) {
+        builder.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::SHEEP, 12, 4, 4});
+        builder.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::PIG, 10, 4, 4});
+        builder.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::CHICKEN, 10, 4, 4});
+        builder.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::COW, 8, 4, 4});
+    }
 
-//    static void withBats(MobSpawnInfo::Builder& builder) {
-//        builder.withSpawner(EntityClassification::AMBIENT, new MobSpawnInfo::Spawners(EntityType::BAT, 10, 8, 8));
-//    }
+    static void withBats(MobSpawnInfo& builder) {
+        builder.spawners.emplace(EntityClassification::AMBIENT, MobSpawnInfo::Spawners{EntityType::BAT, 10, 8, 8});
+    }
 
-//    static void withBatsAndHostiles(MobSpawnInfo::Builder& builder) {
-//        withBats(builder);
-//        withHostileMobs(builder, 95, 5, 100);
-//    }
+    static void withBatsAndHostiles(MobSpawnInfo& builder) {
+        withBats(builder);
+        withHostileMobs(builder, 95, 5, 100);
+    }
 
-//    static void withOceanMobs(MobSpawnInfo::Builder& builder, int squidWeight, int squidMaxCount, int codWeight) {
-//        builder.withSpawner(EntityClassification::WATER_CREATURE, new MobSpawnInfo::Spawners(EntityType::SQUID, squidWeight, 1, squidMaxCount));
-//        builder.withSpawner(EntityClassification::WATER_AMBIENT, new MobSpawnInfo::Spawners(EntityType::COD, codWeight, 3, 6));
-//        withBatsAndHostiles(builder);
-//        builder.withSpawner(EntityClassification::MONSTER, new MobSpawnInfo::Spawners(EntityType::DROWNED, 5, 1, 1));
-//    }
+    static void withOceanMobs(MobSpawnInfo& builder, int squidWeight, int squidMaxCount, int codWeight) {
+        builder.spawners.emplace(EntityClassification::WATER_CREATURE, MobSpawnInfo::Spawners{EntityType::SQUID, squidWeight, 1, squidMaxCount});
+        builder.spawners.emplace(EntityClassification::WATER_AMBIENT, MobSpawnInfo::Spawners{EntityType::COD, codWeight, 3, 6});
+        withBatsAndHostiles(builder);
+        builder.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::DROWNED, 5, 1, 1});
+    }
 
-//    static void withWarmOceanMobs(MobSpawnInfo::Builder& builder, int squidWeight, int squidMinCount) {
-//        builder.withSpawner(EntityClassification::WATER_CREATURE, new MobSpawnInfo::Spawners(EntityType::SQUID, squidWeight, squidMinCount, 4));
-//        builder.withSpawner(EntityClassification::WATER_AMBIENT, new MobSpawnInfo::Spawners(EntityType::TROPICAL_FISH, 25, 8, 8));
-//        builder.withSpawner(EntityClassification::WATER_CREATURE, new MobSpawnInfo::Spawners(EntityType::DOLPHIN, 2, 1, 2));
-//        withBatsAndHostiles(builder);
-//    }
+    static void withWarmOceanMobs(MobSpawnInfo& builder, int squidWeight, int squidMinCount) {
+        builder.spawners.emplace(EntityClassification::WATER_CREATURE, MobSpawnInfo::Spawners{EntityType::SQUID, squidWeight, squidMinCount, 4});
+        builder.spawners.emplace(EntityClassification::WATER_AMBIENT, MobSpawnInfo::Spawners{EntityType::TROPICAL_FISH, 25, 8, 8});
+        builder.spawners.emplace(EntityClassification::WATER_CREATURE, MobSpawnInfo::Spawners{EntityType::DOLPHIN, 2, 1, 2});
+        withBatsAndHostiles(builder);
+    }
 
-//    static void withSpawnsWithHorseAndDonkey(MobSpawnInfo::Builder& builder) {
-//        withPassiveMobs(builder);
-//        builder.withSpawner(EntityClassification::CREATURE, new MobSpawnInfo::Spawners(EntityType::HORSE, 5, 2, 6));
-//        builder.withSpawner(EntityClassification::CREATURE, new MobSpawnInfo::Spawners(EntityType::DONKEY, 1, 1, 3));
-//        withBatsAndHostiles(builder);
-//    }
+    static void withSpawnsWithHorseAndDonkey(MobSpawnInfo& builder) {
+        withPassiveMobs(builder);
+        builder.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::HORSE, 5, 2, 6});
+        builder.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::DONKEY, 1, 1, 3});
+        withBatsAndHostiles(builder);
+    }
 
-//    static void withSnowyBiomeMobs(MobSpawnInfo::Builder& builder) {
-//        builder.withSpawner(EntityClassification::CREATURE, new MobSpawnInfo::Spawners(EntityType::RABBIT, 10, 2, 3));
-//        builder.withSpawner(EntityClassification::CREATURE, new MobSpawnInfo::Spawners(EntityType::POLAR_BEAR, 1, 1, 2));
-//        withBats(builder);
-//        withHostileMobs(builder, 95, 5, 20);
-//        builder.withSpawner(EntityClassification::MONSTER, new MobSpawnInfo::Spawners(EntityType::STRAY, 80, 4, 4));
-//    }
+    static void withSnowyBiomeMobs(MobSpawnInfo& builder) {
+        builder.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::RABBIT, 10, 2, 3});
+        builder.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::POLAR_BEAR, 1, 1, 2});
+        withBats(builder);
+        withHostileMobs(builder, 95, 5, 20);
+        builder.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::STRAY, 80, 4, 4});
+    }
 
-//    static void withDesertMobs(MobSpawnInfo::Builder& builder) {
-//        builder.withSpawner(EntityClassification::CREATURE, new MobSpawnInfo::Spawners(EntityType::RABBIT, 4, 2, 3));
-//        withBats(builder);
-//        withHostileMobs(builder, 19, 1, 100);
-//        builder.withSpawner(EntityClassification::MONSTER, new MobSpawnInfo::Spawners(EntityType::HUSK, 80, 4, 4));
-//    }
+    static void withDesertMobs(MobSpawnInfo& builder) {
+        builder.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::RABBIT, 4, 2, 3});
+        withBats(builder);
+        withHostileMobs(builder, 19, 1, 100);
+        builder.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::HUSK, 80, 4, 4});
+    }
 
-//    static void withHostileMobs(MobSpawnInfo::Builder& builder, int zombieWeight, int zombieVillagerWeight, int skeletonWeight) {
-//        builder.withSpawner(EntityClassification::MONSTER, new MobSpawnInfo::Spawners(EntityType::SPIDER, 100, 4, 4));
-//        builder.withSpawner(EntityClassification::MONSTER, new MobSpawnInfo::Spawners(EntityType::ZOMBIE, zombieWeight, 4, 4));
-//        builder.withSpawner(EntityClassification::MONSTER, new MobSpawnInfo::Spawners(EntityType::ZOMBIE_VILLAGER, zombieVillagerWeight, 1, 1));
-//        builder.withSpawner(EntityClassification::MONSTER, new MobSpawnInfo::Spawners(EntityType::SKELETON, skeletonWeight, 4, 4));
-//        builder.withSpawner(EntityClassification::MONSTER, new MobSpawnInfo::Spawners(EntityType::CREEPER, 100, 4, 4));
-//        builder.withSpawner(EntityClassification::MONSTER, new MobSpawnInfo::Spawners(EntityType::SLIME, 100, 4, 4));
-//        builder.withSpawner(EntityClassification::MONSTER, new MobSpawnInfo::Spawners(EntityType::ENDERMAN, 10, 1, 4));
-//        builder.withSpawner(EntityClassification::MONSTER, new MobSpawnInfo::Spawners(EntityType::WITCH, 5, 1, 1));
-//    }
+    static void withHostileMobs(MobSpawnInfo& builder, int zombieWeight, int zombieVillagerWeight, int skeletonWeight) {
+        builder.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::SPIDER, 100, 4, 4});
+        builder.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::ZOMBIE, zombieWeight, 4, 4});
+        builder.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::ZOMBIE_VILLAGER, zombieVillagerWeight, 1, 1});
+        builder.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::SKELETON, skeletonWeight, 4, 4});
+        builder.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::CREEPER, 100, 4, 4});
+        builder.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::SLIME, 100, 4, 4});
+        builder.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::ENDERMAN, 10, 1, 4});
+        builder.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::WITCH, 5, 1, 1});
+    }
 
-//    static void withMooshroomsAndBats(MobSpawnInfo::Builder& builder) {
-//        builder.withSpawner(EntityClassification::CREATURE, new MobSpawnInfo::Spawners(EntityType::MOOSHROOM, 8, 4, 8));
-//        withBats(builder);
-//    }
+    static void withMooshroomsAndBats(MobSpawnInfo& builder) {
+        builder.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::MOOSHROOM, 8, 4, 8});
+        withBats(builder);
+    }
 
-//    static void withSpawnsWithExtraChickens(MobSpawnInfo::Builder& builder) {
-//        withPassiveMobs(builder);
-//        builder.withSpawner(EntityClassification::CREATURE, new MobSpawnInfo::Spawners(EntityType::CHICKEN, 10, 4, 4));
-//        withBatsAndHostiles(builder);
-//    }
+    static void withSpawnsWithExtraChickens(MobSpawnInfo& builder) {
+        withPassiveMobs(builder);
+        builder.spawners.emplace(EntityClassification::CREATURE, MobSpawnInfo::Spawners{EntityType::CHICKEN, 10, 4, 4});
+        withBatsAndHostiles(builder);
+    }
 
-//    static void withEndermen(MobSpawnInfo::Builder& builder) {
-//        builder.withSpawner(EntityClassification::MONSTER, new MobSpawnInfo::Spawners(EntityType::ENDERMAN, 10, 4, 4));
-//    }
+    static void withEndermen(MobSpawnInfo& builder) {
+        builder.spawners.emplace(EntityClassification::MONSTER, MobSpawnInfo::Spawners{EntityType::ENDERMAN, 10, 4, 4});
+    }
 };

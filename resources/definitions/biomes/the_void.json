@@ -6,6 +6,8 @@
     "temperature": 0.5,
     "temperature_modifier": "none",
     "downfall": 0.5,
+    "player_spawn_friendly": "false",
+    "creature_spawn_probability": 0.1,
     "effects": {
         "fog_color": 12638463,
         "water_color": 4159204,
@@ -31,5 +33,7 @@
             "void_start_platform"
         ]
     ],
-    "structures": []
+    "structures": [],
+    "spawners": {},
+    "spawn_costs": {}
 }

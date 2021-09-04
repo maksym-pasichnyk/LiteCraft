@@ -203,6 +203,18 @@ struct Json::Serialize<std::vector<T>> {
     }
 };
 
+template<typename K, typename V, typename P, typename A>
+struct Json::Serialize<std::map<K, V, P, A>> {
+    static auto to_json(const std::map<K, V, P, A> &elements) -> Json {
+        Json::Object obj{};
+        for (auto&& [k, v] : elements) {
+            obj.emplace(Json(k).to_string(), Json(v));
+        }
+        return obj;
+    }
+};
+
+
 template <typename T> requires (
     std::is_same_v<T, float> ||
     std::is_same_v<T, double>

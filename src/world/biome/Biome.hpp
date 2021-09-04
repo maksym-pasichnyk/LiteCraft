@@ -1,9 +1,10 @@
 #pragma once
 
 #include "BiomeGenerationSettings.hpp"
-#include "BiomeAmbience.hpp"
+#include "MobSpawnInfo.hpp"
 #include "BiomeClimate.hpp"
 #include "BiomeCategory.hpp"
+#include "BiomeAmbience.hpp"
 
 #include "../gen/PerlinNoiseGenerator.hpp"
 #include "../../block/BlockData.hpp"
@@ -32,7 +33,7 @@ struct Biome {
 
     BiomeClimate climate;
     BiomeGenerationSettings biomeGenerationSettings;
-//    MobSpawnInfo mobSpawnInfo;
+    MobSpawnInfo mobSpawnInfo;
     float depth;
     float scale;
     BiomeCategory category;

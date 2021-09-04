@@ -6,6 +6,8 @@
     "temperature": 2,
     "temperature_modifier": "none",
     "downfall": 0,
+    "player_spawn_friendly": "false",
+    "creature_spawn_probability": 0.1,
     "effects": {
         "fog_color": 6840176,
         "water_color": 4159204,
@@ -50,5 +52,20 @@
         ],
         []
     ],
-    "structures": []
+    "structures": [],
+    "spawners": {
+        "monster": {
+            "type": "ghast",
+            "weight": 40,
+            "min_count": 1,
+            "max_count": 1
+        },
+        "creature": {
+            "type": "strider",
+            "weight": 60,
+            "min_count": 1,
+            "max_count": 2
+        }
+    },
+    "spawn_costs": {}
 }
