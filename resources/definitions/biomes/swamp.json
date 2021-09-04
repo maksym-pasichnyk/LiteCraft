@@ -45,7 +45,8 @@
             "ore_gold",
             "ore_redstone",
             "ore_diamond",
-            "ore_lapis"
+            "ore_lapis",
+            "disk_clay"
         ],
         [],
         [

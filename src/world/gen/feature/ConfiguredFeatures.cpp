@@ -851,13 +851,13 @@ void ConfiguredFeatures::configureFeatures() {
     FOREST_FLOWER_VEGETATION = registerFeature("forest_flower_vegetation", Features::SIMPLE_RANDOM_SELECTOR->withConfiguration(SingleRandomFeatureConfig{FOREST_FLOWER_VEGETATION_LIST})->withSpreadPlacement(FeatureSpread{-3, 4})->withPlacement(VEGETATION_PLACEMENT)->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(5));
     DARK_FOREST_VEGETATION_BROWN = registerFeature("dark_forest_vegetation_brown", Features::RANDOM_SELECTOR->withConfiguration(MultipleRandomFeatureConfig{{HUGE_BROWN_MUSHROOM->withChance(0.025F), HUGE_RED_MUSHROOM->withChance(0.05F), DARK_OAK->withChance(0.6666667F), BIRCH->withChance(0.2F), FANCY_OAK->withChance(0.1F)}, OAK})->withPlacement(Placements::DARK_OAK_TREE->withConfiguration(NoPlacementConfig{})));
     DARK_FOREST_VEGETATION_RED = registerFeature("dark_forest_vegetation_red", Features::RANDOM_SELECTOR->withConfiguration(MultipleRandomFeatureConfig{{HUGE_RED_MUSHROOM->withChance(0.025F), HUGE_BROWN_MUSHROOM->withChance(0.05F), DARK_OAK->withChance(0.6666667F), BIRCH->withChance(0.2F), FANCY_OAK->withChance(0.1F)}, OAK})->withPlacement(Placements::DARK_OAK_TREE->withConfiguration(NoPlacementConfig{})));
-// WARM_OCEAN_VEGETATION = registerFeature("warm_ocean_vegetation", Features::SIMPLE_RANDOM_SELECTOR->withConfiguration(new SingleRandomFeature(ImmutableList.of(() -> {
-//    return Features::CORAL_TREE->withConfiguration(NoFeatureConfig{});
-// }, () -> {
-//    return Features::CORAL_CLAW->withConfiguration(NoFeatureConfig{});
-// }, () -> {
-//    return Features::CORAL_MUSHROOM->withConfiguration(NoFeatureConfig{});
-// })))->withPlacement(TOP_SOLID_PLACEMENT)->square()->withPlacement(Placements::COUNT_NOISE_BIASED->withConfiguration(new TopSolidWithNoiseConfig(20, 400.0D, 0.0D))));
+    WARM_OCEAN_VEGETATION = registerFeature("warm_ocean_vegetation", Features::SIMPLE_RANDOM_SELECTOR->withConfiguration(SingleRandomFeatureConfig{
+        .features {
+            Features::CORAL_TREE->withConfiguration(NoFeatureConfig{}),
+            Features::CORAL_CLAW->withConfiguration(NoFeatureConfig{}),
+            Features::CORAL_MUSHROOM->withConfiguration(NoFeatureConfig{})
+        }
+    })->withPlacement(TOP_SOLID_PLACEMENT)->square()->withPlacement(Placements::COUNT_NOISE_BIASED->withConfiguration(TopSolidWithNoiseConfig{20, 400.0, 0.0})));
     FOREST_FLOWER_TREES = registerFeature("forest_flower_trees", Features::RANDOM_SELECTOR->withConfiguration(MultipleRandomFeatureConfig{{BIRCH_BEES_002->withChance(0.2F), FANCY_OAK_BEES_002->withChance(0.1F)}, OAK_BEES_002})->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(AtSurfaceWithExtraConfig{6, 0.1F, 1})));
     TAIGA_VEGETATION = registerFeature("taiga_vegetation", Features::RANDOM_SELECTOR->withConfiguration(MultipleRandomFeatureConfig{{PINE->withChance(0.33333334F)}, SPRUCE})->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(AtSurfaceWithExtraConfig{10, 0.1F, 1})));
     TREES_SHATTERED_SAVANNA = registerFeature("trees_shattered_savanna", Features::RANDOM_SELECTOR->withConfiguration(MultipleRandomFeatureConfig{{ACACIA->withChance(0.8F)}, OAK})->withPlacement(HEIGHTMAP_PLACEMENT)->withPlacement(Placements::COUNT_EXTRA->withConfiguration(AtSurfaceWithExtraConfig{2, 0.1F, 1})));

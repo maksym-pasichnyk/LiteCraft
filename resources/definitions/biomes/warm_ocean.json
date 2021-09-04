@@ -45,7 +45,10 @@
             "ore_gold",
             "ore_redstone",
             "ore_diamond",
-            "ore_lapis"
+            "ore_lapis",
+            "disk_sand",
+            "disk_clay",
+            "disk_gravel"
         ],
         [],
         [
@@ -58,6 +61,7 @@
             "patch_pumpkin",
             "spring_water",
             "spring_lava",
+            "warm_ocean_vegetation",
             "seagrass_warm",
             "sea_pickle"
         ],

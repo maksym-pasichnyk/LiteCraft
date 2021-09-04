@@ -835,7 +835,7 @@ struct BiomeMaker {
         DefaultBiomeFeatures::withWarmOceanMobs(mobSpawnInfo, 10, 4);
 
         auto generation = getOceanGenerationSettingsBuilder(ConfiguredSurfaceBuilders::FULL_SAND, false, true, false);
-//            .withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, Features::WARM_OCEAN_VEGETATION)
+        generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::WARM_OCEAN_VEGETATION);
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SEAGRASS_WARM);
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SEA_PICKLE);
         DefaultBiomeFeatures::withFrozenTopLayer(generation);

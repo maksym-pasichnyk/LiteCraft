@@ -77,13 +77,13 @@ struct DefaultBiomeFeatures {
     }
 
     static void withDisks(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::DISK_SAND);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::DISK_CLAY);
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::DISK_GRAVEL);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::DISK_SAND);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::DISK_CLAY);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::DISK_GRAVEL);
     }
 
     static void withClayDisks(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::DISK_CLAY);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_ORES, ConfiguredFeatures::DISK_CLAY);
     }
 
     static void withForestRocks(BiomeGenerationSettings::Builder& builder) {
@@ -181,7 +181,7 @@ struct DefaultBiomeFeatures {
 
     static void withBadlandsGrassAndBush(BiomeGenerationSettings::Builder& builder) {
         builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_GRASS_BADLANDS);
-//        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_DEAD_BUSH_BADLANDS);
+        builder.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::PATCH_DEAD_BUSH_BADLANDS);
     }
 
     static void withAllForestFlowerGeneration(BiomeGenerationSettings::Builder& builder) {
@@ -280,7 +280,7 @@ struct DefaultBiomeFeatures {
     }
 
     static void withDesertWells(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, ConfiguredFeatures::DESERT_WELL);
+        builder.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, ConfiguredFeatures::DESERT_WELL);
     }
 
     static void withFossils(BiomeGenerationSettings::Builder& builder) {

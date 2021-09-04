@@ -46,6 +46,9 @@
             "ore_redstone",
             "ore_diamond",
             "ore_lapis",
+            "disk_sand",
+            "disk_clay",
+            "disk_gravel",
             "ore_emerald"
         ],
         [

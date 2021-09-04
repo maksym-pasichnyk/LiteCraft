@@ -46,11 +46,15 @@
             "ore_redstone",
             "ore_diamond",
             "ore_lapis",
-            "ore_gold_extra"
+            "ore_gold_extra",
+            "disk_sand",
+            "disk_clay",
+            "disk_gravel"
         ],
         [],
         [
             "patch_grass_badlands",
+            "patch_dead_bush_badlands",
             "brown_mushroom_normal",
             "red_mushroom_normal",
             "patch_sugar_cane_badlands",

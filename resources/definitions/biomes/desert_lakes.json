@@ -31,7 +31,9 @@
         [
             "monster_room"
         ],
-        [],
+        [
+            "desert_well"
+        ],
         [],
         [
             "ore_dirt",
@@ -44,7 +46,10 @@
             "ore_gold",
             "ore_redstone",
             "ore_diamond",
-            "ore_lapis"
+            "ore_lapis",
+            "disk_sand",
+            "disk_clay",
+            "disk_gravel"
         ],
         [],
         [
