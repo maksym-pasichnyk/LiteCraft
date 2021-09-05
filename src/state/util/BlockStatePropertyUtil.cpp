@@ -372,7 +372,7 @@ namespace {
     constexpr auto codec = Codec<Property>{
         .parse = [](const Nbt::Tag& tag) -> std::optional<Property> {
             using T = typename TypeFrom<property>::type;
-            return FromString<T>::from(std::get<Nbt::StringTag>(tag).value);
+            return FromString<T>::from(std::get<Nbt::String>(tag.m_storage));
         },
         .write = [](const Property& value) -> std::optional<Nbt::Tag> {
             return std::nullopt;

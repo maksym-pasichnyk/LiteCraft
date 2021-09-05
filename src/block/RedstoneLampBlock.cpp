@@ -1,1 +1,1 @@
-#include "RedstoneLampBlock.hpp"
+//#include "RedstoneLampBlock.hpp"
