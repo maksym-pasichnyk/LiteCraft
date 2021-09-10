@@ -124,37 +124,37 @@ struct App {
         Biomes::registerBiomes();
 
         /**************************************************************************************************************/
-//        struct physfs_recursive_directory_iterator {
-//            void next(const char* directory, void(*fn)(const char*)) {
-//                auto files = PHYSFS_enumerateFiles(directory);
-//                for (auto file = files; *file != nullptr; file++) {
-//                    const auto path = fmt::format("{}/{}", directory, *file);
-//
-//                    if (PHYSFS_isDirectory(path.c_str())) {
-//                        next(path.c_str(), fn);
-//                        continue;
-//                    }
-//
-//                    fn(path.c_str());
-//                }
-//                PHYSFS_freeList(files);
-//            }
-//        };
+        struct physfs_recursive_directory_iterator {
+            void next(const char* directory, void(*fn)(const char*)) {
+                auto files = PHYSFS_enumerateFiles(directory);
+                for (auto file = files; *file != nullptr; file++) {
+                    const auto path = fmt::format("{}/{}", directory, *file);
 
-//        physfs_recursive_directory_iterator{}.next("client-extra", [](const char* path) {
-//            auto handle = PHYSFS_openRead(path);
-//            auto len = PHYSFS_fileLength(handle);
-//
-//            std::vector<char> bytes(len);
-//            PHYSFS_readBytes(handle, bytes.data(), len);
-//
-//            std::stringstream s;
-//            s.write(bytes.data(), len);
-//
-//            auto root = Nbt::Read::read(zlib_istream(s)).value().tag;
-//
-//            PHYSFS_close(handle);
-//        });
+                    if (PHYSFS_isDirectory(path.c_str())) {
+                        next(path.c_str(), fn);
+                        continue;
+                    }
+
+                    fn(path.c_str());
+                }
+                PHYSFS_freeList(files);
+            }
+        };
+
+        physfs_recursive_directory_iterator{}.next("client-extra", [](const char* path) {
+            auto handle = PHYSFS_openRead(path);
+            auto len = PHYSFS_fileLength(handle);
+
+            std::vector<char> bytes(len);
+            PHYSFS_readBytes(handle, bytes.data(), len);
+
+            std::stringstream s;
+            s.write(bytes.data(), len);
+
+            auto root = Nbt::Read::read(zlib_istream(s)).value().root;
+
+            PHYSFS_close(handle);
+        });
 
         /**************************************************************************************************************/
 

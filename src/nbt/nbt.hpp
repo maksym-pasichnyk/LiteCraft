@@ -318,9 +318,9 @@ struct Nbt {
         Value m_storage;
 	};
 
-	struct NamedTag {
-		std::string name;
-		Compound tag;
+	struct TreeRoot {
+        std::string name;
+        Compound root;
 	};
 
 	struct Read;
@@ -510,11 +510,11 @@ struct Nbt::Deserialize<std::vector<T>> {
 };
 
 struct Nbt::Read {
-	static auto read(std::istream &&io) -> std::optional<NamedTag> {
+	static auto read(std::istream &&io) -> std::optional<TreeRoot> {
 		return read(io);
 	}
 
-	static auto read(std::istream &io) -> std::optional<NamedTag> {
+	static auto read(std::istream &io) -> std::optional<TreeRoot> {
 		if (readID(io).value_or(ID::END) != ID::COMPOUND) {
 			return std::nullopt;
 		}
@@ -526,7 +526,10 @@ struct Nbt::Read {
 		if (!tag.has_value()) {
 			return std::nullopt;
 		}
-		return NamedTag{std::move(*name), std::move(*tag)};
+		return TreeRoot{
+            .name = std::move(*name),
+            .root = std::move(*tag)
+        };
 	}
 
 private:
