@@ -3,7 +3,7 @@
 #include <util/math/BlockPos.hpp>
 
 struct TemperatureModifiers {
-    static float none(BlockPos pos, float temperature);
-    static float frozen(BlockPos pos, float temperature);
+    static auto none(const BlockPos& pos, float temperature) -> float;
+    static auto frozen(const BlockPos& pos, float temperature) -> float;
 };
 

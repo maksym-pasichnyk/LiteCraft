@@ -2,14 +2,68 @@
 
 #include "DefaultBiomeFeatures.hpp"
 #include "TemperatureModifiers.hpp"
+#include "GrassColorModifiers.hpp"
 #include "Biome.hpp"
+
+#include <optional>
+#include <sounds/SoundEvents.hpp>
 
 #include "../gen/surface/ConfiguredSurfaceBuilders.hpp"
 
 struct BiomeMaker {
-    static int getSkyColorWithTemperatureModifier(float temperature) {
-//        const float v = std::clamp(temperature / 3.0F, -1.0F, 1.0F);
-        return 0;//MathHelper.hsvToRGB(0.62222224F - v * 0.05F, 0.5F + v * 0.1F, 1.0F);
+    static auto hsvToRGB(float hue, float saturation, float value) -> std::optional<int> {
+        int i = static_cast<int>(hue * 6.0F) % 6;
+        float f = hue * 6.0F - static_cast<float>(i);
+        float f1 = value * (1.0F - saturation);
+        float f2 = value * (1.0F - f * saturation);
+        float f3 = value * (1.0F - (1.0F - f) * saturation);
+        float f4;
+        float f5;
+        float f6;
+        switch(i) {
+            case 0:
+                f4 = value;
+                f5 = f3;
+                f6 = f1;
+                break;
+            case 1:
+                f4 = f2;
+                f5 = value;
+                f6 = f1;
+                break;
+            case 2:
+                f4 = f1;
+                f5 = value;
+                f6 = f3;
+                break;
+            case 3:
+                f4 = f1;
+                f5 = f2;
+                f6 = value;
+                break;
+            case 4:
+                f4 = f3;
+                f5 = f1;
+                f6 = value;
+                break;
+            case 5:
+                f4 = value;
+                f5 = f1;
+                f6 = f2;
+                break;
+            default:
+                return std::nullopt;
+        }
+
+        int j = std::clamp(static_cast<int>(f4 * 255.0F), 0, 255);
+        int k = std::clamp(static_cast<int>(f5 * 255.0F), 0, 255);
+        int l = std::clamp(static_cast<int>(f6 * 255.0F), 0, 255);
+        return j << 16 | k << 8 | l;
+    }
+
+    static auto getSkyColorWithTemperatureModifier(float temperature) -> int {
+        const float v = std::clamp(temperature / 3.0F, -1.0F, 1.0F);
+        return hsvToRGB(0.62222224F - v * 0.05F, 0.5F + v * 0.1F, 1.0F).value();
     }
 
     static Biome* makeGiantTaigaBiome(float depth, float scale, float temperature, bool isSpruceVariant) {
@@ -68,13 +122,12 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(temperature),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
             }
         };
     }
@@ -125,12 +178,12 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(0.6F),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
             }
         };
     }
@@ -245,12 +298,12 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(0.95F),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
             }
         };
     }
@@ -303,12 +356,12 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(0.2F),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
             }
         };
     }
@@ -366,12 +419,12 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(2.0F),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
             }
         };
     }
@@ -380,7 +433,7 @@ struct BiomeMaker {
         MobSpawnInfo mobSpawnInfo{};
         DefaultBiomeFeatures::withSpawnsWithHorseAndDonkey(mobSpawnInfo);
         if (!isSunflowerVariant) {
-//            mobSpawnInfo.playerSpawnFriendly = true;
+            mobSpawnInfo.playerSpawnFriendly = true;
         }
 
         auto generation = BiomeGenerationSettings::Builder{};
@@ -437,12 +490,12 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(0.8F),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
             }
         };
     }
@@ -468,12 +521,12 @@ struct BiomeMaker {
                 .skyColor = 0,
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
             }
         };
     }
@@ -551,12 +604,12 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(0.9F),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
             }
         };
     }
@@ -618,12 +671,12 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(temperature),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
             }
         };
     }
@@ -690,12 +743,12 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(2.0F),
                 .foliageColor = 10387789,
                 .grassColor = 9470285,
-//                .grassColorModifier = {},
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
             }
         };
     }
@@ -732,12 +785,12 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(0.5F),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
             }
         };
     }
@@ -907,12 +960,12 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(temperature),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
             }
         };
     }
@@ -967,12 +1020,12 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(0.7F),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
             }
         };
     }
@@ -1061,12 +1114,12 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(temperature),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
             }
         };
     }
@@ -1118,12 +1171,12 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(0.7F),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = BiomeAmbience::GrassColorModifier::DARK_FOREST,
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
+                .grassColorModifier = GrassColorModifiers::dark_forest,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
             }
         };
     }
@@ -1182,12 +1235,12 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(0.8F),
                 .foliageColor = 6975545,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = BiomeAmbience::GrassColorModifier::SWAMP,
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
+                .grassColorModifier = GrassColorModifiers::swamp,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
             }
         };
     }
@@ -1247,12 +1300,12 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(0.0F),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
             }
         };
     }
@@ -1303,12 +1356,12 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(temperature),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
             }
         };
     }
@@ -1362,12 +1415,12 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(temperature),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
             }
         };
     }
@@ -1395,13 +1448,13 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(0.5F),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = std::nullopt,
-//                .ambientSound = std::nullopt,
-//                .moodSound = MoodSoundAmbience::DEFAULT_CAVE,
-//                .additionsSound = std::nullopt,
-//                .music = std::nullopt
-                }
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = std::nullopt,
+                .ambientSound = std::nullopt,
+                .moodSound = MoodSoundAmbiences::DEFAULT_CAVE,
+                .additionsSound = std::nullopt,
+                .music = std::nullopt
+            }
         };
     }
 
@@ -1451,12 +1504,20 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(2.0F),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = std::nullopt,
-//                .ambientSound = SoundEvents::AMBIENT_NETHER_WASTES_LOOP,
-//                .moodSound = MoodSoundAmbience(SoundEvents::AMBIENT_NETHER_WASTES_MOOD, 6000, 8, 2.0),
-//                .additionsSound = SoundAdditionsAmbience(SoundEvents::AMBIENT_NETHER_WASTES_ADDITIONS, 0.0111),
-//                .music = BackgroundMusicTracks::getDefaultBackgroundMusicSelector(SoundEvents::MUSIC_NETHER_NETHER_WASTES)
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = std::nullopt,
+                .ambientSound = SoundEvents::AMBIENT_NETHER_WASTES_LOOP,
+                .moodSound = MoodSoundAmbience{
+                    .sound = SoundEvents::AMBIENT_NETHER_WASTES_MOOD,
+                    .delay = 6000,
+                    .radius = 8,
+                    .offset = 2.0
+                },
+                .additionsSound = SoundAdditionsAmbience{
+                    .sound = SoundEvents::AMBIENT_NETHER_WASTES_ADDITIONS,
+                    .chance = 0.0111
+                },
+                .music = BackgroundMusicTrack::from(SoundEvents::MUSIC_NETHER_NETHER_WASTES)
             }
         };
     }
@@ -1510,13 +1571,24 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(2.0F),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = ParticleEffectAmbience(ParticleTypes::ASH, 0.00625F),
-//                .ambientSound = SoundEvents::AMBIENT_SOUL_SAND_VALLEY_LOOP,
-//                .moodSound = MoodSoundAmbience(SoundEvents::AMBIENT_SOUL_SAND_VALLEY_MOOD, 6000, 8, 2.0),
-//                .additionsSound = SoundAdditionsAmbience(SoundEvents::AMBIENT_SOUL_SAND_VALLEY_ADDITIONS, 0.0111),
-//                .music = BackgroundMusicTracks::getDefaultBackgroundMusicSelector(SoundEvents::MUSIC_NETHER_SOUL_SAND_VALLEY)
-                }
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = ParticleEffectAmbience{
+                    .type = ParticleType::ASH,
+                    .probability = 0.00625F
+                },
+                .ambientSound = SoundEvents::AMBIENT_SOUL_SAND_VALLEY_LOOP,
+                .moodSound = MoodSoundAmbience{
+                    .sound = SoundEvents::AMBIENT_SOUL_SAND_VALLEY_MOOD,
+                    .delay = 6000,
+                    .radius = 8,
+                    .offset = 2.0
+                },
+                .additionsSound = SoundAdditionsAmbience{
+                    .sound = SoundEvents::AMBIENT_SOUL_SAND_VALLEY_ADDITIONS,
+                    .chance = 0.0111
+                },
+                .music = BackgroundMusicTrack::from(SoundEvents::MUSIC_NETHER_SOUL_SAND_VALLEY)
+            }
         };
     }
 
@@ -1567,13 +1639,24 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(2.0F),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = ParticleEffectAmbience(ParticleTypes::WHITE_ASH, 0.118093334F),
-//                .ambientSound = SoundEvents::AMBIENT_BASALT_DELTAS_LOOP,
-//                .moodSound = MoodSoundAmbience(SoundEvents::AMBIENT_BASALT_DELTAS_MOOD, 6000, 8, 2.0),
-//                .additionsSound = SoundAdditionsAmbience(SoundEvents::AMBIENT_BASALT_DELTAS_ADDITIONS, 0.0111),
-//                .music = BackgroundMusicTracks::getDefaultBackgroundMusicSelector(SoundEvents::MUSIC_NETHER_BASALT_DELTAS)
-                }
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = ParticleEffectAmbience{
+                    .type = ParticleType::WHITE_ASH,
+                    .probability = 0.118093334F
+                },
+                .ambientSound = SoundEvents::AMBIENT_BASALT_DELTAS_LOOP,
+                .moodSound = MoodSoundAmbience{
+                    .sound = SoundEvents::AMBIENT_BASALT_DELTAS_MOOD,
+                    .delay = 6000,
+                    .radius = 8,
+                    .offset = 2.0
+                },
+                .additionsSound = SoundAdditionsAmbience{
+                    .sound = SoundEvents::AMBIENT_BASALT_DELTAS_ADDITIONS,
+                    .chance = 0.0111
+                },
+                .music = BackgroundMusicTrack::from(SoundEvents::MUSIC_NETHER_BASALT_DELTAS)
+            }
         };
     }
 
@@ -1621,12 +1704,23 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(2.0F),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = ParticleEffectAmbience(ParticleTypes::CRIMSON_SPORE, 0.025F),
-//                .ambientSound = SoundEvents::AMBIENT_CRIMSON_FOREST_LOOP,
-//                .moodSound = MoodSoundAmbience(SoundEvents::AMBIENT_CRIMSON_FOREST_MOOD, 6000, 8, 2.0),
-//                .additionsSound = SoundAdditionsAmbience(SoundEvents::AMBIENT_CRIMSON_FOREST_ADDITIONS, 0.0111),
-//                .music = BackgroundMusicTracks::getDefaultBackgroundMusicSelector(SoundEvents::MUSIC_NETHER_CRIMSON_FOREST)
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = ParticleEffectAmbience{
+                    .type = ParticleType::CRIMSON_SPORE,
+                    .probability = 0.025F
+                },
+                .ambientSound = SoundEvents::AMBIENT_CRIMSON_FOREST_LOOP,
+                .moodSound = MoodSoundAmbience{
+                    .sound = SoundEvents::AMBIENT_CRIMSON_FOREST_MOOD,
+                    .delay = 6000,
+                    .radius = 8,
+                    .offset = 2.0
+                },
+                .additionsSound = SoundAdditionsAmbience{
+                    .sound = SoundEvents::AMBIENT_CRIMSON_FOREST_ADDITIONS,
+                    .chance = 0.0111
+                },
+                .music = BackgroundMusicTrack::from(SoundEvents::MUSIC_NETHER_CRIMSON_FOREST)
             }
         };
     }
@@ -1676,12 +1770,23 @@ struct BiomeMaker {
                 .skyColor = getSkyColorWithTemperatureModifier(2.0F),
                 .foliageColor = std::nullopt,
                 .grassColor = std::nullopt,
-//                .grassColorModifier = {},
-//                .particle = ParticleEffectAmbience(ParticleTypes::WARPED_SPORE, 0.01428F),
-//                .ambientSound = SoundEvents::AMBIENT_WARPED_FOREST_LOOP,
-//                .moodSound = MoodSoundAmbience(SoundEvents::AMBIENT_WARPED_FOREST_MOOD, 6000, 8, 2.0),
-//                .additionsSound = SoundAdditionsAmbience(SoundEvents::AMBIENT_WARPED_FOREST_ADDITIONS, 0.0111),
-//                .music = BackgroundMusicTracks::getDefaultBackgroundMusicSelector(SoundEvents::MUSIC_NETHER_WARPED_FOREST)
+                .grassColorModifier = GrassColorModifiers::none,
+                .particle = ParticleEffectAmbience{
+                    .type = ParticleType::WARPED_SPORE,
+                    .probability = 0.01428F
+                },
+                .ambientSound = SoundEvents::AMBIENT_WARPED_FOREST_LOOP,
+                .moodSound = MoodSoundAmbience{
+                    .sound = SoundEvents::AMBIENT_WARPED_FOREST_MOOD,
+                    .delay = 6000,
+                    .radius = 8,
+                    .offset = 2.0
+                },
+                .additionsSound = SoundAdditionsAmbience{
+                    .sound = SoundEvents::AMBIENT_WARPED_FOREST_ADDITIONS,
+                    .chance = 0.0111
+                },
+                .music = BackgroundMusicTrack::from(SoundEvents::MUSIC_NETHER_WARPED_FOREST)
             }
         };
     }

@@ -141,20 +141,20 @@ struct App {
             }
         };
 
-        physfs_recursive_directory_iterator{}.next("client-extra", [](const char* path) {
-            auto handle = PHYSFS_openRead(path);
-            auto len = PHYSFS_fileLength(handle);
-
-            std::vector<char> bytes(len);
-            PHYSFS_readBytes(handle, bytes.data(), len);
-
-            std::stringstream s;
-            s.write(bytes.data(), len);
-
-            auto root = Nbt::Read::read(zlib_istream(s)).value().root;
-
-            PHYSFS_close(handle);
-        });
+//        physfs_recursive_directory_iterator{}.next("client-extra", [](const char* path) {
+//            auto handle = PHYSFS_openRead(path);
+//            auto len = PHYSFS_fileLength(handle);
+//
+//            std::vector<char> bytes(len);
+//            PHYSFS_readBytes(handle, bytes.data(), len);
+//
+//            std::stringstream s;
+//            s.write(bytes.data(), len);
+//
+//            auto root = Nbt::Read::read(zlib_istream(s)).value().root;
+//
+//            PHYSFS_close(handle);
+//        });
 
         /**************************************************************************************************************/
 

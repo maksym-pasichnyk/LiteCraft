@@ -12,7 +12,23 @@
         "fog_color": 1787717,
         "water_color": 4159204,
         "water_fog_color": 329011,
-        "sky_color": 0
+        "sky_color": 7254527,
+        "grass_color_modifier": "none",
+        "particle": {
+            "type": "ash",
+            "probability": 0.00625
+        },
+        "ambient_sound": "ambient.soul_sand_valley.loop",
+        "additions_sound": {
+            "sound": "ambient.soul_sand_valley.additions",
+            "chance": 0.0111
+        },
+        "music": {
+            "sound": "music.nether.soul_sand_valley",
+            "min_delay": 12000,
+            "max_delay": 24000,
+            "replace_current_music": false
+        }
     },
     "surface_builder": "soul_sand_valley",
     "carvers": [

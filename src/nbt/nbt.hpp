@@ -1,5 +1,7 @@
 #pragma once
 
+#include <range/v3/range/conversion.hpp>
+#include <range/v3/view.hpp>
 #include <util/match.hpp>
 #include <optional>
 #include <istream>

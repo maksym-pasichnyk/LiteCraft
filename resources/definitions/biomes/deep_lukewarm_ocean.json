@@ -12,7 +12,8 @@
         "fog_color": 12638463,
         "water_color": 4566514,
         "water_fog_color": 267827,
-        "sky_color": 0
+        "sky_color": 8103167,
+        "grass_color_modifier": "none"
     },
     "surface_builder": "ocean_sand",
     "carvers": [

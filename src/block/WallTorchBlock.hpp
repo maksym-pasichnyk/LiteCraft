@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../particles/ParticleType.hpp"
 #include "TorchBlock.hpp"
-#include "../particles/ParticleTypes.hpp"
 
 struct WallTorchBlock : TorchBlock {
     struct Payload {
@@ -11,7 +11,7 @@ struct WallTorchBlock : TorchBlock {
 
     static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
 
-    WallTorchBlock(int id, Properties properties, ParticleTypes particleType) : TorchBlock(id, std::move(properties), particleType) {}
+    WallTorchBlock(int id, Properties properties, ParticleType particleType) : TorchBlock(id, std::move(properties), particleType) {}
 
     void fillStateContainer() override {
         bind<FACING, get_FACING, set_FACING>();

@@ -344,7 +344,7 @@ void Biomes::registerBiomes() {
             {"temperature_modifier", biome->climate.temperatureModifier},
             {"downfall", biome->climate.downfall},
             {"player_spawn_friendly", biome->mobSpawnInfo.playerSpawnFriendly},
-            {"creature_spawn_probability", biome->mobSpawnInfo.creatureSpawnProbability},
+			{"creature_spawn_probability", biome->mobSpawnInfo.creatureSpawnProbability},
             {"effects", biome->effects},
             {"surface_builder", biome->biomeGenerationSettings.surfaceBuilder},
             {"carvers", biome->biomeGenerationSettings.carvers},

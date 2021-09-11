@@ -1,6 +1,6 @@
 #pragma once
 
-enum class ParticleTypes {
+enum class ParticleType {
     AMBIENT_ENTITY_EFFECT,
     ANGRY_VILLAGER,
     BARRIER,

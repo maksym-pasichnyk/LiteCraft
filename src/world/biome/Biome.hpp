@@ -57,8 +57,8 @@ struct Biome {
         return climate.temperature;
     }
 
-    float getTemperatureAtPosition(BlockPos pos) const {
-        const float f = climate.temperatureModifier(pos, climate.temperature);
+    auto getTemperatureAtPosition(BlockPos pos) const -> float {
+        const auto f = climate.temperatureModifier(pos, climate.temperature);
         if (pos.y > 64) {
             const auto f1 = static_cast<float>(TEMPERATURE_NOISE.noiseAt(
                     static_cast<float>(pos.x) / 8.0F,
@@ -69,7 +69,7 @@ struct Biome {
         return f;
     }
 
-    float getTemperature(BlockPos pos) const {
+    auto getTemperature(BlockPos pos) const -> float {
         if (!temperatureCache.has_value()) {
             temperatureCache.set(new linked_unordered_map<uint64_t, float>());
         }
@@ -91,7 +91,7 @@ struct Biome {
         return f;
     }
 
-    BiomeGenerationSettings& getGenerationSettings() {
+    auto getGenerationSettings() -> BiomeGenerationSettings& {
         return biomeGenerationSettings;
     }
 

@@ -1,3 +1,3 @@
 #pragma once
 
-using TemperatureModifier = float(*)(BlockPos, float);
+using TemperatureModifier = auto(*)(const BlockPos& pos, float temperature) -> float;

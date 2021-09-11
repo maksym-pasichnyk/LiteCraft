@@ -12,7 +12,23 @@
         "fog_color": 6840176,
         "water_color": 4159204,
         "water_fog_color": 4341314,
-        "sky_color": 0
+        "sky_color": 7254527,
+        "grass_color_modifier": "none",
+        "particle": {
+            "type": "white_ash",
+            "probability": 0.118093
+        },
+        "ambient_sound": "ambient.basalt_deltas.loop",
+        "additions_sound": {
+            "sound": "ambient.basalt_deltas.additions",
+            "chance": 0.0111
+        },
+        "music": {
+            "sound": "music.nether.basalt_deltas",
+            "min_delay": 12000,
+            "max_delay": 24000,
+            "replace_current_music": false
+        }
     },
     "surface_builder": "basalt_deltas",
     "carvers": [

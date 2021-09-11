@@ -3,7 +3,7 @@
 #include "TorchBlock.hpp"
 
 struct RedstoneTorchBlock : TorchBlock {
-    RedstoneTorchBlock(int id, Properties properties) : TorchBlock(id, std::move(properties), ParticleTypes::REDSTONE_DUST) {}
+    RedstoneTorchBlock(int id, Properties properties) : TorchBlock(id, std::move(properties), ParticleType::REDSTONE_DUST) {}
 
     struct Payload {
         uint16_t lit : 1;

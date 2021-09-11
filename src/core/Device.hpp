@@ -11,7 +11,7 @@ struct Device {
         gl3wInit();
 
         glEnable(GL_DEBUG_OUTPUT);
-        glDebugMessageCallback(debug, nullptr);
+//        glDebugMessageCallback(debug, nullptr);
 
         fmt::print("Renderer: {}\n", glGetString(GL_RENDERER));
     }

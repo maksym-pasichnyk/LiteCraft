@@ -13,6 +13,7 @@
     <mapping directory="$PROJECT_DIR$/ThirdParty/physfs" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/promise.hpp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/range-v3" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ThirdParty/range-v3/doc/gh-pages" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/zlib-ng" vcs="Git" />
   </component>
 </project>

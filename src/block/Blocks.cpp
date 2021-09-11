@@ -1515,13 +1515,13 @@ void Blocks::registerBlocks() {
     OBSIDIAN = create<Block>("obsidian", Properties::create(Materials::ROCK, MaterialColors::BLACK)
         .setRequiresTool()
         .setHardnessAndResistance(50.0F, 1200.0F));
-    TORCH = create<TorchBlock>("torch", Properties::create(Materials::MISCELLANEOUS).doesNotBlockMovement().zeroHardnessAndResistance().setLightLevel(getLightValue(14)).setSound(SoundType::WOOD), ParticleTypes::FLAME);
+    TORCH = create<TorchBlock>("torch", Properties::create(Materials::MISCELLANEOUS).doesNotBlockMovement().zeroHardnessAndResistance().setLightLevel(getLightValue(14)).setSound(SoundType::WOOD), ParticleType::FLAME);
     WALL_TORCH = create<WallTorchBlock>("wall_torch", Properties::create(Materials::MISCELLANEOUS)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setLightLevel(getLightValue(14))
         .setSound(SoundType::WOOD)
-        .setLootFrom(TORCH), ParticleTypes::FLAME);
+        .setLootFrom(TORCH), ParticleType::FLAME);
     FIRE = create<FireBlock>("fire", Properties::create(Materials::FIRE, MaterialColors::TNT)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
@@ -1757,13 +1757,13 @@ void Blocks::registerBlocks() {
         .setRequiresTool()
         .setHardnessAndResistance(1.25F, 4.2F)
         .setSound(SoundType::BASALT));
-    SOUL_TORCH = create<TorchBlock>("soul_torch", Properties::create(Materials::MISCELLANEOUS).doesNotBlockMovement().zeroHardnessAndResistance().setLightLevel(getLightValue(10)).setSound(SoundType::WOOD), ParticleTypes::SOUL_FIRE_FLAME);
+    SOUL_TORCH = create<TorchBlock>("soul_torch", Properties::create(Materials::MISCELLANEOUS).doesNotBlockMovement().zeroHardnessAndResistance().setLightLevel(getLightValue(10)).setSound(SoundType::WOOD), ParticleType::SOUL_FIRE_FLAME);
     SOUL_WALL_TORCH = create<WallTorchBlock>("soul_wall_torch", Properties::create(Materials::MISCELLANEOUS)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setLightLevel(getLightValue(10))
         .setSound(SoundType::WOOD)
-        .setLootFrom(SOUL_TORCH), ParticleTypes::SOUL_FIRE_FLAME);
+        .setLootFrom(SOUL_TORCH), ParticleType::SOUL_FIRE_FLAME);
     GLOWSTONE = create<Block>("glowstone", Properties::create(Materials::GLASS, MaterialColors::SAND)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)

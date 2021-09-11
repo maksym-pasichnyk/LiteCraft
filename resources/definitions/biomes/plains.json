@@ -6,13 +6,14 @@
     "temperature": 0.8,
     "temperature_modifier": "none",
     "downfall": 0.4,
-    "player_spawn_friendly": "false",
+    "player_spawn_friendly": "true",
     "creature_spawn_probability": 0.1,
     "effects": {
         "fog_color": 12638463,
         "water_color": 4159204,
         "water_fog_color": 329011,
-        "sky_color": 0
+        "sky_color": 7907327,
+        "grass_color_modifier": "none"
     },
     "surface_builder": "grass",
     "carvers": [

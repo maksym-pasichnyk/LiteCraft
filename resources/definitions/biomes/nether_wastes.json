@@ -12,7 +12,19 @@
         "fog_color": 3344392,
         "water_color": 4159204,
         "water_fog_color": 329011,
-        "sky_color": 0
+        "sky_color": 7254527,
+        "grass_color_modifier": "none",
+        "ambient_sound": "ambient.nether_wastes.loop",
+        "additions_sound": {
+            "sound": "ambient.nether_wastes.additions",
+            "chance": 0.0111
+        },
+        "music": {
+            "sound": "music.nether.nether_wastes",
+            "min_delay": 12000,
+            "max_delay": 24000,
+            "replace_current_music": false
+        }
     },
     "surface_builder": "nether",
     "carvers": [

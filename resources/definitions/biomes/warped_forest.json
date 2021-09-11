@@ -12,7 +12,23 @@
         "fog_color": 1705242,
         "water_color": 4159204,
         "water_fog_color": 329011,
-        "sky_color": 0
+        "sky_color": 7254527,
+        "grass_color_modifier": "none",
+        "particle": {
+            "type": "warped_spore",
+            "probability": 0.01428
+        },
+        "ambient_sound": "ambient.warped_forest.loop",
+        "additions_sound": {
+            "sound": "ambient.warped_forest.additions",
+            "chance": 0.0111
+        },
+        "music": {
+            "sound": "music.nether.warped_forest",
+            "min_delay": 12000,
+            "max_delay": 24000,
+            "replace_current_music": false
+        }
     },
     "surface_builder": "warped_forest",
     "carvers": [

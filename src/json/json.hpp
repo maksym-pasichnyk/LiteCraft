@@ -496,7 +496,7 @@ struct Json::Dump {
 				out << "null";
 			},
 			[&out](const Json::Bool& v) {
-				out << v;
+				out << (v ? "true" : "false");
 			},
 			[&out](const Json::Number& v) {
 				return match(v, [&out](auto v) { out << v; });
