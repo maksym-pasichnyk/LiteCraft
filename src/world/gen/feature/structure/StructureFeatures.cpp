@@ -5,43 +5,6 @@
 #include <fstream>
 #include <configs.hpp>
 
-template<>
-struct Json::Serialize<NoFeatureConfig> {
-    static auto to_json(const NoFeatureConfig &config) -> Json {
-        return Json::Object{};
-    }
-};
-
-template<>
-struct Json::Serialize<MineshaftType> {
-    static auto to_json(const MineshaftType &type) -> Json {
-        switch (type) {
-            case MineshaftType::NORMAL: return "normal";
-            case MineshaftType::MESA: return "mesa";
-            default: return {};
-        }
-    }
-};
-
-template<>
-struct Json::Serialize<MineshaftConfig> {
-    static auto to_json(const MineshaftConfig &config) -> Json {
-        return {
-            {"probability", config.probability},
-            {"type", config.type}
-        };
-    }
-};
-
-template<>
-struct Json::Serialize<StructureConfig> {
-    static auto to_json(const StructureConfig &config) -> Json {
-        return match(config, []<typename T>(T&& cfg) -> Json {
-            return std::forward<T>(cfg);
-        });
-    }
-};
-
 Registry<StructureFeature> StructureFeatures::registry{};
 
 StructureFeature* StructureFeatures::PILLAGER_OUTPOST;

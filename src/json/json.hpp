@@ -40,16 +40,12 @@ struct Json {
 
 	template <typename T>
 	struct Serialize {
-		static auto to_json(const T& val) -> Json {
-			return fmt::format("{}", val);
-		}
+		static auto to_json(const T& val) -> Json = delete;
 	};
 
 	template <typename T>
 	struct Deserialize {
-		static auto from_json(const Json&) -> std::optional<T> {
-            return std::nullopt;
-        }
+		static auto from_json(const Json&) -> std::optional<T> = delete;
 	};
 
 	Json() noexcept : m_storage(Null{}) {}

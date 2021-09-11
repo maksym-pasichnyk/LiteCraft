@@ -2,6 +2,9 @@
 
 #include <json/json.hpp>
 
+#include <entity/EntityType.hpp>
+#include <entity/EntityClassification.hpp>
+#include <world/biome/MobSpawnInfo.hpp>
 #include <world/biome/BiomeClimate.hpp>
 #include <world/biome/BiomeCategory.hpp>
 #include <world/biome/BiomeAmbience.hpp>
@@ -108,6 +111,98 @@ struct Json::Serialize<OceanRuinType> {
         }
     }
 };
+
+template <>
+struct Json::Deserialize<OceanRuinType> {
+    static auto from_json(const Json& obj) -> std::optional<OceanRuinType> {
+        using namespace std::string_literals;
+
+        static auto table = std::map<std::string, OceanRuinType> {
+            {"warm"s, OceanRuinType::WARM},
+            {"cold"s, OceanRuinType::COLD}
+        };
+
+        if (auto it = table.find(obj.to_string()); it != table.end()) {
+            return it->second;
+        }
+        return std::nullopt;
+    }
+};
+
+template<>
+struct Json::Serialize<NoFeatureConfig> {
+    static auto to_json(const NoFeatureConfig &config) -> Json {
+        return Json::Object{};
+    }
+};
+
+template<>
+struct Json::Serialize<MineshaftType> {
+    static auto to_json(const MineshaftType &type) -> Json {
+        using namespace std::string_literals;
+        switch (type) {
+            case MineshaftType::NORMAL: return "normal"s;
+            case MineshaftType::MESA: return "mesa"s;
+            default: return {};
+        }
+    }
+};
+
+template<>
+struct Json::Deserialize<MineshaftType> {
+    static auto from_json(const Json& obj) -> std::optional<MineshaftType> {
+        using namespace std::string_literals;
+
+        static auto table = std::map<std::string, MineshaftType> {
+            {"normal"s, MineshaftType::NORMAL},
+            {"mesa"s, MineshaftType::MESA}
+        };
+
+        if (auto it = table.find(obj.to_string()); it != table.end()) {
+            return it->second;
+        }
+        return std::nullopt;
+    }
+};
+
+
+template<>
+struct Json::Serialize<MineshaftConfig> {
+    static auto to_json(const MineshaftConfig& config) -> Json {
+        return {
+            {"probability", config.probability},
+            {"type", config.type}
+        };
+    }
+};
+
+template<>
+struct Json::Deserialize<MineshaftConfig> {
+    static auto from_json(const Json& obj) -> std::optional<MineshaftConfig> {
+        auto&& o = obj.to_object();
+        return MineshaftConfig{
+            .probability = o.at("probability"),
+            .type = o.at("type")
+        };
+    }
+};
+
+template<>
+struct Json::Deserialize<NoFeatureConfig> {
+    static auto from_json(const Json& obj) -> std::optional<NoFeatureConfig> {
+        return NoFeatureConfig{};
+    }
+};
+
+template<>
+struct Json::Serialize<StructureConfig> {
+    static auto to_json(const StructureConfig &config) -> Json {
+        return match(config, []<typename T>(T&& cfg) -> Json {
+            return std::forward<T>(cfg);
+        });
+    }
+};
+
 
 template <>
 struct Json::Deserialize<BiomeCategory> {
@@ -293,10 +388,108 @@ struct Json::Serialize<ParticleType> {
     }
 };
 
+
+template <>
+struct Json::Deserialize<ParticleType> {
+    static auto from_json(const Json& obj) -> std::optional<ParticleType> {
+        using namespace std::string_literals;
+
+        static auto table = std::map<std::string, ParticleType> {
+            { "ambient_entity_effect"s, ParticleType::AMBIENT_ENTITY_EFFECT },
+            { "angry_villager"s, ParticleType::ANGRY_VILLAGER },
+            { "barrier"s, ParticleType::BARRIER },
+            { "block"s, ParticleType::BLOCK },
+            { "bubble"s, ParticleType::BUBBLE },
+            { "cloud"s, ParticleType::CLOUD },
+            { "crit"s, ParticleType::CRIT },
+            { "damage_indicator"s, ParticleType::DAMAGE_INDICATOR },
+            { "dragon_breath"s, ParticleType::DRAGON_BREATH },
+            { "dripping_lava"s, ParticleType::DRIPPING_LAVA },
+            { "falling_lava"s, ParticleType::FALLING_LAVA },
+            { "landing_lava"s, ParticleType::LANDING_LAVA },
+            { "dripping_water"s, ParticleType::DRIPPING_WATER },
+            { "falling_water"s, ParticleType::FALLING_WATER },
+            { "dust"s, ParticleType::DUST },
+            { "effect"s, ParticleType::EFFECT },
+            { "elder_guardian"s, ParticleType::ELDER_GUARDIAN },
+            { "enchanted_hit"s, ParticleType::ENCHANTED_HIT },
+            { "enchant"s, ParticleType::ENCHANT },
+            { "end_rod"s, ParticleType::END_ROD },
+            { "entity_effect"s, ParticleType::ENTITY_EFFECT },
+            { "explosion_emitter"s, ParticleType::EXPLOSION_EMITTER },
+            { "explosion"s, ParticleType::EXPLOSION },
+            { "falling_dust"s, ParticleType::FALLING_DUST },
+            { "firework"s, ParticleType::FIREWORK },
+            { "fishing"s, ParticleType::FISHING },
+            { "flame"s, ParticleType::FLAME },
+            { "soul_fire_flame"s, ParticleType::SOUL_FIRE_FLAME },
+            { "soul"s, ParticleType::SOUL },
+            { "flash"s, ParticleType::FLASH },
+            { "happy_villager"s, ParticleType::HAPPY_VILLAGER },
+            { "composter"s, ParticleType::COMPOSTER },
+            { "heart"s, ParticleType::HEART },
+            { "instant_effect"s, ParticleType::INSTANT_EFFECT },
+            { "item"s, ParticleType::ITEM },
+            { "item_slime"s, ParticleType::ITEM_SLIME },
+            { "item_snowball"s, ParticleType::ITEM_SNOWBALL },
+            { "large_smoke"s, ParticleType::LARGE_SMOKE },
+            { "lava"s, ParticleType::LAVA },
+            { "mycelium"s, ParticleType::MYCELIUM },
+            { "note"s, ParticleType::NOTE },
+            { "poof"s, ParticleType::POOF },
+            { "portal"s, ParticleType::PORTAL },
+            { "rain"s, ParticleType::RAIN },
+            { "smoke"s, ParticleType::SMOKE },
+            { "sneeze"s, ParticleType::SNEEZE },
+            { "spit"s, ParticleType::SPIT },
+            { "squid_ink"s, ParticleType::SQUID_INK },
+            { "sweep_attack"s, ParticleType::SWEEP_ATTACK },
+            { "totem_of_undying"s, ParticleType::TOTEM_OF_UNDYING },
+            { "underwater"s, ParticleType::UNDERWATER },
+            { "splash"s, ParticleType::SPLASH },
+            { "witch"s, ParticleType::WITCH },
+            { "bubble_pop"s, ParticleType::BUBBLE_POP },
+            { "current_down"s, ParticleType::CURRENT_DOWN },
+            { "bubble_column_up"s, ParticleType::BUBBLE_COLUMN_UP },
+            { "nautilus"s, ParticleType::NAUTILUS },
+            { "dolphin"s, ParticleType::DOLPHIN },
+            { "campfire_cosy_smoke"s, ParticleType::CAMPFIRE_COSY_SMOKE },
+            { "campfire_signal_smoke"s, ParticleType::CAMPFIRE_SIGNAL_SMOKE },
+            { "dripping_honey"s, ParticleType::DRIPPING_HONEY },
+            { "falling_honey"s, ParticleType::FALLING_HONEY },
+            { "landing_honey"s, ParticleType::LANDING_HONEY },
+            { "falling_nectar"s, ParticleType::FALLING_NECTAR },
+            { "ash"s, ParticleType::ASH },
+            { "crimson_spore"s, ParticleType::CRIMSON_SPORE },
+            { "warped_spore"s, ParticleType::WARPED_SPORE },
+            { "dripping_obsidian_tear"s, ParticleType::DRIPPING_OBSIDIAN_TEAR },
+            { "falling_obsidian_tear"s, ParticleType::FALLING_OBSIDIAN_TEAR },
+            { "landing_obsidian_tear"s, ParticleType::LANDING_OBSIDIAN_TEAR },
+            { "reverse_portal"s, ParticleType::REVERSE_PORTAL },
+            { "white_ash"s, ParticleType::WHITE_ASH },
+            { "redstone_dust"s, ParticleType::REDSTONE_DUST }
+        };
+
+        if (auto it = table.find(obj.to_string()); it != table.end()) {
+            return it->second;
+        }
+        return std::nullopt;
+    }
+};
+
 template <>
 struct Json::Serialize<SoundEvent> {
     static auto to_json(const SoundEvent& sound) -> Json {
         return sound.location;
+    }
+};
+
+template <>
+struct Json::Deserialize<SoundEvent> {
+    static auto from_json(const Json& obj) -> std::optional<SoundEvent> {
+        return SoundEvent {
+            .location = obj.to_string()
+        };
     }
 };
 
@@ -306,6 +499,17 @@ struct Json::Serialize<ParticleEffectAmbience> {
         return {
             {"type", effect.type},
             {"probability", effect.probability}
+        };
+    }
+};
+
+template<>
+struct Json::Deserialize<ParticleEffectAmbience> {
+    static auto from_json(const Json& obj) -> std::optional<ParticleEffectAmbience> {
+        auto&& o = obj.to_object();
+        return ParticleEffectAmbience{
+            .type = o.at("type"),
+            .probability = o.at("probability")
         };
     }
 };
@@ -323,11 +527,35 @@ struct Json::Serialize<MoodSoundAmbience> {
 };
 
 template<>
+struct Json::Deserialize<MoodSoundAmbience> {
+    static auto from_json(const Json &obj) -> std::optional<MoodSoundAmbience> {
+        auto&& o = obj.to_object();
+        return MoodSoundAmbience{
+            .sound = o.at("sound"),
+            .delay = o.at("delay"),
+            .radius = o.at("radius"),
+            .offset = o.at("offset")
+        };
+    }
+};
+
+template<>
 struct Json::Serialize<SoundAdditionsAmbience> {
     static auto to_json(const SoundAdditionsAmbience &sound) -> Json {
         return {
             {"sound", sound.sound},
             {"chance", sound.chance}
+        };
+    }
+};
+
+template<>
+struct Json::Deserialize<SoundAdditionsAmbience> {
+    static auto from_json(const Json &obj) -> std::optional<SoundAdditionsAmbience> {
+        auto&& o = obj.to_object();
+        return SoundAdditionsAmbience{
+            .sound = o.at("sound"),
+            .chance = o.at("chance")
         };
     }
 };
@@ -340,6 +568,20 @@ struct Json::Serialize<BackgroundMusicTrack> {
             { "min_delay", track.minDelay},
             { "max_delay", track.maxDelay},
             { "replace_current_music", track.replaceCurrentMusic},
+        };
+    }
+};
+
+
+template<>
+struct Json::Deserialize<BackgroundMusicTrack> {
+    static auto from_json(const Json &obj) -> std::optional<BackgroundMusicTrack> {
+        auto&& o = obj.to_object();
+        return BackgroundMusicTrack{
+            .sound = o.at("sound"),
+            .minDelay = o.at("min_delay"),
+            .maxDelay = o.at("max_delay"),
+            .replaceCurrentMusic = o.at("replace_current_music")
         };
     }
 };
@@ -400,7 +642,13 @@ struct Json::Deserialize<BiomeAmbience> {
             .waterColor = o.at("water_color"),
             .waterFogColor = o.at("water_fog_color"),
             .skyColor = o.at("sky_color"),
-//            .foliageColor = foliage_color != o.end() ? std::optional(foliage_color->second) : std::nullopt
+            .foliageColor = foliage_color != o.end() ? std::optional(foliage_color->second) : std::nullopt,
+            .grassColor = grass_color != o.end() ? std::optional(grass_color->second) : std::nullopt,
+            .grassColorModifier = o.at("grass_color_modifier"),
+            .particle = particle != o.end() ? std::optional(particle->second) : std::nullopt,
+            .ambientSound = ambient_sound != o.end() ? std::optional(ambient_sound->second) : std::nullopt,
+            .additionsSound = additions_sound != o.end() ? std::optional(additions_sound->second) : std::nullopt,
+            .music = music != o.end() ? std::optional(music->second) : std::nullopt
         };
     }
 };
@@ -549,9 +797,23 @@ struct Json::Serialize<RuinedPortalConfig> {
 };
 
 template<>
+struct Json::Deserialize<RuinedPortalConfig> {
+    static auto from_json(const Json &obj) -> std::optional<RuinedPortalConfig> {
+        return {};
+    }
+};
+
+template<>
 struct Json::Serialize<VillageConfig> {
     static auto to_json(const VillageConfig &config) -> Json {
         return Json::Object{};
+    }
+};
+
+template<>
+struct Json::Deserialize<VillageConfig> {
+    static auto from_json(const Json &obj) -> std::optional<VillageConfig> {
+        return {};
     }
 };
 
@@ -565,12 +827,34 @@ struct Json::Serialize<ShipwreckConfig> {
 };
 
 template<>
+struct Json::Deserialize<ShipwreckConfig> {
+    static auto from_json(const Json &obj) -> std::optional<ShipwreckConfig> {
+        auto&& o = obj.to_object();
+        return ShipwreckConfig{
+            .isBeached = o.at("is_beached")
+        };
+    }
+};
+
+template<>
 struct Json::Serialize<OceanRuinConfig> {
     static auto to_json(const OceanRuinConfig &config) -> Json {
         return {
             {"type", config.type},
             {"large_probability", config.largeProbability},
             {"cluster_probability", config.clusterProbability}
+        };
+    }
+};
+
+template<>
+struct Json::Deserialize<OceanRuinConfig> {
+    static auto from_json(const Json &obj) -> std::optional<OceanRuinConfig> {
+        auto&& o = obj.to_object();
+        return OceanRuinConfig{
+            .type = o.at("type"),
+            .largeProbability = o.at("large_probability"),
+            .clusterProbability = o.at("cluster_probability")
         };
     }
 };
@@ -605,5 +889,331 @@ template<>
 struct Json::Deserialize<WorldCarver*> {
     static auto from_json(const Json& obj) -> std::optional<WorldCarver*> {
         return Carvers::carvers.get(obj.to_string());
+    }
+};
+
+template<>
+struct Json::Serialize<EntityType> {
+    static auto to_json(const EntityType& type) -> Json {
+        using namespace std::string_literals;
+
+        switch (type) {
+            case EntityType::AREA_EFFECT_CLOUD: return "area_effect_cloud"s;
+            case EntityType::ARMOR_STAND: return "armor_stand"s;
+            case EntityType::ARROW: return "arrow"s;
+            case EntityType::BAT: return "bat"s;
+            case EntityType::BEE: return "bee"s;
+            case EntityType::BLAZE: return "blaze"s;
+            case EntityType::BOAT: return "boat"s;
+            case EntityType::CAT: return "cat"s;
+            case EntityType::CAVE_SPIDER: return "cave_spider"s;
+            case EntityType::CHICKEN: return "chicken"s;
+            case EntityType::COD: return "cod"s;
+            case EntityType::COW: return "cow"s;
+            case EntityType::CREEPER: return "creeper"s;
+            case EntityType::DOLPHIN: return "dolphin"s;
+            case EntityType::DONKEY: return "donkey"s;
+            case EntityType::DRAGON_FIREBALL: return "dragon_fireball"s;
+            case EntityType::DROWNED: return "drowned"s;
+            case EntityType::ELDER_GUARDIAN: return "elder_guardian"s;
+            case EntityType::END_CRYSTAL: return "end_crystal"s;
+            case EntityType::ENDER_DRAGON: return "ender_dragon"s;
+            case EntityType::ENDERMAN: return "enderman"s;
+            case EntityType::ENDERMITE: return "endermite"s;
+            case EntityType::EVOKER: return "evoker"s;
+            case EntityType::EVOKER_FANGS: return "evoker_fangs"s;
+            case EntityType::EXPERIENCE_ORB: return "experience_orb"s;
+            case EntityType::EYE_OF_ENDER: return "eye_of_ender"s;
+            case EntityType::FALLING_BLOCK: return "falling_block"s;
+            case EntityType::FIREWORK_ROCKET: return "firework_rocket"s;
+            case EntityType::FOX: return "fox"s;
+            case EntityType::GHAST: return "ghast"s;
+            case EntityType::GIANT: return "giant"s;
+            case EntityType::GUARDIAN: return "guardian"s;
+            case EntityType::HOGLIN: return "hoglin"s;
+            case EntityType::HORSE: return "horse"s;
+            case EntityType::HUSK: return "husk"s;
+            case EntityType::ILLUSIONER: return "illusioner"s;
+            case EntityType::IRON_GOLEM: return "iron_golem"s;
+            case EntityType::ITEM: return "item"s;
+            case EntityType::ITEM_FRAME: return "item_frame"s;
+            case EntityType::FIREBALL: return "fireball"s;
+            case EntityType::LEASH_KNOT: return "leash_knot"s;
+            case EntityType::LIGHTNING_BOLT: return "lightning_bolt"s;
+            case EntityType::LLAMA: return "llama"s;
+            case EntityType::LLAMA_SPIT: return "llama_spit"s;
+            case EntityType::MAGMA_CUBE: return "magma_cube"s;
+            case EntityType::MINECART: return "minecart"s;
+            case EntityType::CHEST_MINECART: return "chest_minecart"s;
+            case EntityType::COMMAND_BLOCK_MINECART: return "command_block_minecart"s;
+            case EntityType::FURNACE_MINECART: return "furnace_minecart"s;
+            case EntityType::HOPPER_MINECART: return "hopper_minecart"s;
+            case EntityType::SPAWNER_MINECART: return "spawner_minecart"s;
+            case EntityType::TNT_MINECART: return "tnt_minecart"s;
+            case EntityType::MULE: return "mule"s;
+            case EntityType::MOOSHROOM: return "mooshroom"s;
+            case EntityType::OCELOT: return "ocelot"s;
+            case EntityType::PAINTING: return "painting"s;
+            case EntityType::PANDA: return "panda"s;
+            case EntityType::PARROT: return "parrot"s;
+            case EntityType::PHANTOM: return "phantom"s;
+            case EntityType::PIG: return "pig"s;
+            case EntityType::PIGLIN: return "piglin"s;
+            case EntityType::field_242287_aj: return "field_242287_aj"s;
+            case EntityType::PILLAGER: return "pillager"s;
+            case EntityType::POLAR_BEAR: return "polar_bear"s;
+            case EntityType::TNT: return "tnt"s;
+            case EntityType::PUFFERFISH: return "pufferfish"s;
+            case EntityType::RABBIT: return "rabbit"s;
+            case EntityType::RAVAGER: return "ravager"s;
+            case EntityType::SALMON: return "salmon"s;
+            case EntityType::SHEEP: return "sheep"s;
+            case EntityType::SHULKER: return "shulker"s;
+            case EntityType::SHULKER_BULLET: return "shulker_bullet"s;
+            case EntityType::SILVERFISH: return "silverfish"s;
+            case EntityType::SKELETON: return "skeleton"s;
+            case EntityType::SKELETON_HORSE: return "skeleton_horse"s;
+            case EntityType::SLIME: return "slime"s;
+            case EntityType::SMALL_FIREBALL: return "small_fireball"s;
+            case EntityType::SNOW_GOLEM: return "snow_golem"s;
+            case EntityType::SNOWBALL: return "snowball"s;
+            case EntityType::SPECTRAL_ARROW: return "spectral_arrow"s;
+            case EntityType::SPIDER: return "spider"s;
+            case EntityType::SQUID: return "squid"s;
+            case EntityType::STRAY: return "stray"s;
+            case EntityType::STRIDER: return "strider"s;
+            case EntityType::EGG: return "egg"s;
+            case EntityType::ENDER_PEARL: return "ender_pearl"s;
+            case EntityType::EXPERIENCE_BOTTLE: return "experience_bottle"s;
+            case EntityType::POTION: return "potion"s;
+            case EntityType::TRIDENT: return "trident"s;
+            case EntityType::TRADER_LLAMA: return "trader_llama"s;
+            case EntityType::TROPICAL_FISH: return "tropical_fish"s;
+            case EntityType::TURTLE: return "turtle"s;
+            case EntityType::VEX: return "vex"s;
+            case EntityType::VILLAGER: return "villager"s;
+            case EntityType::VINDICATOR: return "vindicator"s;
+            case EntityType::WANDERING_TRADER: return "wandering_trader"s;
+            case EntityType::WITCH: return "witch"s;
+            case EntityType::WITHER: return "wither"s;
+            case EntityType::WITHER_SKELETON: return "wither_skeleton"s;
+            case EntityType::WITHER_SKULL: return "wither_skull"s;
+            case EntityType::WOLF: return "wolf"s;
+            case EntityType::ZOGLIN: return "zoglin"s;
+            case EntityType::ZOMBIE: return "zombie"s;
+            case EntityType::ZOMBIE_HORSE: return "zombie_horse"s;
+            case EntityType::ZOMBIE_VILLAGER: return "zombie_villager"s;
+            case EntityType::ZOMBIFIED_PIGLIN: return "zombified_piglin"s;
+            case EntityType::PLAYER: return "player"s;
+            case EntityType::FISHING_BOBBER: return "fishing_bobber"s;
+            default: return {};
+        }
+    }
+};
+
+template <>
+struct Json::Deserialize<EntityType> {
+    static auto from_json(const Json& obj) -> std::optional<EntityType> {
+        using namespace std::string_literals;
+
+        static auto table = std::map<std::string, EntityType> {
+            {"area_effect_cloud"s, EntityType::AREA_EFFECT_CLOUD},
+            {"armor_stand"s, EntityType::ARMOR_STAND},
+            {"arrow"s, EntityType::ARROW},
+            {"bat"s, EntityType::BAT},
+            {"bee"s, EntityType::BEE},
+            {"blaze"s, EntityType::BLAZE},
+            {"boat"s, EntityType::BOAT},
+            {"cat"s, EntityType::CAT},
+            {"cave_spider"s, EntityType::CAVE_SPIDER},
+            {"chicken"s, EntityType::CHICKEN},
+            {"cod"s, EntityType::COD},
+            {"cow"s, EntityType::COW},
+            {"creeper"s, EntityType::CREEPER},
+            {"dolphin"s, EntityType::DOLPHIN},
+            {"donkey"s, EntityType::DONKEY},
+            {"dragon_fireball"s, EntityType::DRAGON_FIREBALL},
+            {"drowned"s, EntityType::DROWNED},
+            {"elder_guardian"s, EntityType::ELDER_GUARDIAN},
+            {"end_crystal"s, EntityType::END_CRYSTAL},
+            {"ender_dragon"s, EntityType::ENDER_DRAGON},
+            {"enderman"s, EntityType::ENDERMAN},
+            {"endermite"s, EntityType::ENDERMITE},
+            {"evoker"s, EntityType::EVOKER},
+            {"evoker_fangs"s, EntityType::EVOKER_FANGS},
+            {"experience_orb"s, EntityType::EXPERIENCE_ORB},
+            {"eye_of_ender"s, EntityType::EYE_OF_ENDER},
+            {"falling_block"s, EntityType::FALLING_BLOCK},
+            {"firework_rocket"s, EntityType::FIREWORK_ROCKET},
+            {"fox"s, EntityType::FOX},
+            {"ghast"s, EntityType::GHAST},
+            {"giant"s, EntityType::GIANT},
+            {"guardian"s, EntityType::GUARDIAN},
+            {"hoglin"s, EntityType::HOGLIN},
+            {"horse"s, EntityType::HORSE},
+            {"husk"s, EntityType::HUSK},
+            {"illusioner"s, EntityType::ILLUSIONER},
+            {"iron_golem"s, EntityType::IRON_GOLEM},
+            {"item"s, EntityType::ITEM},
+            {"item_frame"s, EntityType::ITEM_FRAME},
+            {"fireball"s, EntityType::FIREBALL},
+            {"leash_knot"s, EntityType::LEASH_KNOT},
+            {"lightning_bolt"s, EntityType::LIGHTNING_BOLT},
+            {"llama"s, EntityType::LLAMA},
+            {"llama_spit"s, EntityType::LLAMA_SPIT},
+            {"magma_cube"s, EntityType::MAGMA_CUBE},
+            {"minecart"s, EntityType::MINECART},
+            {"chest_minecart"s, EntityType::CHEST_MINECART},
+            {"command_block_minecart"s, EntityType::COMMAND_BLOCK_MINECART},
+            {"furnace_minecart"s, EntityType::FURNACE_MINECART},
+            {"hopper_minecart"s, EntityType::HOPPER_MINECART},
+            {"spawner_minecart"s, EntityType::SPAWNER_MINECART},
+            {"tnt_minecart"s, EntityType::TNT_MINECART},
+            {"mule"s, EntityType::MULE},
+            {"mooshroom"s, EntityType::MOOSHROOM},
+            {"ocelot"s, EntityType::OCELOT},
+            {"painting"s, EntityType::PAINTING},
+            {"panda"s, EntityType::PANDA},
+            {"parrot"s, EntityType::PARROT},
+            {"phantom"s, EntityType::PHANTOM},
+            {"pig"s, EntityType::PIG},
+            {"piglin"s, EntityType::PIGLIN},
+            {"field_242287_aj"s, EntityType::field_242287_aj},
+            {"pillager"s, EntityType::PILLAGER},
+            {"polar_bear"s, EntityType::POLAR_BEAR},
+            {"tnt"s, EntityType::TNT},
+            {"pufferfish"s, EntityType::PUFFERFISH},
+            {"rabbit"s, EntityType::RABBIT},
+            {"ravager"s, EntityType::RAVAGER},
+            {"salmon"s, EntityType::SALMON},
+            {"sheep"s, EntityType::SHEEP},
+            {"shulker"s, EntityType::SHULKER},
+            {"shulker_bullet"s, EntityType::SHULKER_BULLET},
+            {"silverfish"s, EntityType::SILVERFISH},
+            {"skeleton"s, EntityType::SKELETON},
+            {"skeleton_horse"s, EntityType::SKELETON_HORSE},
+            {"slime"s, EntityType::SLIME},
+            {"small_fireball"s, EntityType::SMALL_FIREBALL},
+            {"snow_golem"s, EntityType::SNOW_GOLEM},
+            {"snowball"s, EntityType::SNOWBALL},
+            {"spectral_arrow"s, EntityType::SPECTRAL_ARROW},
+            {"spider"s, EntityType::SPIDER},
+            {"squid"s, EntityType::SQUID},
+            {"stray"s, EntityType::STRAY},
+            {"strider"s, EntityType::STRIDER},
+            {"egg"s, EntityType::EGG},
+            {"ender_pearl"s, EntityType::ENDER_PEARL},
+            {"experience_bottle"s, EntityType::EXPERIENCE_BOTTLE},
+            {"potion"s, EntityType::POTION},
+            {"trident"s, EntityType::TRIDENT},
+            {"trader_llama"s, EntityType::TRADER_LLAMA},
+            {"tropical_fish"s, EntityType::TROPICAL_FISH},
+            {"turtle"s, EntityType::TURTLE},
+            {"vex"s, EntityType::VEX},
+            {"villager"s, EntityType::VILLAGER},
+            {"vindicator"s, EntityType::VINDICATOR},
+            {"wandering_trader"s, EntityType::WANDERING_TRADER},
+            {"witch"s, EntityType::WITCH},
+            {"wither"s, EntityType::WITHER},
+            {"wither_skeleton"s, EntityType::WITHER_SKELETON},
+            {"wither_skull"s, EntityType::WITHER_SKULL},
+            {"wolf"s, EntityType::WOLF},
+            {"zoglin"s, EntityType::ZOGLIN},
+            {"zombie"s, EntityType::ZOMBIE},
+            {"zombie_horse"s, EntityType::ZOMBIE_HORSE},
+            {"zombie_villager"s, EntityType::ZOMBIE_VILLAGER},
+            {"zombified_piglin"s, EntityType::ZOMBIFIED_PIGLIN},
+            {"player"s, EntityType::PLAYER},
+            {"fishing_bobber"s, EntityType::FISHING_BOBBER},
+        };
+
+        if (auto it = table.find(obj.to_string()); it != table.end()) {
+            return it->second;
+        }
+        return std::nullopt;
+    }
+};
+
+template<>
+struct Json::Serialize<EntityClassification> {
+    static auto to_json(const EntityClassification& entity) -> Json {
+        using namespace std::string_literals;
+
+        switch (entity) {
+            case EntityClassification::MONSTER: return "monster"s;
+            case EntityClassification::CREATURE: return "creature"s;
+            case EntityClassification::AMBIENT: return "ambient"s;
+            case EntityClassification::WATER_CREATURE: return "water_creature"s;
+            case EntityClassification::WATER_AMBIENT: return "water_ambient"s;
+            case EntityClassification::MISC: return "misc"s;
+            default: return {};
+        }
+    }
+};
+
+template <>
+struct Json::Deserialize<EntityClassification> {
+    static auto from_json(const Json& obj) -> std::optional<EntityClassification> {
+        using namespace std::string_literals;
+
+        static auto table = std::map<std::string, EntityClassification> {
+            {"monster"s, EntityClassification::MONSTER},
+            {"creature"s, EntityClassification::CREATURE},
+            {"ambient"s, EntityClassification::AMBIENT},
+            {"water_creature"s, EntityClassification::WATER_CREATURE},
+            {"water_ambient"s, EntityClassification::WATER_AMBIENT},
+            {"misc"s, EntityClassification::MISC}
+        };
+
+        if (auto it = table.find(obj.to_string()); it != table.end()) {
+            return it->second;
+        }
+        return std::nullopt;
+    }
+};
+
+template<>
+struct Json::Serialize<MobSpawnInfo::SpawnCosts> {
+    static auto to_json(const MobSpawnInfo::SpawnCosts& costs) -> Json {
+        return {
+            {"maxSpawnCost", costs.maxSpawnCost},
+            {"entitySpawnCost", costs.entitySpawnCost}
+        };
+    }
+};
+
+template<>
+struct Json::Deserialize<MobSpawnInfo::SpawnCosts> {
+    static auto from_json(const Json& obj) -> std::optional<MobSpawnInfo::SpawnCosts> {
+        auto&& o = obj.to_object();
+        return MobSpawnInfo::SpawnCosts{
+            .maxSpawnCost = o.at("maxSpawnCost"),
+            .entitySpawnCost = o.at("entitySpawnCost")
+        };
+    }
+};
+
+template<>
+struct Json::Serialize<MobSpawnInfo::Spawners> {
+    static auto to_json(const MobSpawnInfo::Spawners& spawners) -> Json {
+        return {
+            {"type", spawners.type},
+            {"weight", spawners.weight},
+            {"min_count", spawners.minCount},
+            {"max_count", spawners.maxCount},
+        };
+    }
+};
+
+template<>
+struct Json::Deserialize<MobSpawnInfo::Spawners> {
+    static auto from_json(const Json& obj) -> std::optional<MobSpawnInfo::Spawners> {
+        auto&& o = obj.to_object();
+        return MobSpawnInfo::Spawners{
+            .type = o.at("type"),
+            .weight = o.at("weight"),
+            .minCount = o.at("min_count"),
+            .maxCount = o.at("max_count")
+        };
     }
 };
