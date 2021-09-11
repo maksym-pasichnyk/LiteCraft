@@ -48,8 +48,8 @@ struct Json {
 	template <typename T>
 	struct Deserialize {
 		static auto from_json(const Json&) -> std::optional<T> {
-			return std::nullopt;
-		}
+            return std::nullopt;
+        }
 	};
 
 	Json() noexcept : m_storage(Null{}) {}
@@ -166,6 +166,13 @@ struct Json::Serialize<T> {
 	}
 };
 
+template<>
+struct Json::Serialize<bool> {
+    static auto to_json(const bool& val) -> Json {
+        return Json::Bool{val};
+    }
+};
+
 template<typename T, size_t N>
 struct Json::Serialize<std::array<T, N>> {
 	static auto to_json(const std::array<T, N>& elements) -> Json {
@@ -189,6 +196,24 @@ struct Json::Serialize<std::map<K, V, P, A>> {
 		}
 		return obj;
 	}
+};
+
+template<typename K, typename V, typename P, typename A>
+struct Json::Deserialize<std::map<K, V, P, A>> {
+    static auto from_json(const Json& obj) -> std::optional<std::map<K, V, P, A>> {
+        std::map<K, V, P, A> ret{};
+        for (auto&& [k, v] : obj.to_object()) {
+            ret.emplace(Json(k), v);
+        }
+        return ret;
+    }
+};
+
+template <>
+struct Json::Deserialize<bool> {
+    static auto from_json(const Json& obj) -> std::optional<bool> {
+        return obj.to_bool();
+    }
 };
 
 template <typename T> requires (

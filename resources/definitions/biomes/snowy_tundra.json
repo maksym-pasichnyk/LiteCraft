@@ -6,7 +6,7 @@
     "temperature": 0,
     "temperature_modifier": "none",
     "downfall": 0.5,
-    "player_spawn_friendly": "false",
+    "player_spawn_friendly": false,
     "creature_spawn_probability": 0.07,
     "effects": {
         "fog_color": 12638463,
