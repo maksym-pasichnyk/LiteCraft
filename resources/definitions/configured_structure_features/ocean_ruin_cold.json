@@ -1,0 +1,8 @@
+{
+    "type": "ocean_ruin",
+    "config": {
+        "type": "cold",
+        "large_probability": 0.3,
+        "cluster_probability": 0.9
+    }
+}

@@ -32,7 +32,9 @@
     },
     "surface_builder": "warped_forest",
     "carvers": [
-        [],
+        [
+            "nether_cave"
+        ],
         []
     ],
     "features": [
@@ -69,7 +71,11 @@
         ],
         []
     ],
-    "structures": [],
+    "structures": [
+        "fortress",
+        "bastion_remnant",
+        "ruined_portal_nether"
+    ],
     "spawners": {
         "monster": {
             "type": "enderman",

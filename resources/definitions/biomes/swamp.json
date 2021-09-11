@@ -32,6 +32,7 @@
         ],
         [],
         [
+            "fossil",
             "monster_room"
         ],
         [],
@@ -73,7 +74,8 @@
     ],
     "structures": [
         "swamp_hut",
-        "mineshaft"
+        "mineshaft",
+        "ruined_portal_swamp"
     ],
     "spawners": {
         "monster": {

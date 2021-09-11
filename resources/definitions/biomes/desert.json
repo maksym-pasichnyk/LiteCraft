@@ -30,6 +30,7 @@
         ],
         [],
         [
+            "fossil",
             "monster_room"
         ],
         [
@@ -70,8 +71,12 @@
         ]
     ],
     "structures": [
+        "village_desert",
+        "pillager_outpost",
         "desert_pyramid",
-        "mineshaft"
+        "mineshaft",
+        "stronghold",
+        "ruined_portal_desert"
     ],
     "spawners": {
         "monster": {

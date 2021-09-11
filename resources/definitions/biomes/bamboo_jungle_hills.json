@@ -72,7 +72,9 @@
     ],
     "structures": [
         "jungle_pyramid",
-        "mineshaft"
+        "mineshaft",
+        "stronghold",
+        "ruined_portal_jungle"
     ],
     "spawners": {
         "monster": {

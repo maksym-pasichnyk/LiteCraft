@@ -67,7 +67,10 @@
         ]
     ],
     "structures": [
-        "mineshaft"
+        "mineshaft",
+        "buried_treasure",
+        "shipwreck_beached",
+        "ruined_portal"
     ],
     "spawners": {
         "monster": {

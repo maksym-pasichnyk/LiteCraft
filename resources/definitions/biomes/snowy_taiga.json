@@ -72,7 +72,10 @@
         ]
     ],
     "structures": [
-        "mineshaft"
+        "igloo",
+        "mineshaft",
+        "stronghold",
+        "ruined_portal"
     ],
     "spawners": {
         "monster": {

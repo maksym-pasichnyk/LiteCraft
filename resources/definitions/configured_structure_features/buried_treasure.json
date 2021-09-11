@@ -1,0 +1,6 @@
+{
+    "type": "buried_treasure",
+    "config": {
+        "probability": 0.01
+    }
+}

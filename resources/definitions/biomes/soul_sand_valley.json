@@ -32,7 +32,9 @@
     },
     "surface_builder": "soul_sand_valley",
     "carvers": [
-        [],
+        [
+            "nether_cave"
+        ],
         []
     ],
     "features": [
@@ -67,7 +69,12 @@
         ],
         []
     ],
-    "structures": [],
+    "structures": [
+        "fortress",
+        "nether_fossil",
+        "ruined_portal_nether",
+        "bastion_remnant"
+    ],
     "spawners": {
         "monster": {
             "type": "skeleton",

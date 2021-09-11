@@ -68,7 +68,9 @@
         ]
     ],
     "structures": [
-        "mineshaft"
+        "mineshaft",
+        "stronghold",
+        "ruined_portal_mountain"
     ],
     "spawners": {
         "monster": {

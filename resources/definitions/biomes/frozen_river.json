@@ -68,7 +68,8 @@
         ]
     ],
     "structures": [
-        "mineshaft"
+        "mineshaft",
+        "ruined_portal"
     ],
     "spawners": {
         "monster": {

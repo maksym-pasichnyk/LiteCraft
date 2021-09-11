@@ -70,7 +70,11 @@
         ]
     ],
     "structures": [
-        "mineshaft"
+        "ocean_ruin_warm",
+        "monument",
+        "mineshaft",
+        "shipwreck",
+        "ruined_portal_ocean"
     ],
     "spawners": {
         "monster": {

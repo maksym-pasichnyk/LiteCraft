@@ -69,7 +69,11 @@
         ]
     ],
     "structures": [
-        "mineshaft"
+        "village_savanna",
+        "pillager_outpost",
+        "mineshaft",
+        "stronghold",
+        "ruined_portal"
     ],
     "spawners": {
         "monster": {

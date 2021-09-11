@@ -68,7 +68,12 @@
         ]
     ],
     "structures": [
-        "mineshaft"
+        "village_snowy",
+        "igloo",
+        "mineshaft",
+        "stronghold",
+        "pillager_outpost",
+        "ruined_portal"
     ],
     "spawners": {
         "monster": {

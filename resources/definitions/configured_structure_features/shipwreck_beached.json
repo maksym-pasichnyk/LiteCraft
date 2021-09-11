@@ -1,0 +1,6 @@
+{
+    "type": "shipwreck",
+    "config": {
+        "is_beached": true
+    }
+}

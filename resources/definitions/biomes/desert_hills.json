@@ -71,7 +71,9 @@
     ],
     "structures": [
         "desert_pyramid",
-        "mineshaft"
+        "mineshaft",
+        "stronghold",
+        "ruined_portal_desert"
     ],
     "spawners": {
         "monster": {

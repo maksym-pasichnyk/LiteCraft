@@ -72,7 +72,11 @@
         ]
     ],
     "structures": [
-        "mineshaft"
+        "village_taiga",
+        "pillager_outpost",
+        "mineshaft",
+        "stronghold",
+        "ruined_portal"
     ],
     "spawners": {
         "monster": {

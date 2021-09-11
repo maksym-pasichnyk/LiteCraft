@@ -32,7 +32,9 @@
         [],
         []
     ],
-    "structures": [],
+    "structures": [
+        "end_city"
+    ],
     "spawners": {
         "monster": {
             "type": "enderman",

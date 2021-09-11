@@ -32,7 +32,9 @@
     },
     "surface_builder": "basalt_deltas",
     "carvers": [
-        [],
+        [
+            "nether_cave"
+        ],
         []
     ],
     "features": [
@@ -68,7 +70,10 @@
         ],
         []
     ],
-    "structures": [],
+    "structures": [
+        "ruined_portal_nether",
+        "fortress"
+    ],
     "spawners": {
         "monster": {
             "type": "ghast",

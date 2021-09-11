@@ -32,7 +32,9 @@
     },
     "surface_builder": "crimson_forest",
     "carvers": [
-        [],
+        [
+            "nether_cave"
+        ],
         []
     ],
     "features": [
@@ -67,7 +69,11 @@
         ],
         []
     ],
-    "structures": [],
+    "structures": [
+        "ruined_portal_nether",
+        "fortress",
+        "bastion_remnant"
+    ],
     "spawners": {
         "monster": {
             "type": "zombified_piglin",
