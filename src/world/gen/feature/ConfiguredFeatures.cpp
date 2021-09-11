@@ -703,7 +703,7 @@ void ConfiguredFeatures::configureFeatures() {
     VOID_START_PLATFORM = registerFeature("void_start_platform", Features::VOID_START_PLATFORM->withConfiguration(NoFeatureConfig{}));
     MONSTER_ROOM = registerFeature("monster_room", Features::MONSTER_ROOM->withConfiguration(NoFeatureConfig{})->range(256)->square()->withSpreadPlacement(8));
     DESERT_WELL = registerFeature("desert_well", Features::DESERT_WELL->withConfiguration(NoFeatureConfig{})->withPlacement(HEIGHTMAP_PLACEMENT)->chance(1000));
-// FOSSIL = registerFeature("fossil", Features::FOSSIL->withConfiguration(NoFeatureConfig{})->chance(64));
+	FOSSIL = registerFeature("fossil", Features::FOSSIL->withConfiguration(NoFeatureConfig{})->chance(64));
     SPRING_LAVA_DOUBLE = registerFeature("spring_lava_double", Features::SPRING_FEATURE->withConfiguration(LAVA_SPRING_CONFIG)->withPlacement(Placements::RANGE_VERY_BIASED->withConfiguration(TopSolidRangeConfig{8, 16, 256}))->square()->withSpreadPlacement(40));
     SPRING_LAVA = registerFeature("spring_lava", Features::SPRING_FEATURE->withConfiguration(LAVA_SPRING_CONFIG)->withPlacement(Placements::RANGE_VERY_BIASED->withConfiguration(TopSolidRangeConfig{8, 16, 256}))->square()->withSpreadPlacement(20));
     SPRING_DELTA = registerFeature("spring_delta", Features::SPRING_FEATURE->withConfiguration(LiquidsConfig{Blocks::LAVA->getDefaultState(), true, 4, 1, { Blocks::NETHERRACK, Blocks::SOUL_SAND, Blocks::GRAVEL, Blocks::MAGMA_BLOCK, Blocks::BLACKSTONE}})->withPlacement(SPRING_PLACEMENT)->square()->withSpreadPlacement(16));

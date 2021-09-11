@@ -284,7 +284,7 @@ struct DefaultBiomeFeatures {
     }
 
     static void withFossils(BiomeGenerationSettings::Builder& builder) {
-//        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_STRUCTURES, ConfiguredFeatures::FOSSIL);
+        builder.withFeature(GenerationStage::Decoration::UNDERGROUND_STRUCTURES, ConfiguredFeatures::FOSSIL);
     }
 
     static void withColdKelp(BiomeGenerationSettings::Builder& builder) {

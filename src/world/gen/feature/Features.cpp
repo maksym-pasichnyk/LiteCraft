@@ -9,6 +9,7 @@
 #include "IcePathFeature.hpp"
 #include "BlueIceFeature.hpp"
 #include "IcebergFeature.hpp"
+#include "FossilsFeature.hpp"
 #include "SeaGrassFeature.hpp"
 #include "DungeonsFeature.hpp"
 #include "IceSpikeFeature.hpp"
@@ -120,7 +121,7 @@ void Features::registerFeatures() {
     EMERALD_ORE = createFeature<ReplaceBlockFeature>("emerald_ore");
     VOID_START_PLATFORM = createFeature<VoidStartPlatformFeature>("void_start_platform");
     DESERT_WELL = createFeature<DesertWellsFeature>("desert_well");
-//    FOSSIL = createFeature<FossilsFeature>("fossil");
+    FOSSIL = createFeature<FossilsFeature>("fossil");
     HUGE_RED_MUSHROOM = createFeature<BigRedMushroomFeature>("huge_red_mushroom");
     HUGE_BROWN_MUSHROOM = createFeature<BigBrownMushroomFeature>("huge_brown_mushroom");
     ICE_SPIKE = createFeature<IceSpikeFeature>("ice_spike");

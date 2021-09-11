@@ -79,6 +79,37 @@ struct Json::Serialize<BiomeCategory> {
 };
 
 template <>
+struct Json::Serialize<RuinedPortalLocation> {
+    static auto to_json(const RuinedPortalLocation& location) -> Json {
+        using namespace std::string_literals;
+
+        switch (location) {
+            case RuinedPortalLocation::STANDARD: return "standard"s;
+            case RuinedPortalLocation::DESERT: return "desert"s;
+            case RuinedPortalLocation::JUNGLE: return "jungle"s;
+            case RuinedPortalLocation::SWAMP: return "swamp"s;
+            case RuinedPortalLocation::MOUNTAIN: return "mountain"s;
+            case RuinedPortalLocation::OCEAN: return "ocean"s;
+            case RuinedPortalLocation::NETHER: return "nether"s;
+            default: return {};
+        }
+    }
+};
+
+template <>
+struct Json::Serialize<OceanRuinType> {
+    static auto to_json(const OceanRuinType& type) -> Json {
+        using namespace std::string_literals;
+
+        switch (type) {
+            case OceanRuinType::WARM: return "warm"s;
+            case OceanRuinType::COLD: return "cold"s;
+            default: return {};
+        }
+    }
+};
+
+template <>
 struct Json::Deserialize<BiomeCategory> {
     static auto from_json(const Json &obj) -> std::optional<BiomeCategory> {
         using namespace std::string_literals;
@@ -509,10 +540,46 @@ struct Json::Deserialize<ConfiguredCarver*> {
 //};
 
 template<>
+struct Json::Serialize<RuinedPortalConfig> {
+    static auto to_json(const RuinedPortalConfig &config) -> Json {
+        return {
+            {"location", config.location},
+        };
+    }
+};
+
+template<>
+struct Json::Serialize<VillageConfig> {
+    static auto to_json(const VillageConfig &config) -> Json {
+        return Json::Object{};
+    }
+};
+
+template<>
+struct Json::Serialize<ShipwreckConfig> {
+    static auto to_json(const ShipwreckConfig &config) -> Json {
+        return {
+            {"is_beached", config.isBeached}
+        };
+    }
+};
+
+template<>
+struct Json::Serialize<OceanRuinConfig> {
+    static auto to_json(const OceanRuinConfig &config) -> Json {
+        return {
+            {"type", config.type},
+            {"large_probability", config.largeProbability},
+            {"cluster_probability", config.clusterProbability}
+        };
+    }
+};
+
+template<>
 struct Json::Serialize<ProbabilityConfig> {
     static auto to_json(const ProbabilityConfig &config) -> Json {
         return {
-            {"probability", config.probability},
+            {"probability", config.probability}
         };
     }
 };
