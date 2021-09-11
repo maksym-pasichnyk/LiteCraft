@@ -9,17 +9,17 @@
 struct DefaultBiomeFeatures {
     static void withBadlandsStructures(BiomeGenerationSettings::Builder& builder) {
         builder.withStructure(StructureFeatures::MINESHAFT_BADLANDS);
-//        builder.withStructure(StructureFeatures::STRONGHOLD);
+        builder.withStructure(StructureFeatures::STRONGHOLD);
     }
 
     static void withStrongholdAndMineshaft(BiomeGenerationSettings::Builder& builder) {
         builder.withStructure(StructureFeatures::MINESHAFT);
-//        builder.withStructure(StructureFeatures::STRONGHOLD);
+        builder.withStructure(StructureFeatures::STRONGHOLD);
     }
 
     static void withOceanStructures(BiomeGenerationSettings::Builder& builder) {
         builder.withStructure(StructureFeatures::MINESHAFT);
-//        builder.withStructure(StructureFeatures::SHIPWRECK);
+        builder.withStructure(StructureFeatures::SHIPWRECK);
     }
 
     static void withCavesAndCanyons(BiomeGenerationSettings::Builder& builder) {

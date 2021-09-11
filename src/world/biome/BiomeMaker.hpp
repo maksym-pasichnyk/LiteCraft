@@ -82,7 +82,7 @@ struct BiomeMaker {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GIANT_TREE_TAIGA);
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
-//        generation.withStructure(StructureFeatures::RUINED_PORTAL);
+        generation.withStructure(StructureFeatures::RUINED_PORTAL);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
         DefaultBiomeFeatures::withMonsterRoom(generation);
@@ -139,7 +139,7 @@ struct BiomeMaker {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
-//        generation.withStructure(StructureFeatures::RUINED_PORTAL);
+        generation.withStructure(StructureFeatures::RUINED_PORTAL);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
         DefaultBiomeFeatures::withMonsterRoom(generation);
@@ -251,7 +251,7 @@ struct BiomeMaker {
         }
 
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
-//        generation.withStructure(StructureFeatures::RUINED_PORTAL_JUNGLE);
+        generation.withStructure(StructureFeatures::RUINED_PORTAL_JUNGLE);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
         DefaultBiomeFeatures::withMonsterRoom(generation);
@@ -316,7 +316,7 @@ struct BiomeMaker {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(surfaceBuilder);
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
-//        generation.withStructure(StructureFeatures::RUINED_PORTAL_MOUNTAIN);
+        generation.withStructure(StructureFeatures::RUINED_PORTAL_MOUNTAIN);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
         DefaultBiomeFeatures::withMonsterRoom(generation);
@@ -372,8 +372,8 @@ struct BiomeMaker {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::DESERT);
         if (hasVillageAndOutpost) {
-//            generation.withStructure(StructureFeatures::VILLAGE_DESERT);
-//            generation.withStructure(StructureFeatures::PILLAGER_OUTPOST);
+            generation.withStructure(StructureFeatures::VILLAGE_DESERT);
+            generation.withStructure(StructureFeatures::PILLAGER_OUTPOST);
         }
 
         if (hasDesertPyramid) {
@@ -385,7 +385,7 @@ struct BiomeMaker {
         }
 
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
-//        generation.withStructure(StructureFeatures::RUINED_PORTAL_DESERT);
+        generation.withStructure(StructureFeatures::RUINED_PORTAL_DESERT);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
         DefaultBiomeFeatures::withLavaLakes(generation);
         DefaultBiomeFeatures::withMonsterRoom(generation);
@@ -439,13 +439,12 @@ struct BiomeMaker {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
         if (!isSunflowerVariant) {
-//            generation
-//                .withStructure(StructureFeatures::VILLAGE_PLAINS)
-//                .withStructure(StructureFeatures::PILLAGER_OUTPOST);
+            generation.withStructure(StructureFeatures::VILLAGE_PLAINS);
+            generation.withStructure(StructureFeatures::PILLAGER_OUTPOST);
         }
 
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
-//        generation.withStructure(StructureFeatures::RUINED_PORTAL);
+        generation.withStructure(StructureFeatures::RUINED_PORTAL);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
         DefaultBiomeFeatures::withMonsterRoom(generation);
@@ -547,14 +546,14 @@ struct BiomeMaker {
     static Biome* makeEndMidlandsBiome() {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::END);
-//            .withStructure(StructureFeatures::END_CITY);
+        generation.withStructure(StructureFeatures::END_CITY);
         return makeEndBiome(generation);
     }
 
     static Biome* makeEndHighlandsBiome() {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::END);
-//            .withStructure(StructureFeatures::END_CITY)
+        generation.withStructure(StructureFeatures::END_CITY);
         generation.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, ConfiguredFeatures::END_GATEWAY);
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::CHORUS_PLANT);
         return makeEndBiome(generation);
@@ -573,7 +572,7 @@ struct BiomeMaker {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::MYCELIUM);
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
-//        generation.withStructure(StructureFeatures::RUINED_PORTAL);
+        generation.withStructure(StructureFeatures::RUINED_PORTAL);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
         DefaultBiomeFeatures::withMonsterRoom(generation);
@@ -620,14 +619,12 @@ struct BiomeMaker {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(isShatteredSavanna ? ConfiguredSurfaceBuilders::SHATTERED_SAVANNA : ConfiguredSurfaceBuilders::GRASS);
         if (!isHighland && !isShatteredSavanna) {
-//            generation
-//                .withStructure(StructureFeatures::VILLAGE_SAVANNA)
-//                .withStructure(StructureFeatures::PILLAGER_OUTPOST);
+            generation.withStructure(StructureFeatures::VILLAGE_SAVANNA);
+            generation.withStructure(StructureFeatures::PILLAGER_OUTPOST);
         }
 
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
-//        generation
-//            .withStructure(isHighland ? StructureFeatures::RUINED_PORTAL_MOUNTAIN : StructureFeatures::RUINED_PORTAL);
+        generation.withStructure(isHighland ? StructureFeatures::RUINED_PORTAL_MOUNTAIN : StructureFeatures::RUINED_PORTAL);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
         DefaultBiomeFeatures::withMonsterRoom(generation);
@@ -707,7 +704,7 @@ struct BiomeMaker {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(surfaceBuilder);
         DefaultBiomeFeatures::withBadlandsStructures(generation);
-//        generation.withStructure(isHighland ? StructureFeatures::RUINED_PORTAL_MOUNTAIN : StructureFeatures::RUINED_PORTAL);
+        generation.withStructure(isHighland ? StructureFeatures::RUINED_PORTAL_MOUNTAIN : StructureFeatures::RUINED_PORTAL);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
         DefaultBiomeFeatures::withMonsterRoom(generation);
@@ -798,26 +795,27 @@ struct BiomeMaker {
     static BiomeGenerationSettings::Builder getOceanGenerationSettingsBuilder(ConfiguredSurfaceBuilder* surfaceBuilder, bool hasOceanMonument, bool isWarmOcean, bool isDeepVariant) {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(surfaceBuilder);
-//        StructureFeature structurefeature = isWarmOcean
-//                ? StructureFeatures::OCEAN_RUIN_WARM
-//                : StructureFeatures::OCEAN_RUIN_COLD;
+
+        auto structurefeature = isWarmOcean
+                ? StructureFeatures::OCEAN_RUIN_WARM
+                : StructureFeatures::OCEAN_RUIN_COLD;
         if (isDeepVariant) {
             if (hasOceanMonument) {
-//                generation.withStructure(StructureFeatures::MONUMENT);
+                generation.withStructure(StructureFeatures::MONUMENT);
             }
 
             DefaultBiomeFeatures::withOceanStructures(generation);
-//            generation.withStructure(structurefeature);
+            generation.withStructure(structurefeature);
         } else {
-//            generation.withStructure(structurefeature);
+            generation.withStructure(structurefeature);
             if (hasOceanMonument) {
-//                generation.withStructure(StructureFeatures::MONUMENT);
+                generation.withStructure(StructureFeatures::MONUMENT);
             }
 
             DefaultBiomeFeatures::withOceanStructures(generation);
         }
 
-//        generation.withStructure(StructureFeatures::RUINED_PORTAL_OCEAN);
+        generation.withStructure(StructureFeatures::RUINED_PORTAL_OCEAN);
         DefaultBiomeFeatures::withOceanCavesAndCanyons(generation);
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
         DefaultBiomeFeatures::withMonsterRoom(generation);
@@ -918,13 +916,13 @@ struct BiomeMaker {
         const float temperature = isDeepVariant ? 0.5F : 0.0F;
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::FROZEN_OCEAN);
-//        generation.withStructure(StructureFeatures::OCEAN_RUIN_COLD);
+        generation.withStructure(StructureFeatures::OCEAN_RUIN_COLD);
         if (isDeepVariant) {
-//            generation.withStructure(StructureFeatures::MONUMENT);
+            generation.withStructure(StructureFeatures::MONUMENT);
         }
 
         DefaultBiomeFeatures::withOceanStructures(generation);
-//        generation.withStructure(StructureFeatures::RUINED_PORTAL_OCEAN);
+        generation.withStructure(StructureFeatures::RUINED_PORTAL_OCEAN);
         DefaultBiomeFeatures::withOceanCavesAndCanyons(generation);
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
         DefaultBiomeFeatures::withIcebergs(generation);
@@ -974,7 +972,7 @@ struct BiomeMaker {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
-//        generation.withStructure(StructureFeatures::RUINED_PORTAL);
+        generation.withStructure(StructureFeatures::RUINED_PORTAL);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
         DefaultBiomeFeatures::withMonsterRoom(generation);
@@ -1065,16 +1063,16 @@ struct BiomeMaker {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
         if (hasVillageAndOutpost) {
-//            generation.withStructure(StructureFeatures::VILLAGE_TAIGA);
-//            generation.withStructure(StructureFeatures::PILLAGER_OUTPOST);
+            generation.withStructure(StructureFeatures::VILLAGE_TAIGA);
+            generation.withStructure(StructureFeatures::PILLAGER_OUTPOST);
         }
 
         if (hasIgloos) {
-//            generation.withStructure(StructureFeatures::IGLOO);
+            generation.withStructure(StructureFeatures::IGLOO);
         }
 
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
-//        generation.withStructure(isMountainVariant ? StructureFeatures::RUINED_PORTAL_MOUNTAIN : StructureFeatures::RUINED_PORTAL);
+        generation.withStructure(isMountainVariant ? StructureFeatures::RUINED_PORTAL_MOUNTAIN : StructureFeatures::RUINED_PORTAL);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
         DefaultBiomeFeatures::withMonsterRoom(generation);
@@ -1131,9 +1129,9 @@ struct BiomeMaker {
 
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
-//        generation.withStructure(StructureFeatures::MANSION);
+        generation.withStructure(StructureFeatures::MANSION);
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
-//        generation.withStructure(StructureFeatures::RUINED_PORTAL);
+        generation.withStructure(StructureFeatures::RUINED_PORTAL);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
         DefaultBiomeFeatures::withMonsterRoom(generation);
@@ -1194,7 +1192,7 @@ struct BiomeMaker {
         }
 
         generation.withStructure(StructureFeatures::MINESHAFT);
-//        generation.withStructure(StructureFeatures::RUINED_PORTAL_SWAMP);
+        generation.withStructure(StructureFeatures::RUINED_PORTAL_SWAMP);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
         if (!isHillsVariant) {
             DefaultBiomeFeatures::withFossils(generation);
@@ -1252,17 +1250,16 @@ struct BiomeMaker {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(isIceSpikesBiome ? ConfiguredSurfaceBuilders::ICE_SPIKES : ConfiguredSurfaceBuilders::GRASS);
         if (!isIceSpikesBiome && !isMountainVariant) {
-//            generation
-//                .withStructure(StructureFeatures::VILLAGE_SNOWY)
-//                .withStructure(StructureFeatures::IGLOO);
+            generation.withStructure(StructureFeatures::VILLAGE_SNOWY);
+            generation.withStructure(StructureFeatures::IGLOO);
         }
 
         DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
         if (!isIceSpikesBiome && !isMountainVariant) {
-//            generation.withStructure(StructureFeatures::PILLAGER_OUTPOST);
+            generation.withStructure(StructureFeatures::PILLAGER_OUTPOST);
         }
 
-//        generation.withStructure(isMountainVariant ? StructureFeatures::RUINED_PORTAL_MOUNTAIN : StructureFeatures::RUINED_PORTAL);
+        generation.withStructure(isMountainVariant ? StructureFeatures::RUINED_PORTAL_MOUNTAIN : StructureFeatures::RUINED_PORTAL);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
         DefaultBiomeFeatures::withMonsterRoom(generation);
@@ -1319,7 +1316,7 @@ struct BiomeMaker {
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::GRASS);
         generation.withStructure(StructureFeatures::MINESHAFT);
-//        generation.withStructure(StructureFeatures::RUINED_PORTAL);
+        generation.withStructure(StructureFeatures::RUINED_PORTAL);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
         DefaultBiomeFeatures::withMonsterRoom(generation);
@@ -1379,11 +1376,11 @@ struct BiomeMaker {
             DefaultBiomeFeatures::withStrongholdAndMineshaft(generation);
         } else {
             generation.withStructure(StructureFeatures::MINESHAFT);
-//            generation.withStructure(StructureFeatures::BURIED_TREASURE);
-//            generation.withStructure(StructureFeatures::SHIPWRECK_BEACHED);
+            generation.withStructure(StructureFeatures::BURIED_TREASURE);
+            generation.withStructure(StructureFeatures::SHIPWRECK_BEACHED);
         }
 
-//        generation.withStructure(isStoneVariant ? StructureFeatures::RUINED_PORTAL_MOUNTAIN : StructureFeatures::RUINED_PORTAL);
+        generation.withStructure(isStoneVariant ? StructureFeatures::RUINED_PORTAL_MOUNTAIN : StructureFeatures::RUINED_PORTAL);
         DefaultBiomeFeatures::withCavesAndCanyons(generation);
         DefaultBiomeFeatures::withLavaAndWaterLakes(generation);
         DefaultBiomeFeatures::withMonsterRoom(generation);
@@ -1469,10 +1466,10 @@ struct BiomeMaker {
 
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::NETHER);
-//            .withStructure(StructureFeatures::RUINED_PORTAL_NETHER)
-//            .withStructure(StructureFeatures::FORTRESS)
-//            .withStructure(StructureFeatures::BASTION_REMNANT)
-//            .withCarver(GenerationStage::Carving.AIR, ConfiguredCarvers.NETHER_CAVE)
+        generation.withStructure(StructureFeatures::RUINED_PORTAL_NETHER);
+        generation.withStructure(StructureFeatures::FORTRESS);
+        generation.withStructure(StructureFeatures::BASTION_REMNANT);
+        generation.withCarver(GenerationStage::Carving::AIR, ConfiguredCarvers::NETHER_CAVE);
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRING_LAVA);
         DefaultBiomeFeatures::withNormalMushroomGeneration(generation);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_OPEN);
@@ -1535,11 +1532,11 @@ struct BiomeMaker {
         
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::SOUL_SAND_VALLEY);
-//            .withStructure(StructureFeatures::FORTRESS)
-//            .withStructure(StructureFeatures::NETHER_FOSSIL)
-//            .withStructure(StructureFeatures::RUINED_PORTAL_NETHER)
-//            .withStructure(StructureFeatures::BASTION_REMNANT)
-//            .withCarver(GenerationStage::Carving.AIR, ConfiguredCarvers.NETHER_CAVE)
+        generation.withStructure(StructureFeatures::FORTRESS);
+        generation.withStructure(StructureFeatures::NETHER_FOSSIL);
+        generation.withStructure(StructureFeatures::RUINED_PORTAL_NETHER);
+        generation.withStructure(StructureFeatures::BASTION_REMNANT);
+        generation.withCarver(GenerationStage::Carving::AIR, ConfiguredCarvers::NETHER_CAVE);
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRING_LAVA);
         generation.withFeature(GenerationStage::Decoration::LOCAL_MODIFICATIONS, ConfiguredFeatures::BASALT_PILLAR);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_OPEN);
@@ -1600,9 +1597,9 @@ struct BiomeMaker {
                 
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::BASALT_DELTAS);
-//            .withStructure(StructureFeatures::RUINED_PORTAL_NETHER)
-//            .withCarver(GenerationStage::Carving.AIR, ConfiguredCarvers.NETHER_CAVE)
-//            .withStructure(StructureFeatures::FORTRESS)
+        generation.withStructure(StructureFeatures::RUINED_PORTAL_NETHER);
+        generation.withCarver(GenerationStage::Carving::AIR, ConfiguredCarvers::NETHER_CAVE);
+        generation.withStructure(StructureFeatures::FORTRESS);
         generation.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, ConfiguredFeatures::DELTA);
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRING_LAVA_DOUBLE);
         generation.withFeature(GenerationStage::Decoration::SURFACE_STRUCTURES, ConfiguredFeatures::SMALL_BASALT_COLUMNS);
@@ -1669,10 +1666,10 @@ struct BiomeMaker {
         
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::CRIMSON_FOREST);
-//            .withStructure(StructureFeatures::RUINED_PORTAL_NETHER)
-//            .withCarver(GenerationStage::Carving.AIR, ConfiguredCarvers.NETHER_CAVE)
-//            .withStructure(StructureFeatures::FORTRESS)
-//            .withStructure(StructureFeatures::BASTION_REMNANT)
+        generation.withStructure(StructureFeatures::RUINED_PORTAL_NETHER);
+        generation.withCarver(GenerationStage::Carving::AIR, ConfiguredCarvers::NETHER_CAVE);
+        generation.withStructure(StructureFeatures::FORTRESS);
+        generation.withStructure(StructureFeatures::BASTION_REMNANT);
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRING_LAVA);
         DefaultBiomeFeatures::withNormalMushroomGeneration(generation);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_OPEN);
@@ -1733,10 +1730,10 @@ struct BiomeMaker {
 
         auto generation = BiomeGenerationSettings::Builder{};
         generation.withSurfaceBuilder(ConfiguredSurfaceBuilders::WARPED_FOREST);
-//            .withStructure(StructureFeatures::FORTRESS)
-//            .withStructure(StructureFeatures::BASTION_REMNANT)
-//            .withStructure(StructureFeatures::RUINED_PORTAL_NETHER)
-//            .withCarver(GenerationStage::Carving.AIR, ConfiguredCarvers.NETHER_CAVE)
+        generation.withStructure(StructureFeatures::FORTRESS);
+        generation.withStructure(StructureFeatures::BASTION_REMNANT);
+        generation.withStructure(StructureFeatures::RUINED_PORTAL_NETHER);
+        generation.withCarver(GenerationStage::Carving::AIR, ConfiguredCarvers::NETHER_CAVE);
         generation.withFeature(GenerationStage::Decoration::VEGETAL_DECORATION, ConfiguredFeatures::SPRING_LAVA);
         DefaultBiomeFeatures::withNormalMushroomGeneration(generation);
         generation.withFeature(GenerationStage::Decoration::UNDERGROUND_DECORATION, ConfiguredFeatures::SPRING_OPEN);

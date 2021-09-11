@@ -27,7 +27,6 @@ bool DesertPyramidPiece::addComponentParts(WorldGenRegion &region, StructureMana
 
     for (int k1 = 0; k1 < width; ++k1) {
         for (int j = 0; j < depth; ++j) {
-            int k = -5;
             replaceAirAndLiquidDownwards(region, SANDSTONE, k1, -5, j, bb);
         }
     }
