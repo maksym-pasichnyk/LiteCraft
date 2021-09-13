@@ -30,5 +30,5 @@ Biome *MultiNoiseBiomeProvider::getNoiseBiome(int x, int y, int z) {
         return attributes.getAttributeDifference(a.second) < attributes.getAttributeDifference(b.second);
     });
 
-    return it != parameters.end() ? it->first : Biomes::THE_VOID;
+    return it != parameters.end() ? it->first : Biomes::findByName("the_void");
 }
