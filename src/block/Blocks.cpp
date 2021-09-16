@@ -1114,7 +1114,7 @@ static auto createBanner(const std::string& name, DyeColors color) -> Block* {
         .setSound(SoundType::WOOD));
 }
 
-void Blocks::registerBlocks() {
+void Blocks::init() {
     using namespace std::string_literals;
 
     AIR = create<AirBlock>("air", Properties::create(Materials::AIR)

@@ -804,15 +804,15 @@ struct Json::Deserialize<RuinedPortalConfig> {
 };
 
 template<>
-struct Json::Serialize<VillageConfig> {
-    static auto to_json(const VillageConfig &config) -> Json {
+struct Json::Serialize<JigsawConfig> {
+    static auto to_json(const JigsawConfig &config) -> Json {
         return Json::Object{};
     }
 };
 
 template<>
-struct Json::Deserialize<VillageConfig> {
-    static auto from_json(const Json &obj) -> std::optional<VillageConfig> {
+struct Json::Deserialize<JigsawConfig> {
+    static auto from_json(const Json &obj) -> std::optional<JigsawConfig> {
         return {};
     }
 };

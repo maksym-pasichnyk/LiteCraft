@@ -17,7 +17,7 @@ static auto create(std::string name, Args&&... args) -> T* {
     return dynamic_cast<T*>(Carvers::carvers.add(std::move(name), std::make_unique<T>(std::forward<Args>(args)...)));
 }
 
-void Carvers::registerCarvers() {
+void Carvers::init() {
     CAVE = create<CaveWorldCarver>("cave", 256);
     NETHER_CAVE = create<NetherCaveCarver>("nether_cave");
     CANYON = create<CanyonWorldCarver>("canyon");

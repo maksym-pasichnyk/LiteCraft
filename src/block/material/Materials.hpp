@@ -48,5 +48,5 @@ struct Materials {
     static Material* DRAGON_EGG;
     static Material* CAKE;
 
-    static void registerMaterials();
+    static void init();
 };

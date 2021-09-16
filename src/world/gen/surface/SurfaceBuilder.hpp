@@ -29,7 +29,7 @@ struct SurfaceBuilder {
     static SurfaceBuilder* SoulSandValley;
     static SurfaceBuilder* BasaltDeltas;
 
-    static void registerBuilders();
+    static void init();
 
     virtual ~SurfaceBuilder() = default;
 

@@ -93,5 +93,5 @@ struct BlockTags {
     static BlockTag BASE_STONE_OVERWORLD;
     static BlockTag BASE_STONE_NETHER;
 
-    static void registerTags();
+    static void init();
 };

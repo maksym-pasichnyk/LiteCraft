@@ -31,7 +31,7 @@ public:
     static std::unordered_map<std::string, BlockGraphics*> mBlockLookupMap;
     static std::vector<std::unique_ptr<BlockGraphics>> mOwnedBlocks;
 
-    static void initBlocks(ResourcePackManager& resources);
+    static void init(ResourcePackManager& resources);
     static void registerBlockGraphics(const nlohmann::json& data, const std::string& name);
     static TextureAtlasTextureItem* getTextureItem(const std::string& name);
 };

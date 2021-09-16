@@ -45,7 +45,7 @@ Material* Materials::GOURD;
 Material* Materials::DRAGON_EGG;
 Material* Materials::CAKE;
 
-void Materials::registerMaterials() {
+void Materials::init() {
     AIR = Material::Builder(MaterialColors::AIR).doesNotBlockMovement().notOpaque().notSolid().replaceable().build();
     STRUCTURE_VOID = Material::Builder(MaterialColors::AIR).doesNotBlockMovement().notOpaque().notSolid().replaceable().build();
     PORTAL = Material::Builder(MaterialColors::AIR).doesNotBlockMovement().notOpaque().notSolid().pushBlocks().build();

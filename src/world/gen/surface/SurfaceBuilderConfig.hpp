@@ -21,7 +21,7 @@ struct SurfaceBuilderConfig {
     static SurfaceBuilderConfig WARPED_FOREST_CONFIG;
     static SurfaceBuilderConfig BASALT_DELTAS_CONFIG;
 
-    static void registerConfigs();
+    static void init();
 
     BlockData top;
     BlockData mid;

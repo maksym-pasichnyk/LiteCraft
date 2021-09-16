@@ -33,5 +33,5 @@ struct ConfiguredSurfaceBuilders {
     static ConfiguredSurfaceBuilder* WARPED_FOREST;
     static ConfiguredSurfaceBuilder* WOODED_BADLANDS;
 
-    static void configureSurfaceBuilders();
+    static void init();
 };

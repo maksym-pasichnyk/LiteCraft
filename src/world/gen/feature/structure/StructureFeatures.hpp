@@ -43,5 +43,5 @@ struct StructureFeatures {
     static StructureFeature* RUINED_PORTAL_OCEAN;
     static StructureFeature* RUINED_PORTAL_NETHER;
 
-    static void configureStructures();
+    static void init();
 };

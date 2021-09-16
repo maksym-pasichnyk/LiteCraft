@@ -777,5 +777,5 @@ struct Blocks {
     [[maybe_unused]] static Block* CRACKED_NETHER_BRICKS;
     [[maybe_unused]] static Block* QUARTZ_BRICKS;
 
-    static void registerBlocks();
+    static void init();
 };

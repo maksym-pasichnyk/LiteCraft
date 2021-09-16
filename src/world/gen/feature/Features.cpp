@@ -109,7 +109,7 @@ static T* createFeature(std::string name, Args&&... args) {
     return dynamic_cast<T*>(Features::features.add(std::move(name), std::make_unique<T>(std::forward<Args>(args)...)));
 }
 
-void Features::registerFeatures() {
+void Features::init() {
 //    NO_OP = createFeature<NoOpFeature>("no_op");
     TREE = createFeature<TreeFeature>("tree");
     FLOWER = createFeature<DefaultFlowersFeature>("flower");

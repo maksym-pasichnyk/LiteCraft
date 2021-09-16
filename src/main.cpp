@@ -17,14 +17,15 @@
 #include <core/Surface.hpp>
 #include <core/AppPlatform.hpp>
 
-#include "input.hpp"
-#include "camera.hpp"
-#include "raytrace.hpp"
-#include "transform.hpp"
 #include "CraftServer.hpp"
 #include "TextureAtlas.hpp"
+#include "camera.hpp"
+#include "input.hpp"
+#include "raytrace.hpp"
+#include "transform.hpp"
 #include <world/biome/Biome.hpp>
 #include <world/biome/Biomes.hpp>
+#include <world/gen/pools/JigsawPools.hpp>
 
 #include "client/world/ClientWorld.hpp"
 #include "client/render/ViewFrustum.hpp"
@@ -104,24 +105,32 @@ struct App {
 
         /**************************************************************************************************************/
 
-        Materials::registerMaterials();
-        BlockGraphics::initBlocks(*resources);
+        Materials::init();
+        BlockGraphics::init(*resources);
 
-        Blocks::registerBlocks();
-        BlockTags::registerTags();
-        Carvers::registerCarvers();
-        Features::registerFeatures();
-        Placements::registerPlacements();
-        Structures::registerStructures();
-        SurfaceBuilder::registerBuilders();
-        SurfaceBuilderConfig::registerConfigs();
+        Blocks::init();
+        BlockTags::init();
+        Carvers::init();
+        Features::init();
+        Placements::init();
+        Structures::init();
+        SurfaceBuilder::init();
+        SurfaceBuilderConfig::init();
 
-        ConfiguredCarvers::configureCarvers();
-        ConfiguredFeatures::configureFeatures();
-        StructureFeatures::configureStructures();
-        ConfiguredSurfaceBuilders::configureSurfaceBuilders();
+        PlainVillagePools::init();
+        SnowyVillagePools::init();
+        SavannaVillagePools::init();
+        DesertVillagePools::init();
+        TaigaVillagePools::init();
+        PillagerOutpostPools::init();
+        BastionRemnantsPieces::init();
 
-        Biomes::registerBiomes();
+        ConfiguredCarvers::init();
+        ConfiguredFeatures::init();
+        StructureFeatures::init();
+        ConfiguredSurfaceBuilders::init();
+
+        Biomes::init();
 
         /**************************************************************************************************************/
         struct physfs_recursive_directory_iterator {
@@ -446,21 +455,21 @@ struct AppServer {
 
         /**************************************************************************************************************/
 
-        Materials::registerMaterials();
-//        BlockGraphics::initBlocks(*resources);
-        Blocks::registerBlocks();
-        BlockTags::registerTags();
-        SurfaceBuilder::registerBuilders();
-        SurfaceBuilderConfig::registerConfigs();
-        ConfiguredSurfaceBuilders::configureSurfaceBuilders();
-        Carvers::registerCarvers();
-        ConfiguredCarvers::configureCarvers();
-        Features::registerFeatures();
-        Placements::registerPlacements();
-        ConfiguredFeatures::configureFeatures();
-        Structures::registerStructures();
-        StructureFeatures::configureStructures();
-        Biomes::registerBiomes();
+        Materials::init();
+//        BlockGraphics::init(*resources);
+        Blocks::init();
+        BlockTags::init();
+        SurfaceBuilder::init();
+        SurfaceBuilderConfig::init();
+        ConfiguredSurfaceBuilders::init();
+        Carvers::init();
+        ConfiguredCarvers::init();
+        Features::init();
+        Placements::init();
+        ConfiguredFeatures::init();
+        Structures::init();
+        StructureFeatures::init();
+        Biomes::init();
 
         /**************************************************************************************************************/
     }

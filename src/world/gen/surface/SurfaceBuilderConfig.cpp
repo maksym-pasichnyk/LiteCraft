@@ -20,7 +20,7 @@ SurfaceBuilderConfig SurfaceBuilderConfig::crimson_forest_config{};
 SurfaceBuilderConfig SurfaceBuilderConfig::WARPED_FOREST_CONFIG{};
 SurfaceBuilderConfig SurfaceBuilderConfig::BASALT_DELTAS_CONFIG{};
 
-void SurfaceBuilderConfig::registerConfigs() {
+void SurfaceBuilderConfig::init() {
     const auto GRASS_BLOCK = Blocks::GRASS_BLOCK->getDefaultState();
     const auto DIRT = Blocks::DIRT->getDefaultState();
     const auto COARSE_DIRT = Blocks::COARSE_DIRT->getDefaultState();

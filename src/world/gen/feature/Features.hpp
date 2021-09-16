@@ -61,5 +61,5 @@ struct Features {
     static Feature* RANDOM_BOOLEAN_SELECTOR;
     static Feature* DECORATED;
 
-    static void registerFeatures();
+    static void init();
 };

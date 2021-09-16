@@ -40,7 +40,7 @@ Structure* Structures::VILLAGE;
 Structure* Structures::NETHER_FOSSIL;
 Structure* Structures::BASTION_REMNANT;
 
-void Structures::registerStructures() {
+void Structures::init() {
     PILLAGER_OUTPOST = create<PillagerOutpostStructure>("pillager_outpost", GenerationStage::Decoration::SURFACE_STRUCTURES);
     MINESHAFT = create<MineshaftStructure>("mineshaft", GenerationStage::Decoration::UNDERGROUND_STRUCTURES);
     WOODLAND_MANSION = create<WoodlandMansionStructure>("mansion", GenerationStage::Decoration::SURFACE_STRUCTURES);

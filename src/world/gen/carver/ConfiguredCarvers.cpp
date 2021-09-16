@@ -19,7 +19,7 @@ static auto configure(std::string name, WorldCarver* carver, ProbabilityConfig c
     }));
 }
 
-void ConfiguredCarvers::configureCarvers() {
+void ConfiguredCarvers::init() {
     CAVE = configure("cave", Carvers::CAVE, { .probability = 0.14285715F });
     CANYON = configure("canyon", Carvers::CANYON, { .probability = 0.02F });
     OCEAN_CAVE = configure("ocean_cave", Carvers::CAVE, { .probability = 0.06666667F });

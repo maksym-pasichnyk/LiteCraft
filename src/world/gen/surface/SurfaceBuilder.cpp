@@ -749,7 +749,7 @@ static auto create(std::string name, Args&&... args) -> T* {
     return dynamic_cast<T*>(SurfaceBuilder::builders.add(std::move(name), std::make_unique<T>(std::forward<Args>(args)...)));
 }
 
-void SurfaceBuilder::registerBuilders() {
+void SurfaceBuilder::init() {
     Noop             = create<NoopSurfaceBuilder>("noop");
     Default          = create<DefaultSurfaceBuilder>("default");
     Mountain         = create<MountainSurfaceBuilder>("mountain");

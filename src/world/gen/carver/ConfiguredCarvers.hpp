@@ -11,5 +11,5 @@ struct ConfiguredCarvers {
     static ConfiguredCarver* OCEAN_CAVE;
     static ConfiguredCarver* NETHER_CAVE;
 
-    static void configureCarvers();
+    static void init();
 };

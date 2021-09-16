@@ -65,7 +65,7 @@ static T* createPlacement(std::string name, Args&&... args) {
     return dynamic_cast<T*>(Placements::placements.add(std::move(name), std::make_unique<T>(std::forward<Args>(args)...)));
 }
 
-void Placements::registerPlacements() {
+void Placements::init() {
     NOPE = createPlacement<Passthrough>("nope");
     CHANCE = createPlacement<ChancePlacement>("chance");
     COUNT = createPlacement<CountPlacement>("count");

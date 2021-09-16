@@ -38,5 +38,5 @@ struct Placements {
     static Placement* DECORATED;
     static Placement* COUNT_MULTILAYER;
 
-    static void registerPlacements();
+    static void init();
 };

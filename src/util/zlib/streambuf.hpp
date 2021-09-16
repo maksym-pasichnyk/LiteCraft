@@ -61,3 +61,4 @@ private:
     std::array<char, 4096> in{};
     std::array<char, 8192> out{};
 };
+

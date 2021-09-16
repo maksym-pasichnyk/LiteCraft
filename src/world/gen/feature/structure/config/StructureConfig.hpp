@@ -1,10 +1,10 @@
 #pragma once
 
-#include "VillageConfig.hpp"
+#include "JigsawConfig.hpp"
 #include "MineshaftConfig.hpp"
 #include "OceanRuinConfig.hpp"
-#include "ShipwreckConfig.hpp"
 #include "RuinedPortalConfig.hpp"
+#include "ShipwreckConfig.hpp"
 #include <world/gen/feature/config/NoFeatureConfig.hpp>
 #include <world/gen/feature/config/ProbabilityConfig.hpp>
 
@@ -12,7 +12,7 @@
 
 using StructureConfig = std::variant<
     NoFeatureConfig,
-    VillageConfig,
+    JigsawConfig,
     MineshaftConfig,
     OceanRuinConfig,
     ShipwreckConfig,

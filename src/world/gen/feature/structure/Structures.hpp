@@ -40,5 +40,5 @@ struct Structures {
         return dynamic_cast<T*>(structure);
     }
 
-    static void registerStructures();
+    static void init();
 };

@@ -88,7 +88,7 @@ BlockTag BlockTags::INFINIBURN_END;
 BlockTag BlockTags::BASE_STONE_OVERWORLD;
 BlockTag BlockTags::BASE_STONE_NETHER;
 
-void BlockTags::registerTags() {
+void BlockTags::init() {
     WOOL.add(Blocks::WHITE_WOOL, Blocks::ORANGE_WOOL, Blocks::MAGENTA_WOOL, Blocks::LIGHT_BLUE_WOOL, Blocks::YELLOW_WOOL, Blocks::LIME_WOOL, Blocks::PINK_WOOL, Blocks::GRAY_WOOL, Blocks::LIGHT_GRAY_WOOL, Blocks::CYAN_WOOL, Blocks::PURPLE_WOOL, Blocks::BLUE_WOOL, Blocks::BROWN_WOOL, Blocks::GREEN_WOOL, Blocks::RED_WOOL, Blocks::BLACK_WOOL);
     PLANKS.add(Blocks::OAK_PLANKS, Blocks::SPRUCE_PLANKS, Blocks::BIRCH_PLANKS, Blocks::JUNGLE_PLANKS, Blocks::ACACIA_PLANKS, Blocks::DARK_OAK_PLANKS, Blocks::CRIMSON_PLANKS, Blocks::WARPED_PLANKS);
     STONE_BRICKS.add(Blocks::STONE_BRICKS, Blocks::MOSSY_STONE_BRICKS, Blocks::CRACKED_STONE_BRICKS, Blocks::CHISELED_STONE_BRICKS);

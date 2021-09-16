@@ -200,5 +200,5 @@ struct ConfiguredFeatures {
     static ConfiguredFeature* BAMBOO_VEGETATION;
     static ConfiguredFeature* MUSHROOM_FIELD_VEGETATION;
 
-    static void configureFeatures();
+    static void init();
 };

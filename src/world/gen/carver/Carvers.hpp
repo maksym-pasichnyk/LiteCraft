@@ -16,5 +16,5 @@ struct Carvers {
 //    static WorldCarver* UNDERWATER_CANYON;
 //    static WorldCarver* UNDERWATER_CAVE;
 
-    static void registerCarvers();
+    static void init();
 };

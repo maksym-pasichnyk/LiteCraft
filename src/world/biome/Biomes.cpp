@@ -119,7 +119,7 @@ static auto loadFromResources(int id, std::string name) -> Biome* {
     }));
 }
 
-void Biomes::registerBiomes() {
+void Biomes::init() {
     using namespace std::string_literals;
 
     OCEAN = loadFromResources(0, "ocean");

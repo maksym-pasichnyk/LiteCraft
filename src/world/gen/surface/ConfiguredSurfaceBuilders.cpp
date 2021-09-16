@@ -82,7 +82,7 @@ ConfiguredSurfaceBuilder* configure(std::string name, SurfaceBuilder* builder, c
     return ConfiguredSurfaceBuilders::builders.add(std::move(name), std::make_unique<ConfiguredSurfaceBuilder>(ConfiguredSurfaceBuilder{ builder, config }));
 }
 
-void ConfiguredSurfaceBuilders::configureSurfaceBuilders() {
+void ConfiguredSurfaceBuilders::init() {
     BADLANDS = configure("badlands", SurfaceBuilder::Badlands, SurfaceBuilderConfig::RED_SAND_WHITE_TERRACOTTA_GRAVEL_CONFIG);
     BASALT_DELTAS = configure("basalt_deltas", SurfaceBuilder::BasaltDeltas, SurfaceBuilderConfig::BASALT_DELTAS_CONFIG);
     CRIMSON_FOREST = configure("crimson_forest", SurfaceBuilder::NetherForest, SurfaceBuilderConfig::crimson_forest_config);

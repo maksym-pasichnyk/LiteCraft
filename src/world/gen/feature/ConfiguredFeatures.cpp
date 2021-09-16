@@ -234,7 +234,7 @@ static ConfiguredFeature* registerFeature(std::string name, ConfiguredFeature* f
 	return ConfiguredFeatures::features.add(std::move(name), std::unique_ptr<ConfiguredFeature>(feature));
 }
 
-void ConfiguredFeatures::configureFeatures() {
+void ConfiguredFeatures::init() {
     auto BEES_0002_PLACEMENT = new BeehiveTreeDecorator(0.002F);
     auto BEES_002_PLACEMENT = new BeehiveTreeDecorator(0.02F);
     auto BEES_005_PLACEMENT = new BeehiveTreeDecorator(0.05F);
