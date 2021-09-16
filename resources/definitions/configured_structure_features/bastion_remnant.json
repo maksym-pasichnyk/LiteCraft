@@ -1,4 +1,7 @@
 {
     "type": "bastion_remnant",
-    "config": {}
+    "config": {
+        "pool": "bastion/starts",
+        "size": 6
+    }
 }

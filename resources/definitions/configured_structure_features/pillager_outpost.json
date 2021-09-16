@@ -1,4 +1,7 @@
 {
     "type": "pillager_outpost",
-    "config": {}
+    "config": {
+        "pool": "pillager_outpost/base_plates",
+        "size": 7
+    }
 }

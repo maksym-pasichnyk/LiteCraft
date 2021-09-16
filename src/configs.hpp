@@ -18,6 +18,7 @@
 #include <world/gen/surface/ConfiguredSurfaceBuilders.hpp>
 #include <world/gen/feature/Features.hpp>
 #include <world/gen/feature/ConfiguredFeatures.hpp>
+#include <world/gen/feature/jigsaw/JigsawPattern.hpp>
 #include <world/gen/feature/structure/Structures.hpp>
 #include <world/gen/feature/structure/StructureFeatures.hpp>
 
@@ -806,7 +807,10 @@ struct Json::Deserialize<RuinedPortalConfig> {
 template<>
 struct Json::Serialize<JigsawConfig> {
     static auto to_json(const JigsawConfig &config) -> Json {
-        return Json::Object{};
+        return {
+            { "pool", config.pool->location },
+            { "size", config.size }
+        };
     }
 };
 

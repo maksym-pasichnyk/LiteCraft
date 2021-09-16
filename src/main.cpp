@@ -26,6 +26,7 @@
 #include <world/biome/Biome.hpp>
 #include <world/biome/Biomes.hpp>
 #include <world/gen/pools/JigsawPools.hpp>
+#include <world/gen/feature/processor/ProcessorLists.hpp>
 
 #include "client/world/ClientWorld.hpp"
 #include "client/render/ViewFrustum.hpp"
@@ -117,6 +118,7 @@ struct App {
         SurfaceBuilder::init();
         SurfaceBuilderConfig::init();
 
+        ProcessorLists::init();
         PlainVillagePools::init();
         SnowyVillagePools::init();
         SavannaVillagePools::init();

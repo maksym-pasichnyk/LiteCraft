@@ -9,7 +9,6 @@
 #include <map>
 #include <vector>
 #include <json/json.hpp>
-#include <configs.hpp>
 
 struct Biome;
 struct Random;

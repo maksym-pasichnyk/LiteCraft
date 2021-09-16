@@ -1,6 +1,5 @@
 #include "StructureFeatures.hpp"
 #include "Structure.hpp"
-#include "Structures.hpp"
 #include <world/gen/pools/JigsawPools.hpp>
 
 #include <fstream>

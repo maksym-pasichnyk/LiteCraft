@@ -1,4 +1,5 @@
 #include "Structures.hpp"
+#include <configs.hpp>
 #include <world/gen/feature/structure/igloo/IglooStructure.hpp>
 #include <world/gen/feature/structure/village/VillageStructure.hpp>
 #include <world/gen/feature/structure/end_city/EndCityStructure.hpp>

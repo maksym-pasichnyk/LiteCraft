@@ -17,6 +17,7 @@
 #include <unordered_map>
 #include <util/match.hpp>
 #include <json/fifo_map.hpp>
+#include <range/v3/view.hpp>
 
 struct Json {
 	struct Read;
@@ -38,7 +39,7 @@ struct Json {
 		Object
 	>;
 
-	template <typename T>
+    template <typename T>
 	struct Serialize {
 		static auto to_json(const T& val) -> Json = delete;
 	};
@@ -50,25 +51,36 @@ struct Json {
 
 	Json() noexcept : m_storage(Null{}) {}
 
+//    Json(Json&) noexcept = default;
+//    Json(Null& v) noexcept : m_storage(v) {}
+//    Json(Bool& v) noexcept : m_storage(v) {}
+//    Json(Number& v) noexcept : m_storage(v) {}
+//    Json(String& v) noexcept : m_storage(v) {}
+//    Json(Array& v) noexcept : m_storage(v) {}
+//    Json(Object& v) noexcept : m_storage(v) {}
+
 	Json(const Json&) noexcept = default;
-	Json(const Null&) noexcept : m_storage(Null{}) {}
-	Json(const Bool& v) noexcept : m_storage(v) {}
-	Json(const Number& v) noexcept : m_storage(v) {}
-	Json(const String& v) noexcept : m_storage(v) {}
-	Json(const Array& v) noexcept : m_storage(v) {}
-	Json(const Object& v) noexcept : m_storage(v) {}
+//	Json(const Null& v) noexcept : m_storage(v) {}
+//	Json(const Bool& v) noexcept : m_storage(v) {}
+//	Json(const Number& v) noexcept : m_storage(v) {}
+//	Json(const String& v) noexcept : m_storage(v) {}
+//	Json(const Array& v) noexcept : m_storage(v) {}
+//	Json(const Object& v) noexcept : m_storage(v) {}
 
 	Json(Json&&) noexcept = default;
-	Json(Null&&) noexcept : m_storage(Null{}) {}
-	Json(Bool&& v) noexcept : m_storage(v) {}
-	Json(Number&& v) noexcept : m_storage(v) {}
-	Json(String&& v) noexcept : m_storage(std::move(v)) {}
-	Json(Array&& v) noexcept : m_storage(std::move(v)) {}
-	Json(Object&& v) noexcept : m_storage(std::move(v)) {}
+//	Json(Null&& v) noexcept : m_storage(v) {}
+//	Json(Bool&& v) noexcept : m_storage(v) {}
+//	Json(Number&& v) noexcept : m_storage(v) {}
+//	Json(String&& v) noexcept : m_storage(std::move(v)) {}
+//	Json(Array&& v) noexcept : m_storage(std::move(v)) {}
+//	Json(Object&& v) noexcept : m_storage(std::move(v)) {}
 
 	Json(std::initializer_list<std::pair<const std::string, Json>> v) noexcept : m_storage(Object{v}) {}
 
-	template <typename T> requires (!std::is_same_v<std::decay_t<T>, Json>)
+    template <typename T> requires (std::is_convertible_v<T, Value> && !std::is_same_v<std::decay_t<T>, Json>)
+    Json(T&& obj) : m_storage(std::forward<T>(obj)) {}
+
+	template <typename T> requires (!std::is_convertible_v<T, Value> && !std::is_same_v<std::decay_t<T>, Json>)
 	Json(T&& obj) : Json(Serialize<std::decay_t<T>>::to_json(std::forward<T>(obj))) {}
 
 	Json& operator=(Json&&) = default;
@@ -172,14 +184,14 @@ struct Json::Serialize<bool> {
 template<typename T, size_t N>
 struct Json::Serialize<std::array<T, N>> {
 	static auto to_json(const std::array<T, N>& elements) -> Json {
-		return elements | ranges::views::transform([](auto element) -> Json { return std::move(element); }) | ranges::to<Json::Array>();
+		return elements | ranges::views::transform([](auto element) -> Json { return std::move(element); }) | ranges::to_vector;
 	}
 };
 
 template<typename T>
 struct Json::Serialize<std::vector<T>> {
 	static auto to_json(const std::vector<T> &elements) -> Json {
-		return elements | ranges::views::transform([](auto element) -> Json { return std::move(element); }) | ranges::to<Json::Array>();
+		return elements | ranges::views::transform([](auto element) -> Json { return std::move(element); }) | ranges::to_vector;
 	}
 };
 

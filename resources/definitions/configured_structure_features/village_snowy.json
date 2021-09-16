@@ -1,4 +1,7 @@
 {
     "type": "village",
-    "config": {}
+    "config": {
+        "pool": "village/snowy/town_centers",
+        "size": 6
+    }
 }

@@ -1,4 +1,7 @@
 {
     "type": "village",
-    "config": {}
+    "config": {
+        "pool": "village/savanna/town_centers",
+        "size": 6
+    }
 }

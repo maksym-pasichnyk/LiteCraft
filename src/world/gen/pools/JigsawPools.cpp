@@ -1,193 +1,10 @@
 #include "JigsawPools.hpp"
-#include <functional>
+
 #include <range/v3/all.hpp>
 #include <world/gen/feature/ConfiguredFeatures.hpp>
-
-struct StructureProcessorList {
-
-};
-
-struct ProcessorLists {
-//private static final ProcessorRule ADD_GILDED_BLACKSTONE = new ProcessorRule(new RandomBlockMatchTest(Blocks.BLACKSTONE, 0.01f), AlwaysTrueTest.INSTANCE, Blocks.GILDED_BLACKSTONE.defaultBlockState());
-//private static final ProcessorRule REMOVE_GILDED_BLACKSTONE = new ProcessorRule(new RandomBlockMatchTest(Blocks.GILDED_BLACKSTONE, 0.5f), AlwaysTrueTest.INSTANCE, Blocks.BLACKSTONE.defaultBlockState());
-	static StructureProcessorList* EMPTY;
-	static StructureProcessorList* ZOMBIE_PLAINS;
-	static StructureProcessorList* ZOMBIE_SAVANNA;
-	static StructureProcessorList* ZOMBIE_SNOWY;
-	static StructureProcessorList* ZOMBIE_TAIGA;
-	static StructureProcessorList* ZOMBIE_DESERT;
-	static StructureProcessorList* MOSSIFY_10_PERCENT;
-	static StructureProcessorList* MOSSIFY_20_PERCENT;
-	static StructureProcessorList* MOSSIFY_70_PERCENT;
-	static StructureProcessorList* STREET_PLAINS;
-	static StructureProcessorList* STREET_SAVANNA;
-	static StructureProcessorList* STREET_SNOWY_OR_TAIGA;
-	static StructureProcessorList* FARM_PLAINS;
-	static StructureProcessorList* FARM_SAVANNA;
-	static StructureProcessorList* FARM_SNOWY;
-	static StructureProcessorList* FARM_TAIGA;
-	static StructureProcessorList* FARM_DESERT;
-	static StructureProcessorList* OUTPOST_ROT;
-	static StructureProcessorList* BOTTOM_RAMPART;
-	static StructureProcessorList* TREASURE_ROOMS;
-	static StructureProcessorList* HOUSING;
-	static StructureProcessorList* SIDE_WALL_DEGRADATION;
-	static StructureProcessorList* STABLE_DEGRADATION;
-	static StructureProcessorList* BASTION_GENERIC_DEGRADATION;
-	static StructureProcessorList* RAMPART_DEGRADATION;
-	static StructureProcessorList* ENTRANCE_REPLACEMENT;
-	static StructureProcessorList* BRIDGE;
-	static StructureProcessorList* ROOF;
-	static StructureProcessorList* HIGH_WALL;
-	static StructureProcessorList* HIGH_RAMPART;
-	static StructureProcessorList* FOSSIL_ROT;
-	static StructureProcessorList* FOSSIL_COAL;
-	static StructureProcessorList* FOSSIL_DIAMONDS;
-};
-
-//private static final ProcessorRule ADD_GILDED_BLACKSTONE = new ProcessorRule(new RandomBlockMatchTest(Blocks.BLACKSTONE, 0.01f), AlwaysTrueTest.INSTANCE, Blocks.GILDED_BLACKSTONE.defaultBlockState());
-//private static final ProcessorRule REMOVE_GILDED_BLACKSTONE = new ProcessorRule(new RandomBlockMatchTest(Blocks.GILDED_BLACKSTONE, 0.5f), AlwaysTrueTest.INSTANCE, Blocks.BLACKSTONE.defaultBlockState());
-StructureProcessorList* ProcessorLists::EMPTY; // ProcessorLists.register("empty", (ImmutableList<StructureProcessor>)ImmutableList.of());
-StructureProcessorList* ProcessorLists::ZOMBIE_PLAINS; // ProcessorLists.register("zombie_plains", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.COBBLESTONE, 0.8f), AlwaysTrueTest.INSTANCE, Blocks.MOSSY_COBBLESTONE.defaultBlockState()), (Object)new ProcessorRule(new TagMatchTest(BlockTags.DOORS), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new BlockMatchTest(Blocks.TORCH), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new BlockMatchTest(Blocks.WALL_TORCH), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.COBBLESTONE, 0.07f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.MOSSY_COBBLESTONE, 0.07f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.WHITE_TERRACOTTA, 0.07f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.OAK_LOG, 0.05f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.OAK_PLANKS, 0.1f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.OAK_STAIRS, 0.1f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.STRIPPED_OAK_LOG, 0.02f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.GLASS_PANE, 0.5f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object[])new ProcessorRule[]{new ProcessorRule(new BlockStateMatchTest((BlockState)((BlockState)Blocks.GLASS_PANE.defaultBlockState().setValue(IronBarsBlock.NORTH, true)).setValue(IronBarsBlock.SOUTH, true)), AlwaysTrueTest.INSTANCE, (BlockState)((BlockState)Blocks.BROWN_STAINED_GLASS_PANE.defaultBlockState().setValue(IronBarsBlock.NORTH, true)).setValue(IronBarsBlock.SOUTH, true)), new ProcessorRule(new BlockStateMatchTest((BlockState)((BlockState)Blocks.GLASS_PANE.defaultBlockState().setValue(IronBarsBlock.EAST, true)).setValue(IronBarsBlock.WEST, true)), AlwaysTrueTest.INSTANCE, (BlockState)((BlockState)Blocks.BROWN_STAINED_GLASS_PANE.defaultBlockState().setValue(IronBarsBlock.EAST, true)).setValue(IronBarsBlock.WEST, true)), new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.3f), AlwaysTrueTest.INSTANCE, Blocks.CARROTS.defaultBlockState()), new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.2f), AlwaysTrueTest.INSTANCE, Blocks.POTATOES.defaultBlockState()), new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.1f), AlwaysTrueTest.INSTANCE, Blocks.BEETROOTS.defaultBlockState())}))));
-StructureProcessorList* ProcessorLists::ZOMBIE_SAVANNA; // ProcessorLists.register("zombie_savanna", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new TagMatchTest(BlockTags.DOORS), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new BlockMatchTest(Blocks.TORCH), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new BlockMatchTest(Blocks.WALL_TORCH), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.ACACIA_PLANKS, 0.2f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.ACACIA_STAIRS, 0.2f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.ACACIA_LOG, 0.05f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.ACACIA_WOOD, 0.05f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.ORANGE_TERRACOTTA, 0.05f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.YELLOW_TERRACOTTA, 0.05f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.RED_TERRACOTTA, 0.05f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.GLASS_PANE, 0.5f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new BlockStateMatchTest((BlockState)((BlockState)Blocks.GLASS_PANE.defaultBlockState().setValue(IronBarsBlock.NORTH, true)).setValue(IronBarsBlock.SOUTH, true)), AlwaysTrueTest.INSTANCE, (BlockState)((BlockState)Blocks.BROWN_STAINED_GLASS_PANE.defaultBlockState().setValue(IronBarsBlock.NORTH, true)).setValue(IronBarsBlock.SOUTH, true)), (Object[])new ProcessorRule[]{new ProcessorRule(new BlockStateMatchTest((BlockState)((BlockState)Blocks.GLASS_PANE.defaultBlockState().setValue(IronBarsBlock.EAST, true)).setValue(IronBarsBlock.WEST, true)), AlwaysTrueTest.INSTANCE, (BlockState)((BlockState)Blocks.BROWN_STAINED_GLASS_PANE.defaultBlockState().setValue(IronBarsBlock.EAST, true)).setValue(IronBarsBlock.WEST, true)), new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.1f), AlwaysTrueTest.INSTANCE, Blocks.MELON_STEM.defaultBlockState())}))));
-StructureProcessorList* ProcessorLists::ZOMBIE_SNOWY; // ProcessorLists.register("zombie_snowy", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new TagMatchTest(BlockTags.DOORS), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new BlockMatchTest(Blocks.TORCH), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new BlockMatchTest(Blocks.WALL_TORCH), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new BlockMatchTest(Blocks.LANTERN), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.SPRUCE_PLANKS, 0.2f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.SPRUCE_SLAB, 0.4f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.STRIPPED_SPRUCE_LOG, 0.05f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.STRIPPED_SPRUCE_WOOD, 0.05f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.GLASS_PANE, 0.5f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new BlockStateMatchTest((BlockState)((BlockState)Blocks.GLASS_PANE.defaultBlockState().setValue(IronBarsBlock.NORTH, true)).setValue(IronBarsBlock.SOUTH, true)), AlwaysTrueTest.INSTANCE, (BlockState)((BlockState)Blocks.BROWN_STAINED_GLASS_PANE.defaultBlockState().setValue(IronBarsBlock.NORTH, true)).setValue(IronBarsBlock.SOUTH, true)), (Object)new ProcessorRule(new BlockStateMatchTest((BlockState)((BlockState)Blocks.GLASS_PANE.defaultBlockState().setValue(IronBarsBlock.EAST, true)).setValue(IronBarsBlock.WEST, true)), AlwaysTrueTest.INSTANCE, (BlockState)((BlockState)Blocks.BROWN_STAINED_GLASS_PANE.defaultBlockState().setValue(IronBarsBlock.EAST, true)).setValue(IronBarsBlock.WEST, true)), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.1f), AlwaysTrueTest.INSTANCE, Blocks.CARROTS.defaultBlockState()), (Object[])new ProcessorRule[]{new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.8f), AlwaysTrueTest.INSTANCE, Blocks.POTATOES.defaultBlockState())}))));
-StructureProcessorList* ProcessorLists::ZOMBIE_TAIGA; // ProcessorLists.register("zombie_taiga", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.COBBLESTONE, 0.8f), AlwaysTrueTest.INSTANCE, Blocks.MOSSY_COBBLESTONE.defaultBlockState()), (Object)new ProcessorRule(new TagMatchTest(BlockTags.DOORS), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new BlockMatchTest(Blocks.TORCH), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new BlockMatchTest(Blocks.WALL_TORCH), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new BlockMatchTest(Blocks.CAMPFIRE), AlwaysTrueTest.INSTANCE, (BlockState)Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, false)), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.COBBLESTONE, 0.08f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.SPRUCE_LOG, 0.08f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.GLASS_PANE, 0.5f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new BlockStateMatchTest((BlockState)((BlockState)Blocks.GLASS_PANE.defaultBlockState().setValue(IronBarsBlock.NORTH, true)).setValue(IronBarsBlock.SOUTH, true)), AlwaysTrueTest.INSTANCE, (BlockState)((BlockState)Blocks.BROWN_STAINED_GLASS_PANE.defaultBlockState().setValue(IronBarsBlock.NORTH, true)).setValue(IronBarsBlock.SOUTH, true)), (Object)new ProcessorRule(new BlockStateMatchTest((BlockState)((BlockState)Blocks.GLASS_PANE.defaultBlockState().setValue(IronBarsBlock.EAST, true)).setValue(IronBarsBlock.WEST, true)), AlwaysTrueTest.INSTANCE, (BlockState)((BlockState)Blocks.BROWN_STAINED_GLASS_PANE.defaultBlockState().setValue(IronBarsBlock.EAST, true)).setValue(IronBarsBlock.WEST, true)), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.3f), AlwaysTrueTest.INSTANCE, Blocks.PUMPKIN_STEM.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.2f), AlwaysTrueTest.INSTANCE, Blocks.POTATOES.defaultBlockState()), (Object[])new ProcessorRule[0]))));
-StructureProcessorList* ProcessorLists::ZOMBIE_DESERT; // ProcessorLists.register("zombie_desert", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new TagMatchTest(BlockTags.DOORS), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new BlockMatchTest(Blocks.TORCH), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new BlockMatchTest(Blocks.WALL_TORCH), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.SMOOTH_SANDSTONE, 0.08f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.CUT_SANDSTONE, 0.1f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.TERRACOTTA, 0.08f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.SMOOTH_SANDSTONE_STAIRS, 0.08f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.SMOOTH_SANDSTONE_SLAB, 0.08f), AlwaysTrueTest.INSTANCE, Blocks.COBWEB.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.2f), AlwaysTrueTest.INSTANCE, Blocks.BEETROOTS.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.1f), AlwaysTrueTest.INSTANCE, Blocks.MELON_STEM.defaultBlockState())))));
-StructureProcessorList* ProcessorLists::MOSSIFY_10_PERCENT; // ProcessorLists.register("mossify_10_percent", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.COBBLESTONE, 0.1f), AlwaysTrueTest.INSTANCE, Blocks.MOSSY_COBBLESTONE.defaultBlockState())))));
-StructureProcessorList* ProcessorLists::MOSSIFY_20_PERCENT; // ProcessorLists.register("mossify_20_percent", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.COBBLESTONE, 0.2f), AlwaysTrueTest.INSTANCE, Blocks.MOSSY_COBBLESTONE.defaultBlockState())))));
-StructureProcessorList* ProcessorLists::MOSSIFY_70_PERCENT; // ProcessorLists.register("mossify_70_percent", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.COBBLESTONE, 0.7f), AlwaysTrueTest.INSTANCE, Blocks.MOSSY_COBBLESTONE.defaultBlockState())))));
-StructureProcessorList* ProcessorLists::STREET_PLAINS; // ProcessorLists.register("street_plains", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new BlockMatchTest(Blocks.DIRT_PATH), new BlockMatchTest(Blocks.WATER), Blocks.OAK_PLANKS.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.DIRT_PATH, 0.1f), AlwaysTrueTest.INSTANCE, Blocks.GRASS_BLOCK.defaultBlockState()), (Object)new ProcessorRule(new BlockMatchTest(Blocks.GRASS_BLOCK), new BlockMatchTest(Blocks.WATER), Blocks.WATER.defaultBlockState()), (Object)new ProcessorRule(new BlockMatchTest(Blocks.DIRT), new BlockMatchTest(Blocks.WATER), Blocks.WATER.defaultBlockState())))));
-StructureProcessorList* ProcessorLists::STREET_SAVANNA; // ProcessorLists.register("street_savanna", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new BlockMatchTest(Blocks.DIRT_PATH), new BlockMatchTest(Blocks.WATER), Blocks.ACACIA_PLANKS.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.DIRT_PATH, 0.2f), AlwaysTrueTest.INSTANCE, Blocks.GRASS_BLOCK.defaultBlockState()), (Object)new ProcessorRule(new BlockMatchTest(Blocks.GRASS_BLOCK), new BlockMatchTest(Blocks.WATER), Blocks.WATER.defaultBlockState()), (Object)new ProcessorRule(new BlockMatchTest(Blocks.DIRT), new BlockMatchTest(Blocks.WATER), Blocks.WATER.defaultBlockState())))));
-StructureProcessorList* ProcessorLists::STREET_SNOWY_OR_TAIGA; // ProcessorLists.register("street_snowy_or_taiga", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new BlockMatchTest(Blocks.DIRT_PATH), new BlockMatchTest(Blocks.WATER), Blocks.SPRUCE_PLANKS.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.DIRT_PATH, 0.2f), AlwaysTrueTest.INSTANCE, Blocks.GRASS_BLOCK.defaultBlockState()), (Object)new ProcessorRule(new BlockMatchTest(Blocks.GRASS_BLOCK), new BlockMatchTest(Blocks.WATER), Blocks.WATER.defaultBlockState()), (Object)new ProcessorRule(new BlockMatchTest(Blocks.DIRT), new BlockMatchTest(Blocks.WATER), Blocks.WATER.defaultBlockState())))));
-StructureProcessorList* ProcessorLists::FARM_PLAINS; // ProcessorLists.register("farm_plains", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.3f), AlwaysTrueTest.INSTANCE, Blocks.CARROTS.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.2f), AlwaysTrueTest.INSTANCE, Blocks.POTATOES.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.1f), AlwaysTrueTest.INSTANCE, Blocks.BEETROOTS.defaultBlockState())))));
-StructureProcessorList* ProcessorLists::FARM_SAVANNA; // ProcessorLists.register("farm_savanna", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.1f), AlwaysTrueTest.INSTANCE, Blocks.MELON_STEM.defaultBlockState())))));
-StructureProcessorList* ProcessorLists::FARM_SNOWY; // ProcessorLists.register("farm_snowy", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.1f), AlwaysTrueTest.INSTANCE, Blocks.CARROTS.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.8f), AlwaysTrueTest.INSTANCE, Blocks.POTATOES.defaultBlockState())))));
-StructureProcessorList* ProcessorLists::FARM_TAIGA; // ProcessorLists.register("farm_taiga", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.3f), AlwaysTrueTest.INSTANCE, Blocks.PUMPKIN_STEM.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.2f), AlwaysTrueTest.INSTANCE, Blocks.POTATOES.defaultBlockState())))));
-StructureProcessorList* ProcessorLists::FARM_DESERT; // ProcessorLists.register("farm_desert", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.2f), AlwaysTrueTest.INSTANCE, Blocks.BEETROOTS.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.WHEAT, 0.1f), AlwaysTrueTest.INSTANCE, Blocks.MELON_STEM.defaultBlockState())))));
-StructureProcessorList* ProcessorLists::OUTPOST_ROT; // ProcessorLists.register("outpost_rot", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new BlockRotProcessor(0.05f)));
-StructureProcessorList* ProcessorLists::BOTTOM_RAMPART; // ProcessorLists.register("bottom_rampart", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.MAGMA_BLOCK, 0.75f), AlwaysTrueTest.INSTANCE, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS, 0.15f), AlwaysTrueTest.INSTANCE, Blocks.POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), (Object)REMOVE_GILDED_BLACKSTONE, (Object)ADD_GILDED_BLACKSTONE))));
-StructureProcessorList* ProcessorLists::TREASURE_ROOMS; // ProcessorLists.register("treasure_rooms", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.POLISHED_BLACKSTONE_BRICKS, 0.35f), AlwaysTrueTest.INSTANCE, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.CHISELED_POLISHED_BLACKSTONE, 0.1f), AlwaysTrueTest.INSTANCE, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), (Object)REMOVE_GILDED_BLACKSTONE, (Object)ADD_GILDED_BLACKSTONE))));
-StructureProcessorList* ProcessorLists::HOUSING; // ProcessorLists.register("housing", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.POLISHED_BLACKSTONE_BRICKS, 0.3f), AlwaysTrueTest.INSTANCE, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.BLACKSTONE, 1.0E-4f), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)REMOVE_GILDED_BLACKSTONE, (Object)ADD_GILDED_BLACKSTONE))));
-StructureProcessorList* ProcessorLists::SIDE_WALL_DEGRADATION; // ProcessorLists.register("side_wall_degradation", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.CHISELED_POLISHED_BLACKSTONE, 0.5f), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.GOLD_BLOCK, 0.1f), AlwaysTrueTest.INSTANCE, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), (Object)REMOVE_GILDED_BLACKSTONE, (Object)ADD_GILDED_BLACKSTONE))));
-StructureProcessorList* ProcessorLists::STABLE_DEGRADATION; // ProcessorLists.register("stable_degradation", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.POLISHED_BLACKSTONE_BRICKS, 0.1f), AlwaysTrueTest.INSTANCE, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.BLACKSTONE, 1.0E-4f), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)REMOVE_GILDED_BLACKSTONE, (Object)ADD_GILDED_BLACKSTONE))));
-StructureProcessorList* ProcessorLists::BASTION_GENERIC_DEGRADATION; // ProcessorLists.register("bastion_generic_degradation", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.POLISHED_BLACKSTONE_BRICKS, 0.3f), AlwaysTrueTest.INSTANCE, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.BLACKSTONE, 1.0E-4f), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.GOLD_BLOCK, 0.3f), AlwaysTrueTest.INSTANCE, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), (Object)REMOVE_GILDED_BLACKSTONE, (Object)ADD_GILDED_BLACKSTONE))));
-StructureProcessorList* ProcessorLists::RAMPART_DEGRADATION; // ProcessorLists.register("rampart_degradation", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.POLISHED_BLACKSTONE_BRICKS, 0.4f), AlwaysTrueTest.INSTANCE, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.BLACKSTONE, 0.01f), AlwaysTrueTest.INSTANCE, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.POLISHED_BLACKSTONE_BRICKS, 1.0E-4f), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.BLACKSTONE, 1.0E-4f), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.GOLD_BLOCK, 0.3f), AlwaysTrueTest.INSTANCE, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), (Object)REMOVE_GILDED_BLACKSTONE, (Object)ADD_GILDED_BLACKSTONE))));
-StructureProcessorList* ProcessorLists::ENTRANCE_REPLACEMENT; // ProcessorLists.register("entrance_replacement", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.CHISELED_POLISHED_BLACKSTONE, 0.5f), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.GOLD_BLOCK, 0.6f), AlwaysTrueTest.INSTANCE, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), (Object)REMOVE_GILDED_BLACKSTONE, (Object)ADD_GILDED_BLACKSTONE))));
-StructureProcessorList* ProcessorLists::BRIDGE; // ProcessorLists.register("bridge", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.POLISHED_BLACKSTONE_BRICKS, 0.3f), AlwaysTrueTest.INSTANCE, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.BLACKSTONE, 1.0E-4f), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState())))));
-StructureProcessorList* ProcessorLists::ROOF; // ProcessorLists.register("roof", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.POLISHED_BLACKSTONE_BRICKS, 0.3f), AlwaysTrueTest.INSTANCE, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.POLISHED_BLACKSTONE_BRICKS, 0.15f), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.POLISHED_BLACKSTONE_BRICKS, 0.3f), AlwaysTrueTest.INSTANCE, Blocks.BLACKSTONE.defaultBlockState())))));
-StructureProcessorList* ProcessorLists::HIGH_WALL; // ProcessorLists.register("high_wall", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.POLISHED_BLACKSTONE_BRICKS, 0.01f), AlwaysTrueTest.INSTANCE, Blocks.AIR.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.POLISHED_BLACKSTONE_BRICKS, 0.5f), AlwaysTrueTest.INSTANCE, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), (Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.POLISHED_BLACKSTONE_BRICKS, 0.3f), AlwaysTrueTest.INSTANCE, Blocks.BLACKSTONE.defaultBlockState()), (Object)REMOVE_GILDED_BLACKSTONE))));
-StructureProcessorList* ProcessorLists::HIGH_RAMPART; // ProcessorLists.register("high_rampart", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new RandomBlockMatchTest(Blocks.GOLD_BLOCK, 0.3f), AlwaysTrueTest.INSTANCE, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState()), (Object)new ProcessorRule(AlwaysTrueTest.INSTANCE, AlwaysTrueTest.INSTANCE, new AxisAlignedLinearPosTest(0.0f, 0.05f, 0, 100, Direction.Axis.Y), Blocks.AIR.defaultBlockState()), (Object)REMOVE_GILDED_BLACKSTONE))));
-StructureProcessorList* ProcessorLists::FOSSIL_ROT; // ProcessorLists.register("fossil_rot", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new BlockRotProcessor(0.9f), (Object)new ProtectedBlockProcessor(BlockTags.FEATURES_CANNOT_REPLACE.getName())));
-StructureProcessorList* ProcessorLists::FOSSIL_COAL; // ProcessorLists.register("fossil_coal", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new BlockRotProcessor(0.1f), (Object)new ProtectedBlockProcessor(BlockTags.FEATURES_CANNOT_REPLACE.getName())));
-StructureProcessorList* ProcessorLists::FOSSIL_DIAMONDS; // ProcessorLists.register("fossil_diamonds", (ImmutableList<StructureProcessor>)ImmutableList.of((Object)new BlockRotProcessor(0.1f), (Object)new RuleProcessor((List<? extends ProcessorRule>)ImmutableList.of((Object)new ProcessorRule(new BlockMatchTest(Blocks.COAL_ORE), AlwaysTrueTest.INSTANCE, Blocks.DEEPSLATE_DIAMOND_ORE.defaultBlockState()))), (Object)new ProtectedBlockProcessor(BlockTags.FEATURES_CANNOT_REPLACE.getName())));
-
-struct JigsawPiece;
-struct JigsawPattern {
-	enum class Projection {
-		RIGID,
-		TERRAIN_MATCHING
-	};
-
-	std::string location;
-	std::string fallback;
-	std::vector<JigsawPiece *> pool;
-	std::vector<std::pair<JigsawPiece *, int>> elements;
-};
-
-struct JigsawPiece {
-	JigsawPattern::Projection projection;
-
-	explicit JigsawPiece(JigsawPattern::Projection projection) : projection(projection) {}
-	virtual ~JigsawPiece() = default;
-
-	virtual auto getGroundLevelDelta() -> int {
-		return 1;
-	}
-
-	using Factory = std::function<auto(JigsawPattern::Projection) -> JigsawPiece*>;
-
-	static auto list(std::vector<Factory> factories) -> Factory;
-	static auto single(std::string name) -> Factory;
-	static auto single(std::string name, StructureProcessorList* processor) -> Factory;
-	static auto feature(ConfiguredFeature* feature) -> Factory;
-	static auto legacy(std::string name) -> Factory;
-	static auto legacy(std::string name, StructureProcessorList* processor) -> Factory;
-	static auto empty() -> Factory;
-};
-
-struct EmptyJigsawPiece : JigsawPiece {
-	EmptyJigsawPiece() : JigsawPiece(JigsawPattern::Projection::TERRAIN_MATCHING) {}
-};
-
-struct SingleJigsawPiece : JigsawPiece {
-	std::string location;
-	StructureProcessorList* processors;
-
-	SingleJigsawPiece(std::string location, StructureProcessorList* processors, JigsawPattern::Projection projection)
-	: JigsawPiece(projection)
-	, location(std::move(location))
-	, processors(processors) {}
-};
-
-struct FeatureJigsawPiece : JigsawPiece {
-	FeatureJigsawPiece(ConfiguredFeature *feature, JigsawPattern::Projection projection) : JigsawPiece(projection) {}
-};
-
-struct ListJigsawPiece : JigsawPiece {
-	std::vector<JigsawPiece*> pieces;
-
-	ListJigsawPiece(std::vector<JigsawPiece*> pieces, JigsawPattern::Projection projection)
-	: JigsawPiece(projection)
-	, pieces(std::move(pieces)) {}
-};
-
-struct LegacySingleJigsawPiece : SingleJigsawPiece {
-	using SingleJigsawPiece::SingleJigsawPiece;
-};
-
-
-auto JigsawPiece::list(std::vector<Factory> factories) -> Factory {
-	return [factories = std::move(factories)](JigsawPattern::Projection placement) -> JigsawPiece * {
-		auto pieces = factories | ranges::views::transform([placement](auto&& factory) { return factory(placement); });
-		return new ListJigsawPiece(pieces | ranges::to_vector, placement);
-	};
-}
-
-auto JigsawPiece::single(std::string name) -> JigsawPiece::Factory {
-	return [name = std::move(name)](JigsawPattern::Projection placement) -> JigsawPiece * {
-		return new SingleJigsawPiece(name, ProcessorLists::EMPTY, placement);
-	};
-}
-
-auto JigsawPiece::single(std::string name, StructureProcessorList *processors) -> JigsawPiece::Factory {
-	return [name = std::move(name), processors](JigsawPattern::Projection placement) -> JigsawPiece * {
-		return new SingleJigsawPiece(name, processors, placement);
-	};
-}
-
-auto JigsawPiece::feature(ConfiguredFeature *feature) -> Factory {
-	return [feature](JigsawPattern::Projection placement) -> JigsawPiece * {
-		return new FeatureJigsawPiece(feature, placement);
-	};
-}
-
-auto JigsawPiece::legacy(std::string name) -> JigsawPiece::Factory {
-	return [name = std::move(name)](JigsawPattern::Projection placement) -> JigsawPiece * {
-		return new LegacySingleJigsawPiece(name, ProcessorLists::EMPTY, placement);
-	};
-}
-
-auto JigsawPiece::legacy(std::string name, StructureProcessorList *processors) -> JigsawPiece::Factory {
-	return [name = std::move(name), processors](JigsawPattern::Projection placement) -> JigsawPiece * {
-		return new LegacySingleJigsawPiece(name, processors, placement);
-	};
-}
-
-auto JigsawPiece::empty() -> JigsawPiece::Factory {
-	return [](JigsawPattern::Projection) -> JigsawPiece * {
-		return new EmptyJigsawPiece();
-	};
-}
+#include <world/gen/feature/jigsaw/JigsawPiece.hpp>
+#include <world/gen/feature/jigsaw/JigsawPattern.hpp>
+#include <world/gen/feature/processor/ProcessorLists.hpp>
 
 JigsawPattern* PlainVillagePools::START;
 JigsawPattern* SnowyVillagePools::START;
@@ -197,7 +14,7 @@ JigsawPattern* TaigaVillagePools::START;
 JigsawPattern* PillagerOutpostPools::START;
 JigsawPattern* BastionRemnantsPieces::START;
 
-static auto create(std::string location, std::string fallback, const std::vector<std::pair<JigsawPiece::Factory, int>>& factories, JigsawPattern::Projection placement) -> JigsawPattern* {
+static auto create(std::string location, std::string fallback, const std::vector<std::pair<JigsawPiece::Factory, int>>& factories, JigsawProjection placement) -> JigsawPattern* {
 	std::vector<JigsawPiece *> pool;
 	std::vector<std::pair<JigsawPiece *, int>> elements;
 
@@ -231,7 +48,7 @@ void PlainVillagePools::init() {
 			{JigsawPiece::legacy("village/plains/zombie/town_centers/plains_meeting_point_2", ProcessorLists::ZOMBIE_PLAINS), 1 },
 			{JigsawPiece::legacy("village/plains/zombie/town_centers/plains_meeting_point_3", ProcessorLists::ZOMBIE_PLAINS), 1 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -255,7 +72,7 @@ void PlainVillagePools::init() {
 			{JigsawPiece::legacy("village/plains/streets/crossroad_06", ProcessorLists::STREET_PLAINS), 2 },
 			{JigsawPiece::legacy("village/plains/streets/turn_01", ProcessorLists::STREET_PLAINS), 3 }
 		},
-		JigsawPattern::Projection::TERRAIN_MATCHING
+		JigsawProjection::TERRAIN_MATCHING
 	);
 
 	create(
@@ -279,7 +96,7 @@ void PlainVillagePools::init() {
 			{JigsawPiece::legacy("village/plains/zombie/streets/crossroad_06", ProcessorLists::STREET_PLAINS), 2 },
 			{JigsawPiece::legacy("village/plains/zombie/streets/turn_01", ProcessorLists::STREET_PLAINS), 3 }
 		},
-		JigsawPattern::Projection::TERRAIN_MATCHING
+		JigsawProjection::TERRAIN_MATCHING
 	);
 
 	create(
@@ -324,7 +141,7 @@ void PlainVillagePools::init() {
 			{JigsawPiece::legacy("village/plains/houses/plains_meeting_point_5"), 1 },
 			{JigsawPiece::empty(), 10 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -368,7 +185,7 @@ void PlainVillagePools::init() {
 			{JigsawPiece::legacy("village/plains/zombie/houses/plains_meeting_point_5", ProcessorLists::ZOMBIE_PLAINS), 1 },
 			{JigsawPiece::empty(), 10 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -380,7 +197,7 @@ void PlainVillagePools::init() {
 			{JigsawPiece::legacy("village/plains/terminators/terminator_03", ProcessorLists::STREET_PLAINS), 1 },
 			{JigsawPiece::legacy("village/plains/terminators/terminator_04", ProcessorLists::STREET_PLAINS), 1 }
 		},
-		JigsawPattern::Projection::TERRAIN_MATCHING
+		JigsawProjection::TERRAIN_MATCHING
 	);
 
 	create(
@@ -389,7 +206,7 @@ void PlainVillagePools::init() {
 		{
 			{JigsawPiece::feature(ConfiguredFeatures::OAK), 1 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -402,7 +219,7 @@ void PlainVillagePools::init() {
 			{JigsawPiece::feature(ConfiguredFeatures::PILE_HAY), 1 },
 			{JigsawPiece::empty(), 2 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -415,7 +232,7 @@ void PlainVillagePools::init() {
 			{JigsawPiece::feature(ConfiguredFeatures::PILE_HAY), 1 },
 			{JigsawPiece::empty(), 2 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -426,7 +243,7 @@ void PlainVillagePools::init() {
 			{JigsawPiece::legacy("village/plains/villagers/baby"), 1 },
 			{JigsawPiece::legacy("village/plains/villagers/unemployed"), 10 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -436,7 +253,7 @@ void PlainVillagePools::init() {
 			{JigsawPiece::legacy("village/plains/zombie/villagers/nitwit"), 1 },
 			{JigsawPiece::legacy("village/plains/zombie/villagers/unemployed"), 10 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -454,7 +271,7 @@ void PlainVillagePools::init() {
 			{JigsawPiece::legacy("village/common/animals/sheep_2"), 1 },
 			{JigsawPiece::empty(), 5 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -464,7 +281,7 @@ void PlainVillagePools::init() {
 			{JigsawPiece::legacy("village/common/animals/sheep_1"), 1 },
 			{JigsawPiece::legacy("village/common/animals/sheep_2"), 1 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -483,7 +300,7 @@ void PlainVillagePools::init() {
 			{JigsawPiece::legacy("village/common/animals/cat_jellie"), 1 },
 			{JigsawPiece::empty(), 3 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -495,7 +312,7 @@ void PlainVillagePools::init() {
 			{JigsawPiece::legacy("village/common/animals/sheep_1"), 1 },
 			{JigsawPiece::legacy("village/common/animals/sheep_2"), 1 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -504,7 +321,7 @@ void PlainVillagePools::init() {
 		{
 			{JigsawPiece::legacy("village/common/iron_golem"), 1 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -513,7 +330,7 @@ void PlainVillagePools::init() {
 		{
 			{JigsawPiece::legacy("village/common/well_bottom"), 1 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 }
@@ -530,7 +347,7 @@ void SnowyVillagePools::init() {
 			{JigsawPiece::legacy("village/snowy/zombie/town_centers/snowy_meeting_point_2"), 1 },
 			{JigsawPiece::legacy("village/snowy/zombie/town_centers/snowy_meeting_point_3"), 3 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -554,7 +371,7 @@ void SnowyVillagePools::init() {
 			{JigsawPiece::legacy("village/snowy/streets/crossroad_06", ProcessorLists::STREET_SNOWY_OR_TAIGA), 2 },
 			{JigsawPiece::legacy("village/snowy/streets/turn_01", ProcessorLists::STREET_SNOWY_OR_TAIGA), 3 }
 		},
-		JigsawPattern::Projection::TERRAIN_MATCHING
+		JigsawProjection::TERRAIN_MATCHING
 	);
 
 	create(
@@ -578,7 +395,7 @@ void SnowyVillagePools::init() {
 			{JigsawPiece::legacy("village/snowy/zombie/streets/crossroad_06", ProcessorLists::STREET_SNOWY_OR_TAIGA), 2 },
 			{JigsawPiece::legacy("village/snowy/zombie/streets/turn_01", ProcessorLists::STREET_SNOWY_OR_TAIGA), 3 }
 		},
-		JigsawPattern::Projection::TERRAIN_MATCHING
+		JigsawProjection::TERRAIN_MATCHING
 	);
 
 	create(
@@ -617,7 +434,7 @@ void SnowyVillagePools::init() {
 			{JigsawPiece::legacy("village/snowy/houses/snowy_animal_pen_2"), 2 },
 			{JigsawPiece::empty(), 6 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -656,7 +473,7 @@ void SnowyVillagePools::init() {
 			{JigsawPiece::legacy("village/snowy/houses/snowy_animal_pen_2", ProcessorLists::ZOMBIE_SNOWY), 2 },
 			{JigsawPiece::empty(), 6 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -668,7 +485,7 @@ void SnowyVillagePools::init() {
 			{JigsawPiece::legacy("village/plains/terminators/terminator_03", ProcessorLists::STREET_SNOWY_OR_TAIGA), 1 },
 			{JigsawPiece::legacy("village/plains/terminators/terminator_04", ProcessorLists::STREET_SNOWY_OR_TAIGA), 1 }
 		},
-		JigsawPattern::Projection::TERRAIN_MATCHING
+		JigsawProjection::TERRAIN_MATCHING
 	);
 
 	create(
@@ -677,7 +494,7 @@ void SnowyVillagePools::init() {
 		{
 			 { JigsawPiece::feature(ConfiguredFeatures::SPRUCE), 1 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -692,7 +509,7 @@ void SnowyVillagePools::init() {
 			{JigsawPiece::feature(ConfiguredFeatures::PILE_ICE), 1 },
 			{JigsawPiece::empty(), 9 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -707,7 +524,7 @@ void SnowyVillagePools::init() {
 			{JigsawPiece::feature(ConfiguredFeatures::PILE_ICE), 4 },
 			{JigsawPiece::empty(), 7 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -718,7 +535,7 @@ void SnowyVillagePools::init() {
 			{JigsawPiece::legacy("village/snowy/villagers/baby"), 1 },
 			{JigsawPiece::legacy("village/snowy/villagers/unemployed"), 10 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -728,7 +545,7 @@ void SnowyVillagePools::init() {
 			{JigsawPiece::legacy("village/snowy/zombie/villagers/nitwit"), 1 },
 			{JigsawPiece::legacy("village/snowy/zombie/villagers/unemployed"), 10 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 }
 
@@ -746,9 +563,8 @@ void SavannaVillagePools::init() {
 			{JigsawPiece::legacy("village/savanna/zombie/town_centers/savanna_meeting_point_3", ProcessorLists::ZOMBIE_SAVANNA), 3 },
 			{JigsawPiece::legacy("village/savanna/zombie/town_centers/savanna_meeting_point_4", ProcessorLists::ZOMBIE_SAVANNA), 3 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
-
 
 	create(
 		"village/savanna/streets",
@@ -774,7 +590,7 @@ void SavannaVillagePools::init() {
 			{JigsawPiece::legacy("village/savanna/streets/split_02", ProcessorLists::STREET_SAVANNA), 2 },
 			{JigsawPiece::legacy("village/savanna/streets/turn_01", ProcessorLists::STREET_SAVANNA), 3 }
 		},
-		JigsawPattern::Projection::TERRAIN_MATCHING
+		JigsawProjection::TERRAIN_MATCHING
 	);
 
 	create(
@@ -801,7 +617,7 @@ void SavannaVillagePools::init() {
 			{JigsawPiece::legacy("village/savanna/zombie/streets/split_02", ProcessorLists::STREET_SAVANNA), 2 },
 			{JigsawPiece::legacy("village/savanna/zombie/streets/turn_01", ProcessorLists::STREET_SAVANNA), 3 }
 		},
-		JigsawPattern::Projection::TERRAIN_MATCHING
+		JigsawProjection::TERRAIN_MATCHING
 	);
 
 	create(
@@ -841,7 +657,7 @@ void SavannaVillagePools::init() {
 			{JigsawPiece::legacy("village/savanna/houses/savanna_animal_pen_3"), 2 },
 			{JigsawPiece::empty(), 5 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -881,7 +697,7 @@ void SavannaVillagePools::init() {
 			{JigsawPiece::legacy("village/savanna/zombie/houses/savanna_animal_pen_3", ProcessorLists::ZOMBIE_SAVANNA), 2 },
 			{JigsawPiece::empty(), 5 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -894,7 +710,7 @@ void SavannaVillagePools::init() {
 			{JigsawPiece::legacy("village/plains/terminators/terminator_04", ProcessorLists::STREET_SAVANNA), 1 },
 			{JigsawPiece::legacy("village/savanna/terminators/terminator_05", ProcessorLists::STREET_SAVANNA), 1 }
 		},
-		JigsawPattern::Projection::TERRAIN_MATCHING
+		JigsawProjection::TERRAIN_MATCHING
 	);
 
 	create(
@@ -907,7 +723,7 @@ void SavannaVillagePools::init() {
 			{JigsawPiece::legacy("village/plains/terminators/terminator_04", ProcessorLists::STREET_SAVANNA), 1 },
 			{JigsawPiece::legacy("village/savanna/zombie/terminators/terminator_05", ProcessorLists::STREET_SAVANNA), 1 }
 		},
-		JigsawPattern::Projection::TERRAIN_MATCHING
+		JigsawProjection::TERRAIN_MATCHING
 	);
 
 	create(
@@ -916,7 +732,7 @@ void SavannaVillagePools::init() {
 		{
 			{JigsawPiece::feature(ConfiguredFeatures::ACACIA), 1 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -929,7 +745,7 @@ void SavannaVillagePools::init() {
 			{JigsawPiece::feature(ConfiguredFeatures::PILE_MELON), 1 },
 			{JigsawPiece::empty(), 4 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -942,7 +758,7 @@ void SavannaVillagePools::init() {
 			{JigsawPiece::feature(ConfiguredFeatures::PILE_MELON), 1 },
 			{JigsawPiece::empty(), 4 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -953,7 +769,7 @@ void SavannaVillagePools::init() {
 			{JigsawPiece::legacy("village/savanna/villagers/baby"), 1 },
 			{JigsawPiece::legacy("village/savanna/villagers/unemployed"), 10 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -963,7 +779,7 @@ void SavannaVillagePools::init() {
 			{JigsawPiece::legacy("village/savanna/zombie/villagers/nitwit"), 1 },
 			{JigsawPiece::legacy("village/savanna/zombie/villagers/unemployed"), 10 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 }
 
@@ -979,7 +795,7 @@ void DesertVillagePools::init() {
 			{JigsawPiece::legacy("village/desert/zombie/town_centers/desert_meeting_point_2", ProcessorLists::ZOMBIE_DESERT), 2 },
 			{JigsawPiece::legacy("village/desert/zombie/town_centers/desert_meeting_point_3", ProcessorLists::ZOMBIE_DESERT), 1 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -998,7 +814,7 @@ void DesertVillagePools::init() {
 			{JigsawPiece::legacy("village/desert/streets/square_02"), 3 },
 			{JigsawPiece::legacy("village/desert/streets/turn_01"), 3 }
 		},
-		JigsawPattern::Projection::TERRAIN_MATCHING
+		JigsawProjection::TERRAIN_MATCHING
 	);
 
 	create(
@@ -1017,7 +833,7 @@ void DesertVillagePools::init() {
 			{JigsawPiece::legacy("village/desert/zombie/streets/square_02"), 3 },
 			{JigsawPiece::legacy("village/desert/zombie/streets/turn_01"), 3 }
 		},
-		JigsawPattern::Projection::TERRAIN_MATCHING
+		JigsawProjection::TERRAIN_MATCHING
 	);
 
 	create(
@@ -1054,7 +870,7 @@ void DesertVillagePools::init() {
 			{JigsawPiece::legacy("village/desert/houses/desert_animal_pen_2"), 2 },
 			{JigsawPiece::empty(), 5 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1091,7 +907,7 @@ void DesertVillagePools::init() {
 			{JigsawPiece::legacy("village/desert/houses/desert_animal_pen_2", ProcessorLists::ZOMBIE_DESERT), 2 },
 			{JigsawPiece::empty(), 5 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1101,7 +917,7 @@ void DesertVillagePools::init() {
 			{JigsawPiece::legacy("village/desert/terminators/terminator_01"), 1 },
 			{JigsawPiece::legacy("village/desert/terminators/terminator_02"), 1 }
 		},
-		JigsawPattern::Projection::TERRAIN_MATCHING
+		JigsawProjection::TERRAIN_MATCHING
 	);
 
 	create(
@@ -1111,7 +927,7 @@ void DesertVillagePools::init() {
 			{JigsawPiece::legacy("village/desert/terminators/terminator_01"), 1 },
 			{JigsawPiece::legacy("village/desert/zombie/terminators/terminator_02"), 1 }
 		},
-		JigsawPattern::Projection::TERRAIN_MATCHING
+		JigsawProjection::TERRAIN_MATCHING
 	);
 
 	create(
@@ -1123,7 +939,7 @@ void DesertVillagePools::init() {
 			{JigsawPiece::feature(ConfiguredFeatures::PILE_HAY), 4 },
 			{JigsawPiece::empty(), 10 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1135,7 +951,7 @@ void DesertVillagePools::init() {
 			{JigsawPiece::feature(ConfiguredFeatures::PILE_HAY), 4 },
 			{JigsawPiece::empty(), 10 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1146,7 +962,7 @@ void DesertVillagePools::init() {
 			{JigsawPiece::legacy("village/desert/villagers/baby"), 1 },
 			{JigsawPiece::legacy("village/desert/villagers/unemployed"), 10 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1156,7 +972,7 @@ void DesertVillagePools::init() {
 			{JigsawPiece::legacy("village/desert/zombie/villagers/nitwit"), 1 },
 			{JigsawPiece::legacy("village/desert/zombie/villagers/unemployed"), 10 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 }
 
@@ -1170,7 +986,7 @@ void TaigaVillagePools::init() {
 			{JigsawPiece::legacy("village/taiga/zombie/town_centers/taiga_meeting_point_1", ProcessorLists::ZOMBIE_TAIGA), 1 }, 
 			{JigsawPiece::legacy("village/taiga/zombie/town_centers/taiga_meeting_point_2", ProcessorLists::ZOMBIE_TAIGA), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1194,7 +1010,7 @@ void TaigaVillagePools::init() {
 			{JigsawPiece::legacy("village/taiga/streets/crossroad_06", ProcessorLists::STREET_SNOWY_OR_TAIGA), 2 },
 			{JigsawPiece::legacy("village/taiga/streets/turn_01", ProcessorLists::STREET_SNOWY_OR_TAIGA), 3 }
 		},
-		JigsawPattern::Projection::TERRAIN_MATCHING
+		JigsawProjection::TERRAIN_MATCHING
 	);
 	create(
 		"village/taiga/zombie/streets", 
@@ -1217,7 +1033,7 @@ void TaigaVillagePools::init() {
 			{JigsawPiece::legacy("village/taiga/zombie/streets/crossroad_06", ProcessorLists::STREET_SNOWY_OR_TAIGA), 2 },
 			{JigsawPiece::legacy("village/taiga/zombie/streets/turn_01", ProcessorLists::STREET_SNOWY_OR_TAIGA), 3 }
 		},
-		JigsawPattern::Projection::TERRAIN_MATCHING
+		JigsawProjection::TERRAIN_MATCHING
 	);
 	create(
 		"village/taiga/houses", 
@@ -1252,7 +1068,7 @@ void TaigaVillagePools::init() {
 			{JigsawPiece::legacy("village/taiga/houses/taiga_animal_pen_1", ProcessorLists::MOSSIFY_10_PERCENT), 2 },
 			{JigsawPiece::empty(), 6 }
 		},
-		JigsawPattern::Projection::RIGID);
+		JigsawProjection::RIGID);
 	create(
 		"village/taiga/zombie/houses", 
 		"village/taiga/terminators", 
@@ -1285,7 +1101,7 @@ void TaigaVillagePools::init() {
 			{JigsawPiece::legacy("village/taiga/houses/taiga_animal_pen_1", ProcessorLists::ZOMBIE_TAIGA), 2 },
 			{JigsawPiece::empty(), 6 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 	create(
 		"village/taiga/terminators", 
@@ -1296,7 +1112,7 @@ void TaigaVillagePools::init() {
 			{JigsawPiece::legacy("village/plains/terminators/terminator_03", ProcessorLists::STREET_SNOWY_OR_TAIGA), 1 }, 
 			{JigsawPiece::legacy("village/plains/terminators/terminator_04", ProcessorLists::STREET_SNOWY_OR_TAIGA), 1 }
 		}, 
-		JigsawPattern::Projection::TERRAIN_MATCHING
+		JigsawProjection::TERRAIN_MATCHING
 	);
 	create(
 		"village/taiga/decor", 
@@ -1316,7 +1132,7 @@ void TaigaVillagePools::init() {
 			{JigsawPiece::feature(ConfiguredFeatures::PATCH_BERRY_BUSH), 1 },
 			{JigsawPiece::empty(), 4 }
 		},
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 	create(
 		"village/taiga/zombie/decor", 
@@ -1333,7 +1149,7 @@ void TaigaVillagePools::init() {
 			{JigsawPiece::feature(ConfiguredFeatures::PATCH_BERRY_BUSH), 1 },
 			{JigsawPiece::empty(), 4 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 	create(
 		"village/taiga/villagers", 
@@ -1343,7 +1159,7 @@ void TaigaVillagePools::init() {
 			{JigsawPiece::legacy("village/taiga/villagers/baby"), 1 }, 
 			{JigsawPiece::legacy("village/taiga/villagers/unemployed"), 10 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 	create(
 		"village/taiga/zombie/villagers", 
@@ -1352,7 +1168,7 @@ void TaigaVillagePools::init() {
 			{JigsawPiece::legacy("village/taiga/zombie/villagers/nitwit"), 1 }, 
 			{JigsawPiece::legacy("village/taiga/zombie/villagers/unemployed"), 10 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 }
 
@@ -1363,7 +1179,7 @@ void PillagerOutpostPools::init() {
 		{
 			{ JigsawPiece::legacy("pillager_outpost/base_plate"), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1378,7 +1194,7 @@ void PillagerOutpostPools::init() {
 				1
 			}
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1387,7 +1203,7 @@ void PillagerOutpostPools::init() {
 		{
 			{ JigsawPiece::legacy("pillager_outpost/feature_plate"), 1 }
 		}, 
-		JigsawPattern::Projection::TERRAIN_MATCHING
+		JigsawProjection::TERRAIN_MATCHING
 	);
 
 	create(
@@ -1402,7 +1218,7 @@ void PillagerOutpostPools::init() {
 			{ JigsawPiece::legacy("pillager_outpost/feature_targets"), 1 }, 
 			{ JigsawPiece::empty(), 6 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 }
 
@@ -1416,7 +1232,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/treasure/big_air_full", ProcessorLists::BASTION_GENERIC_DEGRADATION), 1 }, 
 			{ JigsawPiece::single("bastion/bridge/starting_pieces/entrance_base", ProcessorLists::BASTION_GENERIC_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	// BastionRemnantsMainPools
@@ -1428,7 +1244,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/units/center_pieces/center_1", ProcessorLists::HOUSING), 1 }, 
 			{ JigsawPiece::single("bastion/units/center_pieces/center_2", ProcessorLists::HOUSING), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1438,7 +1254,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/units/pathways/pathway_0", ProcessorLists::HOUSING), 1 }, 
 			{ JigsawPiece::single("bastion/units/pathways/pathway_wall_0", ProcessorLists::HOUSING), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1448,7 +1264,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/units/walls/wall_base", ProcessorLists::HOUSING), 1 }, 
 			{ JigsawPiece::single("bastion/units/walls/connected_wall", ProcessorLists::HOUSING), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1460,7 +1276,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/units/stages/stage_0_2", ProcessorLists::HOUSING), 1 }, 
 			{ JigsawPiece::single("bastion/units/stages/stage_0_3", ProcessorLists::HOUSING), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1472,7 +1288,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/units/stages/stage_1_2", ProcessorLists::HOUSING), 1 }, 
 			{ JigsawPiece::single("bastion/units/stages/stage_1_3", ProcessorLists::HOUSING), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1481,7 +1297,7 @@ void BastionRemnantsPieces::init() {
 		{
 			{ JigsawPiece::single("bastion/units/stages/rot/stage_1_0", ProcessorLists::HOUSING), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1491,7 +1307,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/units/stages/stage_2_0", ProcessorLists::HOUSING), 1 }, 
 			{ JigsawPiece::single("bastion/units/stages/stage_2_1", ProcessorLists::HOUSING), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1503,7 +1319,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/units/stages/stage_3_2", ProcessorLists::HOUSING), 1 }, 
 			{ JigsawPiece::single("bastion/units/stages/stage_3_3", ProcessorLists::HOUSING), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1512,7 +1328,7 @@ void BastionRemnantsPieces::init() {
 		{
 			{ JigsawPiece::single("bastion/units/fillers/stage_0", ProcessorLists::HOUSING), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1521,7 +1337,7 @@ void BastionRemnantsPieces::init() {
 		{
 			{ JigsawPiece::single("bastion/units/edges/edge_0", ProcessorLists::HOUSING), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1530,7 +1346,7 @@ void BastionRemnantsPieces::init() {
 		{
 			{ JigsawPiece::single("bastion/units/wall_units/unit_0", ProcessorLists::HOUSING), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1539,7 +1355,7 @@ void BastionRemnantsPieces::init() {
 		{
 			{ JigsawPiece::single("bastion/units/wall_units/edge_0_large", ProcessorLists::HOUSING), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1550,7 +1366,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/units/ramparts/ramparts_1", ProcessorLists::HOUSING), 1 }, 
 			{ JigsawPiece::single("bastion/units/ramparts/ramparts_2", ProcessorLists::HOUSING), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1559,7 +1375,7 @@ void BastionRemnantsPieces::init() {
 		{
 			{ JigsawPiece::single("bastion/units/ramparts/ramparts_0", ProcessorLists::HOUSING), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1568,7 +1384,7 @@ void BastionRemnantsPieces::init() {
 		{
 			{ JigsawPiece::single("bastion/units/rampart_plates/plate_0", ProcessorLists::HOUSING), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	// BastionRemnantsStablesPools
@@ -1582,7 +1398,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/hoglin_stable/starting_pieces/starting_stairs_3", ProcessorLists::STABLE_DEGRADATION), 1 }, 
 			{ JigsawPiece::single("bastion/hoglin_stable/starting_pieces/starting_stairs_4", ProcessorLists::STABLE_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1595,7 +1411,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/hoglin_stable/starting_pieces/stairs_3_mirrored", ProcessorLists::STABLE_DEGRADATION), 1 }, 
 			{ JigsawPiece::single("bastion/hoglin_stable/starting_pieces/stairs_4_mirrored", ProcessorLists::STABLE_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1604,7 +1420,7 @@ void BastionRemnantsPieces::init() {
 		{
 			{ JigsawPiece::single("bastion/hoglin_stable/walls/wall_base", ProcessorLists::STABLE_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1614,7 +1430,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/hoglin_stable/walls/side_wall_0", ProcessorLists::SIDE_WALL_DEGRADATION), 1 }, 
 			{ JigsawPiece::single("bastion/hoglin_stable/walls/side_wall_1", ProcessorLists::SIDE_WALL_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1637,7 +1453,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/hoglin_stable/stairs/stairs_3_3", ProcessorLists::STABLE_DEGRADATION), 1 }, 
 			{ JigsawPiece::single("bastion/hoglin_stable/stairs/stairs_3_4", ProcessorLists::STABLE_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1649,7 +1465,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/hoglin_stable/small_stables/inner_2", ProcessorLists::STABLE_DEGRADATION), 1 }, 
 			{ JigsawPiece::single("bastion/hoglin_stable/small_stables/inner_3", ProcessorLists::STABLE_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1661,7 +1477,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/hoglin_stable/small_stables/outer_2", ProcessorLists::STABLE_DEGRADATION), 1 }, 
 			{ JigsawPiece::single("bastion/hoglin_stable/small_stables/outer_3", ProcessorLists::STABLE_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1674,7 +1490,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/hoglin_stable/large_stables/inner_3", ProcessorLists::STABLE_DEGRADATION), 1 }, 
 			{ JigsawPiece::single("bastion/hoglin_stable/large_stables/inner_4", ProcessorLists::STABLE_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1687,7 +1503,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/hoglin_stable/large_stables/outer_3", ProcessorLists::STABLE_DEGRADATION), 1 }, 
 			{ JigsawPiece::single("bastion/hoglin_stable/large_stables/outer_4", ProcessorLists::STABLE_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1697,7 +1513,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/hoglin_stable/posts/stair_post", ProcessorLists::STABLE_DEGRADATION), 1 }, 
 			{ JigsawPiece::single("bastion/hoglin_stable/posts/end_post", ProcessorLists::STABLE_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1708,7 +1524,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/hoglin_stable/ramparts/ramparts_2", ProcessorLists::STABLE_DEGRADATION), 1 }, 
 			{ JigsawPiece::single("bastion/hoglin_stable/ramparts/ramparts_3", ProcessorLists::STABLE_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1717,7 +1533,7 @@ void BastionRemnantsPieces::init() {
 		{
 			{ JigsawPiece::single("bastion/hoglin_stable/rampart_plates/rampart_plate_1", ProcessorLists::STABLE_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1726,7 +1542,7 @@ void BastionRemnantsPieces::init() {
 		{
 			{ JigsawPiece::single("bastion/hoglin_stable/connectors/end_post_connector", ProcessorLists::STABLE_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	// BastionRemnantsTreasurePools
@@ -1736,7 +1552,7 @@ void BastionRemnantsPieces::init() {
 		{
 			{ JigsawPiece::single("bastion/treasure/bases/lava_basin", ProcessorLists::TREASURE_ROOMS), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1745,7 +1561,7 @@ void BastionRemnantsPieces::init() {
 		{
 			{ JigsawPiece::single("bastion/treasure/stairs/lower_stairs", ProcessorLists::TREASURE_ROOMS), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1757,7 +1573,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/treasure/bases/centers/center_2", ProcessorLists::TREASURE_ROOMS), 1 }, 
 			{ JigsawPiece::single("bastion/treasure/bases/centers/center_3", ProcessorLists::TREASURE_ROOMS), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1766,7 +1582,7 @@ void BastionRemnantsPieces::init() {
 		{
 			{ JigsawPiece::single("bastion/treasure/brains/center_brain", ProcessorLists::TREASURE_ROOMS), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1776,7 +1592,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/treasure/walls/lava_wall", ProcessorLists::TREASURE_ROOMS), 1 }, 
 			{ JigsawPiece::single("bastion/treasure/walls/entrance_wall", ProcessorLists::HIGH_WALL), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1790,7 +1606,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/treasure/walls/outer/medium_outer_wall", ProcessorLists::HIGH_WALL), 1 }, 
 			{ JigsawPiece::single("bastion/treasure/walls/outer/tall_outer_wall", ProcessorLists::HIGH_WALL), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1802,7 +1618,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/treasure/walls/bottom/wall_2", ProcessorLists::TREASURE_ROOMS), 1 }, 
 			{ JigsawPiece::single("bastion/treasure/walls/bottom/wall_3", ProcessorLists::TREASURE_ROOMS), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1813,7 +1629,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/treasure/walls/mid/wall_1", ProcessorLists::TREASURE_ROOMS), 1 }, 
 			{ JigsawPiece::single("bastion/treasure/walls/mid/wall_2", ProcessorLists::TREASURE_ROOMS), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1824,7 +1640,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/treasure/walls/top/wall_0", ProcessorLists::TREASURE_ROOMS), 1 }, 
 			{ JigsawPiece::single("bastion/treasure/walls/top/wall_1", ProcessorLists::TREASURE_ROOMS), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1835,7 +1651,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/treasure/connectors/center_to_wall_top", ProcessorLists::TREASURE_ROOMS), 1 }, 
 			{ JigsawPiece::single("bastion/treasure/connectors/center_to_wall_top_entrance", ProcessorLists::TREASURE_ROOMS), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1844,7 +1660,7 @@ void BastionRemnantsPieces::init() {
 		{
 			{ JigsawPiece::single("bastion/treasure/entrances/entrance_0", ProcessorLists::TREASURE_ROOMS), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1858,7 +1674,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/treasure/ramparts/lava_basin_side", ProcessorLists::TREASURE_ROOMS), 1 }, 
 			{ JigsawPiece::single("bastion/treasure/ramparts/lava_basin_main", ProcessorLists::TREASURE_ROOMS), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1868,7 +1684,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/treasure/corners/bottom/corner_0", ProcessorLists::TREASURE_ROOMS), 1 }, 
 			{ JigsawPiece::single("bastion/treasure/corners/bottom/corner_1", ProcessorLists::TREASURE_ROOMS), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1879,7 +1695,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/treasure/corners/edges/middle", ProcessorLists::HIGH_WALL), 1 }, 
 			{ JigsawPiece::single("bastion/treasure/corners/edges/top", ProcessorLists::HIGH_WALL), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1889,7 +1705,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/treasure/corners/middle/corner_0", ProcessorLists::TREASURE_ROOMS), 1 }, 
 			{ JigsawPiece::single("bastion/treasure/corners/middle/corner_1", ProcessorLists::TREASURE_ROOMS), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1899,7 +1715,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/treasure/corners/top/corner_0", ProcessorLists::TREASURE_ROOMS), 1 }, 
 			{ JigsawPiece::single("bastion/treasure/corners/top/corner_1", ProcessorLists::TREASURE_ROOMS), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1916,7 +1732,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/treasure/extensions/roofed_bridge", ProcessorLists::TREASURE_ROOMS), 1 }, 
 			{ JigsawPiece::single("bastion/treasure/extensions/empty", ProcessorLists::TREASURE_ROOMS), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1931,7 +1747,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/treasure/extensions/small_bridge_2", ProcessorLists::TREASURE_ROOMS), 1 }, 
 			{ JigsawPiece::single("bastion/treasure/extensions/small_bridge_3", ProcessorLists::TREASURE_ROOMS), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1941,7 +1757,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/treasure/extensions/house_0", ProcessorLists::TREASURE_ROOMS), 1 }, 
 			{ JigsawPiece::single("bastion/treasure/extensions/house_1", ProcessorLists::TREASURE_ROOMS), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1952,7 +1768,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/treasure/roofs/corner_roof", ProcessorLists::ROOF), 1 }, 
 			{ JigsawPiece::single("bastion/treasure/roofs/center_roof", ProcessorLists::ROOF), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	// BastionRemnantsBridgePools
@@ -1963,7 +1779,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/bridge/starting_pieces/entrance", ProcessorLists::ENTRANCE_REPLACEMENT), 1 }, 
 			{ JigsawPiece::single("bastion/bridge/starting_pieces/entrance_face", ProcessorLists::BASTION_GENERIC_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1972,7 +1788,7 @@ void BastionRemnantsPieces::init() {
 		{
 			{ JigsawPiece::single("bastion/bridge/bridge_pieces/bridge", ProcessorLists::BRIDGE), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1982,7 +1798,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/bridge/legs/leg_0", ProcessorLists::BASTION_GENERIC_DEGRADATION), 1 }, 
 			{ JigsawPiece::single("bastion/bridge/legs/leg_1", ProcessorLists::BASTION_GENERIC_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -1992,7 +1808,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/bridge/walls/wall_base_0", ProcessorLists::RAMPART_DEGRADATION), 1 }, 
 			{ JigsawPiece::single("bastion/bridge/walls/wall_base_1", ProcessorLists::RAMPART_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -2002,7 +1818,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/bridge/ramparts/rampart_0", ProcessorLists::RAMPART_DEGRADATION), 1 }, 
 			{ JigsawPiece::single("bastion/bridge/ramparts/rampart_1", ProcessorLists::RAMPART_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -2011,7 +1827,7 @@ void BastionRemnantsPieces::init() {
 		{
 			{ JigsawPiece::single("bastion/bridge/rampart_plates/plate_0", ProcessorLists::RAMPART_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -2021,7 +1837,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/bridge/connectors/back_bridge_top", ProcessorLists::BASTION_GENERIC_DEGRADATION), 1 }, 
 			{ JigsawPiece::single("bastion/bridge/connectors/back_bridge_bottom", ProcessorLists::BASTION_GENERIC_DEGRADATION), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	// BastionRemnantsMobsPools
@@ -2034,7 +1850,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/mobs/crossbow_piglin"), 4 }, 
 			{ JigsawPiece::single("bastion/mobs/empty"), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -2044,7 +1860,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/mobs/hoglin"), 2 }, 
 			{ JigsawPiece::single("bastion/mobs/empty"), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -2054,7 +1870,7 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/blocks/air"), 3 }, 
 			{ JigsawPiece::single("bastion/blocks/gold"), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 
 	create(
@@ -2065,6 +1881,6 @@ void BastionRemnantsPieces::init() {
 			{ JigsawPiece::single("bastion/mobs/melee_piglin"), 5 }, 
 			{ JigsawPiece::single("bastion/mobs/sword_piglin"), 1 }
 		}, 
-		JigsawPattern::Projection::RIGID
+		JigsawProjection::RIGID
 	);
 }
