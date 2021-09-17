@@ -6,6 +6,8 @@
 #include <world/gen/feature/jigsaw/JigsawPattern.hpp>
 #include <world/gen/feature/processor/ProcessorLists.hpp>
 
+Registry<JigsawPattern> JigsawPools::pools;
+
 JigsawPattern* PlainVillagePools::START;
 JigsawPattern* SnowyVillagePools::START;
 JigsawPattern* SavannaVillagePools::START;
@@ -14,11 +16,11 @@ JigsawPattern* TaigaVillagePools::START;
 JigsawPattern* PillagerOutpostPools::START;
 JigsawPattern* BastionRemnantsPieces::START;
 
-static auto create(std::string location, std::string fallback, const std::vector<std::pair<JigsawPiece::Factory, int>>& factories, JigsawProjection placement) -> JigsawPattern* {
+static auto create(const std::string& location, const std::string& fallback, const std::vector<std::pair<JigsawPiece::Factory, int>>& factories, JigsawProjection placement) -> JigsawPattern* {
 	std::vector<JigsawPiece *> pool;
 	std::vector<std::pair<JigsawPiece *, int>> elements;
 
-	for (auto [factory, count] : factories) {
+	for (auto&& [factory, count] : factories) {
 		auto element = factory(placement);
 		for (int i = 0; i < count; ++i) {
 			pool.emplace_back(element);
@@ -26,12 +28,12 @@ static auto create(std::string location, std::string fallback, const std::vector
 		elements.emplace_back(element, count);
 	}
 
-	return new JigsawPattern {
-		.location = std::move(location),
-		.fallback = std::move(fallback),
-		.pool = std::move(pool),
-		.elements = std::move(elements)
-	};
+    return JigsawPools::pools.add(location, std::make_unique<JigsawPattern>(JigsawPattern{
+        .location = location,
+        .fallback = fallback,
+        .pool = std::move(pool),
+        .elements = std::move(elements)
+    }));
 }
 
 void PlainVillagePools::init() {

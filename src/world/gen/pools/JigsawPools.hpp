@@ -1,6 +1,12 @@
 #pragma once
 
+#include <util/Registry.hpp>
+
 struct JigsawPattern;
+struct JigsawPools {
+    static Registry<JigsawPattern> pools;
+};
+
 struct PlainVillagePools {
     static JigsawPattern* START;
 
