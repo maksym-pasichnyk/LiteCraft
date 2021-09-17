@@ -1,0 +1,15 @@
+{
+    "name": "bastion/treasure/brains",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/brains/center_brain",
+                "projection": "rigid",
+                "processors": "treasure_rooms"
+            },
+            "weight": 1
+        }
+    ]
+}

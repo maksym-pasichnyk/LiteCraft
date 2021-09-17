@@ -1,0 +1,15 @@
+{
+    "name": "bastion/bridge/bridge_pieces",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/bridge/bridge_pieces/bridge",
+                "projection": "rigid",
+                "processors": "bridge"
+            },
+            "weight": 1
+        }
+    ]
+}

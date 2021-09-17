@@ -1,0 +1,33 @@
+{
+    "name": "village/desert/villagers",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/villagers/nitwit",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/villagers/baby",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/villagers/unemployed",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 10
+        }
+    ]
+}

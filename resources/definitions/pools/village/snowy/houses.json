@@ -1,0 +1,282 @@
+{
+    "name": "village/snowy/houses",
+    "fallback": "village/snowy/terminators",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_small_house_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_small_house_2",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_small_house_3",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_small_house_4",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_small_house_5",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_small_house_6",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_small_house_7",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_small_house_8",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_medium_house_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_medium_house_2",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_medium_house_3",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_butchers_shop_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_butchers_shop_2",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_tool_smith_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_fletcher_house_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_shepherds_house_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_armorer_house_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_armorer_house_2",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_fisher_cottage",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_tannery_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_cartographer_house_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_library_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_masons_house_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_masons_house_2",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_weapon_smith_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_temple_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_farm_1",
+                "projection": "rigid",
+                "processors": "farm_snowy"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_farm_2",
+                "projection": "rigid",
+                "processors": "farm_snowy"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_animal_pen_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/houses/snowy_animal_pen_2",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "empty"
+            },
+            "weight": 6
+        }
+    ]
+}

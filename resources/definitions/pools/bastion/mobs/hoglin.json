@@ -1,0 +1,24 @@
+{
+    "name": "bastion/mobs/hoglin",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/mobs/hoglin",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/mobs/empty",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        }
+    ]
+}

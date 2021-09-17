@@ -1,0 +1,24 @@
+{
+    "name": "bastion/bridge/legs",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/bridge/legs/leg_0",
+                "projection": "rigid",
+                "processors": "bastion_generic_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/bridge/legs/leg_1",
+                "projection": "rigid",
+                "processors": "bastion_generic_degradation"
+            },
+            "weight": 1
+        }
+    ]
+}

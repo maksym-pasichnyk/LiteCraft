@@ -1,0 +1,60 @@
+{
+    "name": "village/snowy/town_centers",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/town_centers/snowy_meeting_point_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 100
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/town_centers/snowy_meeting_point_2",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 50
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/town_centers/snowy_meeting_point_3",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 150
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/zombie/town_centers/snowy_meeting_point_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/zombie/town_centers/snowy_meeting_point_2",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/zombie/town_centers/snowy_meeting_point_3",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 3
+        }
+    ]
+}

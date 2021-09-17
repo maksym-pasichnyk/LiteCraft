@@ -34,3 +34,6 @@
 [submodule "ThirdParty/zlib-ng"]
 	path = ThirdParty/zlib-ng
 	url = https://github.com/zlib-ng/zlib-ng.git
+[submodule "ThirdParty/continuable"]
+	path = ThirdParty/continuable
+	url = https://github.com/Naios/continuable.git

@@ -1,0 +1,33 @@
+{
+    "name": "bastion/treasure/walls/mid",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/walls/mid/wall_0",
+                "projection": "rigid",
+                "processors": "treasure_rooms"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/walls/mid/wall_1",
+                "projection": "rigid",
+                "processors": "treasure_rooms"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/walls/mid/wall_2",
+                "projection": "rigid",
+                "processors": "treasure_rooms"
+            },
+            "weight": 1
+        }
+    ]
+}

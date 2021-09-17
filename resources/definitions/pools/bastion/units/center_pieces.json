@@ -1,0 +1,33 @@
+{
+    "name": "bastion/units/center_pieces",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/units/center_pieces/center_0",
+                "projection": "rigid",
+                "processors": "housing"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/units/center_pieces/center_1",
+                "projection": "rigid",
+                "processors": "housing"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/units/center_pieces/center_2",
+                "projection": "rigid",
+                "processors": "housing"
+            },
+            "weight": 1
+        }
+    ]
+}

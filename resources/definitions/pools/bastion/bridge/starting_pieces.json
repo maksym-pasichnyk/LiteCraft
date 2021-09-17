@@ -1,0 +1,24 @@
+{
+    "name": "bastion/bridge/starting_pieces",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/bridge/starting_pieces/entrance",
+                "projection": "rigid",
+                "processors": "entrance_replacement"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/bridge/starting_pieces/entrance_face",
+                "projection": "rigid",
+                "processors": "bastion_generic_degradation"
+            },
+            "weight": 1
+        }
+    ]
+}

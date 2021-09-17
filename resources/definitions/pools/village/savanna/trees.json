@@ -1,0 +1,14 @@
+{
+    "name": "village/savanna/trees",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "feature",
+                "projection": "rigid",
+                "feature": "acacia"
+            },
+            "weight": 1
+        }
+    ]
+}

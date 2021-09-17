@@ -1,0 +1,24 @@
+{
+    "name": "bastion/units/stages/stage_2",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/units/stages/stage_2_0",
+                "projection": "rigid",
+                "processors": "housing"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/units/stages/stage_2_1",
+                "projection": "rigid",
+                "processors": "housing"
+            },
+            "weight": 1
+        }
+    ]
+}

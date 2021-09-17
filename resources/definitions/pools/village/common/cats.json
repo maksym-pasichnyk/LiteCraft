@@ -1,0 +1,102 @@
+{
+    "name": "village/common/cats",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/cat_black",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/cat_british",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/cat_calico",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/cat_persian",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/cat_ragdoll",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/cat_red",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/cat_siamese",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/cat_tabby",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/cat_white",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/cat_jellie",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "empty"
+            },
+            "weight": 3
+        }
+    ]
+}

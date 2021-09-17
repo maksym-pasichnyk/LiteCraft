@@ -1,0 +1,51 @@
+{
+    "name": "village/savanna/terminators",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/terminators/terminator_01",
+                "projection": "terrain_matching",
+                "processors": "street_savanna"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/terminators/terminator_02",
+                "projection": "terrain_matching",
+                "processors": "street_savanna"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/terminators/terminator_03",
+                "projection": "terrain_matching",
+                "processors": "street_savanna"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/terminators/terminator_04",
+                "projection": "terrain_matching",
+                "processors": "street_savanna"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/terminators/terminator_05",
+                "projection": "terrain_matching",
+                "processors": "street_savanna"
+            },
+            "weight": 1
+        }
+    ]
+}

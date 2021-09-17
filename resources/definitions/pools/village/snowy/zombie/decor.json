@@ -1,0 +1,63 @@
+{
+    "name": "village/snowy/zombie/decor",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/snowy_lamp_post_01",
+                "projection": "rigid",
+                "processors": "zombie_snowy"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/snowy_lamp_post_02",
+                "projection": "rigid",
+                "processors": "zombie_snowy"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/snowy_lamp_post_03",
+                "projection": "rigid",
+                "processors": "zombie_snowy"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "feature",
+                "projection": "rigid",
+                "feature": "spruce"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "feature",
+                "projection": "rigid",
+                "feature": "pile_snow"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "feature",
+                "projection": "rigid",
+                "feature": "pile_ice"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "empty"
+            },
+            "weight": 7
+        }
+    ]
+}

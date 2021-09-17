@@ -1,0 +1,105 @@
+{
+    "name": "village/desert/zombie/streets",
+    "fallback": "village/desert/zombie/terminators",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/streets/corner_01",
+                "projection": "terrain_matching",
+                "processors": "empty"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/streets/corner_02",
+                "projection": "terrain_matching",
+                "processors": "empty"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/streets/straight_01",
+                "projection": "terrain_matching",
+                "processors": "empty"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/streets/straight_02",
+                "projection": "terrain_matching",
+                "processors": "empty"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/streets/straight_03",
+                "projection": "terrain_matching",
+                "processors": "empty"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/streets/crossroad_01",
+                "projection": "terrain_matching",
+                "processors": "empty"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/streets/crossroad_02",
+                "projection": "terrain_matching",
+                "processors": "empty"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/streets/crossroad_03",
+                "projection": "terrain_matching",
+                "processors": "empty"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/streets/square_01",
+                "projection": "terrain_matching",
+                "processors": "empty"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/streets/square_02",
+                "projection": "terrain_matching",
+                "processors": "empty"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/streets/turn_01",
+                "projection": "terrain_matching",
+                "processors": "empty"
+            },
+            "weight": 3
+        }
+    ]
+}

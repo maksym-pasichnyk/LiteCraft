@@ -5,6 +5,8 @@
 struct JigsawPattern;
 struct JigsawPools {
     static Registry<JigsawPattern> pools;
+
+    static void init();
 };
 
 struct PlainVillagePools {

@@ -1,0 +1,42 @@
+{
+    "name": "village/taiga/terminators",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/terminators/terminator_01",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/terminators/terminator_02",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/terminators/terminator_03",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/terminators/terminator_04",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 1
+        }
+    ]
+}

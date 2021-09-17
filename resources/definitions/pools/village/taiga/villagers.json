@@ -1,0 +1,33 @@
+{
+    "name": "village/taiga/villagers",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/villagers/nitwit",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/villagers/baby",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/villagers/unemployed",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 10
+        }
+    ]
+}

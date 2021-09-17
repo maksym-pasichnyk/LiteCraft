@@ -1,0 +1,78 @@
+{
+    "name": "village/plains/town_centers",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/town_centers/plains_fountain_01",
+                "projection": "rigid",
+                "processors": "mossify_20_percent"
+            },
+            "weight": 50
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/town_centers/plains_meeting_point_1",
+                "projection": "rigid",
+                "processors": "mossify_20_percent"
+            },
+            "weight": 50
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/town_centers/plains_meeting_point_2",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 50
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/town_centers/plains_meeting_point_3",
+                "projection": "rigid",
+                "processors": "mossify_70_percent"
+            },
+            "weight": 50
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/zombie/town_centers/plains_fountain_01",
+                "projection": "rigid",
+                "processors": "zombie_plains"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/zombie/town_centers/plains_meeting_point_1",
+                "projection": "rigid",
+                "processors": "zombie_plains"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/zombie/town_centers/plains_meeting_point_2",
+                "projection": "rigid",
+                "processors": "zombie_plains"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/zombie/town_centers/plains_meeting_point_3",
+                "projection": "rigid",
+                "processors": "zombie_plains"
+            },
+            "weight": 1
+        }
+    ]
+}

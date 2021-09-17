@@ -1,0 +1,15 @@
+{
+    "name": "village/common/iron_golem",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/iron_golem",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        }
+    ]
+}

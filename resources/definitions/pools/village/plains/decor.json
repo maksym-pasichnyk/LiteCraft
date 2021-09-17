@@ -1,0 +1,45 @@
+{
+    "name": "village/plains/decor",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/plains_lamp_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "feature",
+                "projection": "rigid",
+                "feature": "oak"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "feature",
+                "projection": "rigid",
+                "feature": "flower_plain"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "feature",
+                "projection": "rigid",
+                "feature": "pile_hay"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "empty"
+            },
+            "weight": 2
+        }
+    ]
+}

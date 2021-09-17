@@ -1,0 +1,33 @@
+{
+    "name": "bastion/treasure/roofs",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/roofs/wall_roof",
+                "projection": "rigid",
+                "processors": "roof"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/roofs/corner_roof",
+                "projection": "rigid",
+                "processors": "roof"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/roofs/center_roof",
+                "projection": "rigid",
+                "processors": "roof"
+            },
+            "weight": 1
+        }
+    ]
+}

@@ -1,0 +1,14 @@
+{
+    "name": "village/snowy/trees",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "feature",
+                "projection": "rigid",
+                "feature": "spruce"
+            },
+            "weight": 1
+        }
+    ]
+}

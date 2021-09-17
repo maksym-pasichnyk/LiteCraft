@@ -3,6 +3,7 @@
 #include "JigsawProjection.hpp"
 
 #include <functional>
+#include <json/json.hpp>
 
 struct ConfiguredFeature;
 struct StructureProcessorList;
@@ -15,6 +16,7 @@ struct JigsawPiece {
     explicit JigsawPiece(JigsawProjection projection) : projection(projection) {}
     virtual ~JigsawPiece() = default;
 
+    virtual auto to_json() -> Json = 0;
     virtual auto getGroundLevelDelta() -> int {
         return 1;
     }

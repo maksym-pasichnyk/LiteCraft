@@ -1,0 +1,27 @@
+{
+    "name": "pillager_outpost/towers",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "list",
+                "projection": "rigid",
+                "elements": [
+                    {
+                        "type": "single",
+                        "location": "pillager_outpost/watchtower",
+                        "projection": "rigid",
+                        "processors": "empty"
+                    },
+                    {
+                        "type": "single",
+                        "location": "pillager_outpost/watchtower_overgrown",
+                        "projection": "rigid",
+                        "processors": "outpost_rot"
+                    }
+                ]
+            },
+            "weight": 1
+        }
+    ]
+}

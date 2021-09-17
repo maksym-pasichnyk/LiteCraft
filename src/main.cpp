@@ -118,17 +118,10 @@ struct App {
         SurfaceBuilder::init();
         SurfaceBuilderConfig::init();
 
-        ProcessorLists::init();
-        PlainVillagePools::init();
-        SnowyVillagePools::init();
-        SavannaVillagePools::init();
-        DesertVillagePools::init();
-        TaigaVillagePools::init();
-        PillagerOutpostPools::init();
-        BastionRemnantsPieces::init();
-
         ConfiguredCarvers::init();
         ConfiguredFeatures::init();
+        ProcessorLists::init();
+        JigsawPools::init();
         StructureFeatures::init();
         ConfiguredSurfaceBuilders::init();
 

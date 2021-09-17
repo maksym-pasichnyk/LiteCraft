@@ -1,0 +1,24 @@
+{
+    "name": "bastion/units/pathways",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/units/pathways/pathway_0",
+                "projection": "rigid",
+                "processors": "housing"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/units/pathways/pathway_wall_0",
+                "projection": "rigid",
+                "processors": "housing"
+            },
+            "weight": 1
+        }
+    ]
+}

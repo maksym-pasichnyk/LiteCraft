@@ -1,0 +1,15 @@
+{
+    "name": "bastion/units/edges",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/units/edges/edge_0",
+                "projection": "rigid",
+                "processors": "housing"
+            },
+            "weight": 1
+        }
+    ]
+}

@@ -1,0 +1,150 @@
+{
+    "name": "village/snowy/zombie/streets",
+    "fallback": "village/snowy/terminators",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/zombie/streets/corner_01",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/zombie/streets/corner_02",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/zombie/streets/corner_03",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/zombie/streets/square_01",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/zombie/streets/straight_01",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/zombie/streets/straight_02",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/zombie/streets/straight_03",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/zombie/streets/straight_04",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 7
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/zombie/streets/straight_06",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/zombie/streets/straight_08",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/zombie/streets/crossroad_02",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/zombie/streets/crossroad_03",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/zombie/streets/crossroad_04",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/zombie/streets/crossroad_05",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/zombie/streets/crossroad_06",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/snowy/zombie/streets/turn_01",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 3
+        }
+    ]
+}

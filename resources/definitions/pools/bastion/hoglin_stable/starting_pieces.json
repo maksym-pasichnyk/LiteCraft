@@ -1,0 +1,51 @@
+{
+    "name": "bastion/hoglin_stable/starting_pieces",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/starting_pieces/starting_stairs_0",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/starting_pieces/starting_stairs_1",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/starting_pieces/starting_stairs_2",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/starting_pieces/starting_stairs_3",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/starting_pieces/starting_stairs_4",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        }
+    ]
+}

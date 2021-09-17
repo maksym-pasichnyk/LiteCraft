@@ -1,0 +1,15 @@
+{
+    "name": "bastion/units/wall_units",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/units/wall_units/unit_0",
+                "projection": "rigid",
+                "processors": "housing"
+            },
+            "weight": 1
+        }
+    ]
+}

@@ -1,0 +1,33 @@
+{
+    "name": "bastion/hoglin_stable/ramparts",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/ramparts/ramparts_1",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/ramparts/ramparts_2",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/ramparts/ramparts_3",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        }
+    ]
+}

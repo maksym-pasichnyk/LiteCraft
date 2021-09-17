@@ -3,9 +3,11 @@
 #include "JigsawPiece.hpp"
 
 struct ListJigsawPiece : JigsawPiece {
-    std::vector<JigsawPiece*> pieces;
+    std::vector<JigsawPiece*> elements;
 
     ListJigsawPiece(std::vector<JigsawPiece*> pieces, JigsawProjection projection)
         : JigsawPiece(projection)
-        , pieces(std::move(pieces)) {}
+        , elements(std::move(pieces)) {}
+
+    auto to_json() -> Json override;
 };

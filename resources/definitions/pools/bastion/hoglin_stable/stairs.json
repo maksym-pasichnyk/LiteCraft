@@ -1,0 +1,141 @@
+{
+    "name": "bastion/hoglin_stable/stairs",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/stairs/stairs_1_0",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/stairs/stairs_1_1",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/stairs/stairs_1_2",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/stairs/stairs_1_3",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/stairs/stairs_1_4",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/stairs/stairs_2_0",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/stairs/stairs_2_1",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/stairs/stairs_2_2",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/stairs/stairs_2_3",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/stairs/stairs_2_4",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/stairs/stairs_3_0",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/stairs/stairs_3_1",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/stairs/stairs_3_2",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/stairs/stairs_3_3",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/stairs/stairs_3_4",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        }
+    ]
+}

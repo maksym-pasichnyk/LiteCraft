@@ -1,0 +1,15 @@
+{
+    "name": "bastion/units/large_ramparts",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/units/ramparts/ramparts_0",
+                "projection": "rigid",
+                "processors": "housing"
+            },
+            "weight": 1
+        }
+    ]
+}

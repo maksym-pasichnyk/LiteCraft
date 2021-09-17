@@ -1,0 +1,42 @@
+{
+    "name": "bastion/starts",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/units/air_base",
+                "projection": "rigid",
+                "processors": "bastion_generic_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/air_base",
+                "projection": "rigid",
+                "processors": "bastion_generic_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/big_air_full",
+                "projection": "rigid",
+                "processors": "bastion_generic_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/bridge/starting_pieces/entrance_base",
+                "projection": "rigid",
+                "processors": "bastion_generic_degradation"
+            },
+            "weight": 1
+        }
+    ]
+}

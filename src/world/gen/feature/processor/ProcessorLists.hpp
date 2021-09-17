@@ -1,7 +1,11 @@
 #pragma once
 
+#include <util/Registry.hpp>
+
 struct StructureProcessorList;
 struct ProcessorLists {
+    static Registry<StructureProcessorList> processors;
+
     //private static final ProcessorRule ADD_GILDED_BLACKSTONE = new ProcessorRule(new RandomBlockMatchTest(Blocks.BLACKSTONE, 0.01f), AlwaysTrueTest.INSTANCE, Blocks.GILDED_BLACKSTONE.defaultBlockState());
     //private static final ProcessorRule REMOVE_GILDED_BLACKSTONE = new ProcessorRule(new RandomBlockMatchTest(Blocks.GILDED_BLACKSTONE, 0.5f), AlwaysTrueTest.INSTANCE, Blocks.BLACKSTONE.defaultBlockState());
     static StructureProcessorList* EMPTY;

@@ -1,0 +1,150 @@
+{
+    "name": "village/plains/streets",
+    "fallback": "village/plains/terminators",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/streets/corner_01",
+                "projection": "terrain_matching",
+                "processors": "street_plains"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/streets/corner_02",
+                "projection": "terrain_matching",
+                "processors": "street_plains"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/streets/corner_03",
+                "projection": "terrain_matching",
+                "processors": "street_plains"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/streets/straight_01",
+                "projection": "terrain_matching",
+                "processors": "street_plains"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/streets/straight_02",
+                "projection": "terrain_matching",
+                "processors": "street_plains"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/streets/straight_03",
+                "projection": "terrain_matching",
+                "processors": "street_plains"
+            },
+            "weight": 7
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/streets/straight_04",
+                "projection": "terrain_matching",
+                "processors": "street_plains"
+            },
+            "weight": 7
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/streets/straight_05",
+                "projection": "terrain_matching",
+                "processors": "street_plains"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/streets/straight_06",
+                "projection": "terrain_matching",
+                "processors": "street_plains"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/streets/crossroad_01",
+                "projection": "terrain_matching",
+                "processors": "street_plains"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/streets/crossroad_02",
+                "projection": "terrain_matching",
+                "processors": "street_plains"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/streets/crossroad_03",
+                "projection": "terrain_matching",
+                "processors": "street_plains"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/streets/crossroad_04",
+                "projection": "terrain_matching",
+                "processors": "street_plains"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/streets/crossroad_05",
+                "projection": "terrain_matching",
+                "processors": "street_plains"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/streets/crossroad_06",
+                "projection": "terrain_matching",
+                "processors": "street_plains"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/streets/turn_01",
+                "projection": "terrain_matching",
+                "processors": "street_plains"
+            },
+            "weight": 3
+        }
+    ]
+}

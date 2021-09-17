@@ -1,0 +1,15 @@
+{
+    "name": "pillager_outpost/base_plates",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "pillager_outpost/base_plate",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        }
+    ]
+}

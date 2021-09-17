@@ -1,0 +1,45 @@
+{
+    "name": "village/savanna/zombie/decor",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/savanna_lamp_post_01",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "feature",
+                "projection": "rigid",
+                "feature": "acacia"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "feature",
+                "projection": "rigid",
+                "feature": "pile_hay"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "feature",
+                "projection": "rigid",
+                "feature": "pile_melon"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "empty"
+            },
+            "weight": 4
+        }
+    ]
+}

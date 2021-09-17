@@ -1,0 +1,51 @@
+{
+    "name": "bastion/hoglin_stable/large_stables/outer",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/large_stables/outer_0",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/large_stables/outer_1",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/large_stables/outer_2",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/large_stables/outer_3",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/large_stables/outer_4",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        }
+    ]
+}

@@ -1,0 +1,24 @@
+{
+    "name": "bastion/units/walls/wall_bases",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/units/walls/wall_base",
+                "projection": "rigid",
+                "processors": "housing"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/units/walls/connected_wall",
+                "projection": "rigid",
+                "processors": "housing"
+            },
+            "weight": 1
+        }
+    ]
+}

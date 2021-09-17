@@ -1,0 +1,24 @@
+{
+    "name": "village/plains/zombie/villagers",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/zombie/villagers/nitwit",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/zombie/villagers/unemployed",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 10
+        }
+    ]
+}

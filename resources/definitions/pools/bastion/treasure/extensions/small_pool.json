@@ -1,0 +1,69 @@
+{
+    "name": "bastion/treasure/extensions/small_pool",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/extensions/empty",
+                "projection": "rigid",
+                "processors": "treasure_rooms"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/extensions/fire_room",
+                "projection": "rigid",
+                "processors": "treasure_rooms"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/extensions/empty",
+                "projection": "rigid",
+                "processors": "treasure_rooms"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/extensions/small_bridge_0",
+                "projection": "rigid",
+                "processors": "treasure_rooms"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/extensions/small_bridge_1",
+                "projection": "rigid",
+                "processors": "treasure_rooms"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/extensions/small_bridge_2",
+                "projection": "rigid",
+                "processors": "treasure_rooms"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/extensions/small_bridge_3",
+                "projection": "rigid",
+                "processors": "treasure_rooms"
+            },
+            "weight": 1
+        }
+    ]
+}

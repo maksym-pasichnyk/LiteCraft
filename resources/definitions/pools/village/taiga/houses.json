@@ -1,0 +1,255 @@
+{
+    "name": "village/taiga/houses",
+    "fallback": "village/taiga/terminators",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_small_house_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_small_house_2",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_small_house_3",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_small_house_4",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_small_house_5",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_medium_house_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_medium_house_2",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_medium_house_3",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_medium_house_4",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_butcher_shop_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_tool_smith_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_fletcher_house_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_shepherds_house_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_armorer_house_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_armorer_2",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_fisher_cottage_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_tannery_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_cartographer_house_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_library_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_masons_house_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_weaponsmith_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_weaponsmith_2",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_temple_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_large_farm_1",
+                "projection": "rigid",
+                "processors": "farm_taiga"
+            },
+            "weight": 6
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_large_farm_2",
+                "projection": "rigid",
+                "processors": "farm_taiga"
+            },
+            "weight": 6
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_small_farm_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/houses/taiga_animal_pen_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "empty"
+            },
+            "weight": 6
+        }
+    ]
+}

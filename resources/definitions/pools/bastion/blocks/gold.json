@@ -1,0 +1,24 @@
+{
+    "name": "bastion/blocks/gold",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/blocks/air",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/blocks/gold",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        }
+    ]
+}

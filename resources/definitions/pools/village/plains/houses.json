@@ -1,0 +1,336 @@
+{
+    "name": "village/plains/houses",
+    "fallback": "village/plains/terminators",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_small_house_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_small_house_2",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_small_house_3",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_small_house_4",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_small_house_5",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_small_house_6",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_small_house_7",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_small_house_8",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_medium_house_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_medium_house_2",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_big_house_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_butcher_shop_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_butcher_shop_2",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_tool_smith_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_fletcher_house_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_shepherds_house_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_armorer_house_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_fisher_cottage_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_tannery_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_cartographer_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_library_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 5
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_library_2",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_masons_house_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_weaponsmith_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_temple_3",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_temple_4",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_stable_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_stable_2",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_large_farm_1",
+                "projection": "rigid",
+                "processors": "farm_plains"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_small_farm_1",
+                "projection": "rigid",
+                "processors": "farm_plains"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_animal_pen_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_animal_pen_2",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_animal_pen_3",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 5
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_accessory_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_meeting_point_4",
+                "projection": "rigid",
+                "processors": "mossify_70_percent"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/houses/plains_meeting_point_5",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "empty"
+            },
+            "weight": 10
+        }
+    ]
+}

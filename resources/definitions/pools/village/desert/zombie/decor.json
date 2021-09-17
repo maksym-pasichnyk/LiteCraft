@@ -1,0 +1,37 @@
+{
+    "name": "village/desert/zombie/decor",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/desert_lamp_1",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 10
+        },
+        {
+            "element": {
+                "type": "feature",
+                "projection": "rigid",
+                "feature": "patch_cactus"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "feature",
+                "projection": "rigid",
+                "feature": "pile_hay"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "empty"
+            },
+            "weight": 10
+        }
+    ]
+}

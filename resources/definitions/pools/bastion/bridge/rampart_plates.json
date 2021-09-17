@@ -1,0 +1,15 @@
+{
+    "name": "bastion/bridge/rampart_plates",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/bridge/rampart_plates/plate_0",
+                "projection": "rigid",
+                "processors": "rampart_degradation"
+            },
+            "weight": 1
+        }
+    ]
+}

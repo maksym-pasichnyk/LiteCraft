@@ -1,0 +1,60 @@
+{
+    "name": "bastion/treasure/walls/outer",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/walls/outer/top_corner",
+                "projection": "rigid",
+                "processors": "high_wall"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/walls/outer/mid_corner",
+                "projection": "rigid",
+                "processors": "high_wall"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/walls/outer/bottom_corner",
+                "projection": "rigid",
+                "processors": "high_wall"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/walls/outer/outer_wall",
+                "projection": "rigid",
+                "processors": "high_wall"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/walls/outer/medium_outer_wall",
+                "projection": "rigid",
+                "processors": "high_wall"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/walls/outer/tall_outer_wall",
+                "projection": "rigid",
+                "processors": "high_wall"
+            },
+            "weight": 1
+        }
+    ]
+}

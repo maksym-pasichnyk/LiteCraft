@@ -1,0 +1,264 @@
+{
+    "name": "village/desert/zombie/houses",
+    "fallback": "village/desert/zombie/terminators",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/houses/desert_small_house_1",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/houses/desert_small_house_2",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/houses/desert_small_house_3",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/houses/desert_small_house_4",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/houses/desert_small_house_5",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/houses/desert_small_house_6",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/houses/desert_small_house_7",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/houses/desert_small_house_8",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/houses/desert_medium_house_1",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/zombie/houses/desert_medium_house_2",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/houses/desert_butcher_shop_1",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/houses/desert_tool_smith_1",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/houses/desert_fletcher_house_1",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/houses/desert_shepherd_house_1",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/houses/desert_armorer_1",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/houses/desert_fisher_1",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/houses/desert_tannery_1",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/houses/desert_cartographer_house_1",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/houses/desert_library_1",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/houses/desert_mason_1",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/houses/desert_weaponsmith_1",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/houses/desert_temple_1",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/houses/desert_temple_2",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/houses/desert_large_farm_1",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 7
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/houses/desert_farm_1",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/houses/desert_farm_2",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/houses/desert_animal_pen_1",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/desert/houses/desert_animal_pen_2",
+                "projection": "rigid",
+                "processors": "zombie_desert"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "empty"
+            },
+            "weight": 5
+        }
+    ]
+}

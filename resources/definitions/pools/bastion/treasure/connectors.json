@@ -1,0 +1,33 @@
+{
+    "name": "bastion/treasure/connectors",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/connectors/center_to_wall_middle",
+                "projection": "rigid",
+                "processors": "treasure_rooms"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/connectors/center_to_wall_top",
+                "projection": "rigid",
+                "processors": "treasure_rooms"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/connectors/center_to_wall_top_entrance",
+                "projection": "rigid",
+                "processors": "treasure_rooms"
+            },
+            "weight": 1
+        }
+    ]
+}

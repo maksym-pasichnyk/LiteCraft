@@ -1,0 +1,42 @@
+{
+    "name": "village/taiga/town_centers",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/town_centers/taiga_meeting_point_1",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 49
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/town_centers/taiga_meeting_point_2",
+                "projection": "rigid",
+                "processors": "mossify_10_percent"
+            },
+            "weight": 49
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/zombie/town_centers/taiga_meeting_point_1",
+                "projection": "rigid",
+                "processors": "zombie_taiga"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/zombie/town_centers/taiga_meeting_point_2",
+                "projection": "rigid",
+                "processors": "zombie_taiga"
+            },
+            "weight": 1
+        }
+    ]
+}

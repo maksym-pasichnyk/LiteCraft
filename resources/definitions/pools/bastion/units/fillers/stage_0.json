@@ -1,0 +1,15 @@
+{
+    "name": "bastion/units/fillers/stage_0",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/units/fillers/stage_0",
+                "projection": "rigid",
+                "processors": "housing"
+            },
+            "weight": 1
+        }
+    ]
+}

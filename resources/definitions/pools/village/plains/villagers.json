@@ -1,0 +1,33 @@
+{
+    "name": "village/plains/villagers",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/villagers/nitwit",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/villagers/baby",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/plains/villagers/unemployed",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 10
+        }
+    ]
+}

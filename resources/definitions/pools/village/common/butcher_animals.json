@@ -1,0 +1,42 @@
+{
+    "name": "village/common/butcher_animals",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/cows_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/pigs_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/sheep_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/sheep_2",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        }
+    ]
+}

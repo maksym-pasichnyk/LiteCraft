@@ -1,0 +1,33 @@
+{
+    "name": "village/savanna/villagers",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/villagers/nitwit",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/villagers/baby",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/villagers/unemployed",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 10
+        }
+    ]
+}

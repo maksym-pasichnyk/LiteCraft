@@ -1,0 +1,15 @@
+{
+    "name": "village/common/well_bottoms",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/well_bottom",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        }
+    ]
+}

@@ -1,0 +1,24 @@
+{
+    "name": "bastion/bridge/connectors",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/bridge/connectors/back_bridge_top",
+                "projection": "rigid",
+                "processors": "bastion_generic_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/bridge/connectors/back_bridge_bottom",
+                "projection": "rigid",
+                "processors": "bastion_generic_degradation"
+            },
+            "weight": 1
+        }
+    ]
+}

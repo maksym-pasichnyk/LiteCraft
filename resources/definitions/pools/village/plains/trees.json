@@ -1,0 +1,14 @@
+{
+    "name": "village/plains/trees",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "feature",
+                "projection": "rigid",
+                "feature": "oak"
+            },
+            "weight": 1
+        }
+    ]
+}

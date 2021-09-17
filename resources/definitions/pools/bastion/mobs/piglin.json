@@ -1,0 +1,42 @@
+{
+    "name": "bastion/mobs/piglin",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/mobs/melee_piglin",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/mobs/sword_piglin",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/mobs/crossbow_piglin",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/mobs/empty",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        }
+    ]
+}

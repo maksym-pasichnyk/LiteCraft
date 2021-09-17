@@ -1,9 +1,17 @@
 #include "JigsawPools.hpp"
 
+#include <filesystem>
+#include <fmt/format.h>
+#include <fstream>
+#include <json/json.hpp>
 #include <range/v3/all.hpp>
 #include <world/gen/feature/ConfiguredFeatures.hpp>
-#include <world/gen/feature/jigsaw/JigsawPiece.hpp>
 #include <world/gen/feature/jigsaw/JigsawPattern.hpp>
+#include <world/gen/feature/jigsaw/ListJigsawPiece.hpp>
+#include <world/gen/feature/jigsaw/EmptyJigsawPiece.hpp>
+#include <world/gen/feature/jigsaw/SingleJigsawPiece.hpp>
+#include <world/gen/feature/jigsaw/FeatureJigsawPiece.hpp>
+#include <world/gen/feature/jigsaw/LegacySingleJigsawPiece.hpp>
 #include <world/gen/feature/processor/ProcessorLists.hpp>
 
 Registry<JigsawPattern> JigsawPools::pools;
@@ -34,6 +42,33 @@ static auto create(const std::string& location, const std::string& fallback, con
         .pool = std::move(pool),
         .elements = std::move(elements)
     }));
+}
+
+void JigsawPools::init() {
+    PlainVillagePools::init();
+    SnowyVillagePools::init();
+    SavannaVillagePools::init();
+    DesertVillagePools::init();
+    TaigaVillagePools::init();
+    PillagerOutpostPools::init();
+    BastionRemnantsPieces::init();
+
+    for (auto&& [name, pool] : JigsawPools::pools.objects) {
+        const auto path = std::filesystem::path(fmt::format("definitions/pools/{}.json", name));
+
+        std::filesystem::create_directories(path.parent_path());
+
+        auto elements = pool->elements | ranges::views::transform([](const std::pair<JigsawPiece*, int>& element) -> Json {
+            return Json{ {"element", element.first->to_json()}, {"weight", element.second} };
+        }) | ranges::to_vector;
+
+        std::ofstream out{path, std::ios::binary};
+        out << Json{
+            {"name", pool->location},
+            {"fallback", pool->fallback},
+            {"elements", std::move(elements)}
+        };
+    }
 }
 
 void PlainVillagePools::init() {

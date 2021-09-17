@@ -1,0 +1,33 @@
+{
+    "name": "bastion/treasure/corners/edges",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/corners/edges/bottom",
+                "projection": "rigid",
+                "processors": "high_wall"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/corners/edges/middle",
+                "projection": "rigid",
+                "processors": "high_wall"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/corners/edges/top",
+                "projection": "rigid",
+                "processors": "high_wall"
+            },
+            "weight": 1
+        }
+    ]
+}

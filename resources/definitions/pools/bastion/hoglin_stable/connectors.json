@@ -1,0 +1,15 @@
+{
+    "name": "bastion/hoglin_stable/connectors",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/connectors/end_post_connector",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        }
+    ]
+}

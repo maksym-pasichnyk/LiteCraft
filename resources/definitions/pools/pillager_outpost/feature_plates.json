@@ -1,0 +1,15 @@
+{
+    "name": "pillager_outpost/feature_plates",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "pillager_outpost/feature_plate",
+                "projection": "terrain_matching",
+                "processors": "empty"
+            },
+            "weight": 1
+        }
+    ]
+}

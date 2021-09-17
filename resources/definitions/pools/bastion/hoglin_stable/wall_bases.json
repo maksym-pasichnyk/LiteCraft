@@ -1,0 +1,15 @@
+{
+    "name": "bastion/hoglin_stable/wall_bases",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/hoglin_stable/walls/wall_base",
+                "projection": "rigid",
+                "processors": "stable_degradation"
+            },
+            "weight": 1
+        }
+    ]
+}

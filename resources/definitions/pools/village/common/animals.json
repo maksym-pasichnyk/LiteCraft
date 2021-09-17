@@ -1,0 +1,93 @@
+{
+    "name": "village/common/animals",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/cows_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 7
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/pigs_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 7
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/horses_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/horses_2",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/horses_3",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/horses_4",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/horses_5",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/sheep_1",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/common/animals/sheep_2",
+                "projection": "rigid",
+                "processors": "empty"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "empty"
+            },
+            "weight": 5
+        }
+    ]
+}

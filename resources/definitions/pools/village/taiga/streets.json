@@ -1,0 +1,150 @@
+{
+    "name": "village/taiga/streets",
+    "fallback": "village/taiga/terminators",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/streets/corner_01",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/streets/corner_02",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/streets/corner_03",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/streets/straight_01",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/streets/straight_02",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/streets/straight_03",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/streets/straight_04",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 7
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/streets/straight_05",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 7
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/streets/straight_06",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/streets/crossroad_01",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/streets/crossroad_02",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/streets/crossroad_03",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/streets/crossroad_04",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/streets/crossroad_05",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/streets/crossroad_06",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/taiga/streets/turn_01",
+                "projection": "terrain_matching",
+                "processors": "street_snowy_or_taiga"
+            },
+            "weight": 3
+        }
+    ]
+}

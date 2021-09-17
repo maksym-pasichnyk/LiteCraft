@@ -2,25 +2,26 @@
 
 #include <json/json.hpp>
 
-#include <entity/EntityType.hpp>
 #include <entity/EntityClassification.hpp>
-#include <world/biome/MobSpawnInfo.hpp>
-#include <world/biome/BiomeClimate.hpp>
-#include <world/biome/BiomeCategory.hpp>
+#include <entity/EntityType.hpp>
 #include <world/biome/BiomeAmbience.hpp>
-#include <world/biome/GrassColorModifiers.hpp>
-#include <world/biome/TemperatureModifiers.hpp>
+#include <world/biome/BiomeCategory.hpp>
+#include <world/biome/BiomeClimate.hpp>
 #include <world/biome/BiomeGenerationSettings.hpp>
-#include <world/gen/placement/Placements.hpp>
+#include <world/biome/GrassColorModifiers.hpp>
+#include <world/biome/MobSpawnInfo.hpp>
+#include <world/biome/TemperatureModifiers.hpp>
 #include <world/gen/carver/Carvers.hpp>
 #include <world/gen/carver/ConfiguredCarvers.hpp>
-#include <world/gen/surface/SurfaceBuilder.hpp>
-#include <world/gen/surface/ConfiguredSurfaceBuilders.hpp>
-#include <world/gen/feature/Features.hpp>
 #include <world/gen/feature/ConfiguredFeatures.hpp>
+#include <world/gen/feature/Features.hpp>
 #include <world/gen/feature/jigsaw/JigsawPattern.hpp>
-#include <world/gen/feature/structure/Structures.hpp>
+#include <world/gen/feature/jigsaw/JigsawProjection.hpp>
 #include <world/gen/feature/structure/StructureFeatures.hpp>
+#include <world/gen/feature/structure/Structures.hpp>
+#include <world/gen/placement/Placements.hpp>
+#include <world/gen/surface/ConfiguredSurfaceBuilders.hpp>
+#include <world/gen/surface/SurfaceBuilder.hpp>
 
 template <>
 struct Json::Serialize<RainType> {
@@ -95,6 +96,19 @@ struct Json::Serialize<RuinedPortalLocation> {
             case RuinedPortalLocation::MOUNTAIN: return "mountain"s;
             case RuinedPortalLocation::OCEAN: return "ocean"s;
             case RuinedPortalLocation::NETHER: return "nether"s;
+            default: return {};
+        }
+    }
+};
+
+template <>
+struct Json::Serialize<JigsawProjection> {
+    static auto to_json(const JigsawProjection& projection) -> Json {
+        using namespace std::string_literals;
+
+        switch (projection) {
+            case JigsawProjection::RIGID: return "rigid"s;
+            case JigsawProjection::TERRAIN_MATCHING: return "terrain_matching"s;
             default: return {};
         }
     }

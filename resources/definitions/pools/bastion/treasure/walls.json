@@ -1,0 +1,24 @@
+{
+    "name": "bastion/treasure/walls",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/walls/lava_wall",
+                "projection": "rigid",
+                "processors": "treasure_rooms"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/treasure/walls/entrance_wall",
+                "projection": "rigid",
+                "processors": "high_wall"
+            },
+            "weight": 1
+        }
+    ]
+}

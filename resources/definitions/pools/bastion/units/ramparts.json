@@ -1,0 +1,33 @@
+{
+    "name": "bastion/units/ramparts",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/units/ramparts/ramparts_0",
+                "projection": "rigid",
+                "processors": "housing"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/units/ramparts/ramparts_1",
+                "projection": "rigid",
+                "processors": "housing"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/units/ramparts/ramparts_2",
+                "projection": "rigid",
+                "processors": "housing"
+            },
+            "weight": 1
+        }
+    ]
+}

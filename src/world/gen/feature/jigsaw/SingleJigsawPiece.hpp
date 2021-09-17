@@ -10,4 +10,6 @@ struct SingleJigsawPiece : JigsawPiece {
         : JigsawPiece(projection)
         , location(std::move(location))
         , processors(processors) {}
+
+    auto to_json() -> Json override;
 };

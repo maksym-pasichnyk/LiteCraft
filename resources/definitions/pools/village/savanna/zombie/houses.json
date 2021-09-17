@@ -1,0 +1,291 @@
+{
+    "name": "village/savanna/zombie/houses",
+    "fallback": "village/savanna/zombie/terminators",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/zombie/houses/savanna_small_house_1",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/zombie/houses/savanna_small_house_2",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/zombie/houses/savanna_small_house_3",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/zombie/houses/savanna_small_house_4",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/zombie/houses/savanna_small_house_5",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/zombie/houses/savanna_small_house_6",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/zombie/houses/savanna_small_house_7",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/zombie/houses/savanna_small_house_8",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/zombie/houses/savanna_medium_house_1",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/zombie/houses/savanna_medium_house_2",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/houses/savanna_butchers_shop_1",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/houses/savanna_butchers_shop_2",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/houses/savanna_tool_smith_1",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/houses/savanna_fletcher_house_1",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/houses/savanna_shepherd_1",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/houses/savanna_armorer_1",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/houses/savanna_fisher_cottage_1",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/houses/savanna_tannery_1",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/houses/savanna_cartographer_1",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/houses/savanna_library_1",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/houses/savanna_mason_1",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/houses/savanna_weaponsmith_1",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/houses/savanna_weaponsmith_2",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/houses/savanna_temple_1",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/houses/savanna_temple_2",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 3
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/houses/savanna_large_farm_1",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/zombie/houses/savanna_large_farm_2",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/houses/savanna_small_farm",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 4
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/houses/savanna_animal_pen_1",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/zombie/houses/savanna_animal_pen_2",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "village/savanna/zombie/houses/savanna_animal_pen_3",
+                "projection": "rigid",
+                "processors": "zombie_savanna"
+            },
+            "weight": 2
+        },
+        {
+            "element": {
+                "type": "empty"
+            },
+            "weight": 5
+        }
+    ]
+}

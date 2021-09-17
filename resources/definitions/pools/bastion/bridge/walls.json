@@ -1,0 +1,24 @@
+{
+    "name": "bastion/bridge/walls",
+    "fallback": "empty",
+    "elements": [
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/bridge/walls/wall_base_0",
+                "projection": "rigid",
+                "processors": "rampart_degradation"
+            },
+            "weight": 1
+        },
+        {
+            "element": {
+                "type": "single",
+                "location": "bastion/bridge/walls/wall_base_1",
+                "projection": "rigid",
+                "processors": "rampart_degradation"
+            },
+            "weight": 1
+        }
+    ]
+}
