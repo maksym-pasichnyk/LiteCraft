@@ -13,7 +13,7 @@ struct ModelBoneFormat {
     std::optional<glm::vec3> bind_pose_rotation;
     std::optional<glm::vec3> rotation;
 
-    bool neverRender = false;
+    bool never_render = false;
     bool mirror = false;
     bool reset = false;
 

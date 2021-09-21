@@ -4,6 +4,7 @@
 
 #include <set>
 #include <string>
+#include <range/v3/all.hpp>
 #include <nlohmann/json.hpp>
 
 #include <GL/gl3w.h>
@@ -305,34 +306,26 @@ struct TextureAtlas /*: Texture*/ {
         TextureAtlasPack textureAtlasPack{};
         std::vector<ParsedAtlasNode> nodes{};
 
-        resources.loadAllVersionsOf("textures/terrain_texture.json",
-            [this, &nodes, &textureAtlasPack, &resources](std::span<const char> bytes) {
-                auto terrain_texture = nlohmann::json::parse(bytes, nullptr, true, true);
+        resources.for_each("textures/terrain_texture.json", [&, this](std::istream& stream) {
+            auto terrain_texture = nlohmann::json::parse(stream, nullptr, true, true);
 
 //            auto resource_pack_name = terrain_texture.at("resource_pack_name").get<std::string>();
 //            texture_name = terrain_texture.at("texture_name").get<std::string>();
 //            padding = terrain_texture.at("padding").get<int>();
 //            num_mip_levels = terrain_texture.at("num_mip_levels").get<int>();
 //
-                _loadAtlasNodes(terrain_texture.at("texture_data"), nodes);
+            _loadAtlasNodes(terrain_texture.at("texture_data"), nodes);
 
-                std::set<std::string> requireTextures;
-                for (const auto &node : nodes) {
-                    for (const auto &element : node.elements) {
-                        requireTextures.emplace(element.path);
-                    }
-                }
+            auto require_textures = nodes
+                | ranges::views::transform(&ParsedAtlasNode::elements)
+                | ranges::views::join
+                | ranges::views::transform(&ParsedAtlasNodeElement::path)
+                | ranges::views::unique;
 
-//		auto requireTextures = nodes
-//			| ranges::views::transform(&ParsedAtlasNode::elements)
-//			| ranges::views::join
-//			| ranges::views::transform(&ParsedAtlasNodeElement::path)
-//			| ranges::views::unique;
-
-                for (const auto &path : requireTextures) {
-                    textureAtlasPack.addSprite(path, resources.loadTextureData(path, true).value());
-                }
-            });
+            for (const auto &path : require_textures) {
+                textureAtlasPack.addSprite(path, resources.load_texture_data(path, true).value());
+            }
+        });
 
 		sheet = textureAtlasPack.build();
 

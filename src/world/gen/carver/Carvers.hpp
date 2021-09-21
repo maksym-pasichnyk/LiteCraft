@@ -10,11 +10,10 @@ struct WorldCarver;
 struct Carvers {
     static Registry<WorldCarver> carvers;
 
-    static WorldCarver* CAVE;
-    static WorldCarver* NETHER_CAVE;
-    static WorldCarver* CANYON;
-//    static WorldCarver* UNDERWATER_CANYON;
-//    static WorldCarver* UNDERWATER_CAVE;
+    template <typename T, typename... Args>
+    static auto create(std::string name, Args&&... args) -> WorldCarver* {
+        return carvers.add(std::move(name), std::make_unique<T>(std::forward<Args>(args)...));
+    }
 
     static void init();
 };

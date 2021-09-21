@@ -9,9 +9,8 @@ std::vector<std::unique_ptr<BlockGraphics>> BlockGraphics::mOwnedBlocks;
 void BlockGraphics::init(ResourcePackManager& resources) {
     using namespace std::string_view_literals;
 
-    // todo: merge
-    resources.loadAllVersionsOf("blocks.json", [](std::span<const char> bytes) {
-        auto blocks = nlohmann::json::parse(bytes, nullptr, true, true);
+    resources.for_each("blocks.json", [](std::istream& stream) {
+        auto blocks = nlohmann::json::parse(stream, nullptr, true, true);
         auto format_version = blocks.erase("format_version");
 
         for (auto& [name, data] : blocks.items()) {

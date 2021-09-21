@@ -3,16 +3,15 @@
 #include "ModelFaceFormat.hpp"
 
 #include <string>
-#include <unordered_map>
+#include <variant>
 #include <glm/vec3.hpp>
+#include <unordered_map>
+
+using ModelTexFormat = std::variant<glm::vec2, std::unordered_map<std::string, ModelFaceFormat>>;
 
 struct ModelCubeFormat {
     glm::vec3 origin;
     glm::vec3 rotation;
     glm::vec3 size;
-
-    bool uv_box = true;
-
-    glm::vec2 uv;
-    std::unordered_map<std::string, ModelFaceFormat> faces;
+    ModelTexFormat tex;
 };

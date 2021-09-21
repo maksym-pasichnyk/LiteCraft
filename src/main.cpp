@@ -23,6 +23,8 @@
 #include "input.hpp"
 #include "raytrace.hpp"
 #include "transform.hpp"
+#include "block/BlockGraphics.hpp"
+
 #include <world/biome/Biome.hpp>
 #include <world/biome/Biomes.hpp>
 #include <world/chunk/ChunkStatus.hpp>
@@ -30,14 +32,12 @@
 #include <world/gen/surface/SurfaceBuilders.hpp>
 #include <world/gen/feature/processor/ProcessorLists.hpp>
 
-#include "client/world/ClientWorld.hpp"
-#include "client/render/ViewFrustum.hpp"
-#include "client/render/chunk/ChunkRenderDispatcher.hpp"
-#include "block/BlockGraphics.hpp"
+#include <client/world/ClientWorld.hpp>
+#include <client/render/ViewFrustum.hpp>
+#include <client/render/model/Models.hpp>
+#include <client/render/chunk/ChunkRenderDispatcher.hpp>
 
 #include <configs.hpp>
-#include <nbt/nbt.hpp>
-#include <util/zlib/istream.hpp>
 
 struct CameraConstants {
     glm::mat4 transform;
@@ -98,7 +98,7 @@ struct App {
 
         /**************************************************************************************************************/
 
-        resources->addResourcePack(std::make_unique<PhysFsResourcePack>("/resource_packs/vanilla"));
+        resources->add_resource_pack(std::make_unique<PhysFsResourcePack>("/resource_packs/vanilla"));
 
         atlas = std::make_unique<TextureAtlas>();
         atlas->loadMetaFile(*resources);
@@ -130,23 +130,9 @@ struct App {
         Biomes::init();
         ChunkStatus::init();
 
+        Models::init(*resources);
+
         /**************************************************************************************************************/
-        struct physfs_recursive_directory_iterator {
-            void next(const char* directory, void(*fn)(const char*)) {
-                auto files = PHYSFS_enumerateFiles(directory);
-                for (auto file = files; *file != nullptr; file++) {
-                    const auto path = fmt::format("{}/{}", directory, *file);
-
-                    if (PHYSFS_isDirectory(path.c_str())) {
-                        next(path.c_str(), fn);
-                        continue;
-                    }
-
-                    fn(path.c_str());
-                }
-                PHYSFS_freeList(files);
-            }
-        };
 
 //        physfs_recursive_directory_iterator{}.next("client-extra", [](const char* path) {
 //            auto handle = PHYSFS_openRead(path);
@@ -449,7 +435,7 @@ struct AppServer {
 
     AppServer() {
         resources = std::make_unique<ResourcePackManager>();
-        resources->addResourcePack(std::make_unique<PhysFsResourcePack>("/resource_packs/vanilla"));
+        resources->add_resource_pack(std::make_unique<PhysFsResourcePack>("/resource_packs/vanilla"));
 
         /**************************************************************************************************************/
 

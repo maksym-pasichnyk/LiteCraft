@@ -3,11 +3,12 @@
 #include "ModelBoneFormat.hpp"
 
 #include <string>
+#include <memory>
 #include <optional>
 
 struct ModelFormat {
     std::string name;
-    std::string parent;
+    std::optional<std::string> parent;
 
     int32_t visible_bounds_width;
     int32_t visible_bounds_height;

@@ -28,7 +28,6 @@ struct Json::Deserialize<BlockData> {
     }
 };
 
-
 template<>
 struct Json::Serialize<SurfaceBuilderConfig> {
     static auto to_json(const SurfaceBuilderConfig &config) -> Json {

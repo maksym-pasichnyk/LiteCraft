@@ -145,6 +145,32 @@ struct Json {
 		return std::get<Object>(m_storage);
 	}
 
+    auto at(const std::string& key) const noexcept -> const Json& {
+        return to_object().at(key);
+    }
+
+    auto contains(const std::string& key) const noexcept -> bool {
+        auto&& o = to_object();
+        return o.find(key) != o.end();
+    }
+
+//    auto find(const std::string& key) const noexcept -> std::optional<std::reference_wrapper<const Json>> {
+//        auto&& o = to_object();
+//        if (auto it = o.find(key); it != o.end()) {
+//            return std::cref(it->second);
+//        }
+//        return std::nullopt;
+//    }
+
+    template <typename U>
+    auto value(const std::string& key, U&& value) const -> U {
+        auto&& o = to_object();
+        if (auto it = o.find(key); it != o.end()) {
+            return it->second;
+        }
+        return std::forward<U>(value);
+    }
+
 	Value m_storage;
 };
 
@@ -359,6 +385,25 @@ struct Json::Read {
 			return false;
 		});
 
+        if (stream.peek() == 'e' || stream.peek() == 'E') {
+            flag = true;
+
+            out.push_back(stream.peek());
+            stream.get();
+
+            if (stream.peek() == '-' || stream.peek() == '+') {
+                out.push_back(stream.peek());
+                stream.get();
+            }
+            take_while(stream, [&out](char c) -> bool {
+                if (isdigit(c)) {
+                    out.push_back(c);
+                    return true;
+                }
+                return false;
+            });
+        }
+
 		if (flag) {
 			const auto num = std::stoi(out, nullptr);
 			return Number{static_cast<int64_t>(sign ? -num : num)};
@@ -408,6 +453,21 @@ struct Json::Read {
 				case ' ': case '\t': case '\v': case '\f':
 					stream.get();
 					continue;
+                case '/':
+                    stream.get();
+                    if (stream.peek() == '/') {
+                        stream.get();
+                        while (!stream.eof()) {
+                            if (isnewline(stream.peek())) {
+                                nextline(stream, stream.peek());
+                                break;
+                            } else {
+                                stream.get();
+                            }
+                        }
+                        continue;
+                    }
+                    return std::nullopt;
 				case '{':
 					stream.get();
 					return BeginObject{};

@@ -1,15 +1,20 @@
 #pragma once
 
-#include <util/Registry.hpp>
+#include "ConfiguredCarver.hpp"
 
-struct ConfiguredCarver;
+#include <util/Registry.hpp>
+#include <world/gen/feature/config/ProbabilityConfig.hpp>
+
+struct WorldCarver;
 struct ConfiguredCarvers {
     static Registry<ConfiguredCarver> carvers;
 
-    static ConfiguredCarver* CAVE;
-    static ConfiguredCarver* CANYON;
-    static ConfiguredCarver* OCEAN_CAVE;
-    static ConfiguredCarver* NETHER_CAVE;
+    static auto configure(std::string name, WorldCarver* carver, ProbabilityConfig config) -> ConfiguredCarver* {
+        return carvers.add(std::move(name), std::make_unique<ConfiguredCarver>(ConfiguredCarver{
+           .carver = carver,
+           .config = config
+        }));
+    }
 
     static void init();
 };
