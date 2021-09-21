@@ -7,7 +7,7 @@ struct Chunk;
 struct ChunkStatus;
 
 struct WorldReader : virtual BiomeReader, virtual BlockReader {
-    virtual Chunk* getChunk(int x, int z, ChunkStatus const* requiredStatus, bool nonnull) = 0;
+    virtual Chunk* getChunk(int x, int z, ChunkStatus* requiredStatus, bool nonnull) = 0;
     virtual Biome* getNoiseBiomeRaw(int x, int y, int z) = 0;
 
     Biome *getNoiseBiome(int x, int y, int z) final {

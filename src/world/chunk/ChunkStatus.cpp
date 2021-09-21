@@ -6,74 +6,67 @@
 
 std::mutex generator_mutex{};
 
-const ChunkStatus ChunkStatus::Empty = create(nullptr, -1, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::weak_ptr<Chunk>> chunks, int64_t seed) {
+Registry<ChunkStatus> ChunkStatus::all;
 
-});
+ChunkStatus* ChunkStatus::Empty;
+ChunkStatus* ChunkStatus::StructureStart;
+ChunkStatus* ChunkStatus::StructureReferences;
+ChunkStatus* ChunkStatus::Biome;
+ChunkStatus* ChunkStatus::Noise;
+ChunkStatus* ChunkStatus::Surface;
+ChunkStatus* ChunkStatus::Carvers;
+ChunkStatus* ChunkStatus::Features;
+ChunkStatus* ChunkStatus::Light;
+ChunkStatus* ChunkStatus::Full;
 
-const ChunkStatus ChunkStatus::StructureStart = create(&ChunkStatus::Empty, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::weak_ptr<Chunk>> chunks, int64_t seed) {
-//    WorldGenRegion region{world, chunks, 0, x, z, seed};
-//    generator.generateStructures(region, chunk);
-});
-
-const ChunkStatus ChunkStatus::StructureReferences = create(&ChunkStatus::StructureStart, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::weak_ptr<Chunk>> chunks, int64_t seed) {
-//    WorldGenRegion region{world, chunks, 8, x, z, seed};
-//    generator.getStructureReferences(region, chunk);
-});
-
-//const ChunkStatus ChunkStatus::Biome = create(&ChunkStatus::StructureReferences, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::weak_ptr<Chunk>> chunks, int64_t seed) {
-//    WorldGenRegion region{world, chunks, 0, x, z, seed};
-//});
-//
-//const ChunkStatus ChunkStatus::Noise = create(&ChunkStatus::Biome, 8, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::weak_ptr<Chunk>> chunks, int64_t seed) {
-//    WorldGenRegion region{world, chunks, 0, x, z, seed};
-//    if (std::unique_lock _{generator.guard}) {
-//        generator.generateTerrain(chunk);
-//    }
-//});
-
-const ChunkStatus ChunkStatus::Surface = create(&ChunkStatus::StructureReferences, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::weak_ptr<Chunk>> chunks, int64_t seed) {
-    WorldGenRegion region{world, chunks, 0, x, z, seed};
-
-    generator.generateTerrain(chunk);
-    generator.generateSurface(region, chunk);
-    generator.generateCarvers(region, seed, chunk);
-});
-
-//const ChunkStatus ChunkStatus::Carver = create(&ChunkStatus::Surface, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::weak_ptr<Chunk>> chunks, int64_t seed) {
-//    WorldGenRegion region{world, chunks, 0, x, z, seed};
-//    generator.generateCarvers(region, seed, chunk, GenerationStage::Carving::AIR);
-//});
-//
-//const ChunkStatus ChunkStatus::LiquidCarver = create(7, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::weak_ptr<Chunk>> chunks, int64_t seed) {
-//    WorldGenRegion region{world, chunks, 0, x, z, seed};
-//    generator.generateCarvers(region, seed, chunk, GenerationStage::Carving::LIQUID);
-//});
-
-const ChunkStatus ChunkStatus::Features = create(&ChunkStatus::Surface, /*8*/1, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::weak_ptr<Chunk>> chunks, int64_t seed) {
-    WorldGenRegion region{world, chunks, 1, x, z, seed};
-
-    generator_mutex.lock();
-    generator.generateFeatures(region, chunk);
-    generator_mutex.unlock();
-});
-
-const ChunkStatus ChunkStatus::Light = create(&ChunkStatus::Features, 1, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::weak_ptr<Chunk>> chunks, int64_t seed) {
-    WorldGenRegion region{world, chunks, 1, x, z, seed};
-    lightManager.calculate(region, x << 4, z << 4);
-});
-
-const ChunkStatus ChunkStatus::Full = create(&ChunkStatus::Light, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::weak_ptr<Chunk>> chunks, int64_t seed) {
-
-});
-
-ChunkStatus ChunkStatus::create(ChunkStatus const* parent, int32_t range, Fn generate) noexcept {
-    return {
-        .ordinal = parent ? parent->ordinal + 1 : 0,
+static auto create(std::string name, ChunkStatus* parent, int32_t range, ChunkStatus::Fn on_generate, ChunkStatus::Fn on_load = nullptr) -> ChunkStatus* {
+    const auto ordinal = parent ? parent->ordinal + 1 : 0;
+    return ChunkStatus::all.add(ordinal, std::move(name), std::make_unique<ChunkStatus>(ChunkStatus{
+        .ordinal = ordinal,
         .range = range,
-        .generate = generate
-    };
+        .on_generate = on_generate,
+        .on_load = on_load
+    }));
 }
 
-ChunkStatus const* ChunkStatus::getById(int32_t ordinal) {
-    return ALL[ordinal];
+void ChunkStatus::init() {
+    Empty = create("empty", nullptr, -1, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {});
+    StructureStart = create("structure_starts", Empty, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
+//        WorldGenRegion region{world, chunks, radius, x, z, seed};
+//        generator.generateStructures(region, chunk);
+    });
+    StructureReferences = create("structure_references", StructureStart, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
+//        WorldGenRegion region{world, chunks, radius, x, z, seed};
+//        generator.getStructureReferences(region, chunk);
+    });
+    Biome = create("biome", StructureReferences, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
+        WorldGenRegion region{world, chunks, radius, x, z, seed};
+    });
+    Noise = create("noise", Biome, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
+        WorldGenRegion region{world, chunks, radius, x, z, seed};
+        generator.generateTerrain(chunk);
+    });
+    Surface = create("surface", Noise, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
+        WorldGenRegion region{world, chunks, radius, x, z, seed};
+        generator.generateSurface(region, chunk);
+        generator.generateCarvers(region, seed, chunk);
+    });
+    Carvers = create("carvers", Surface, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
+        WorldGenRegion region{world, chunks, radius, x, z, seed};
+        generator.generateCarvers(region, seed, chunk);
+//        generator.generateCarvers(region, seed, chunk, GenerationStage::Carving::AIR);
+//        generator.generateCarvers(region, seed, chunk, GenerationStage::Carving::LIQUID);
+    });
+    Features = create("features", Carvers, 8, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
+        WorldGenRegion region{world, chunks, radius, x, z, seed};
+
+        generator_mutex.lock();
+        generator.generateFeatures(region, chunk);
+        generator_mutex.unlock();
+    });
+    Light = create("light", Features, 1, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
+        WorldGenRegion region{world, chunks, radius, x, z, seed};
+        lightManager.calculate(region, x << 4, z << 4);
+    });
+    Full = create("full", Light, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {});
 }

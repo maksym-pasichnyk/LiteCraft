@@ -1,5 +1,7 @@
 #pragma once
 
+#include <util/Registry.hpp>
+
 #include <span>
 #include <array>
 #include <vector>
@@ -12,38 +14,39 @@ struct ChunkGenerator;
 struct WorldLightManager;
 
 struct ChunkStatus {
-    static const ChunkStatus Empty;
-    static const ChunkStatus StructureStart;
-    static const ChunkStatus StructureReferences;
-//    static const ChunkStatus Biome;
-//    static const ChunkStatus Noise;
-    static const ChunkStatus Surface;
+    static Registry<ChunkStatus> all;
+
+    static ChunkStatus* Empty;
+    static ChunkStatus* StructureStart;
+    static ChunkStatus* StructureReferences;
+    static ChunkStatus* Biome;
+    static ChunkStatus* Noise;
+    static ChunkStatus* Surface;
+    static ChunkStatus* Carvers;
 //    static const ChunkStatus Carver;
 //    static const ChunkStatus LiquidCarver;
-    static const ChunkStatus Features;
-    static const ChunkStatus Light;
-    static const ChunkStatus Full;
+    static ChunkStatus* Features;
+    static ChunkStatus* Light;
+    static ChunkStatus* Full;
 
-    static constexpr std::array ALL {
-        &ChunkStatus::Empty,
-        &ChunkStatus::StructureStart,
-        &ChunkStatus::StructureReferences,
-//        &ChunkStatus::Biome,
-//        &ChunkStatus::Noise,
-        &ChunkStatus::Surface,
-//        &ChunkStatus::Carver,
-//        &ChunkStatus::LiquidCarver,
-        &ChunkStatus::Features,
-        &ChunkStatus::Light,
-        &ChunkStatus::Full
-    };
-
-    using Fn = void(*)(ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::weak_ptr<Chunk>> chunks, int64_t seed);
+    using Fn = void(*)(ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int range);
 
     int32_t ordinal;
     int32_t range;
-    Fn generate;
+    Fn on_generate;
+    Fn on_load;
 
-    static ChunkStatus create(ChunkStatus const* parent, int32_t range, Fn generate) noexcept;
-    static ChunkStatus const* getById(int32_t ordinal);
+    void generate(ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed) {
+        on_generate(world, lightManager, generator, x, z, chunk, chunks, seed, range);
+    }
+
+    static auto getByName(const std::string& name) -> ChunkStatus* {
+        return all.objects.at(name);
+    }
+
+    static auto getById(int32_t ordinal) -> ChunkStatus* {
+        return all.entries.at(ordinal).get();
+    }
+
+    static void init();
 };

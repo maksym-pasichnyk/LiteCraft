@@ -1,5 +1,3 @@
-#define _USE_MATH_DEFINES
-
 #include "MegaJungleTrunkPlacer.hpp"
 #include "../../../util/math/utility.hpp"
 

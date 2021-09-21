@@ -1,5 +1,3 @@
-#define _USE_MATH_DEFINES
-
 #include "IcebergFeature.hpp"
 #include "../../WorldGenRegion.hpp"
 #include "../../../block/Block.hpp"

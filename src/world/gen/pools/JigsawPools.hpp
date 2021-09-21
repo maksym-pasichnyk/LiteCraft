@@ -6,6 +6,10 @@ struct JigsawPattern;
 struct JigsawPools {
     static Registry<JigsawPattern> pools;
 
+    static auto findByName(const std::string& name) -> JigsawPattern* {
+        return pools.get(name).value_or(nullptr);
+    }
+
     static void init();
 };
 

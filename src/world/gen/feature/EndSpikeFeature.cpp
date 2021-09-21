@@ -1,5 +1,3 @@
-#define _USE_MATH_DEFINES
-
 #include "EndSpikeFeature.hpp"
 #include <block/Blocks.hpp>
 #include <block/PaneBlock.hpp>

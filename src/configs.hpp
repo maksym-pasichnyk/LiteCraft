@@ -21,7 +21,9 @@
 #include <world/gen/feature/structure/Structures.hpp>
 #include <world/gen/placement/Placements.hpp>
 #include <world/gen/surface/ConfiguredSurfaceBuilders.hpp>
-#include <world/gen/surface/SurfaceBuilder.hpp>
+#include <world/gen/surface/SurfaceBuilders.hpp>
+#include <world/gen/pools/JigsawPools.hpp>
+
 
 template <>
 struct Json::Serialize<RainType> {
@@ -98,6 +100,28 @@ struct Json::Serialize<RuinedPortalLocation> {
             case RuinedPortalLocation::NETHER: return "nether"s;
             default: return {};
         }
+    }
+};
+
+template <>
+struct Json::Deserialize<RuinedPortalLocation> {
+    static auto from_json(const Json& obj) -> std::optional<RuinedPortalLocation> {
+        using namespace std::string_literals;
+
+        static auto table = std::map<std::string, RuinedPortalLocation> {
+            {"standard"s, RuinedPortalLocation::STANDARD},
+            {"desert"s, RuinedPortalLocation::DESERT},
+            {"jungle"s, RuinedPortalLocation::JUNGLE},
+            {"swamp"s, RuinedPortalLocation::SWAMP},
+            {"mountain"s, RuinedPortalLocation::MOUNTAIN},
+            {"ocean"s, RuinedPortalLocation::OCEAN},
+            {"nether"s, RuinedPortalLocation::NETHER}
+        };
+
+        if (auto it = table.find(obj.to_string()); it != table.end()) {
+            return it->second;
+        }
+        return std::nullopt;
     }
 };
 
@@ -696,14 +720,14 @@ struct Json::Deserialize<BiomeAmbience> {
 template<>
 struct Json::Serialize<SurfaceBuilder*> {
     static auto to_json(SurfaceBuilder* builder) -> Json {
-        return SurfaceBuilder::builders.name(builder).value();
+        return SurfaceBuilders::builders.name(builder).value();
     }
 };
 
 template<>
 struct Json::Deserialize<SurfaceBuilder*> {
     static auto from_json(const Json& obj) -> std::optional<SurfaceBuilder*> {
-        return SurfaceBuilder::builders.get(obj.to_string());
+        return SurfaceBuilders::builders.get(obj.to_string());
     }
 };
 
@@ -814,7 +838,10 @@ struct Json::Serialize<RuinedPortalConfig> {
 template<>
 struct Json::Deserialize<RuinedPortalConfig> {
     static auto from_json(const Json &obj) -> std::optional<RuinedPortalConfig> {
-        return {};
+        auto&& o = obj.to_object();
+        return RuinedPortalConfig{
+            .location = o.at("location")
+        };
     }
 };
 
@@ -831,7 +858,11 @@ struct Json::Serialize<JigsawConfig> {
 template<>
 struct Json::Deserialize<JigsawConfig> {
     static auto from_json(const Json &obj) -> std::optional<JigsawConfig> {
-        return {};
+        auto&& o = obj.to_object();
+        return JigsawConfig{
+            .pool = JigsawPools::findByName(o.at("pool").to_string()),
+            .size = o.at("size")
+        };
     }
 };
 

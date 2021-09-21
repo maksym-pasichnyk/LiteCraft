@@ -1,5 +1,3 @@
-#define _USE_MATH_DEFINES
-
 #include "OreFeature.hpp"
 #include "../../WorldGenRegion.hpp"
 #include "../../../block/Blocks.hpp"

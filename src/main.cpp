@@ -25,7 +25,9 @@
 #include "transform.hpp"
 #include <world/biome/Biome.hpp>
 #include <world/biome/Biomes.hpp>
+#include <world/chunk/ChunkStatus.hpp>
 #include <world/gen/pools/JigsawPools.hpp>
+#include <world/gen/surface/SurfaceBuilders.hpp>
 #include <world/gen/feature/processor/ProcessorLists.hpp>
 
 #include "client/world/ClientWorld.hpp"
@@ -115,7 +117,7 @@ struct App {
         Features::init();
         Placements::init();
         Structures::init();
-        SurfaceBuilder::init();
+        SurfaceBuilders::init();
         SurfaceBuilderConfig::init();
 
         ConfiguredCarvers::init();
@@ -126,6 +128,7 @@ struct App {
         ConfiguredSurfaceBuilders::init();
 
         Biomes::init();
+        ChunkStatus::init();
 
         /**************************************************************************************************************/
         struct physfs_recursive_directory_iterator {
@@ -454,7 +457,7 @@ struct AppServer {
 //        BlockGraphics::init(*resources);
         Blocks::init();
         BlockTags::init();
-        SurfaceBuilder::init();
+        SurfaceBuilders::init();
         SurfaceBuilderConfig::init();
         ConfiguredSurfaceBuilders::init();
         Carvers::init();

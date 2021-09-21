@@ -2,9 +2,12 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ThirdParty/asyncplusplus" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ThirdParty/continuable" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/curl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/entt" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/fmt" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ThirdParty/function2" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/gl3w" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/glfw" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/glm" vcs="Git" />

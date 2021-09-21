@@ -15,23 +15,9 @@
 ChunkManager::ChunkManager(ServerWorld *world, ChunkGenerator *generator)
     : world(world)
     , generator(generator)
-    , lightManager(std::make_unique<WorldLightManager>())
-    , viewDistance(world->viewDistance) {
-    workers.emplace_back(&ChunkManager::runLoop, this, stop_source.get_token());
-    workers.emplace_back(&ChunkManager::runLoop, this, stop_source.get_token());
-    workers.emplace_back(&ChunkManager::runLoop, this, stop_source.get_token());
-    workers.emplace_back(&ChunkManager::runLoop, this, stop_source.get_token());
-}
-
-void ChunkManager::runLoop(std::stop_token&& token) {
-    while (!token.stop_requested()) {
-        executor.process_all_tasks();
-    }
-}
+    , viewDistance(world->viewDistance) {}
 
 void ChunkManager::tick(Connection & connection) {
-//    fmt::print("ChunkManager::tick: {} in queue\n", complete.size());
-
     while (auto pos = complete.try_pop()) {
         const auto [x, z] = *pos;
         auto chunk = getChunk(x, z).get();
@@ -44,18 +30,17 @@ void ChunkManager::tick(Connection & connection) {
     }
 }
 
-void ChunkManager::setChunkLoadedAtClient(Connection & connection, int chunk_x, int chunk_z, bool wasLoaded, bool needLoad) {
+void ChunkManager::setChunkLoadedAtClient(Connection& connection, int chunk_x, int chunk_z, bool wasLoaded, bool needLoad) {
     if (wasLoaded && !needLoad) {
         connection.send(SUnloadChunkPacket{chunk_x, chunk_z});
     } else if (needLoad && !wasLoaded) {
-        auto chunk = getChunk(chunk_x, chunk_z, &ChunkStatus::Full);
-        if (chunk != nullptr) {
+        if (auto chunk = getChunk(chunk_x, chunk_z)) {
             connection.send(SLoadChunkPacket{chunk.get(), chunk_x, chunk_z});
         }
     }
 }
 
-void ChunkManager::updatePlayerPosition(Connection & connection, ChunkPos newChunkPos, ChunkPos oldChunkPos) {
+void ChunkManager::updatePlayerPosition(Connection & connection, const ChunkPos& newChunkPos, const ChunkPos& oldChunkPos) {
     if (std::abs(newChunkPos.x - oldChunkPos.x) <= 2 * viewDistance && std::abs(newChunkPos.z - oldChunkPos.z) <= 2 * viewDistance) {
         const int xStart = std::min(newChunkPos.x, oldChunkPos.x) - viewDistance;
         const int zStart = std::min(newChunkPos.z, oldChunkPos.z) - viewDistance;
@@ -85,7 +70,7 @@ void ChunkManager::updatePlayerPosition(Connection & connection, ChunkPos newChu
     }
 }
 
-std::shared_ptr<ChunkHolder> ChunkManager::getHolder(int32_t x, int32_t z) {
+auto ChunkManager::getHolder(int32_t x, int32_t z) -> std::shared_ptr<ChunkHolder> {
     auto holder_ptr = holders[ChunkPos::asLong(x, z)];
     if (holder_ptr == nullptr) {
         holder_ptr = std::make_unique<ChunkHolder>(ChunkPos::from(x, z));
@@ -94,38 +79,25 @@ std::shared_ptr<ChunkHolder> ChunkManager::getHolder(int32_t x, int32_t z) {
     return holder_ptr;
 }
 
-std::vector<ChunkResult> ChunkManager::getChunksAsync(int32_t range, int32_t chunk_x, int32_t chunk_z, ChunkStatus const* status) {
-    const size_t stride = range * 2 + 1;
-    const size_t count = stride * stride;
+auto ChunkManager::getChunksAsync(int32_t range, int32_t chunk_x, int32_t chunk_z, ChunkStatus* status) -> std::vector<ChunkResult> {
+    const auto stride = static_cast<size_t>(range * 2 + 1);
 
-    std::vector<ChunkResult> async_chunks{count};
+    std::vector<ChunkResult> results{};
+    results.reserve(stride * stride);
 
-    size_t i = 0;
     for (int32_t z = chunk_z - range; z <= chunk_z + range; z++) {
         for (int32_t x = chunk_x - range; x <= chunk_x + range; x++) {
-            async_chunks[i++] = getChunkAsync(x, z, status);
+            results.emplace_back(getChunkAsync(x, z, status));
         }
     }
 
-    return std::move(async_chunks);
+    return std::move(results);
 }
 
-std::shared_ptr<Chunk> ChunkManager::getChunk(int32_t chunk_x, int32_t chunk_z, const ChunkStatus *status) {
-    using namespace std::chrono_literals;
-
-    auto async_chunk = getChunkAsync(chunk_x, chunk_z, status);
-    return async_chunk.wait_for(0ms) == promise_hpp::promise_wait_status::no_timeout
-           ? assert(!async_chunk.get().expired()), async_chunk.get().lock()
-           : nullptr;
+auto ChunkManager::getChunk(int32_t chunk_x, int32_t chunk_z, ChunkStatus *status) -> std::shared_ptr<Chunk> {
+    auto result = getChunkAsync(chunk_x, chunk_z, status);
+    return result.ready() ? result.get() : nullptr;
 }
-
-template <typename T>
-struct when_all_result {
-    std::atomic_size_t counter;
-    std::vector<T> results;
-
-    explicit when_all_result(size_t count) : counter(count), results(count) {}
-};
 
 //ChunkResult ChunkManager::tryLoadFromFile(int32_t chunk_x, int32_t chunk_z) {
 ////    return executor.schedule([this, chunk_x, chunk_z]() mutable {
@@ -135,48 +107,32 @@ struct when_all_result {
 //    return promise_hpp::make_resolved_promise(std::make_shared<Chunk>(ChunkPos{chunk_x, chunk_z}));
 //}
 
-ChunkResult ChunkManager::generateChunk(int32_t chunk_x, int32_t chunk_z, ChunkStatus const* status) {
-    ChunkResult async_chunk;
-    auto async_chunks = getChunksAsync(status->range, chunk_x, chunk_z, ChunkStatus::getById(status->ordinal - 1));
-
-    auto result = std::make_shared<when_all_result<std::weak_ptr<Chunk>>>(async_chunks.size());
-    for (size_t i = 0; i < async_chunks.size(); ++i) {
-        async_chunks[i].then([this, status, i, result, async_chunk](std::weak_ptr<Chunk> chunk) mutable {
-            assert(!chunk.expired());
-
-            if (result->results[i] = std::move(chunk), (result->counter -= 1) == 0) {
-                executor.schedule(/*scheduler_hpp::scheduler_priority::highest,*/ [this, status, chunks = std::move(result->results), async_chunk = std::move(async_chunk)]() mutable {
-                    assert(!chunks[chunks.size() / 2].expired());
-                    auto chunk = chunks[chunks.size() / 2].lock();
-                    status->generate(world, *lightManager, *generator, chunk->pos.x, chunk->pos.z, *chunk, chunks, world->seed);
-
-                    if (status->ordinal == ChunkStatus::Full.ordinal) {
-                        complete.emplace(chunk->pos);
-                    }
-
-                    async_chunk.resolve(chunk);
-                });
-            }
-        });
+auto ChunkManager::generateChunk(int32_t chunk_x, int32_t chunk_z, ChunkStatus* status) -> ChunkResult {
+    if (status == ChunkStatus::Empty) {
+        return async::make_task(std::make_shared<Chunk>(ChunkPos::from(chunk_x, chunk_z))).share();
     }
-    return std::move(async_chunk);
-}
 
-ChunkResult ChunkManager::getChunkAsync(int32_t chunk_x, int32_t chunk_z, const ChunkStatus *status) {
-    auto holder = getHolder(chunk_x, chunk_z);
-    auto& async_chunk = holder->chunks[status->ordinal];
-    if (!async_chunk.has_value()) {
-        if (status == &ChunkStatus::Empty) {
-            async_chunk = promise_hpp::make_resolved_promise(std::weak_ptr(holder->chunk));
-//            tryLoadFromFile(chunk_x, chunk_z);
-        } else {
-            async_chunk = generateChunk(chunk_x, chunk_z, status);
+    auto results = getChunksAsync(status->range, chunk_x, chunk_z, ChunkStatus::getById(status->ordinal - 1));
+    return async::when_all(results).then(*executor, [this, status](const std::vector<ChunkResult>& results) {
+        auto chunks = results | ranges::views::transform([](auto&& element) { return element.get(); }) | ranges::to_vector;
+        auto chunk = chunks[chunks.size() / 2];
+        status->generate(world, *lightManager, *generator, chunk->pos.x, chunk->pos.z, *chunk, chunks, world->seed);
+        if (status == ChunkStatus::Full) {
+            complete.emplace(chunk->pos);
         }
-    }
-    return *async_chunk;
+        return chunk;
+    }).share();
 }
 
-void ChunkManager::setPlayerTracking(Connection & connection, ChunkPos pos, bool track) {
+auto ChunkManager::getChunkAsync(int32_t chunk_x, int32_t chunk_z, ChunkStatus *status) -> ChunkResult {
+    auto& result = getHolder(chunk_x, chunk_z)->chunks[status->ordinal];
+    if (!result.has_value()) {
+        result.emplace(generateChunk(chunk_x, chunk_z, status));
+    }
+    return *result;
+}
+
+void ChunkManager::setPlayerTracking(Connection & connection, const ChunkPos& pos, bool track) {
     for (int32_t chunk_x = pos.x - viewDistance; chunk_x <= pos.x + viewDistance; chunk_x++) {
         for (int32_t chunk_z = pos.z - viewDistance; chunk_z <= pos.z + viewDistance; chunk_z++) {
             setChunkLoadedAtClient(connection, chunk_x, chunk_z, !track, track);

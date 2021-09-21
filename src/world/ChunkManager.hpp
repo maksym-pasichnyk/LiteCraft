@@ -6,9 +6,6 @@
 #include "../util/complete_queue.hpp"
 #include "../util/math/ChunkPos.hpp"
 
-#include "promise.hpp/promise.hpp"
-#include "promise.hpp/scheduler.hpp"
-
 #include <map>
 #include <list>
 #include <span>
@@ -18,6 +15,7 @@
 #include <thread>
 #include <memory>
 #include <optional>
+#include <async++.h>
 #include <algorithm>
 #include <range/v3/algorithm.hpp>
 
@@ -32,39 +30,80 @@ enum class ChunkGenerationStatus {
     Ready
 };
 
-using ChunkResult = promise_hpp::promise<std::weak_ptr<Chunk>>;
+using ChunkResult = async::shared_task<std::shared_ptr<Chunk>>;
 
 struct ChunkHolder {
     ChunkPos pos;
+    std::array<std::optional<ChunkResult>, 10> chunks{};
 
-    std::shared_ptr<Chunk> chunk = std::make_shared<Chunk>(pos);
+    explicit ChunkHolder(const ChunkPos& pos) : pos(pos) {}
+};
 
-    explicit ChunkHolder(ChunkPos pos) : pos(pos) {}
+struct ThreadPool {
+    std::stop_source stop_source;
+    std::vector<std::thread> workers{};
 
-    std::array<std::optional<ChunkResult>, 7> chunks{};
+    std::mutex mutex{};
+    std::condition_variable signal{};
+    std::queue<async::task_run_handle> tasks;
+
+    ThreadPool() {
+        workers.reserve(std::thread::hardware_concurrency());
+        for (int i = 0; i < std::thread::hardware_concurrency(); ++i) {
+            workers.emplace_back(&ThreadPool::loop, this, stop_source.get_token());
+        }
+    }
+
+    ~ThreadPool() {
+        stop_source.request_stop();
+        signal.notify_all();
+        std::for_each(workers.begin(), workers.end(), std::mem_fn(&std::thread::join));
+        workers.clear();
+    }
+
+    void loop(std::stop_token &&token) {
+        while (auto task = get_task(token)) {
+            task->run();
+        }
+    }
+
+    auto get_task(std::stop_token& token) -> std::optional<async::task_run_handle> {
+        std::unique_lock lock{mutex};
+        signal.wait(lock, [this, &token] {
+            return !tasks.empty() || token.stop_requested();
+        });
+        if (token.stop_requested()) {
+            return std::nullopt;
+        }
+        auto task = std::move(tasks.front());
+        tasks.pop();
+        return task;
+    }
+
+    void schedule(async::task_run_handle task) {
+        {
+            std::lock_guard _{mutex};
+            tasks.emplace(std::move(task));
+        }
+        signal.notify_one();
+    }
 };
 
 struct Connection;
 struct ChunkManager {
     ServerWorld* world;
     ChunkGenerator* generator;
-    std::unique_ptr<WorldLightManager> lightManager;
-
-    scheduler_hpp::scheduler executor;
+    std::unique_ptr<WorldLightManager> lightManager = std::make_unique<WorldLightManager>();
+    std::unique_ptr<ThreadPool> executor = std::make_unique<ThreadPool>();
 
     complete_queue<ChunkPos> complete;
     std::map<int64_t, std::shared_ptr<ChunkHolder>> holders;
 
     int viewDistance = -1;
 
-    std::stop_source stop_source;
-    std::vector<std::thread> workers;
-
     ChunkManager(ServerWorld* world, ChunkGenerator* generator);
     ~ChunkManager() {
-        stop_source.request_stop();
-        ranges::for_each(workers, std::mem_fn(&std::thread::join));
-        workers.clear();
+        executor.reset();
         complete.clear();
         holders.clear();
     }
@@ -76,17 +115,16 @@ struct ChunkManager {
         return std::max(std::abs(from.x - to.x), std::abs(from.z - to.z));
     }
 
-    void runLoop(std::stop_token&& token);
-    void tick(Connection & connection);
+    void tick(Connection& connection);
     void setChunkLoadedAtClient(Connection & connection, int chunk_x, int chunk_z, bool wasLoaded, bool needLoad);
-    void updatePlayerPosition(Connection & connection, ChunkPos newChunkPos, ChunkPos oldChunkPos);
-    std::shared_ptr<ChunkHolder> getHolder(int32_t x, int32_t z);
+    void updatePlayerPosition(Connection & connection, const ChunkPos& newChunkPos, const ChunkPos& oldChunkPos);
+    auto getHolder(int32_t x, int32_t z) -> std::shared_ptr<ChunkHolder>;
 
-    std::vector<ChunkResult> getChunksAsync(int32_t range, int32_t chunk_x, int32_t chunk_z, ChunkStatus const* status);
-    std::shared_ptr<Chunk> getChunk(int32_t chunk_x, int32_t chunk_z, ChunkStatus const* status = &ChunkStatus::Full);
+    auto getChunksAsync(int32_t range, int32_t chunk_x, int32_t chunk_z, ChunkStatus* status) -> std::vector<ChunkResult>;
+    auto getChunk(int32_t chunk_x, int32_t chunk_z, ChunkStatus* status = ChunkStatus::Full) -> std::shared_ptr<Chunk>;
 
 //    ChunkResult tryLoadFromFile(int32_t chunk_x, int32_t chunk_z);
-    ChunkResult generateChunk(int32_t chunk_x, int32_t chunk_z, ChunkStatus const* status);
-    ChunkResult getChunkAsync(int32_t chunk_x, int32_t chunk_z, ChunkStatus const* status = &ChunkStatus::Full);
-    void setPlayerTracking(Connection & connection, ChunkPos pos, bool track);
+    auto generateChunk(int32_t chunk_x, int32_t chunk_z, ChunkStatus* status) -> ChunkResult;
+    auto getChunkAsync(int32_t chunk_x, int32_t chunk_z, ChunkStatus* status = ChunkStatus::Full) -> ChunkResult;
+    void setPlayerTracking(Connection & connection, const ChunkPos& pos, bool track);
 };

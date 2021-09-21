@@ -1,5 +1,3 @@
-#define _USE_MATH_DEFINES
-
 #include "CaveWorldCarver.hpp"
 #include "../../../util/Random.hpp"
 

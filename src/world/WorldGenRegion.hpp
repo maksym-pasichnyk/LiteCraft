@@ -38,11 +38,11 @@ struct WorldGenRegion : virtual HeightReader, virtual WorldReader, virtual World
 
     glm::ivec2 bounds_min{};
     glm::ivec2 bounds_max{};
-    std::span<std::weak_ptr<Chunk>> chunks;
+    std::span<std::shared_ptr<Chunk>> chunks;
 
     BiomeMagnifier magnifier;
 
-	WorldGenRegion(ServerWorld* world, std::span<std::weak_ptr<Chunk>> chunks, int32_t radius, int32_t chunk_x, int32_t chunk_z, int64_t seed)
+	WorldGenRegion(ServerWorld* world, std::span<std::shared_ptr<Chunk>> chunks, int32_t radius, int32_t chunk_x, int32_t chunk_z, int64_t seed)
 	    : world(world)
 	    , seed(seed)
         , radius(radius)
@@ -78,8 +78,7 @@ struct WorldGenRegion : virtual HeightReader, virtual WorldReader, virtual World
 
 	auto getChunk(int32_t x, int32_t z) const -> Chunk* {
 		if (chunkExists(x, z)) {
-		    assert(!chunks[toIndex(x, z)].expired());
-			return chunks[toIndex(x, z)].lock().get();
+			return chunks[toIndex(x, z)].get();
 		}
 		return nullptr;
 	}
@@ -133,7 +132,7 @@ struct WorldGenRegion : virtual HeightReader, virtual WorldReader, virtual World
 
 //    auto getHeight(/*type, */int32_t x, int32_t z) -> int32_t;
 
-    Chunk *getChunk(int x, int z, ChunkStatus const* requiredStatus, bool nonnull) override {
+    Chunk *getChunk(int x, int z, ChunkStatus* requiredStatus, bool nonnull) override {
         return nullptr;
     }
 

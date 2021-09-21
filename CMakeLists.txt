@@ -19,7 +19,7 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/json")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/physfs")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/zlib-ng")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/range-v3")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/promise.hpp")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/asyncplusplus")
 
 target_compile_options(fmt PUBLIC /EHsc)
 
@@ -44,9 +44,10 @@ set(craft_include_directories
     "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/physfs/src"
     "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/json/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/range-v3/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/promise.hpp/headers"
+    "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/asyncplusplus/include"
 )
 set(craft_compile_definitions
+    -D_USE_MATH_DEFINES
     -DGLFW_INCLUDE_NONE
     -DIMGUI_DEFINE_MATH_OPERATORS
     -DGLM_FORCE_XYZW_ONLY
@@ -61,10 +62,10 @@ set(craft_link_libraries
     imgui
     libcurl
     zlibstatic
-    promise.hpp
     nlohmann_json
     physfs-static
     WS2_32
+    Async++
 )
 
 add_executable("${PROJECT_NAME}-server" "${craft_source_files}")

@@ -1,5 +1,3 @@
-#define _USE_MATH_DEFINES
-
 #include "FancyTrunkPlacer.hpp"
 #include "../feature/TreeFeature.hpp"
 #include "../../WorldGenRegion.hpp"
