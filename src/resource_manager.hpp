@@ -138,13 +138,17 @@ struct ResourcePack {
 	template <typename Fn>
 	void open(const std::string& path, Fn&& fn) {
         thread_local auto func = std::ref(fn);
-        open_with_callback(path, [](std::istream& stream) { func.get()(stream); });
+        open_with_callback(path, [](std::istream& stream) {
+            func.get()(stream);
+        });
 	}
 
     template <typename Fn>
     void iterate(const std::string& path, Fn&& fn) {
         thread_local auto func = std::ref(fn);
-        iterate_with_callback(path, [](std::istream& stream) { func.get()(stream); });
+        iterate_with_callback(path, [](std::istream& stream) {
+            func.get()(stream);
+        });
     }
 
 	virtual auto load(const std::string& path) -> std::optional<std::vector<char>> = 0;
@@ -165,14 +169,15 @@ struct PhysFsResourcePack : ResourcePack {
         if (physfs::ifstream file{get_full_path(path)}) {
             std::vector<char> bytes(file.length());
             file.read(bytes.data(), bytes.size());
-            return std::move(bytes);
+            return bytes;
         }
 		return std::nullopt;
 	}
 
 	void open_with_callback(const std::string& path, void(*fn)(std::istream&)) override {
-        physfs::ifstream stream{get_full_path(path)};
-        fn(stream);
+        if (physfs::ifstream stream{get_full_path(path)}) {
+            fn(stream);
+        }
 	}
 
     void iterate_with_callback(const std::string& directory, void(*fn)(std::istream&)) override {
@@ -184,8 +189,7 @@ struct PhysFsResourcePack : ResourcePack {
 
                     if (PHYSFS_isDirectory(path.c_str())) {
                         next(path, fn);
-                    } else {
-                        physfs::ifstream stream{path};
+                    } else if (physfs::ifstream stream{path}) {
                         fn(stream);
                     }
                 }
@@ -193,7 +197,9 @@ struct PhysFsResourcePack : ResourcePack {
             }
         };
 
-        return recursive_directory_iterator::next(get_full_path(directory), fn);
+        if (auto full_path = get_full_path(directory); physfs::exists(full_path)) {
+            recursive_directory_iterator::next(get_full_path(directory), fn);
+        }
     }
 
 private:
@@ -205,7 +211,7 @@ private:
 };
 
 struct FolderResourcePack : ResourcePack {
-	explicit FolderResourcePack(const std::string& path) : base_path(path) {}
+	explicit FolderResourcePack(std::filesystem::path path) : base_path(std::move(path)) {}
 
 	auto contains(const std::string& path) -> bool override {
 		return std::filesystem::exists(get_full_path(path));
@@ -213,26 +219,28 @@ struct FolderResourcePack : ResourcePack {
 
 	auto load(const std::string& path) -> std::optional<std::vector<char>> override {
 		const auto full_path = get_full_path(path);
-		if (std::filesystem::exists(full_path)) {
+		if (std::ifstream stream{full_path, std::ios::binary}) {
 			std::vector<char> bytes(std::filesystem::file_size(full_path));
-			std::ifstream stream(full_path, std::ios::binary);
 			stream.read(bytes.data(), static_cast<std::streamsize>(bytes.size()));
-			stream.close();
-			return std::move(bytes);
+			return bytes;
 		}
 		return std::nullopt;
 	}
 
     void open_with_callback(const std::string& path, void(*fn)(std::istream&)) override {
-        std::ifstream stream(get_full_path(path), std::ios::binary);
-        fn(stream);
+        if (std::ifstream stream{get_full_path(path), std::ios::binary}) {
+            fn(stream);
+        }
     }
 
     void iterate_with_callback(const std::string& path, void(*fn)(std::istream&)) override {
-        for (auto&& entry : std::filesystem::recursive_directory_iterator{get_full_path(path)}) {
-            if (entry.is_regular_file()) {
-                std::ifstream stream(entry.path(), std::ios::binary);
-                fn(stream);
+        if (const auto full_path = get_full_path(path); std::filesystem::exists(full_path)) {
+            for (auto &&entry : std::filesystem::recursive_directory_iterator{full_path}) {
+                if (entry.is_regular_file()) {
+                    if (std::ifstream stream{entry.path(), std::ios::binary}) {
+                        fn(stream);
+                    }
+                }
             }
         }
     }

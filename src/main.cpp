@@ -34,6 +34,7 @@
 
 #include <client/world/ClientWorld.hpp>
 #include <client/render/ViewFrustum.hpp>
+#include <client/render/ModelRendered.hpp>
 #include <client/render/model/Models.hpp>
 #include <client/render/chunk/ChunkRenderDispatcher.hpp>
 
@@ -76,6 +77,9 @@ struct App {
     GLuint cutout_pipeline;
     GLuint transparent_pipeline;
 
+    GLuint entity_pipeline;
+    std::unique_ptr<ModelRendered> entity_model;
+
     bool joined = false;
 
     App(const char* title, uint32_t width, uint32_t height) {
@@ -99,6 +103,7 @@ struct App {
         /**************************************************************************************************************/
 
         resources->add_resource_pack(std::make_unique<PhysFsResourcePack>("/resource_packs/vanilla"));
+        resources->add_resource_pack(std::make_unique<FolderResourcePack>(std::filesystem::current_path()));
 
         atlas = std::make_unique<TextureAtlas>();
         atlas->loadMetaFile(*resources);
@@ -132,6 +137,8 @@ struct App {
 
         Models::init(*resources);
 
+        entity_model = std::make_unique<ModelRendered>(*Models::models.get("geometry.armor_stand").value());
+
         /**************************************************************************************************************/
 
 //        physfs_recursive_directory_iterator{}.next("client-extra", [](const char* path) {
@@ -151,17 +158,21 @@ struct App {
 
         /**************************************************************************************************************/
 
+        entity_pipeline = device->createShader(
+            resources->load("shaders/entity.vert").value(),
+            resources->load("shaders/entity.frag").value()
+        );
         opaque_pipeline = device->createShader(
-            AppPlatform::readFile("default.vert").value(),
-            AppPlatform::readFile("default.frag").value()
+            resources->load("shaders/default.vert").value(),
+            resources->load("shaders/default.frag").value()
         );
         cutout_pipeline = device->createShader(
-            AppPlatform::readFile("default.vert").value(),
-            AppPlatform::readFile("cutout.frag").value()
+            resources->load("shaders/default.vert").value(),
+            resources->load("shaders/cutout.frag").value()
         );
         transparent_pipeline = device->createShader(
-            AppPlatform::readFile("default.vert").value(),
-            AppPlatform::readFile("transparent.frag").value()
+            resources->load("shaders/default.vert").value(),
+            resources->load("shaders/transparent.frag").value()
         );
 
         /**************************************************************************************************************/
@@ -393,6 +404,11 @@ private:
 
         glUseProgram(transparent_pipeline);
         renderLayer(RenderLayer::Transparent);
+
+        glDisable(GL_BLEND);
+        glUseProgram(entity_pipeline);
+        glBindVertexArray(entity_model->mesh->vao);
+        glDrawElements(GL_TRIANGLES, entity_model->mesh->index_count, GL_UNSIGNED_INT, nullptr);
     }
 
     void renderLayer(RenderLayer layer) {

@@ -16,9 +16,9 @@ struct Device {
         fmt::print("Renderer: {}\n", glGetString(GL_RENDERER));
     }
 
-    auto compileShader(std::string_view source, GLenum type) -> GLuint {
+    auto compileShader(std::span<const char> source, GLenum type) -> GLuint {
         auto data = source.data();
-        auto size = GLint(source.size());
+        auto size = static_cast<GLint>(source.size());
 
         GLuint shader = glCreateShader(type);
         glShaderSource(shader, 1, &data, &size);
@@ -43,7 +43,7 @@ struct Device {
         return shader;
     }
 
-    auto createShader(std::string_view vertex_source, std::string_view fragment_source) -> GLuint {
+    auto createShader(std::span<const char> vertex_source, std::span<const char> fragment_source) -> GLuint {
         auto vertex = compileShader(vertex_source, GL_VERTEX_SHADER);
         auto fragment = compileShader(fragment_source, GL_FRAGMENT_SHADER);
 
