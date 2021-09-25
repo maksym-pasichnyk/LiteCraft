@@ -88,11 +88,7 @@ Biome* Biomes::WARPED_FOREST;
 Biome* Biomes::BASALT_DELTAS;
 
 static auto loadFromResources(int id, std::string name) -> Biome* {
-    std::ifstream in{fmt::format("definitions/biomes/{}.json", name), std::ios::binary};
-
-    auto obj = Json::Read::read(in).value();
-    auto&& o = obj.to_object();
-
+    auto o = Json::Read::read(std::ifstream{fmt::format("definitions/biomes/{}.json", name), std::ios::binary}).value();
     return Biomes::biomes.add(id, std::move(name), std::make_unique<Biome>(Biome{
         .climate {
            .precipitation = o.at("precipitation"),

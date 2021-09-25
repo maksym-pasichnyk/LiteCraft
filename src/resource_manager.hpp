@@ -21,6 +21,7 @@ namespace physfs {
         ~filebuf() override {
             if (file != nullptr) {
                 PHYSFS_close(file);
+                file = nullptr;
             }
         }
 
@@ -38,12 +39,12 @@ namespace physfs {
             if (PHYSFS_eof(file)) {
                 return traits_type::eof();
             }
-            const auto len = PHYSFS_read(file, tmp.data(), 1, tmp.size());
+            const auto len = PHYSFS_readBytes(file, tmp.data(), tmp.size());
             if (len < 1) {
                 return traits_type::eof();
             }
             setg(tmp.data(), tmp.data(), tmp.data() + len);
-            return static_cast<int_type>(*gptr());
+            return traits_type::to_int_type(*gptr());
         }
 
         auto length() const -> size_t {
@@ -89,16 +90,18 @@ struct NativeImage {
 	int height = 0;
 	int channels = 0;
 
-	static auto read(std::span<char> bytes, bool flip) -> NativeImage {
+	static auto read(std::span<const char> bytes, bool flip) -> std::optional<NativeImage> {
 		auto data = reinterpret_cast<const unsigned char *>(bytes.data());
 
-		int width, height, channels;
+		int width = 0, height = 0, channels = 0;
 		auto pixels = stbi_load_from_memory(data, bytes.size(), &width, &height, &channels, 0);
-
+        if (pixels == nullptr) {
+            stbi_load_from_memory(data, bytes.size(), &width, &height, &channels, 0);
+            return std::nullopt;
+        }
 		if (flip) {
 			stbi_vertical_flip(pixels, width, height, channels * sizeof(stbi_uc));
 		}
-
 		return NativeImage{
 			.pixels = ImageDataPtr{pixels},
 			.width = width,
@@ -109,20 +112,20 @@ struct NativeImage {
 
 private:
 	static void stbi_vertical_flip(void *image, int w, int h, int bytes_per_pixel) {
-		size_t bytes_per_row = (size_t) w * bytes_per_pixel;
-		stbi_uc temp[2048];
+		const auto bytes_per_row = static_cast<size_t>(w) * bytes_per_pixel;
 		auto *bytes = reinterpret_cast<stbi_uc *>(image);
 
+		std::array<stbi_uc, 2048> temp{};
 		for (int row = 0; row < (h >> 1); row++) {
-			stbi_uc *row0 = bytes + row * bytes_per_row;
-			stbi_uc *row1 = bytes + (h - row - 1) * bytes_per_row;
+			auto row0 = bytes + row * bytes_per_row;
+			auto row1 = bytes + (h - row - 1) * bytes_per_row;
 			// swap row0 with row1
-			size_t bytes_left = bytes_per_row;
+			auto bytes_left = bytes_per_row;
 			while (bytes_left) {
-				size_t bytes_copy = (bytes_left < sizeof(temp)) ? bytes_left : sizeof(temp);
-				std::memcpy(temp, row0, bytes_copy);
+				const auto bytes_copy = std::min(bytes_left, temp.size());
+				std::memcpy(temp.data(), row0, bytes_copy);
 				std::memcpy(row0, row1, bytes_copy);
-				std::memcpy(row1, temp, bytes_copy);
+				std::memcpy(row1, temp.data(), bytes_copy);
 				row0 += bytes_copy;
 				row1 += bytes_copy;
 				bytes_left -= bytes_copy;
@@ -261,7 +264,7 @@ struct ResourcePackManager {
 	auto load(const std::string& path) -> std::optional<std::vector<char>> {
 		for (auto& pack : packs) {
 			if (auto bytes = pack->load(path)) {
-				return std::move(bytes);
+				return bytes;
 			}
 		}
 		return std::nullopt;
@@ -275,11 +278,11 @@ struct ResourcePackManager {
 	}
 
 	auto load_texture_data(const std::string& name, bool flip) -> std::optional<NativeImage> {
-		for (auto ext : {".png", ".tga"}) {
-			if (auto bytes = load(name + ext)) {
-				return NativeImage::read(*bytes, flip);
-			}
-		}
+        for (auto ext : {".png", ".tga"}) {
+            if (auto bytes = load(name + ext)) {
+                return NativeImage::read(*bytes, flip);
+            }
+        }
 		return std::nullopt;
 	}
 

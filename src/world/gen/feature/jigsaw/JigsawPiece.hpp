@@ -2,6 +2,7 @@
 
 #include "JigsawProjection.hpp"
 
+#include <memory>
 #include <functional>
 #include <json/json.hpp>
 
@@ -9,7 +10,7 @@ struct ConfiguredFeature;
 struct StructureProcessorList;
 
 struct JigsawPiece {
-    using Factory = std::function<auto(JigsawProjection) -> JigsawPiece*>;
+    using Factory = std::function<std::unique_ptr<JigsawPiece>(JigsawProjection)>;
 
     JigsawProjection projection;
 
@@ -28,4 +29,6 @@ struct JigsawPiece {
     static auto legacy(std::string name) -> Factory;
     static auto legacy(std::string name, StructureProcessorList* processor) -> Factory;
     static auto empty() -> Factory;
+
+    static auto from_json(const Json& o) -> std::unique_ptr<JigsawPiece>;
 };

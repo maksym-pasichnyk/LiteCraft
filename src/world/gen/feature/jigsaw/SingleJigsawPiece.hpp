@@ -12,4 +12,5 @@ struct SingleJigsawPiece : JigsawPiece {
         , processors(processors) {}
 
     auto to_json() -> Json override;
+    static auto from_json(const Json& o) -> std::unique_ptr<JigsawPiece>;
 };

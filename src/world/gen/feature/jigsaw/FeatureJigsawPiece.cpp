@@ -8,3 +8,6 @@ auto FeatureJigsawPiece::to_json() -> Json {
         {"feature", feature}
     };
 }
+auto FeatureJigsawPiece::from_json(const Json &o) -> std::unique_ptr<JigsawPiece> {
+    return std::make_unique<FeatureJigsawPiece>(o.at("feature"), o.at("projection"));
+}

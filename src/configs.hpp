@@ -139,6 +139,23 @@ struct Json::Serialize<JigsawProjection> {
 };
 
 template <>
+struct Json::Deserialize<JigsawProjection> {
+    static auto from_json(const Json& obj) -> std::optional<JigsawProjection> {
+        using namespace std::string_literals;
+
+        static auto table = std::map<std::string, JigsawProjection> {
+            {"rigid"s, JigsawProjection::RIGID},
+            {"terrain_matching"s, JigsawProjection::TERRAIN_MATCHING}
+        };
+
+        if (auto it = table.find(obj.to_string()); it != table.end()) {
+            return it->second;
+        }
+        return std::nullopt;
+    }
+};
+
+template <>
 struct Json::Serialize<OceanRuinType> {
     static auto to_json(const OceanRuinType& type) -> Json {
         using namespace std::string_literals;

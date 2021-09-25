@@ -10,3 +10,8 @@ auto SingleJigsawPiece::to_json() -> Json {
         {"processors", ProcessorLists::processors.name(processors).value()}
     };
 }
+
+auto SingleJigsawPiece::from_json(const Json &o) -> std::unique_ptr<JigsawPiece> {
+    auto processors = ProcessorLists::processors.get(o.at("processors").to_string()).value();
+    return std::make_unique<SingleJigsawPiece>(o.at("location").to_string(), processors, o.at("projection"));
+}

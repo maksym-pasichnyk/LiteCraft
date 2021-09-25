@@ -32,12 +32,12 @@ static auto create(std::string name, ChunkStatus* parent, int32_t range, ChunkSt
 void ChunkStatus::init() {
     Empty = create("empty", nullptr, -1, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {});
     StructureStart = create("structure_starts", Empty, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
-//        WorldGenRegion region{world, chunks, radius, x, z, seed};
-//        generator.generateStructures(region, chunk);
+        WorldGenRegion region{world, chunks, radius, x, z, seed};
+        generator.generateStructures(region, chunk);
     });
-    StructureReferences = create("structure_references", StructureStart, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
-//        WorldGenRegion region{world, chunks, radius, x, z, seed};
-//        generator.getStructureReferences(region, chunk);
+    StructureReferences = create("structure_references", StructureStart, 8, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
+        WorldGenRegion region{world, chunks, radius, x, z, seed};
+        generator.getStructureReferences(region, chunk);
     });
     Biome = create("biome", StructureReferences, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
         WorldGenRegion region{world, chunks, radius, x, z, seed};

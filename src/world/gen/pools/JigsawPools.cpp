@@ -1,8 +1,10 @@
 #include "JigsawPools.hpp"
 
-#include <filesystem>
-#include <fmt/format.h>
+#include <map>
 #include <fstream>
+#include <filesystem>
+#include <configs.hpp>
+#include <fmt/format.h>
 #include <json/json.hpp>
 #include <range/v3/all.hpp>
 #include <world/gen/feature/ConfiguredFeatures.hpp>
@@ -16,24 +18,16 @@
 
 Registry<JigsawPattern> JigsawPools::pools;
 
-JigsawPattern* PlainVillagePools::START;
-JigsawPattern* SnowyVillagePools::START;
-JigsawPattern* SavannaVillagePools::START;
-JigsawPattern* DesertVillagePools::START;
-JigsawPattern* TaigaVillagePools::START;
-JigsawPattern* PillagerOutpostPools::START;
-JigsawPattern* BastionRemnantsPieces::START;
-
 static auto create(const std::string& location, const std::string& fallback, const std::vector<std::pair<JigsawPiece::Factory, int>>& factories, JigsawProjection placement) -> JigsawPattern* {
 	std::vector<JigsawPiece *> pool;
-	std::vector<std::pair<JigsawPiece *, int>> elements;
+	std::vector<std::pair<std::unique_ptr<JigsawPiece>, int>> elements;
 
 	for (auto&& [factory, count] : factories) {
 		auto element = factory(placement);
 		for (int i = 0; i < count; ++i) {
-			pool.emplace_back(element);
+			pool.emplace_back(element.get());
 		}
-		elements.emplace_back(element, count);
+		elements.emplace_back(std::move(element), count);
 	}
 
     return JigsawPools::pools.add(location, std::make_unique<JigsawPattern>(JigsawPattern{
@@ -45,34 +39,63 @@ static auto create(const std::string& location, const std::string& fallback, con
 }
 
 void JigsawPools::init() {
-    PlainVillagePools::init();
-    SnowyVillagePools::init();
-    SavannaVillagePools::init();
-    DesertVillagePools::init();
-    TaigaVillagePools::init();
-    PillagerOutpostPools::init();
-    BastionRemnantsPieces::init();
+//    PlainVillagePools::init();
+//    SnowyVillagePools::init();
+//    SavannaVillagePools::init();
+//    DesertVillagePools::init();
+//    TaigaVillagePools::init();
+//    PillagerOutpostPools::init();
+//    BastionRemnantsPieces::init();
 
-    for (auto&& [name, pool] : JigsawPools::pools.objects) {
-        const auto path = std::filesystem::path(fmt::format("definitions/pools/{}.json", name));
+    for (auto&& entry : std::filesystem::directory_iterator{"definitions/pools"}) {
+        if (!entry.is_regular_file()) {
+            continue;
+        }
 
-        std::filesystem::create_directories(path.parent_path());
+        auto o = Json::Read::read(std::ifstream{entry.path(), std::ios::binary}).value();
 
-        auto elements = pool->elements | ranges::views::transform([](const std::pair<JigsawPiece*, int>& element) -> Json {
-            return Json{ {"element", element.first->to_json()}, {"weight", element.second} };
+        auto elements = o.at("elements").to_array() | ranges::views::transform([](const auto& element) -> std::pair<std::unique_ptr<JigsawPiece>, int> {
+            return std::pair{
+                JigsawPiece::from_json(element.at("element")),
+                static_cast<int>(element.at("weight"))
+            };
         }) | ranges::to_vector;
 
-        std::ofstream out{path, std::ios::binary};
-        out << Json{
-            {"name", pool->location},
-            {"fallback", pool->fallback},
-            {"elements", std::move(elements)}
-        };
+        std::vector<JigsawPiece *> pool{};
+        for (auto&& [element, count] : elements) {
+            for (int i = 0; i < count; ++i) {
+                pool.emplace_back(element.get());
+            }
+        }
+
+        JigsawPools::pools.add(o.at("name").to_string(), std::make_unique<JigsawPattern>(JigsawPattern{
+            .location = o.at("name").to_string(),
+            .fallback = o.at("fallback").to_string(),
+            .pool = std::move(pool),
+            .elements = std::move(elements)
+        }));
     }
+
+//    for (auto&& [name, pool] : JigsawPools::pools.objects) {
+//        const auto path = std::filesystem::path(fmt::format("definitions/pools/{}.json", name));
+//
+//        std::filesystem::create_directories(path.parent_path());
+//
+//        auto elements = pool->elements | ranges::views::transform([](const std::pair<JigsawPiece*, int>& element) -> Json {
+//            return Json{ {"element", element.first->to_json()}, {"weight", element.second} };
+//        }) | ranges::to_vector;
+//
+//        std::ofstream out{path, std::ios::binary};
+//        out << Json{
+//            {"name", pool->location},
+//            {"fallback", pool->fallback},
+//            {"elements", std::move(elements)}
+//        };
+//    }
 }
 
 void PlainVillagePools::init() {
-	START = create(
+	create(
 		"village/plains/town_centers",
 		"empty",
 		{
@@ -373,7 +396,7 @@ void PlainVillagePools::init() {
 }
 
 void SnowyVillagePools::init() {
-	START = create(
+	create(
 		"village/snowy/town_centers",
 		"empty",
 		{
@@ -587,7 +610,7 @@ void SnowyVillagePools::init() {
 }
 
 void SavannaVillagePools::init() {
-	START = create(
+	create(
 		"village/savanna/town_centers",
 		"empty",
 		{
@@ -821,7 +844,7 @@ void SavannaVillagePools::init() {
 }
 
 void DesertVillagePools::init() {
-	START = create(
+	create(
 		"village/desert/town_centers",
 		"empty",
 		{
@@ -1014,7 +1037,7 @@ void DesertVillagePools::init() {
 }
 
 void TaigaVillagePools::init() {
-	START = create(
+	create(
 		"village/taiga/town_centers", 
 		"empty", 
 		{
@@ -1210,7 +1233,7 @@ void TaigaVillagePools::init() {
 }
 
 void PillagerOutpostPools::init() {
-	START = create(
+	create(
 		"pillager_outpost/base_plates", 
 		"empty", 
 		{
@@ -1260,7 +1283,7 @@ void PillagerOutpostPools::init() {
 }
 
 void BastionRemnantsPieces::init() {
-	START = create(
+	create(
 		"bastion/starts", 
 		"empty", 
 		{

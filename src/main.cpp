@@ -112,12 +112,14 @@ struct App {
         BlockGraphics::mTerrainTextureAtlas = atlas.get();
 
         /**************************************************************************************************************/
+        ChunkStatus::init();
 
         Materials::init();
         BlockGraphics::init(*resources);
 
         Blocks::init();
         BlockTags::init();
+
         Carvers::init();
         Features::init();
         Placements::init();
@@ -133,8 +135,6 @@ struct App {
         ConfiguredSurfaceBuilders::init();
 
         Biomes::init();
-        ChunkStatus::init();
-
         Models::init(*resources);
 
         entity_model = std::make_unique<ModelRendered>(*Models::models.get("geometry.armor_stand").value());

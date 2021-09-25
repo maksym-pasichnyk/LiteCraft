@@ -505,6 +505,10 @@ struct Json::Read {
 		return parse(stream, next_token(stream).value());
 	}
 
+    static auto read(std::istream&& stream) noexcept -> std::optional<Json> {
+        return read(stream);
+    }
+
 	static auto parse(std::istream& stream, const Token& in) noexcept -> std::optional<Json> {
 		return match(in,
 			[&stream](BeginArray) -> std::optional<Json> {

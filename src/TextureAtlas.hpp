@@ -5,7 +5,7 @@
 #include <set>
 #include <string>
 #include <range/v3/all.hpp>
-#include <nlohmann/json.hpp>
+#include <json/json.hpp>
 
 #include <GL/gl3w.h>
 
@@ -269,11 +269,11 @@ struct TextureAtlas /*: Texture*/ {
 
 	std::map<std::string, TextureAtlasTextureItem> items;
 
-	void _readElement(const nlohmann::json& data, ParsedAtlasNodeElement& element) {
+	void _readElement(const Json& data, ParsedAtlasNodeElement& element) {
 		if (data.is_string()) {
-			element.path = data.get<std::string>();
+			element.path = data.to_string();
 		} else {
-			element.path = data.at("path").get<std::string>();
+			element.path = data.at("path").to_string();
 //			if (auto overlay_color = value.get("overlay_color")) {
 //				element.overlay_color = overlay_color->as_string();
 //			}
@@ -283,12 +283,12 @@ struct TextureAtlas /*: Texture*/ {
 		}
 	}
 
-	void _readNode(const nlohmann::json& data, ParsedAtlasNode& node) {
-		node.quad = data.value<int>("quad", 0);
+	void _readNode(const Json& data, ParsedAtlasNode& node) {
+		node.quad = data.value("quad", 0);
 
 		auto elements = data.at("textures");
 		if (elements.is_array()) {
-			for (auto& element : elements) {
+			for (auto& element : elements.to_array()) {
 				_readElement(element, node.elements.emplace_back());
 			}
 		} else {
@@ -296,9 +296,9 @@ struct TextureAtlas /*: Texture*/ {
 		}
 	}
 
-	void _loadAtlasNodes(const nlohmann::json& data, std::vector<ParsedAtlasNode>& nodes) {
-		for (auto& item : data.items()) {
-			_readNode(item.value(), nodes.emplace_back(item.key()));
+	void _loadAtlasNodes(const Json& data, std::vector<ParsedAtlasNode>& nodes) {
+		for (auto& [key, val] : data.to_object()) {
+			_readNode(val, nodes.emplace_back(key));
 		}
 	}
 
@@ -307,13 +307,12 @@ struct TextureAtlas /*: Texture*/ {
         std::vector<ParsedAtlasNode> nodes{};
 
         resources.for_each("textures/terrain_texture.json", [&, this](std::istream& stream) {
-            auto terrain_texture = nlohmann::json::parse(stream, nullptr, true, true);
+            auto terrain_texture = Json::Read::read(stream).value();
 
 //            auto resource_pack_name = terrain_texture.at("resource_pack_name").get<std::string>();
 //            texture_name = terrain_texture.at("texture_name").get<std::string>();
 //            padding = terrain_texture.at("padding").get<int>();
 //            num_mip_levels = terrain_texture.at("num_mip_levels").get<int>();
-//
             _loadAtlasNodes(terrain_texture.at("texture_data"), nodes);
 
             auto require_textures = nodes
@@ -323,9 +322,13 @@ struct TextureAtlas /*: Texture*/ {
                 | ranges::views::unique;
 
             for (const auto &path : require_textures) {
-                textureAtlasPack.addSprite(path, resources.load_texture_data(path, true).value());
+				if (auto resource = resources.load_texture_data(path, true)) {
+                	textureAtlasPack.addSprite(path, *std::move(resource));
+				}
             }
         });
+
+        fmt::print("build texture atlas\n");
 
 		sheet = textureAtlasPack.build();
 

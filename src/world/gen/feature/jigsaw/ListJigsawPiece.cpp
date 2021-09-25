@@ -9,3 +9,9 @@ auto ListJigsawPiece::to_json() -> Json {
         {"elements", elements | ranges::views::transform(std::mem_fn(&JigsawPiece::to_json)) | ranges::to_vector}
     };
 }
+auto ListJigsawPiece::from_json(const Json &o) -> std::unique_ptr<JigsawPiece> {
+    return std::make_unique<ListJigsawPiece>(
+        o.at("elements").to_array() | ranges::views::transform(&JigsawPiece::from_json) | ranges::to_vector,
+        o.at("projection")
+    );
+}

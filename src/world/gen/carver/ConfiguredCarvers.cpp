@@ -13,11 +13,7 @@ void ConfiguredCarvers::init() {
             continue;
         }
 
-        std::ifstream in{entry.path(), std::ios::binary};
-
-        auto obj = Json::Read::read(in).value();
-        auto&& o = obj.to_object();
-
+        auto o = Json::Read::read(std::ifstream{entry.path(), std::ios::binary}).value();
         auto carver = Carvers::carvers.get(o.at("type").to_string()).value();
         auto config = static_cast<ProbabilityConfig>(o.at("config"));
 
