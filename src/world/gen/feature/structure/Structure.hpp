@@ -21,9 +21,6 @@ struct TemplateManager;
 struct Structure {
     auto(*deserialize)(const Json& obj) -> std::optional<StructureConfig>;
 
-    // todo: StructureManager
-    std::map<int64_t, StructureStart*> starts;
-
     Structure(decltype(deserialize) deserialize) : deserialize(deserialize) {}
 
     virtual ~Structure() = default;

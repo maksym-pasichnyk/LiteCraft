@@ -7,25 +7,43 @@
 #include "../../block/material/Materials.hpp"
 #include "../gen/feature/structure/Structure.hpp"
 #include "../gen/feature/structure/Structures.hpp"
+#include "../gen/feature/structure/StructureStart.hpp"
+#include "../gen/feature/structure/TemplateManager.hpp"
+#include "../gen/feature/structure/StructureManager.hpp"
 
 #include <range/v3/view.hpp>
+#include <world/chunk/ChunkStatus.hpp>
 
 const PerlinNoiseGenerator Biome::TEMPERATURE_NOISE = PerlinNoiseGenerator(Random::from(1234), ranges::views::single(0));
 const PerlinNoiseGenerator Biome::FROZEN_TEMPERATURE_NOISE = PerlinNoiseGenerator(Random::from(3456), ranges::views::iota(-2, 0 + 1));
 const PerlinNoiseGenerator Biome::INFO_NOISE = PerlinNoiseGenerator(Random::from(2345), ranges::views::single(0));
 
-void Biome::decorate(ChunkGenerator &generator, WorldGenRegion &region, int64_t seed, Random &random, BlockPos pos) {
-    for (int i = 0; i < 10; i++) {
+void Biome::decorate(ChunkGenerator &generator, WorldGenRegion &region, int64_t seed, const BlockPos& pos) {
+    StructureManager structureManager{};
+
+    const auto chunk_pos = ChunkPos::from(pos);
+
+    auto main_chunk = region.getChunk(chunk_pos.x, chunk_pos.z);
+    const auto bb = BoundingBox::fromChunkPos(chunk_pos.x, chunk_pos.z);
+
+    Random random{};
+    for (int stage = 0; stage < 10; stage++) {
         int k = 0;
 
-        for (auto structure : Structures::stages[i]) {
-            for (auto start : structure->starts) {
-
+        for (auto structure : Structures::stages[stage]) {
+            if (auto it = main_chunk->references.find(structure); it != main_chunk->references.end()) {
+                for (auto ref_pos : it->second | ranges::views::transform([](int64_t i) { return ChunkPos::from(i); })) {
+                    auto chunk = region.getChunk(ref_pos.x, ref_pos.z);
+                    if (auto start = chunk->starts.find(structure); start != chunk->starts.end()) {
+                        random.setFeatureSeed(seed, k, stage);
+                        start->second->generate(region, structureManager, generator, random, bb, chunk_pos);
+                    }
+                }
             }
         }
 
-        for (auto feature : biomeGenerationSettings.features[i]) {
-            random.setFeatureSeed(seed, k, i);
+        for (auto feature : biomeGenerationSettings.features[stage]) {
+            random.setFeatureSeed(seed, k, stage);
             feature->generate(region, generator, random, pos);
             ++k;
         }

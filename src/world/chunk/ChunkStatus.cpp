@@ -49,7 +49,6 @@ void ChunkStatus::init() {
     Surface = create("surface", Noise, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
         WorldGenRegion region{world, chunks, radius, x, z, seed};
         generator.generateSurface(region, chunk);
-        generator.generateCarvers(region, seed, chunk);
     });
     Carvers = create("carvers", Surface, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
         WorldGenRegion region{world, chunks, radius, x, z, seed};

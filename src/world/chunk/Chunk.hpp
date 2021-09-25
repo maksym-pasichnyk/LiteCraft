@@ -7,6 +7,7 @@
 #include "../../util/math/ChunkPos.hpp"
 #include "../../util/math/BoundingBox.hpp"
 
+#include <set>
 #include <map>
 #include <span>
 #include <queue>
@@ -108,12 +109,11 @@ struct Chunk {
     std::array<std::unique_ptr<LightSection>, 18> blockLightSections{};
     std::array<Heightmap, 5> heightmaps{};
 
-    std::map<Structure*, StructureStart*> structureStarts;
+    std::map<Structure*, StructureStart*> starts;
+    std::map<Structure*, std::set<int64_t>> references;
+
     std::bitset<65536> carvingMask;
-
     std::vector<BlockPos> blockLightSources;
-
-//    std::vector<std::shared_ptr<StructureStart>> structureReferences;
 
     explicit Chunk(ChunkPos pos) : pos{pos} {}
 
@@ -234,7 +234,7 @@ struct Chunk {
     }
 
     void addStructureStart(Structure* structure, StructureStart* start) {
-        structureStarts.emplace(structure, start);
+        starts.emplace(structure, start);
     }
 
     void updateHeightmaps() {

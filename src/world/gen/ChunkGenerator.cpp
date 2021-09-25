@@ -8,15 +8,11 @@
 
 #include "settings/StructureSeparation.hpp"
 #include "feature/structure/Structure.hpp"
+#include "feature/structure/StructureStart.hpp"
+#include "feature/structure/TemplateManager.hpp"
 #include "feature/structure/StructureFeature.hpp"
+#include "feature/structure/StructureManager.hpp"
 
-struct StructureManager {
-
-};
-
-struct TemplateManager {
-
-};
 
 ChunkGenerator::ChunkGenerator(std::unique_ptr<BiomeProvider>&& biomeProvider) : biomeProvider(std::move(biomeProvider)) {}
 
@@ -33,17 +29,17 @@ void ChunkGenerator::generateStructures(WorldGenRegion &region, Chunk& chunk) {
 }
 
 void ChunkGenerator::getStructureReferences(WorldGenRegion &region, Chunk& chunk) {
-//    const auto sbb = BoundingBox::fromChunkPos(chunk.pos.x, chunk.pos.z);
+    const auto sbb = BoundingBox::fromChunkPos(chunk.pos.x, chunk.pos.z);
 
-//    for (auto x = chunk.pos.x - 8; x <= chunk.pos.x + 8; x++) {
-//        for (auto z = chunk.pos.z - 8; z <= chunk.pos.z + 8; z++) {
-//            for (auto& start : region.getChunk(x, z)->structureStarts) {
-//                if (sbb.intersectsWith(start->boundingBox)) {
-//                    chunk.structureReferences.emplace_back(start);
-//                }
-//            }
-//        }
-//    }
+    for (auto x = chunk.pos.x - 8; x <= chunk.pos.x + 8; x++) {
+        for (auto z = chunk.pos.z - 8; z <= chunk.pos.z + 8; z++) {
+            for (auto [structure, start] : region.getChunk(x, z)->starts) {
+                if (sbb.intersectsWith(start->getBoundingBox())) {
+                    chunk.references[structure].emplace(ChunkPos::asLong(x, z));
+                }
+            }
+        }
+    }
 }
 
 void ChunkGenerator::generateCarvers(WorldGenRegion& region, int64_t seed, Chunk& chunk/*, GenerationStage::Carving carving*/) {
@@ -53,7 +49,7 @@ void ChunkGenerator::generateCarvers(WorldGenRegion& region, int64_t seed, Chunk
         return region.getBiome(pos);
     };
 
-    const int seaLevel = region.getSeaLevel();
+    const auto seaLevel = region.getSeaLevel();
 
     Random random;
 
@@ -84,7 +80,7 @@ void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
     const auto seed = random.setDecorationSeed(region.getSeed(), xStart, zStart);
 
     auto biome = biomeProvider->getNoiseBiome((chunkPos.x << 2) + 2, 2, (chunkPos.z << 2) + 2);
-    biome->decorate(*this, region, seed, random, BlockPos(xStart, 0, zStart));
+    biome->decorate(*this, region, seed, BlockPos(xStart, 0, zStart));
 }
 
 Biome *ChunkGenerator::getNoiseBiome(int x, int y, int z) {
@@ -100,8 +96,9 @@ void ChunkGenerator::createStarts(StructureFeature *feature, StructureManager &s
 
     Random random{};
     auto start = feature->structure->generate(*this, *biomeProvider, templateManager, seed, chunkPos, biome, 0, random, separation, feature->config);
-    chunk.addStructureStart(feature->structure, start);
-
+    if (start != nullptr) {
+        chunk.addStructureStart(feature->structure, start);
+    }
 
 //    auto structurestart = structureManager.getStructureStart(SectionPos.from(chunk.getPos(), 0), feature.structure, chunk);
 //    const int i = structurestart != nullptr ? structurestart.getRefCount() : 0;

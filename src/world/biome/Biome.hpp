@@ -100,7 +100,7 @@ struct Biome {
         biomeGenerationSettings.surfaceBuilder->buildSurface(rand, chunk, *this, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, sealevel);
     }
 
-    void decorate(ChunkGenerator& generator, WorldGenRegion& region, int64_t seed, Random& random, BlockPos pos);
+    void decorate(ChunkGenerator& generator, WorldGenRegion& region, int64_t seed, const BlockPos& pos);
 
     bool doesWaterFreeze(WorldReader& world, const BlockPos& pos, bool mustBeAtEdge = true);
     bool doesSnowGenerate(WorldReader& world, const BlockPos& pos);
