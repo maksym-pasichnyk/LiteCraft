@@ -3,7 +3,7 @@
 #include <world/gen/feature/structure/Structure.hpp>
 
 struct FortressStructure : CfgStructure<> {
-    struct Start;
+    FortressStructure() : CfgStructure(&FortressStructure::createComponents) {}
 
-    StructureStart *createStart(int x, int z, const BoundingBox &bounds, int refCount, int64_t seed) override;
+    static void createComponents(StructurePieces& pieces, ChunkGenerator &generator, TemplateManager &templateManager, int x, int z, Biome &biome, const StructureConfig &config, int64_t seed) {}
 };

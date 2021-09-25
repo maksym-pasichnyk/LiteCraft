@@ -1,6 +1,8 @@
 #include "JunglePyramidStructure.hpp"
-#include "JunglePyramidStart.hpp"
+#include "JunglePyramidPiece.hpp"
+#include <configs.hpp>
 
-StructureStart *JunglePyramidStructure::createStart(int x, int z, const BoundingBox &bounds, int refCount, int64_t seed) {
-    return new Start(this, x, z, bounds, refCount, seed);
+void JunglePyramidStructure::createComponents(StructurePieces& pieces, ChunkGenerator &generator, TemplateManager &templateManager, int x, int z, Biome &biome, const StructureConfig &config, int64_t seed) {
+    auto random = Random::fromLargeFeatureSeed(seed, x, z);
+    pieces.emplace(new JunglePyramidPiece(random, x << 4, z << 4));
 }

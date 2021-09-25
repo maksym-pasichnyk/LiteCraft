@@ -1,16 +1,21 @@
 #include "Structure.hpp"
+#include "PieceGenerator.hpp"
 #include "StructureStart.hpp"
 
-#include "../../../../util/math/Math.hpp"
+#include <util/math/Math.hpp>
 
 auto Structure::generate(ChunkGenerator &generator, BiomeProvider &provider, TemplateManager &templateManager, int64_t seed, const ChunkPos &pos, Biome &biome, int refCount, Random &random, const StructureSeparation& settings, const StructureConfig &config) -> StructureStart* {
     const auto chunkpos = getChunkPosForStructure(settings, seed, random, pos.x, pos.z);
     if (pos == chunkpos && canGenerate(generator, provider, seed, random, pos.x, pos.z, biome, chunkpos, config)) {
-        auto start = createStart(pos.x, pos.z, BoundingBox::getNewBoundingBox(), refCount, seed);
-        start->createComponents(generator, templateManager, pos.x, pos.z, biome, config, seed);
-        if (start->isValid()) {
-            return start;
+        StructurePieces pieces{};
+        generatePieces(pieces, generator, templateManager, pos.x, pos.z, biome, config, seed);
+
+        if (pieces.empty()) {
+            return nullptr;
         }
+
+        auto bounds = pieces.getBoundingBox().value();
+        return new StructureStart(std::move(pieces.components), this, pos.x, pos.z, bounds, refCount, seed);
     }
     return nullptr;/*StructureStart.DUMMY*/;
 }

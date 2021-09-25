@@ -1,24 +1,19 @@
 #include "StructureStart.hpp"
+#include "Structure.hpp"
 
 void StructureStart::generate(WorldGenRegion &region, StructureManager &structureManager, ChunkGenerator &generator, Random &random, const BoundingBox &bb, const ChunkPos &chunkPos) {
-//    synchronized(this.components) {
-        if (!components.empty()) {
-            const auto& mutableboundingbox = components[0]->bounds;
-            const auto pivot = mutableboundingbox.getPivotCenter();
-            const auto pos = BlockPos(pivot.x, mutableboundingbox.minY, pivot.z);
+    if (components.empty()) {
+        return;
+    }
 
-            auto it = components.begin();
-            while (it != components.end()) {
-                auto piece = *it;
-                if (piece->getBoundingBox().intersectsWith(bb) && !piece->addComponentParts(region, structureManager, generator, random, bb, chunkPos, pos)) {
-                    delete piece;
-                    it = components.erase(it);
-                } else {
-                    it += 1;
-                }
-            }
+    const auto& cbb = components[0]->bounds;
+    const auto pivot = cbb.getPivotCenter();
+    const auto pos = BlockPos(pivot.x, cbb.minY, pivot.z);
 
-            recalculateStructureSize();
+    for (auto piece : components) {
+        if (!piece->getBoundingBox().intersectsWith(bb)) {
+            continue;
         }
-//    }
+        piece->addComponentParts(region, structureManager, generator, random, bb, chunkPos, pos);
+    }
 }

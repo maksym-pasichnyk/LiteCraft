@@ -1,10 +1,11 @@
 #pragma once
 
+#include "../../settings/StructureSeparation.hpp"
+#include "PieceGenerator.hpp"
 #include "StructureFeature.hpp"
 #include "config/StructureConfig.hpp"
-#include "../../settings/StructureSeparation.hpp"
-#include <util/math/ChunkPos.hpp>
 #include <util/math/BoundingBox.hpp>
+#include <util/math/ChunkPos.hpp>
 
 #include <map>
 #include <vector>
@@ -20,12 +21,11 @@ struct TemplateManager;
 
 struct Structure {
     auto(*deserialize)(const Json& obj) -> std::optional<StructureConfig>;
+    PieceGenerator generatePieces;
 
-    Structure(decltype(deserialize) deserialize) : deserialize(deserialize) {}
-
+    Structure(decltype(deserialize) deserialize, PieceGenerator generatePieces) : deserialize(deserialize), generatePieces(generatePieces) {}
     virtual ~Structure() = default;
 
-    virtual auto createStart(int x, int z, const BoundingBox& bounds, int refCount, int64_t seed) -> StructureStart* = 0;
     virtual auto canGenerate(ChunkGenerator& generator, BiomeProvider& biomes, int64_t seed, Random& random, int x, int z, Biome& biome, const ChunkPos& pos, const StructureConfig& config) -> bool {
         return true;
     }
@@ -40,7 +40,7 @@ struct Structure {
 
 template<typename Config = NoFeatureConfig>
 struct CfgStructure : Structure {
-    CfgStructure() : Structure(deserialize) {}
+    CfgStructure(PieceGenerator piece_generator) : Structure(deserialize, piece_generator) {}
 
     static auto deserialize(const Json& obj) -> std::optional<StructureConfig> {
         return Json::Deserialize<std::decay_t<Config>>::from_json(obj);
