@@ -5,5 +5,5 @@
 struct PillagerOutpostStructure : CfgStructure<JigsawConfig> {
     PillagerOutpostStructure() : CfgStructure(&PillagerOutpostStructure::createComponents) {}
 
-    static void createComponents(StructurePieces& pieces, ChunkGenerator &generator, TemplateManager &templateManager, int x, int z, Biome &biome, const StructureConfig &config, int64_t seed) {}
+    static void createComponents(StructurePieces& pieces, StructureGenerateContext& context, const StructureConfig& config) {}
 };

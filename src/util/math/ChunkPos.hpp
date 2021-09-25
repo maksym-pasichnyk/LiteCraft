@@ -10,15 +10,6 @@ enum class Dimension {
     End = 2
 };
 
-//struct SubchunkPos {
-//    int32_t x;
-//    int32_t z;
-//    uint8_t subchunk;
-//    Dimension dimension;
-//
-//    constexpr auto operator<=>(const ChunkPos&) const noexcept = default;
-//};
-
 struct ChunkPos {
     int32_t x;
     int32_t z;
@@ -46,54 +37,35 @@ struct ChunkPos {
         return T{x, z};
     }
 
-    constexpr static int64_t asLong(int x, int z) noexcept {
+    constexpr static auto asLong(int x, int z) noexcept -> int64_t {
         return static_cast<int64_t>(x) & 0xFFFFFFFFLL | (static_cast<int64_t>(z) & 0xFFFFFFFFLL) << 32;
     }
 
-    constexpr int64_t asLong() const noexcept {
+    constexpr auto asLong() const noexcept -> int64_t {
         return asLong(x, z);
     }
 
-    constexpr int32_t getStartX() const noexcept {
+    constexpr auto getStartX() const noexcept -> int32_t {
         return x << 4;
     }
 
-    constexpr int32_t getStartZ() const noexcept {
+    constexpr auto getStartZ() const noexcept -> int32_t {
         return z << 4;
     }
 
-    constexpr int32_t getEndX() const noexcept {
+    constexpr auto getEndX() const noexcept -> int32_t {
         return getStartX() + 15;
     }
 
-    constexpr int32_t getEndZ() const noexcept {
+    constexpr auto getEndZ() const noexcept -> int32_t {
         return getStartZ() + 15;
     }
 
-//    constexpr SubchunkPos subchunkPos(uint8_t subchunk) const {
-//        return { x, z, subchunk, dimension };
-//    }
-};
+    constexpr auto getBlockX(int offset) const noexcept -> int32_t {
+        return getStartX() + offset;
+    }
 
-//struct WorldPos {
-//    int32_t x;
-//    uint8_t y;
-//    int32_t z;
-//    Dimension dimension;
-//
-//    constexpr ChunkPos chunkPos() const {
-//        return { x >> 4, z >> 4, dimension };
-//    }
-//
-//    constexpr int32 subchunkIndex() const {
-//        return y >> 4;
-//    }
-//
-//    constexpr int32_t blockIndex() const {
-//        const auto inner_x = x & 15;
-//        const auto inner_y = y & 15;
-//        const auto inner_z = z & 15;
-//
-//        return (inner_x << 8) | (inner_z << 4) | inner_y;
-//    }
-//};
+    constexpr auto getBlockZ(int offset) const noexcept -> int32_t {
+        return getStartZ() + offset;
+    }
+};

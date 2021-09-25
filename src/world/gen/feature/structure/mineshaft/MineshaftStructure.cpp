@@ -7,13 +7,13 @@ bool MineshaftStructure::canGenerate(ChunkGenerator &generator, BiomeProvider &b
     return random.nextDouble() < std::get<MineshaftConfig>(config).probability;
 }
 
-void MineshaftStructure::createComponents(StructurePieces& pieces, ChunkGenerator &generator, TemplateManager &templateManager, int x, int z, Biome &biome, const StructureConfig &config, int64_t seed) {
+void MineshaftStructure::createComponents(StructurePieces& pieces, StructureGenerateContext& context, const StructureConfig& config) {
     const auto& cfg = std::get<MineshaftConfig>(config);
     
     Random random{};
-    random.setLargeFeatureSeed(seed, x, z);
+    random.setLargeFeatureSeed(context.seed, context.pos.x, context.pos.z);
 
-    auto room = new MineshaftPieces::Room(0, random, (x << 4) + 2, (z << 4) + 2, cfg.type);
+    auto room = new MineshaftPieces::Room(0, random, context.pos.getBlockX(2), context.pos.getBlockZ(2), cfg.type);
     pieces.emplace(room);
     room->buildComponent(room, pieces.components, random);
     if (cfg.type == MineshaftType::MESA) {
