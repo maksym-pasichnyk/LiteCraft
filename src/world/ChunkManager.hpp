@@ -40,16 +40,9 @@ struct ChunkHolder {
 };
 
 struct ThreadPool {
-    std::stop_source stop_source;
-    std::vector<std::thread> workers{};
-
-    std::mutex mutex{};
-    std::condition_variable signal{};
-    std::queue<async::task_run_handle> tasks;
-
-    ThreadPool() {
-        workers.reserve(std::thread::hardware_concurrency());
-        for (int i = 0; i < std::thread::hardware_concurrency(); ++i) {
+    ThreadPool(size_t thread_count = std::thread::hardware_concurrency()) {
+        workers.reserve(thread_count);
+        for (int i = 0; i < thread_count; ++i) {
             workers.emplace_back(&ThreadPool::loop, this, stop_source.get_token());
         }
     }
@@ -87,6 +80,14 @@ struct ThreadPool {
         }
         signal.notify_one();
     }
+
+private:
+    std::stop_source stop_source;
+    std::vector<std::thread> workers{};
+
+    std::mutex mutex{};
+    std::condition_variable signal{};
+    std::queue<async::task_run_handle> tasks{};
 };
 
 struct Connection;

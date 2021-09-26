@@ -112,9 +112,10 @@ auto ChunkManager::generateChunk(int32_t chunk_x, int32_t chunk_z, ChunkStatus* 
         return async::make_task(std::make_shared<Chunk>(ChunkPos::from(chunk_x, chunk_z))).share();
     }
 
-    auto results = getChunksAsync(status->range, chunk_x, chunk_z, ChunkStatus::getById(status->ordinal - 1));
+    auto results = getChunksAsync(status->range, chunk_x, chunk_z, status->parent);
+
     return async::when_all(results).then(*executor, [this, status](const std::vector<ChunkResult>& results) {
-        auto chunks = results | ranges::views::transform([](auto&& element) { return element.get(); }) | ranges::to_vector;
+        auto chunks = results | ranges::views::transform(&ChunkResult::get) | ranges::to_vector;
         auto chunk = chunks[chunks.size() / 2];
         status->generate(world, *lightManager, *generator, chunk->pos.x, chunk->pos.z, *chunk, chunks, world->seed);
         if (status == ChunkStatus::Full) {
