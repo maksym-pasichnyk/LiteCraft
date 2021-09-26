@@ -31,6 +31,7 @@ struct ChunkStatus {
 
     using Fn = void(*)(ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int range);
 
+    ChunkStatus* parent;
     int32_t ordinal;
     int32_t range;
     Fn on_generate;
