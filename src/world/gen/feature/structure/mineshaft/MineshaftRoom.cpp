@@ -3,12 +3,14 @@
 #include <block/Blocks.hpp>
 #include <world/WorldGenRegion.hpp>
 
-MineshaftPieces::Room::Room(int componentIndex, Random &random, int x, int z, MineshaftType type) : MineshaftPieces::Piece(componentIndex, type) {
+static auto makeBounds(Random &random, int x, int z) -> BoundingBox {
     const auto dx = random.nextInt(6);
     const auto dy = random.nextInt(6);
     const auto dz = random.nextInt(6);
-    bounds = BoundingBox{x, 50, z, x + 7 + dx, 54 + dy, z + 7 + dz};
+    return BoundingBox{x, 50, z, x + 7 + dx, 54 + dy, z + 7 + dz};
 }
+
+MineshaftPieces::Room::Room(int componentIndex, Random &random, int x, int z, MineshaftType type) : Piece(componentIndex, type, ::makeBounds(random, x, z)) {}
 
 void MineshaftPieces::Room::buildComponent(StructurePiece *start, std::vector<StructurePiece*> &pieces, Random &random) {
     const int i = getComponentType();

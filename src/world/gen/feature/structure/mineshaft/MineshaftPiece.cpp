@@ -2,7 +2,7 @@
 #include <block/Block.hpp>
 #include <block/Blocks.hpp>
 
-MineshaftPieces::Piece::Piece(int componentIndex, MineshaftType type) : StructurePiece(componentIndex), mineShaftType(type) {
+MineshaftPieces::Piece::Piece(int componentIndex, MineshaftType type, const BoundingBox& bounds) : StructurePiece(componentIndex, bounds), mineShaftType(type) {
     switch (mineShaftType) {
         case MineshaftType::MESA:
             planks = Blocks::DARK_OAK_PLANKS->getDefaultState();
@@ -21,6 +21,5 @@ bool MineshaftPieces::Piece::isSupportingBox(WorldReader &reader, const Bounding
             return false;
         }
     }
-
     return true;
 }

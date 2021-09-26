@@ -3,9 +3,8 @@
 #include "MineshaftPiece.hpp"
 
 struct MineshaftPieces::Stairs : Piece {
-    Stairs(int componentIndex, const BoundingBox& bb, Direction direction, MineshaftType type) : Piece(componentIndex, type) {
+    Stairs(int componentIndex, const BoundingBox& bounds, Direction direction, MineshaftType type) : Piece(componentIndex, type, bounds) {
         setCoordBaseMode(direction);
-        bounds = bb;
     }
 
     static std::optional<BoundingBox> findStairs(std::span<StructurePiece *> pieces, Random& random, int x, int y, int z, Direction facing);

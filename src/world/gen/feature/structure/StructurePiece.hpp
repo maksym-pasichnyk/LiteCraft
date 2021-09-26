@@ -28,6 +28,14 @@ struct BlockSelector {
 };
 
 struct StructurePiece {
+    static constexpr auto makeBounds(int x, int y, int z, int sx, int sy, int sz, Direction direction) -> BoundingBox {
+        if (DirectionUtil::getAxis(direction) == DirectionAxis::Z) {
+            return BoundingBox::withSize(x, y, z, x + sx - 1, y + sy - 1, z + sz - 1);
+        } else {
+            return BoundingBox::withSize(x, y, z, x + sz - 1, y + sy - 1, z + sx - 1);
+        }
+    }
+
     static auto findIntersecting(std::span<StructurePiece*> pieces, const BoundingBox& bb) -> StructurePiece* {
         for (auto piece : pieces) {
             if (piece->getBoundingBox().intersectsWith(bb)) {
@@ -43,13 +51,13 @@ struct StructurePiece {
         });
     }
 
-    BoundingBox bounds{};
     std::optional<Direction> coordBaseMode = std::nullopt;
     Mirror mirror = Mirror::NONE;
     Rotation rotation = Rotation::NONE;
     int componentIndex;
+    BoundingBox bounds;
 
-    explicit StructurePiece(int componentIndex) : componentIndex(componentIndex) {}
+    StructurePiece(int componentIndex, const BoundingBox& bounds) : componentIndex(componentIndex), bounds(bounds) {}
     virtual ~StructurePiece() = default;
 
     auto getComponentType() const -> int {

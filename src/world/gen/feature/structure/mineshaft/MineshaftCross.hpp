@@ -6,12 +6,8 @@ struct MineshaftPieces::Cross : Piece {
     Direction corridorDirection;
     bool isMultipleFloors;
 
-    Cross(int componentIndex, const BoundingBox& bb, Direction direction, MineshaftType type)
-        : Piece(componentIndex, type)
-        , corridorDirection(direction)
-        , isMultipleFloors(bb.getYSize() > 3) {
-        bounds = bb;
-    }
+    Cross(int componentIndex, const BoundingBox& bounds, Direction direction, MineshaftType type)
+        : Piece(componentIndex, type, bounds), corridorDirection(direction), isMultipleFloors(bounds.getYSize() > 3) {}
 
     static std::optional<BoundingBox> findCrossing(std::span<StructurePiece *> pieces, Random& random, int x, int y, int z, Direction facing);
 

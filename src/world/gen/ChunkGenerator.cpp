@@ -79,7 +79,7 @@ void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
     const auto zStart = chunkPos.getStartZ();
     const auto seed = random.setDecorationSeed(region.getSeed(), xStart, zStart);
 
-    auto biome = biomeProvider->getNoiseBiome((chunkPos.x << 2) + 2, 2, (chunkPos.z << 2) + 2);
+    auto biome = biomeProvider->getNoiseBiome(chunkPos.getBlockX(2), 2, chunkPos.getBlockZ(2));
     biome->decorate(*this, region, seed, BlockPos(xStart, 0, zStart));
 }
 

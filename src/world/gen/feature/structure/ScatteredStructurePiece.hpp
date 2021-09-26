@@ -9,14 +9,9 @@ struct ScatteredStructurePiece : StructurePiece {
     int depth;
     int hPos = -1;
 
-    ScatteredStructurePiece(Random& random, int x, int y, int z, int width, int height, int depth) : StructurePiece(0), width(width), height(height), depth(depth) {
-        setCoordBaseMode(random.nextElement(std::span(DirectionUtil::Plane::HORIZONTAL)));
-
-        if (DirectionUtil::getAxis(*coordBaseMode) == DirectionAxis::Z) {
-            bounds = BoundingBox::withSize(x, y, z, width, height, depth);
-        } else {
-            bounds = BoundingBox::withSize(x, y, z, depth, height, width);
-        }
+    ScatteredStructurePiece(Random& random, int x, int y, int z, int width, int height, int depth, Direction direction)
+        : StructurePiece(0, makeBounds(x, y, z, width, height, depth, direction)), width(width), height(height), depth(depth) {
+        setCoordBaseMode(direction);
     }
 
     bool isInsideBounds(HeightReader& reader, const BoundingBox& bb, int y_offset) {

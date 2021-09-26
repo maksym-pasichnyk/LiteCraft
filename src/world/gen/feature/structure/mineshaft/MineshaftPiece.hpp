@@ -8,7 +8,7 @@ struct MineshaftPieces::Piece : StructurePiece {
     BlockData planks;
     BlockData fence;
 
-    Piece(int componentIndex, MineshaftType type);
+    Piece(int componentIndex, MineshaftType type, const BoundingBox& bounds);
 
     auto getPlanksBlock() const -> BlockData {
         return planks;

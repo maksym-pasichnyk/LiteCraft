@@ -8,16 +8,11 @@ struct MineshaftPieces::Corridor : Piece {
     bool spawnerPlaced;
     int sectionCount;
 
-    Corridor(int componentIndex, Random& random, const BoundingBox& bb, Direction facing, MineshaftType type) : Piece(componentIndex, type) {
+    Corridor(int componentIndex, Random& random, const BoundingBox& bounds, Direction facing, MineshaftType type) : Piece(componentIndex, type, bounds) {
         setCoordBaseMode(facing);
-        bounds = bb;
         hasRails = random.nextInt(3) == 0;
         hasSpiders = !hasRails && random.nextInt(23) == 0;
-        if (DirectionUtil::getAxis(facing) == DirectionUtil::Axis::Z) {
-            sectionCount = bb.getZSize() / 5;
-        } else {
-            sectionCount = bb.getXSize() / 5;
-        }
+        sectionCount = (DirectionUtil::getAxis(facing) == DirectionUtil::Axis::Z ? bounds.getZSize() : bounds.getXSize()) / 5;
     }
 
     static std::optional<BoundingBox> findCorridor(std::span<StructurePiece*> pieces, Random& random, int x, int y, int z, Direction facing);

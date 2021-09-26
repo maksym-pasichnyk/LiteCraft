@@ -6,6 +6,17 @@
 #include <util/math/BlockPos.hpp>
 
 struct BoundingBox {
+    static constexpr auto from(const BlockPos& pos) -> BoundingBox {
+        return BoundingBox{
+            .minX = pos.x,
+            .minY = pos.y,
+            .minZ = pos.z,
+            .maxX = pos.x,
+            .maxY = pos.y,
+            .maxZ = pos.z
+        };
+    }
+
     static constexpr auto from(const BlockPos& from, const BlockPos& to) -> BoundingBox {
         return BoundingBox{
             .minX = std::min(from.x, to.x),

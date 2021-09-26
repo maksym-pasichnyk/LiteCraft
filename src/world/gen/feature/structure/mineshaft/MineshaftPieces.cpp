@@ -4,7 +4,7 @@
 #include "MineshaftCorridor.hpp"
 
 MineshaftPieces::Piece* MineshaftPieces::createRandomShaftPiece(std::span<StructurePiece *> pieces, Random &random, int x, int y, int z, Direction facing, int componentIndex, MineshaftType type) {
-    const int i = random.nextInt(100);
+    const auto i = random.nextInt(100);
     if (i >= 80) {
         if (const auto bb = Cross::findCrossing(pieces, random, x, y, z, facing)) {
             return new Cross(componentIndex, *bb, facing, type);

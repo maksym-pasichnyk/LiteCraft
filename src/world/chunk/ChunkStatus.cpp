@@ -22,6 +22,7 @@ ChunkStatus* ChunkStatus::Full;
 static auto create(std::string name, ChunkStatus* parent, int32_t range, ChunkStatus::Fn on_generate, ChunkStatus::Fn on_load = nullptr) -> ChunkStatus* {
     const auto ordinal = parent ? parent->ordinal + 1 : 0;
     return ChunkStatus::all.add(ordinal, std::move(name), std::make_unique<ChunkStatus>(ChunkStatus{
+		.parent = parent,
         .ordinal = ordinal,
         .range = range,
         .on_generate = on_generate,
