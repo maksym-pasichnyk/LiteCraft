@@ -29,7 +29,7 @@ struct StructureStart {
         rand.setLargeFeatureSeed(seed, chunkx, chunkz);
     }
 
-    virtual void generate(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos);
+    virtual void generate(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos);
 
     virtual bool isValid() const {
         return !components.empty();

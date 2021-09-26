@@ -11,6 +11,7 @@
 struct Chunk;
 struct ServerWorld;
 struct ChunkGenerator;
+struct TemplateManager;
 struct WorldLightManager;
 
 struct ChunkStatus {
@@ -29,7 +30,7 @@ struct ChunkStatus {
     static ChunkStatus* Light;
     static ChunkStatus* Full;
 
-    using Fn = void(*)(ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int range);
+    using Fn = void(*)(ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, TemplateManager& templates, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int range);
 
     ChunkStatus* parent;
     int32_t ordinal;
@@ -37,8 +38,8 @@ struct ChunkStatus {
     Fn on_generate;
     Fn on_load;
 
-    void generate(ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed) {
-        on_generate(world, lightManager, generator, x, z, chunk, chunks, seed, range);
+    void generate(ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, TemplateManager& templates, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed) {
+        on_generate(world, lightManager, generator, templates, x, z, chunk, chunks, seed, range);
     }
 
     static auto getByName(const std::string& name) -> ChunkStatus* {

@@ -34,9 +34,17 @@ using ChunkResult = async::shared_task<std::shared_ptr<Chunk>>;
 
 struct ChunkHolder {
     ChunkPos pos;
+    ChunkResult chunkToSave = async::make_task<std::shared_ptr<Chunk>>(nullptr).share();
     std::array<std::optional<ChunkResult>, 10> chunks{};
 
     explicit ChunkHolder(const ChunkPos& pos) : pos(pos) {}
+
+    void updateChunkToSave(ChunkResult task) {
+        chunkToSave = async::when_all(std::move(chunkToSave), std::move(task))
+                        .then([](const std::tuple<ChunkResult, ChunkResult>& results) {
+                              return std::get<0>(results).get();
+                        }).share();
+    }
 };
 
 struct ThreadPool {
@@ -94,6 +102,7 @@ struct Connection;
 struct ChunkManager {
     ServerWorld* world;
     ChunkGenerator* generator;
+    TemplateManager* templates;
     std::unique_ptr<WorldLightManager> lightManager = std::make_unique<WorldLightManager>();
     std::unique_ptr<ThreadPool> executor = std::make_unique<ThreadPool>();
 
@@ -102,7 +111,7 @@ struct ChunkManager {
 
     int viewDistance = -1;
 
-    ChunkManager(ServerWorld* world, ChunkGenerator* generator);
+    ChunkManager(ServerWorld* world, ChunkGenerator* generator, TemplateManager* templates);
     ~ChunkManager() {
         executor.reset();
         complete.clear();

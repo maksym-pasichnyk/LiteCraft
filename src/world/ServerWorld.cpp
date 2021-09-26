@@ -1,9 +1,13 @@
 #include "ServerWorld.hpp"
+#include <CraftServer.hpp>
 
 #include "biome/provider/SingleBiomeProvider.hpp"
 #include "biome/provider/OverworldBiomeProvider.hpp"
 #include "gen/NoiseChunkGenerator.hpp"
 #include "ChunkManager.hpp"
+
+#include "gen/feature/structure/TemplateManager.hpp"
+
 
 //NoiseSettings settings{
 //    .sampling{
@@ -66,9 +70,10 @@ ServerWorld::ServerWorld(CraftServer *server, int viewDistance) : server(server)
         .disableMobGeneration = false
     };
 
+    templates = std::make_unique<TemplateManager>(server->resources);
     generator = std::make_unique<NoiseChunkGenerator>(seed, dimensionSettings, std::make_unique<OverworldBiomeProvider>(seed, false, false));
 //        generator = std::make_unique<NoiseChunkGenerator>(seed, std::make_unique<SingleBiomeProvider>(Biomes::SWAMP));
-    manager = std::make_unique<ChunkManager>(this, generator.get());
+    manager = std::make_unique<ChunkManager>(this, generator.get(), templates.get());
 }
 
 Biome *ServerWorld::getNoiseBiomeRaw(int x, int y, int z) {

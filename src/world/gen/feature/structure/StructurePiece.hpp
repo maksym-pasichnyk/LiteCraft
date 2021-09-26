@@ -19,8 +19,7 @@ struct WorldReader;
 struct BlockSelector;
 struct WorldGenRegion;
 struct ChunkGenerator;
-struct StructureManager;
-
+struct TemplateManager;
 
 struct BlockSelector {
     virtual ~BlockSelector() = default;
@@ -134,7 +133,7 @@ struct StructurePiece {
     void randomlyPlaceBlock(WorldGenRegion& region, const BoundingBox& bb, Random& random, float chance, int x, int y, int z, BlockData state) const;
 
     virtual void buildComponent(StructurePiece* start, std::vector<StructurePiece *> &pieces, Random& random) {}
-    virtual bool addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) = 0;
+    virtual bool addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) = 0;
     virtual void offset(int x, int y, int z) {
         bounds.offset(x, y, z);
     }

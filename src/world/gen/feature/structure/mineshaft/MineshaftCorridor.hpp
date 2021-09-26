@@ -18,7 +18,7 @@ struct MineshaftPieces::Corridor : Piece {
     static std::optional<BoundingBox> findCorridor(std::span<StructurePiece*> pieces, Random& random, int x, int y, int z, Direction facing);
 
     void buildComponent(StructurePiece* start, std::vector<StructurePiece *> &pieces, Random& random) override;
-    bool addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override;
+    bool addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override;
 
     void placeSupport(WorldGenRegion& region, const BoundingBox& bb, int xmin, int ymin, int z, int ymax, int xmax, Random& random);
     void placeCobWeb(WorldGenRegion& region, const BoundingBox& bb, Random& random, float chance, int x, int y, int z);

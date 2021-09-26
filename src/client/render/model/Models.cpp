@@ -128,8 +128,8 @@ void Models::parse(const Json& obj) {
     }
 }
 
-void Models::init(ResourcePackManager& resources) {
-    resources.iterate("models", [](std::istream& stream) {
+void Models::init(ResourceManager& resources) {
+    resources.enumerate("models", [](std::istream& stream) {
         parse(Json::Read::read(stream).value());
     });
 }

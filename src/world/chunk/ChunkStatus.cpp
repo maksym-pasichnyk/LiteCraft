@@ -31,42 +31,42 @@ static auto create(std::string name, ChunkStatus* parent, int32_t range, ChunkSt
 }
 
 void ChunkStatus::init() {
-    Empty = create("empty", nullptr, -1, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {});
-    StructureStart = create("structure_starts", Empty, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
+    Empty = create("empty", nullptr, -1, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, TemplateManager& templates, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {});
+    StructureStart = create("structure_starts", Empty, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, TemplateManager& templates, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
         WorldGenRegion region{world, chunks, radius, x, z, seed};
-        generator.generateStructures(region, chunk);
+        generator.generateStructures(region, chunk, templates);
     });
-    StructureReferences = create("structure_references", StructureStart, 8, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
+    StructureReferences = create("structure_references", StructureStart, 8, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, TemplateManager& templates, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
         WorldGenRegion region{world, chunks, radius, x, z, seed};
         generator.getStructureReferences(region, chunk);
     });
-    Biome = create("biome", StructureReferences, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
+    Biome = create("biome", StructureReferences, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, TemplateManager& templates, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
         WorldGenRegion region{world, chunks, radius, x, z, seed};
     });
-    Noise = create("noise", Biome, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
+    Noise = create("noise", Biome, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, TemplateManager& templates, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
         WorldGenRegion region{world, chunks, radius, x, z, seed};
         generator.generateTerrain(chunk);
     });
-    Surface = create("surface", Noise, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
+    Surface = create("surface", Noise, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, TemplateManager& templates, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
         WorldGenRegion region{world, chunks, radius, x, z, seed};
         generator.generateSurface(region, chunk);
     });
-    Carvers = create("carvers", Surface, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
+    Carvers = create("carvers", Surface, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, TemplateManager& templates, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
         WorldGenRegion region{world, chunks, radius, x, z, seed};
         generator.generateCarvers(region, seed, chunk);
 //        generator.generateCarvers(region, seed, chunk, GenerationStage::Carving::AIR);
 //        generator.generateCarvers(region, seed, chunk, GenerationStage::Carving::LIQUID);
     });
-    Features = create("features", Carvers, 8, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
+    Features = create("features", Carvers, 8, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, TemplateManager& templates, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
         WorldGenRegion region{world, chunks, radius, x, z, seed};
 
         generator_mutex.lock();
-        generator.generateFeatures(region, chunk);
+        generator.generateFeatures(region, chunk, templates);
         generator_mutex.unlock();
     });
-    Light = create("light", Features, 1, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
+    Light = create("light", Features, 1, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, TemplateManager& templates, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
         WorldGenRegion region{world, chunks, radius, x, z, seed};
         lightManager.calculate(region, x << 4, z << 4);
     });
-    Full = create("full", Light, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {});
+    Full = create("full", Light, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, TemplateManager& templates, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {});
 }

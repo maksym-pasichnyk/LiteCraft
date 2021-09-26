@@ -6,12 +6,13 @@
 #include "world/ServerWorld.hpp"
 
 #include <range/v3/algorithm.hpp>
+#include <resource_manager.hpp>
 #include <thread>
 #include <memory>
 
 struct CraftServer {
+    ResourceManager& resources;
     PacketManager<CraftServer> packetManager;
-
     std::vector<std::unique_ptr<Connection>> connections;
 
     std::unique_ptr<ServerWorld> world = nullptr;
@@ -22,7 +23,7 @@ struct CraftServer {
     std::stop_source stop_source;
     int viewDistance = -1;
 
-    explicit CraftServer(int viewDistance);
+    explicit CraftServer(int viewDistance, ResourceManager& resources);
 
     ~CraftServer() {
         listener.close();

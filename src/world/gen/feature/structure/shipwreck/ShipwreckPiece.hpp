@@ -1,9 +1,14 @@
 #pragma once
 
-#include <world/gen/feature/structure/StructurePiece.hpp>
+#include <world/gen/feature/structure/TemplateStructurePiece.hpp>
 
-struct ShipwreckPiece : StructurePiece {
-    ShipwreckPiece(Random& random, int x, int z) : StructurePiece(0, BoundingBox{}) {}
+struct ShipwreckPiece : TemplateStructurePiece {
+    ShipwreckPiece(TemplateManager& templates, std::string location, const BlockPos& pos, Rotation rotation, bool is_beached)
+        : TemplateStructurePiece(0, templates, std::move(location), pos)
+        , is_beached(is_beached) {}
 
-    bool addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override;
+    bool addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override;
+
+private:
+    bool is_beached;
 };

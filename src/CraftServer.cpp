@@ -6,7 +6,7 @@
 
 // todo: fix cleanup crash (wait for chunk tasks finished? check around chunks?)
 
-CraftServer::CraftServer(int viewDistance) : viewDistance(viewDistance) {
+CraftServer::CraftServer(int viewDistance, ResourceManager& resources) : resources(resources), viewDistance(viewDistance) {
     packetManager.bind<CHandshakePacket, &CraftServer::processHandshake>();
     packetManager.bind<CLoginStartPacket, &CraftServer::processLoginStart>();
     packetManager.bind<CEncryptionResponsePacket, &CraftServer::processEncryptionResponse>();

@@ -55,7 +55,7 @@ struct App {
     std::shared_ptr<Device> device{};
     std::shared_ptr<Surface> surface{};
     std::unique_ptr<TextureAtlas> atlas{};
-    std::unique_ptr<ResourcePackManager> resources{};
+    std::unique_ptr<ResourceManager> resources{};
 
     float cooldown = 0.25f;
     int viewDistance = 11;
@@ -96,14 +96,14 @@ struct App {
         window = std::make_unique<Window>(title, width, height);
         device = std::make_unique<Device>(*window);
         surface = std::make_unique<Surface>(*window, *device);
-        resources = std::make_unique<ResourcePackManager>();
+        resources = std::make_unique<ResourceManager>();
 
         createUniforms();
 
         /**************************************************************************************************************/
 
-        resources->add_resource_pack(std::make_unique<PhysFsResourcePack>("/resource_packs/vanilla"));
-        resources->add_resource_pack(std::make_unique<FolderResourcePack>(std::filesystem::current_path()));
+        resources->emplace(std::make_unique<PhysFsResourcePack>("/resource_packs/vanilla"));
+        resources->emplace(std::make_unique<FolderResourcePack>(std::filesystem::current_path()));
 
         atlas = std::make_unique<TextureAtlas>();
         atlas->loadMetaFile(*resources);
@@ -178,7 +178,7 @@ struct App {
         /**************************************************************************************************************/
 
         world = std::make_unique<ClientWorld>(viewDistance);
-        server = std::make_unique<CraftServer>(viewDistance);
+        server = std::make_unique<CraftServer>(viewDistance, *resources);
         frustum = std::make_unique<ViewFrustum>(viewDistance);
         dispatcher = std::make_unique<ChunkRenderDispatcher>();
 
@@ -447,11 +447,11 @@ private:
 
 struct AppServer {
     int viewDistance = 11;
-    std::unique_ptr<ResourcePackManager> resources{};
+    std::unique_ptr<ResourceManager> resources{};
 
     AppServer() {
-        resources = std::make_unique<ResourcePackManager>();
-        resources->add_resource_pack(std::make_unique<PhysFsResourcePack>("/resource_packs/vanilla"));
+        resources = std::make_unique<ResourceManager>();
+        resources->emplace(std::make_unique<PhysFsResourcePack>("/resource_packs/vanilla"));
 
         /**************************************************************************************************************/
 
@@ -479,7 +479,7 @@ struct AppServer {
         std::string cmd{};
         while (running) {
             fmt::print("Run dedicated server!\n");
-            CraftServer server{viewDistance};
+            CraftServer server{viewDistance, *resources};
             while (true) {
                 if (std::getline(std::cin, cmd)) {
                     if (cmd == "restart") {

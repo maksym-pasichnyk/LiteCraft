@@ -110,7 +110,7 @@
 //    }
 //
 //    void buildComponent(StructurePiece* piece, std::vector<StructurePiece*>& pieces, Random& random);
-//    bool addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override;
+//    bool addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override;
 //
 //    static auto createPiece(std::vector<StructurePiece*>& pieces, Random& random, int x, int y, int z, Direction facing, int componentIndex) -> Piece*;
 //};
@@ -118,7 +118,7 @@
 //struct StrongholdPieces::Crossing : Piece {
 //    using Piece::Piece;
 //
-//    bool addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
+//    bool addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
 //        return true;
 //    }
 //
@@ -128,7 +128,7 @@
 //struct StrongholdPieces::RoomCrossing : Piece {
 //    using Piece::Piece;
 //
-//    bool addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
+//    bool addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
 //        return true;
 //    }
 //
@@ -138,7 +138,7 @@
 //struct StrongholdPieces::Stairs : Piece {
 //    using Piece::Piece;
 //
-//    bool addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
+//    bool addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
 //        return true;
 //    }
 //
@@ -151,7 +151,7 @@
 //
 //    using Piece::Piece;
 //
-//    bool addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
+//    bool addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
 //        return true;
 //    }
 //
@@ -161,7 +161,7 @@
 //struct StrongholdPieces::StairsStraight : Piece {
 //    using Piece::Piece;
 //
-//    bool addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
+//    bool addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
 //        return true;
 //    }
 //
@@ -177,7 +177,7 @@
 //        steps = facing != Direction::NORTH && facing != Direction::SOUTH ? bb.getXSize() : bb.getZSize();
 //    }
 //
-//    bool addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override;
+//    bool addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override;
 //
 //    static auto findPieceBox(std::span<StructurePiece*> pieces, Random& random, int x, int y, int z, Direction facing) -> std::optional<BoundingBox> {
 //        auto bounds = BoundingBox::getComponentToAddBoundingBox(x, y, z, -1, -1, 0, 5, 5, 4, facing);
@@ -199,7 +199,7 @@
 //struct StrongholdPieces::ChestCorridor : Piece {
 //    using Piece::Piece;
 //
-//    bool addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
+//    bool addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
 //        return true;
 //    }
 //
@@ -214,7 +214,7 @@
 //struct StrongholdPieces::LeftTurn : Turn {
 //    using Turn::Turn;
 //
-//    bool addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
+//    bool addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
 //        return true;
 //    }
 //
@@ -224,7 +224,7 @@
 //struct StrongholdPieces::RightTurn : Turn {
 //    using Turn::Turn;
 //
-//    bool addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
+//    bool addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
 //        return true;
 //    }
 //
@@ -234,7 +234,7 @@
 //struct StrongholdPieces::Prison : Piece {
 //    using Piece::Piece;
 //
-//    bool addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
+//    bool addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
 //        return true;
 //    }
 //
@@ -244,7 +244,7 @@
 //struct StrongholdPieces::PortalRoom : Piece {
 //    using Piece::Piece;
 //
-//    bool addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
+//    bool addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
 //        return true;
 //    }
 //
@@ -254,7 +254,7 @@
 //struct StrongholdPieces::Library : Piece {
 //    using Piece::Piece;
 //
-//    bool addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
+//    bool addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override {
 //        return true;
 //    }
 //

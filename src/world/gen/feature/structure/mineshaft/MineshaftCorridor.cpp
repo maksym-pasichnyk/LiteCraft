@@ -110,7 +110,7 @@ void MineshaftPieces::Corridor::buildComponent(StructurePiece *start, std::vecto
     }
 }
 
-bool MineshaftPieces::Corridor::addComponentParts(WorldGenRegion &region, StructureManager &structureManager, ChunkGenerator &generator, Random &random, const BoundingBox &bb, const ChunkPos &chunkPos, const BlockPos &blockPos) {
+bool MineshaftPieces::Corridor::addComponentParts(WorldGenRegion &region, TemplateManager& templates, ChunkGenerator &generator, Random &random, const BoundingBox &bb, const ChunkPos &chunkPos, const BlockPos &blockPos) {
     if (isLiquidInStructureBoundingBox(region, bb)) {
         return false;
     }

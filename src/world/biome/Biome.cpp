@@ -9,7 +9,6 @@
 #include "../gen/feature/structure/Structures.hpp"
 #include "../gen/feature/structure/StructureStart.hpp"
 #include "../gen/feature/structure/TemplateManager.hpp"
-#include "../gen/feature/structure/StructureManager.hpp"
 
 #include <range/v3/view.hpp>
 #include <world/chunk/ChunkStatus.hpp>
@@ -18,9 +17,7 @@ const PerlinNoiseGenerator Biome::TEMPERATURE_NOISE = PerlinNoiseGenerator(Rando
 const PerlinNoiseGenerator Biome::FROZEN_TEMPERATURE_NOISE = PerlinNoiseGenerator(Random::from(3456), ranges::views::iota(-2, 0 + 1));
 const PerlinNoiseGenerator Biome::INFO_NOISE = PerlinNoiseGenerator(Random::from(2345), ranges::views::single(0));
 
-void Biome::decorate(ChunkGenerator &generator, WorldGenRegion &region, int64_t seed, const BlockPos& pos) {
-    StructureManager structureManager{};
-
+void Biome::decorate(ChunkGenerator &generator, WorldGenRegion &region, TemplateManager& templates, int64_t seed, const BlockPos& pos) {
     const auto chunk_pos = ChunkPos::from(pos);
 
     auto main_chunk = region.getChunk(chunk_pos.x, chunk_pos.z);
@@ -36,7 +33,7 @@ void Biome::decorate(ChunkGenerator &generator, WorldGenRegion &region, int64_t 
                     auto chunk = region.getChunk(ref_pos.x, ref_pos.z);
                     if (auto start = chunk->starts.find(structure); start != chunk->starts.end()) {
                         random.setFeatureSeed(seed, k, stage);
-                        start->second->generate(region, structureManager, generator, random, bb, chunk_pos);
+                        start->second->generate(region, templates, generator, random, bb, chunk_pos);
                     }
                 }
             }

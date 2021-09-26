@@ -2,7 +2,7 @@
 #include <block/Blocks.hpp>
 #include <block/StairsBlock.hpp>
 
-bool SwampHutPiece::addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) {
+bool SwampHutPiece::addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) {
     if (!isInsideBounds(region, bb, 0)) {
         return false;
     }

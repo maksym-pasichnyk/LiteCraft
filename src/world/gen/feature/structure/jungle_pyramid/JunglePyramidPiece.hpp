@@ -12,5 +12,5 @@ struct JunglePyramidPiece : ScatteredStructurePiece {
     JunglePyramidPiece(Random& random, int x, int z)
         : ScatteredStructurePiece(random, x, 64, z, 12, 10, 15, random.nextElement(std::span(DirectionUtil::Plane::HORIZONTAL))) {}
 
-    bool addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override;
+    bool addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override;
 };

@@ -54,7 +54,7 @@ void MineshaftPieces::Stairs::buildComponent(StructurePiece *start, std::vector<
     }
 }
 
-bool MineshaftPieces::Stairs::addComponentParts(WorldGenRegion &region, StructureManager &structureManager, ChunkGenerator &generator, Random &random, const BoundingBox &bb, const ChunkPos &chunkPos, const BlockPos &blockPos) {
+bool MineshaftPieces::Stairs::addComponentParts(WorldGenRegion &region, TemplateManager& templates, ChunkGenerator &generator, Random &random, const BoundingBox &bb, const ChunkPos &chunkPos, const BlockPos &blockPos) {
     if (isLiquidInStructureBoundingBox(region, bb)) {
         return false;
     }

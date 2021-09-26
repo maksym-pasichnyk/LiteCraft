@@ -256,6 +256,17 @@ struct Texture {
 
 };
 
+struct TextureManager {
+    static auto load(ResourceManager& resources, const std::string& name, bool flip) -> std::optional<NativeImage> {
+        for (auto ext : {".png", ".tga"}) {
+            if (auto bytes = resources.load(name + ext)) {
+                return NativeImage::read(*bytes, flip);
+            }
+        }
+        return std::nullopt;
+    }
+};
+
 struct TextureAtlas /*: Texture*/ {
 	std::optional<SheetData> sheet;
 	std::string texture_name;
@@ -302,7 +313,7 @@ struct TextureAtlas /*: Texture*/ {
 		}
 	}
 
-	void loadMetaFile(ResourcePackManager& resources) {
+	void loadMetaFile(ResourceManager& resources) {
         TextureAtlasPack textureAtlasPack{};
         std::vector<ParsedAtlasNode> nodes{};
 
@@ -322,13 +333,12 @@ struct TextureAtlas /*: Texture*/ {
                 | ranges::views::unique;
 
             for (const auto &path : require_textures) {
-				if (auto resource = resources.load_texture_data(path, true)) {
-                	textureAtlasPack.addSprite(path, *std::move(resource));
+				if (auto data = TextureManager::load(resources, path, true)) {
+                	textureAtlasPack.addSprite(path, std::move(*data));
 				}
             }
         });
 
-        fmt::print("build texture atlas\n");
 
 		sheet = textureAtlasPack.build();
 

@@ -248,7 +248,7 @@
 //    }
 //}
 //
-//bool StrongholdPieces::Straight::addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) {
+//bool StrongholdPieces::Straight::addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) {
 //    const auto CAVE_AIR = Blocks::CAVE_AIR->getDefaultState();
 //    const auto WALL_TORCH = Blocks::WALL_TORCH->getDefaultState();
 //    const auto WALL_TORCH_EAST = WALL_TORCH.set<WallTorchBlock::FACING>(Direction::EAST);
@@ -273,7 +273,7 @@
 //    return true;
 //}
 //
-//bool StrongholdPieces::Corridor::addComponentParts(WorldGenRegion& region, StructureManager& structureManager, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) {
+//bool StrongholdPieces::Corridor::addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) {
 //    const auto CAVE_AIR = Blocks::CAVE_AIR->getDefaultState();
 //    const auto STONE_BRICKS = Blocks::STONE_BRICKS->getDefaultState();
 //

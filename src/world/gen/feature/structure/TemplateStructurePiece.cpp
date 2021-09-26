@@ -1,0 +1,1 @@
+#include "TemplateStructurePiece.hpp"

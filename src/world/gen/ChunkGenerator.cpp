@@ -11,20 +11,15 @@
 #include "feature/structure/StructureStart.hpp"
 #include "feature/structure/TemplateManager.hpp"
 #include "feature/structure/StructureFeature.hpp"
-#include "feature/structure/StructureManager.hpp"
-
 
 ChunkGenerator::ChunkGenerator(std::unique_ptr<BiomeProvider>&& biomeProvider) : biomeProvider(std::move(biomeProvider)) {}
 
-void ChunkGenerator::generateStructures(WorldGenRegion &region, Chunk& chunk) {
+void ChunkGenerator::generateStructures(WorldGenRegion &region, Chunk& chunk, TemplateManager& templates) {
     const auto [xpos, zpos] = chunk.pos;
     auto biome = biomeProvider->getNoiseBiome(xpos << 2, 0, zpos << 2);
 
-    StructureManager structureManager{};
-    TemplateManager templateManager{};
-
     for (auto feature : biome->getGenerationSettings().structures) {
-        createStarts(feature, structureManager, chunk, templateManager, region.getSeed(), chunk.pos, *biome);
+        createStarts(feature, chunk, templates, region.getSeed(), chunk.pos, *biome);
     }
 }
 
@@ -71,7 +66,7 @@ void ChunkGenerator::generateCarvers(WorldGenRegion& region, int64_t seed, Chunk
     }
 }
 
-void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
+void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk, TemplateManager& templates) {
     Random random{};
 
     const auto chunkPos = region.getMainChunkPos();
@@ -80,14 +75,14 @@ void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk) {
     const auto seed = random.setDecorationSeed(region.getSeed(), xStart, zStart);
 
     auto biome = biomeProvider->getNoiseBiome(chunkPos.getBlockX(2), 2, chunkPos.getBlockZ(2));
-    biome->decorate(*this, region, seed, BlockPos(xStart, 0, zStart));
+    biome->decorate(*this, region, templates, seed, BlockPos(xStart, 0, zStart));
 }
 
-Biome *ChunkGenerator::getNoiseBiome(int x, int y, int z) {
+auto ChunkGenerator::getNoiseBiome(int x, int y, int z) -> Biome * {
     return biomeProvider->getNoiseBiome(x, y, z);
 }
 
-void ChunkGenerator::createStarts(StructureFeature *feature, StructureManager &structureManager, Chunk &chunk, TemplateManager &templateManager, int64_t seed, const ChunkPos &chunkPos, Biome &biome) {
+void ChunkGenerator::createStarts(StructureFeature *feature, Chunk &chunk, TemplateManager &templates, int64_t seed, const ChunkPos &chunkPos, Biome &biome) {
     StructureSeparation separation {
         .spacing = 10,
         .separation = 10,
@@ -95,7 +90,7 @@ void ChunkGenerator::createStarts(StructureFeature *feature, StructureManager &s
     };
 
     Random random{};
-    auto start = feature->structure->generate(*this, *biomeProvider, templateManager, seed, chunkPos, biome, 0, random, separation, feature->config);
+    auto start = feature->structure->generate(*this, *biomeProvider, templates, seed, chunkPos, biome, 0, random, separation, feature->config);
     if (start != nullptr) {
         chunk.addStructureStart(feature->structure, start);
     }

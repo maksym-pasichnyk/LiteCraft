@@ -134,31 +134,19 @@ private:
 	}
 };
 
+struct Resource {
+    std::shared_ptr<std::istream> io;
+};
+
 struct ResourcePack {
 	ResourcePack() = default;
 	virtual ~ResourcePack() = default;
 
-	template <typename Fn>
-	void open(const std::string& path, Fn&& fn) {
-        thread_local auto func = std::ref(fn);
-        open_with_callback(path, [](std::istream& stream) {
-            func.get()(stream);
-        });
-	}
-
-    template <typename Fn>
-    void iterate(const std::string& path, Fn&& fn) {
-        thread_local auto func = std::ref(fn);
-        iterate_with_callback(path, [](std::istream& stream) {
-            func.get()(stream);
-        });
-    }
-
 	virtual auto load(const std::string& path) -> std::optional<std::vector<char>> = 0;
 	virtual auto contains(const std::string& path) -> bool = 0;
+    virtual void enumerate(const std::string& path, void(*fn)(std::istream&)) = 0;
 
-    virtual void open_with_callback(const std::string& path, void(*fn)(std::istream&)) = 0;
-    virtual void iterate_with_callback(const std::string& path, void(*fn)(std::istream&)) = 0;
+    virtual auto open(const std::string& path) -> std::optional<Resource> = 0;
 };
 
 struct PhysFsResourcePack : ResourcePack {
@@ -167,6 +155,14 @@ struct PhysFsResourcePack : ResourcePack {
 	auto contains(const std::string& path) -> bool override {
 		return physfs::exists(get_full_path(path));
 	}
+
+    auto open(const std::string& path) -> std::optional<Resource> override {
+        auto file = std::make_shared<physfs::ifstream>(get_full_path(path));
+        if (*file) {
+            return Resource{.io = std::move(file)};
+        }
+        return std::nullopt;
+    }
 
 	auto load(const std::string& path) -> std::optional<std::vector<char>> override {
         if (physfs::ifstream file{get_full_path(path)}) {
@@ -177,13 +173,7 @@ struct PhysFsResourcePack : ResourcePack {
 		return std::nullopt;
 	}
 
-	void open_with_callback(const std::string& path, void(*fn)(std::istream&)) override {
-        if (physfs::ifstream stream{get_full_path(path)}) {
-            fn(stream);
-        }
-	}
-
-    void iterate_with_callback(const std::string& directory, void(*fn)(std::istream&)) override {
+    void enumerate(const std::string& directory, void(*fn)(std::istream&)) override {
         struct recursive_directory_iterator {
             static void next(const std::string& directory, void(*fn)(std::istream&)) {
                 auto files = PHYSFS_enumerateFiles(directory.c_str());
@@ -220,6 +210,14 @@ struct FolderResourcePack : ResourcePack {
 		return std::filesystem::exists(get_full_path(path));
 	}
 
+    auto open(const std::string& path) -> std::optional<Resource> override {
+        auto file = std::make_shared<std::ifstream>(get_full_path(path));
+        if (*file) {
+            return Resource{.io = std::move(file)};
+        }
+        return std::nullopt;
+    }
+
 	auto load(const std::string& path) -> std::optional<std::vector<char>> override {
 		const auto full_path = get_full_path(path);
 		if (std::ifstream stream{full_path, std::ios::binary}) {
@@ -230,13 +228,7 @@ struct FolderResourcePack : ResourcePack {
 		return std::nullopt;
 	}
 
-    void open_with_callback(const std::string& path, void(*fn)(std::istream&)) override {
-        if (std::ifstream stream{get_full_path(path), std::ios::binary}) {
-            fn(stream);
-        }
-    }
-
-    void iterate_with_callback(const std::string& path, void(*fn)(std::istream&)) override {
+    void enumerate(const std::string& path, void(*fn)(std::istream&)) override {
         if (const auto full_path = get_full_path(path); std::filesystem::exists(full_path)) {
             for (auto &&entry : std::filesystem::recursive_directory_iterator{full_path}) {
                 if (entry.is_regular_file()) {
@@ -256,8 +248,8 @@ private:
 	std::filesystem::path base_path;
 };
 
-struct ResourcePackManager {
-	void add_resource_pack(std::unique_ptr<ResourcePack>&& pack) {
+struct ResourceManager {
+	void emplace(std::unique_ptr<ResourcePack>&& pack) {
 		packs.emplace_back(std::move(pack));
 	}
 
@@ -270,26 +262,31 @@ struct ResourcePackManager {
 		return std::nullopt;
 	}
 
+    auto open(const std::string& path) -> std::optional<Resource> {
+        for (auto& pack : packs) {
+            if (auto resource = pack->open(path)) {
+                return resource;
+            }
+        }
+        return std::nullopt;
+    }
+
 	template <typename Fn>
 	void for_each(const std::string& path, Fn&& fn) {
 		for (auto& pack : packs) {
-			pack->open(path, std::forward<Fn>(fn));
+            if (auto resource = pack->open(path)) {
+                fn(*resource->io);
+            }
 		}
 	}
 
-	auto load_texture_data(const std::string& name, bool flip) -> std::optional<NativeImage> {
-        for (auto ext : {".png", ".tga"}) {
-            if (auto bytes = load(name + ext)) {
-                return NativeImage::read(*bytes, flip);
-            }
-        }
-		return std::nullopt;
-	}
-
     template <typename Fn>
-    void iterate(const std::string& path, Fn&& fn) {
+    void enumerate(const std::string& path, Fn&& fn) {
+        thread_local auto callback = std::ref(fn);
         for (auto& pack : packs) {
-            pack->iterate(path, std::forward<Fn>(fn));
+            pack->enumerate(path, [](std::istream& stream) {
+                callback.get()(stream);
+            });
         }
     }
 

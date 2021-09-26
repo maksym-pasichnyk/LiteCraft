@@ -1,7 +1,7 @@
 #include "StructureStart.hpp"
 #include "Structure.hpp"
 
-void StructureStart::generate(WorldGenRegion &region, StructureManager &structureManager, ChunkGenerator &generator, Random &random, const BoundingBox &bb, const ChunkPos &chunkPos) {
+void StructureStart::generate(WorldGenRegion &region, TemplateManager& templates, ChunkGenerator &generator, Random &random, const BoundingBox &bb, const ChunkPos &chunkPos) {
     if (components.empty()) {
         return;
     }
@@ -14,6 +14,6 @@ void StructureStart::generate(WorldGenRegion &region, StructureManager &structur
         if (!piece->getBoundingBox().intersectsWith(bb)) {
             continue;
         }
-        piece->addComponentParts(region, structureManager, generator, random, bb, chunkPos, pos);
+        piece->addComponentParts(region, templates, generator, random, bb, chunkPos, pos);
     }
 }

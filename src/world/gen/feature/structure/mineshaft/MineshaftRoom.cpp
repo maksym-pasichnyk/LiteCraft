@@ -70,7 +70,7 @@ void MineshaftPieces::Room::buildComponent(StructurePiece *start, std::vector<St
     }
 }
 
-bool MineshaftPieces::Room::addComponentParts(WorldGenRegion &region, StructureManager &structureManager, ChunkGenerator &generator, Random &random, const BoundingBox &bb, const ChunkPos &chunkPos, const BlockPos &blockPos) {
+bool MineshaftPieces::Room::addComponentParts(WorldGenRegion &region, TemplateManager& templates, ChunkGenerator &generator, Random &random, const BoundingBox &bb, const ChunkPos &chunkPos, const BlockPos &blockPos) {
     if (isLiquidInStructureBoundingBox(region, bb)) {
         return false;
     }

@@ -2,6 +2,7 @@
 
 #include "ChunkManager.hpp"
 #include "gen/NoiseChunkGenerator.hpp"
+#include "gen/feature/structure/TemplateManager.hpp"
 
 #include <memory>
 
@@ -12,6 +13,7 @@ struct NoiseChunkGenerator;
 struct ServerWorld {
     CraftServer* server;
     std::unique_ptr<ChunkManager> manager;
+    std::unique_ptr<TemplateManager> templates;
     std::unique_ptr<NoiseChunkGenerator> generator;
     int64_t seed = 1;
 

@@ -2,7 +2,7 @@
 #include <block/Blocks.hpp>
 #include <block/StairsBlock.hpp>
 
-bool DesertPyramidPiece::addComponentParts(WorldGenRegion &region, StructureManager &structureManager, ChunkGenerator &generator, Random &random, const BoundingBox &bb, const ChunkPos &chunkPos, const BlockPos &blockPos) {
+bool DesertPyramidPiece::addComponentParts(WorldGenRegion &region, TemplateManager& templates, ChunkGenerator &generator, Random &random, const BoundingBox &bb, const ChunkPos &chunkPos, const BlockPos &blockPos) {
     const auto AIR = Blocks::AIR->getDefaultState();
     const auto TNT = Blocks::TNT->getDefaultState();
     const auto SANDSTONE = Blocks::SANDSTONE->getDefaultState();

@@ -86,7 +86,7 @@ void MineshaftPieces::Cross::buildComponent(StructurePiece *start, std::vector<S
     }
 }
 
-bool MineshaftPieces::Cross::addComponentParts(WorldGenRegion &region, StructureManager &structureManager, ChunkGenerator &generator, Random &random, const BoundingBox &bb, const ChunkPos &chunkPos, const BlockPos &blockPos) {
+bool MineshaftPieces::Cross::addComponentParts(WorldGenRegion &region, TemplateManager& templates, ChunkGenerator &generator, Random &random, const BoundingBox &bb, const ChunkPos &chunkPos, const BlockPos &blockPos) {
     if (isLiquidInStructureBoundingBox(region, bb)) {
         return false;
     }

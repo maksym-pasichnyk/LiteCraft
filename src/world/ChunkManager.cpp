@@ -12,9 +12,10 @@
 //todo: save/load from file
 //todo: chunk allocator
 
-ChunkManager::ChunkManager(ServerWorld *world, ChunkGenerator *generator)
+ChunkManager::ChunkManager(ServerWorld *world, ChunkGenerator *generator, TemplateManager* templates)
     : world(world)
     , generator(generator)
+    , templates(templates)
     , viewDistance(world->viewDistance) {}
 
 void ChunkManager::tick(Connection & connection) {
@@ -42,10 +43,10 @@ void ChunkManager::setChunkLoadedAtClient(Connection& connection, int chunk_x, i
 
 void ChunkManager::updatePlayerPosition(Connection & connection, const ChunkPos& newChunkPos, const ChunkPos& oldChunkPos) {
     if (std::abs(newChunkPos.x - oldChunkPos.x) <= 2 * viewDistance && std::abs(newChunkPos.z - oldChunkPos.z) <= 2 * viewDistance) {
-        const int xStart = std::min(newChunkPos.x, oldChunkPos.x) - viewDistance;
-        const int zStart = std::min(newChunkPos.z, oldChunkPos.z) - viewDistance;
-        const int xEnd = std::max(newChunkPos.x, oldChunkPos.x) + viewDistance;
-        const int zEnd = std::max(newChunkPos.z, oldChunkPos.z) + viewDistance;
+        const auto xStart = std::min(newChunkPos.x, oldChunkPos.x) - viewDistance;
+        const auto zStart = std::min(newChunkPos.z, oldChunkPos.z) - viewDistance;
+        const auto xEnd = std::max(newChunkPos.x, oldChunkPos.x) + viewDistance;
+        const auto zEnd = std::max(newChunkPos.z, oldChunkPos.z) + viewDistance;
 
         for (int chunk_x = xStart; chunk_x <= xEnd; chunk_x++) {
             for (int chunk_z = zStart; chunk_z <= zEnd; chunk_z++) {
@@ -117,7 +118,7 @@ auto ChunkManager::generateChunk(int32_t chunk_x, int32_t chunk_z, ChunkStatus* 
     return async::when_all(results).then(*executor, [this, status](const std::vector<ChunkResult>& results) {
         auto chunks = results | ranges::views::transform(&ChunkResult::get) | ranges::to_vector;
         auto chunk = chunks[chunks.size() / 2];
-        status->generate(world, *lightManager, *generator, chunk->pos.x, chunk->pos.z, *chunk, chunks, world->seed);
+        status->generate(world, *lightManager, *generator, *templates, chunk->pos.x, chunk->pos.z, *chunk, chunks, world->seed);
         if (status == ChunkStatus::Full) {
             complete.emplace(chunk->pos);
         }
@@ -126,14 +127,17 @@ auto ChunkManager::generateChunk(int32_t chunk_x, int32_t chunk_z, ChunkStatus* 
 }
 
 auto ChunkManager::getChunkAsync(int32_t chunk_x, int32_t chunk_z, ChunkStatus *status) -> ChunkResult {
-    auto& result = getHolder(chunk_x, chunk_z)->chunks[status->ordinal];
+    auto holder = getHolder(chunk_x, chunk_z);
+    auto& result = holder->chunks[status->ordinal];
     if (!result.has_value()) {
-        result.emplace(generateChunk(chunk_x, chunk_z, status));
+        auto task = generateChunk(chunk_x, chunk_z, status);
+        holder->updateChunkToSave(task);
+        result.emplace(task);
     }
     return *result;
 }
 
-void ChunkManager::setPlayerTracking(Connection & connection, const ChunkPos& pos, bool track) {
+void ChunkManager::setPlayerTracking(Connection& connection, const ChunkPos& pos, bool track) {
     for (int32_t chunk_x = pos.x - viewDistance; chunk_x <= pos.x + viewDistance; chunk_x++) {
         for (int32_t chunk_z = pos.z - viewDistance; chunk_z <= pos.z + viewDistance; chunk_z++) {
             setChunkLoadedAtClient(connection, chunk_x, chunk_z, !track, track);

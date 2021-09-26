@@ -8,5 +8,5 @@ struct MineshaftPieces::Room : Piece {
     Room(int componentIndex, Random& random, int x, int z, MineshaftType type);
 
     void buildComponent(StructurePiece* start, std::vector<StructurePiece*>& pieces, Random& random) override;
-    bool addComponentParts(WorldGenRegion &region, StructureManager &structureManager, ChunkGenerator &generator, Random &random, const BoundingBox &bb, const ChunkPos &chunkPos, const BlockPos &blockPos) override;
+    bool addComponentParts(WorldGenRegion &region, TemplateManager& templates, ChunkGenerator &generator, Random &random, const BoundingBox &bb, const ChunkPos &chunkPos, const BlockPos &blockPos) override;
 };

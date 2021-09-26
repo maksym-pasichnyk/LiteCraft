@@ -6,7 +6,7 @@ TextureAtlas* BlockGraphics::mTerrainTextureAtlas;
 std::unordered_map<std::string, BlockGraphics*> BlockGraphics::mBlockLookupMap;
 std::vector<std::unique_ptr<BlockGraphics>> BlockGraphics::mOwnedBlocks;
 
-void BlockGraphics::init(ResourcePackManager& resources) {
+void BlockGraphics::init(ResourceManager& resources) {
     using namespace std::string_view_literals;
 
     resources.for_each("blocks.json", [](std::istream& stream) {

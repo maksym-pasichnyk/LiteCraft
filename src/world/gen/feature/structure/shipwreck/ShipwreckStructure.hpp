@@ -5,5 +5,5 @@
 struct ShipwreckStructure : CfgStructure<ShipwreckConfig> {
     ShipwreckStructure() : CfgStructure(&ShipwreckStructure::createComponents) {}
 
-    static void createComponents(StructurePieces& pieces, StructureGenerateContext& context, const StructureConfig& config) {}
+    static void createComponents(StructurePieces& pieces, StructureGenerateContext& context, const StructureConfig& config);
 };

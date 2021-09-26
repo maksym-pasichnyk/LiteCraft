@@ -10,23 +10,21 @@ struct Chunk;
 struct ChunkPos;
 struct WorldGenRegion;
 struct TemplateManager;
-struct StructureManager;
 struct StructureFeature;
 struct ChunkGenerator {
     std::unique_ptr<BiomeProvider> biomeProvider;
-    std::mutex guard;
 
     explicit ChunkGenerator(std::unique_ptr<BiomeProvider>&& biomeProvider);
     virtual ~ChunkGenerator() = default;
 
-    virtual void generateStructures(WorldGenRegion& region, Chunk& chunk);
+    virtual void generateStructures(WorldGenRegion& region, Chunk& chunk, TemplateManager& templates);
     virtual void getStructureReferences(WorldGenRegion& region, Chunk& chunk);
     virtual void generateTerrain(Chunk& chunk) = 0;
     virtual void generateCarvers(WorldGenRegion& region, int64_t seed, Chunk& chunk/*, GenerationStage::Carving carving*/);
     virtual void generateSurface(WorldGenRegion& region, Chunk& chunk) = 0;
-    virtual void generateFeatures(WorldGenRegion& region, Chunk& chunk);
+    virtual void generateFeatures(WorldGenRegion& region, Chunk& chunk, TemplateManager& templates);
 
-    Biome *getNoiseBiome(int x, int y, int z);
+    auto getNoiseBiome(int x, int y, int z) -> Biome *;
 
-    void createStarts(StructureFeature* feature, /*DynamicRegistries registries,*/ StructureManager& structureManager, Chunk& chunk, TemplateManager& templateManager, int64_t seed, const ChunkPos& chunkPos, Biome& biome);
+    void createStarts(StructureFeature* feature, Chunk& chunk, TemplateManager& templates, int64_t seed, const ChunkPos& chunkPos, Biome& biome);
 };
