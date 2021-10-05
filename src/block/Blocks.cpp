@@ -3265,7 +3265,7 @@ void Blocks::init() {
     RED_NETHER_BRICK_WALL = create<WallBlock>("red_nether_brick_wall", BlockBehaviourUtil::from(RED_NETHER_BRICKS));
     SANDSTONE_WALL = create<WallBlock>("sandstone_wall", BlockBehaviourUtil::from(SANDSTONE));
     END_STONE_BRICK_WALL = create<WallBlock>("end_stone_brick_wall", BlockBehaviourUtil::from(END_STONE_BRICKS));
-//    DIORITE_WALL = create<WallBlock>("diorite_wall", BlockBehaviourUtil::from(DIORITE));
+    DIORITE_WALL = create<WallBlock>("diorite_wall", BlockBehaviourUtil::from(DIORITE));
     SCAFFOLDING = create<ScaffoldingBlock>("scaffolding", BlockBehaviourUtil::create(Materials::MISCELLANEOUS, MaterialColors::SAND)
         .doesNotBlockMovement()
         .setSound(SoundType::SCAFFOLDING)

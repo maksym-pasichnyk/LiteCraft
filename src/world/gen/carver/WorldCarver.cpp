@@ -2,8 +2,9 @@
 
 #include "../../chunk/Chunk.hpp"
 #include "../../biome/Biome.hpp"
-#include "../../../block/Block.hpp"
-#include "../../../block/Blocks.hpp"
+#include <block/Block.hpp>
+#include <block/Blocks.hpp>
+#include <block/States.hpp>
 
 static int MathHelper_floor(double value) {
     int i = static_cast<int>(value);

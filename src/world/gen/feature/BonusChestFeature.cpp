@@ -18,7 +18,7 @@ bool BonusChestFeature::generate(WorldGenRegion& reader, ChunkGenerator& generat
 
                 for (const auto direction : DirectionUtil::Plane::HORIZONTAL) {
                     const auto blockpos1 = blockpos.offset(direction);
-                    if (TORCH.isValidPosition(reader, blockpos1)) {
+                    if (States::TORCH.isValidPosition(reader, blockpos1)) {
                         reader.setData(blockpos1, States::TORCH/*, 2*/);
                     }
                 }
