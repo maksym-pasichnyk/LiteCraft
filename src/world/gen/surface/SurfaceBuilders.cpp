@@ -8,10 +8,10 @@
 #include "../../../block/material/Materials.hpp"
 
 #include "ThreadLocal.hpp"
+#include <block/States.hpp>
 
 #include <cmath>
 #include <range/v3/view.hpp>
-
 
 Registry<SurfaceBuilder> SurfaceBuilders::builders;
 
@@ -37,9 +37,6 @@ struct NoopSurfaceBuilder : public SurfaceBuilder {
 };
 
 struct DefaultSurfaceBuilder : public SurfaceBuilder {
-    const BlockData AIR = Blocks::AIR->getDefaultState();
-    const BlockData ICE = Blocks::ICE->getDefaultState();
-
     void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
         buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, config.top, config.mid, config.underWater, seaLevel);
     }
@@ -59,7 +56,7 @@ struct DefaultSurfaceBuilder : public SurfaceBuilder {
             } else if (blockstate2.is(defaultBlock.getBlock())) {
                 if (i == -1) {
                     if (j <= 0) {
-                        blockstate = AIR;
+                        blockstate = States::AIR;
                         blockstate1 = defaultBlock;
                     } else if (yPos >= sealevel - 4 && yPos <= sealevel + 1) {
                         blockstate = top;
@@ -68,7 +65,7 @@ struct DefaultSurfaceBuilder : public SurfaceBuilder {
 
                     if (yPos < sealevel && blockstate.isAir()) {
                         if (biome.getTemperature(BlockPos{xStart, yPos, zStart}) < 0.15F) {
-                            blockstate = ICE;
+                            blockstate = States::ICE;
                         } else {
                             blockstate = defaultFluid;
                         }
@@ -78,7 +75,7 @@ struct DefaultSurfaceBuilder : public SurfaceBuilder {
                     if (yPos >= sealevel - 1) {
                         chunk.setData(xPos, yPos, zPos, blockstate/*, false*/);
                     } else if (yPos < sealevel - 7 - j) {
-                        blockstate = AIR;
+                        blockstate = States::AIR;
                         blockstate1 = defaultBlock;
                         chunk.setData(xPos, yPos, zPos, underWater/*, false*/);
                     } else {
@@ -89,9 +86,7 @@ struct DefaultSurfaceBuilder : public SurfaceBuilder {
                     chunk.setData(xPos, yPos, zPos, blockstate1/*, false*/);
                     if (i == 0 && blockstate1.is(Blocks::SAND) && j > 1) {
                         i = rand.nextInt(4) + std::max(0, yPos - 63);
-                        blockstate1 = blockstate1.is(Blocks::RED_SAND)
-                                              ? Blocks::RED_SAND->getDefaultState()
-                                              : Blocks::SANDSTONE->getDefaultState();
+                        blockstate1 = blockstate1.is(Blocks::RED_SAND) ? States::RED_SAND : States::SANDSTONE;
                     }
                 }
             }
@@ -102,9 +97,9 @@ struct DefaultSurfaceBuilder : public SurfaceBuilder {
 struct MountainSurfaceBuilder : public SurfaceBuilder {
     void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
         if (noise > 1.0) {
-            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::STONE_STONE_GRAVEL_CONFIG);
+            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfigs::STONE_STONE_GRAVEL_CONFIG);
         } else {
-            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::GRASS_DIRT_GRAVEL_CONFIG);
+            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfigs::GRASS_DIRT_GRAVEL_CONFIG);
         }
     }
 };
@@ -112,11 +107,11 @@ struct MountainSurfaceBuilder : public SurfaceBuilder {
 struct ShatteredSavannaSurfaceBuilder : public SurfaceBuilder {
     void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
         if (noise > 1.75) {
-            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::STONE_STONE_GRAVEL_CONFIG);
+            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfigs::STONE_STONE_GRAVEL_CONFIG);
         } else if (noise > -0.5) {
-            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::CORASE_DIRT_DIRT_GRAVEL_CONFIG);
+            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfigs::CORASE_DIRT_DIRT_GRAVEL_CONFIG);
         } else {
-            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::GRASS_DIRT_GRAVEL_CONFIG);
+            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfigs::GRASS_DIRT_GRAVEL_CONFIG);
         }
     }
 };
@@ -124,11 +119,11 @@ struct ShatteredSavannaSurfaceBuilder : public SurfaceBuilder {
 struct GravellyMountainSurfaceBuilder : public SurfaceBuilder {
     void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
         if (noise < -1.0 || noise > 2.0) {
-            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::GRAVEL_CONFIG);
+            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfigs::GRAVEL_CONFIG);
         } else if (noise > 1.0) {
-            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::STONE_STONE_GRAVEL_CONFIG);
+            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfigs::STONE_STONE_GRAVEL_CONFIG);
         } else {
-            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::GRASS_DIRT_GRAVEL_CONFIG);
+            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfigs::GRASS_DIRT_GRAVEL_CONFIG);
         }
     }
 };
@@ -136,11 +131,11 @@ struct GravellyMountainSurfaceBuilder : public SurfaceBuilder {
 struct GiantTreeTaigaSurfaceBuilder : public SurfaceBuilder {
     void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
         if (noise > 1.75) {
-            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::CORASE_DIRT_DIRT_GRAVEL_CONFIG);
+            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfigs::CORASE_DIRT_DIRT_GRAVEL_CONFIG);
         } else if (noise > -0.95) {
-            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::PODZOL_DIRT_GRAVEL_CONFIG);
+            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfigs::PODZOL_DIRT_GRAVEL_CONFIG);
         } else {
-            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfig::GRASS_DIRT_GRAVEL_CONFIG);
+            SurfaceBuilders::Default->buildSurface(rand, chunk, biome, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, seaLevel, SurfaceBuilderConfigs::GRASS_DIRT_GRAVEL_CONFIG);
         }
     }
 };
@@ -167,25 +162,6 @@ struct SwampSurfaceBuilder : public SurfaceBuilder {
 };
 
 struct BadlandsSurfaceBuilder : public SurfaceBuilder {
-    const BlockData AIR = Blocks::AIR->getDefaultState();
-    const BlockData TERRACOTTA = Blocks::TERRACOTTA->getDefaultState();
-    const BlockData WHITE_TERRACOTTA = Blocks::WHITE_TERRACOTTA->getDefaultState();
-    const BlockData ORANGE_TERRACOTTA = Blocks::ORANGE_TERRACOTTA->getDefaultState();
-    const BlockData MAGENTA_TERRACOTTA = Blocks::MAGENTA_TERRACOTTA->getDefaultState();
-    const BlockData LIGHT_BLUE_TERRACOTTA = Blocks::LIGHT_BLUE_TERRACOTTA->getDefaultState();
-    const BlockData YELLOW_TERRACOTTA = Blocks::YELLOW_TERRACOTTA->getDefaultState();
-    const BlockData LIME_TERRACOTTA = Blocks::LIME_TERRACOTTA->getDefaultState();
-    const BlockData PINK_TERRACOTTA = Blocks::PINK_TERRACOTTA->getDefaultState();
-    const BlockData GRAY_TERRACOTTA = Blocks::GRAY_TERRACOTTA->getDefaultState();
-    const BlockData LIGHT_GRAY_TERRACOTTA = Blocks::LIGHT_GRAY_TERRACOTTA->getDefaultState();
-    const BlockData CYAN_TERRACOTTA = Blocks::CYAN_TERRACOTTA->getDefaultState();
-    const BlockData PURPLE_TERRACOTTA = Blocks::PURPLE_TERRACOTTA->getDefaultState();
-    const BlockData BLUE_TERRACOTTA = Blocks::BLUE_TERRACOTTA->getDefaultState();
-    const BlockData BROWN_TERRACOTTA = Blocks::BROWN_TERRACOTTA->getDefaultState();
-    const BlockData GREEN_TERRACOTTA = Blocks::GREEN_TERRACOTTA->getDefaultState();
-    const BlockData RED_TERRACOTTA = Blocks::RED_TERRACOTTA->getDefaultState();
-    const BlockData BLACK_TERRACOTTA = Blocks::BLACK_TERRACOTTA->getDefaultState();
-
     struct Cache {
         std::optional<int64_t> seed = std::nullopt;
         std::optional<PerlinNoiseGenerator> noise1 = std::nullopt;
@@ -206,26 +182,7 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
         }
 
         void generateBands(int64_t _seed) {
-            const BlockData AIR = Blocks::AIR->getDefaultState();
-            const BlockData TERRACOTTA = Blocks::TERRACOTTA->getDefaultState();
-            const BlockData WHITE_TERRACOTTA = Blocks::WHITE_TERRACOTTA->getDefaultState();
-            const BlockData ORANGE_TERRACOTTA = Blocks::ORANGE_TERRACOTTA->getDefaultState();
-            const BlockData MAGENTA_TERRACOTTA = Blocks::MAGENTA_TERRACOTTA->getDefaultState();
-            const BlockData LIGHT_BLUE_TERRACOTTA = Blocks::LIGHT_BLUE_TERRACOTTA->getDefaultState();
-            const BlockData YELLOW_TERRACOTTA = Blocks::YELLOW_TERRACOTTA->getDefaultState();
-            const BlockData LIME_TERRACOTTA = Blocks::LIME_TERRACOTTA->getDefaultState();
-            const BlockData PINK_TERRACOTTA = Blocks::PINK_TERRACOTTA->getDefaultState();
-            const BlockData GRAY_TERRACOTTA = Blocks::GRAY_TERRACOTTA->getDefaultState();
-            const BlockData LIGHT_GRAY_TERRACOTTA = Blocks::LIGHT_GRAY_TERRACOTTA->getDefaultState();
-            const BlockData CYAN_TERRACOTTA = Blocks::CYAN_TERRACOTTA->getDefaultState();
-            const BlockData PURPLE_TERRACOTTA = Blocks::PURPLE_TERRACOTTA->getDefaultState();
-            const BlockData BLUE_TERRACOTTA = Blocks::BLUE_TERRACOTTA->getDefaultState();
-            const BlockData BROWN_TERRACOTTA = Blocks::BROWN_TERRACOTTA->getDefaultState();
-            const BlockData GREEN_TERRACOTTA = Blocks::GREEN_TERRACOTTA->getDefaultState();
-            const BlockData RED_TERRACOTTA = Blocks::RED_TERRACOTTA->getDefaultState();
-            const BlockData BLACK_TERRACOTTA = Blocks::BLACK_TERRACOTTA->getDefaultState();
-
-            clayBands.fill(TERRACOTTA);
+            clayBands.fill(States::TERRACOTTA);
 
             auto rand = Random::from(_seed);
 
@@ -234,7 +191,7 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
             for (int i = 0; i < 64; ++i) {
                 i += rand.nextInt(5) + 1;
                 if (i < 64) {
-                    clayBands[i] = ORANGE_TERRACOTTA;
+                    clayBands[i] = States::ORANGE_TERRACOTTA;
                 }
             }
 
@@ -244,7 +201,7 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
                 const int k = rand.nextInt(64);
 
                 for (int l = 0; k + l < 64 && l < j; ++l) {
-                    clayBands[k + l] = YELLOW_TERRACOTTA;
+                    clayBands[k + l] = States::YELLOW_TERRACOTTA;
                 }
             }
 
@@ -254,7 +211,7 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
                 const int k = rand.nextInt(64);
 
                 for (int l = 0; k + l < 64 && l < j; ++l) {
-                    clayBands[k + l] = BROWN_TERRACOTTA;
+                    clayBands[k + l] = States::BROWN_TERRACOTTA;
                 }
             }
 
@@ -264,7 +221,7 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
                 const int k = rand.nextInt(64);
 
                 for (int l = 0; k + l < 64 && l < j; ++l) {
-                    clayBands[k + l] = RED_TERRACOTTA;
+                    clayBands[k + l] = States::RED_TERRACOTTA;
                 }
             }
 
@@ -274,13 +231,13 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
                 j += rand.nextInt(16) + 4;
 
                 for (int k = 0; j + k < 64 && k < 1; ++k) {
-                    clayBands[j + k] = WHITE_TERRACOTTA;
+                    clayBands[j + k] = States::WHITE_TERRACOTTA;
                     if (j + k > 1 && rand.nextBoolean()) {
-                        clayBands[j + k - 1] = LIGHT_GRAY_TERRACOTTA;
+                        clayBands[j + k - 1] = States::LIGHT_GRAY_TERRACOTTA;
                     }
 
                     if (j + k < 63 && rand.nextBoolean()) {
-                        clayBands[j + k + 1] = LIGHT_GRAY_TERRACOTTA;
+                        clayBands[j + k + 1] = States::LIGHT_GRAY_TERRACOTTA;
                     }
                 }
             }
@@ -301,7 +258,7 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
         const auto underBlockDefault = biomeSurfaceConfig.getUnder();
         const auto topBlockDefault = biomeSurfaceConfig.getTop();
         auto underBlock = underBlockDefault;
-        auto topBlock = WHITE_TERRACOTTA;
+        auto topBlock = States::WHITE_TERRACOTTA;
         const auto k = static_cast<int>(noise / 3.0 + 3.0 + rand.nextDouble() * 0.25);
         bool flag = std::cos(noise / 3.0 * M_PI) > 0.0;
         int l = -1;
@@ -320,10 +277,10 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
                     if (l == -1) {
                         flag1 = false;
                         if (k <= 0) {
-                            topBlock = AIR;
+                            topBlock = States::AIR;
                             underBlock = defaultBlock;
                         } else if (j1 >= seaLevel - 4 && j1 <= seaLevel + 1) {
-                            topBlock = WHITE_TERRACOTTA;
+                            topBlock = States::WHITE_TERRACOTTA;
                             underBlock = underBlockDefault;
                         }
 
@@ -334,10 +291,10 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
                         l = k + std::max(0, j1 - seaLevel);
                         if (j1 >= seaLevel - 1) {
                             if (j1 > seaLevel + 3 + k) {
-                                auto blockstate5 = ORANGE_TERRACOTTA;
+                                auto blockstate5 = States::ORANGE_TERRACOTTA;
                                 if (j1 >= 64 && j1 <= 127) {
                                     if (flag) {
-                                        blockstate5 = TERRACOTTA;
+                                        blockstate5 = States::TERRACOTTA;
                                     } else {
                                         blockstate5 = clayBands.getClay(xStart, j1, zStart);
                                     }
@@ -367,13 +324,13 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
                                 block == Blocks::GREEN_TERRACOTTA ||
                                 block == Blocks::RED_TERRACOTTA ||
                                 block == Blocks::BLACK_TERRACOTTA) {
-                                chunk.setData(blockpos, ORANGE_TERRACOTTA/*, false*/);
+                                chunk.setData(blockpos, States::ORANGE_TERRACOTTA/*, false*/);
                             }
                         }
                     } else if (l > 0) {
                         --l;
                         if (flag1) {
-                            chunk.setData(blockpos, ORANGE_TERRACOTTA/*, false*/);
+                            chunk.setData(blockpos, States::ORANGE_TERRACOTTA/*, false*/);
                         } else {
                             chunk.setData(blockpos, clayBands.getClay(xStart, j1, zStart)/*, false*/);
                         }
@@ -398,9 +355,6 @@ struct BadlandsSurfaceBuilder : public SurfaceBuilder {
 };
 
 struct WoodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
-    const BlockData GRASS_BLOCK = Blocks::GRASS_BLOCK->getDefaultState();
-    const BlockData COARSE_DIRT = Blocks::COARSE_DIRT->getDefaultState();
-
     void buildSurface(Random& rand, Chunk& chunk, Biome& biome, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int seaLevel, SurfaceBuilderConfig config) override {
         const auto xpos = xStart & 15;
         const auto zpos = zStart & 15;
@@ -408,7 +362,7 @@ struct WoodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
         const auto underBlockDefault = biomeSurfaceConfig.getUnder();
         const auto topBlockDefault = biomeSurfaceConfig.getTop();
         auto underBlock = underBlockDefault;
-        auto topBlock = WHITE_TERRACOTTA;
+        auto topBlock = States::WHITE_TERRACOTTA;
         const auto k = static_cast<int>(noise / 3.0 + 3.0 + rand.nextDouble() * 0.25);
         const auto flag = std::cos(noise / 3.0 * M_PI) > 0.0;
         int l = -1;
@@ -427,10 +381,10 @@ struct WoodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
                     if (l == -1) {
                         flag1 = false;
                         if (k <= 0) {
-                            topBlock = AIR;
+                            topBlock = States::AIR;
                             underBlock = defaultBlock;
                         } else if (j1 >= seaLevel - 4 && j1 <= seaLevel + 1) {
-                            topBlock = WHITE_TERRACOTTA;
+                            topBlock = States::WHITE_TERRACOTTA;
                             underBlock = underBlockDefault;
                         }
 
@@ -442,15 +396,15 @@ struct WoodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
                         if (j1 >= seaLevel - 1) {
                             if (j1 > 86 + k * 2) {
                                 if (flag) {
-                                    chunk.setData(blockpos, COARSE_DIRT/*, false*/);
+                                    chunk.setData(blockpos, States::COARSE_DIRT/*, false*/);
                                 } else {
-                                    chunk.setData(blockpos, GRASS_BLOCK/*, false*/);
+                                    chunk.setData(blockpos, States::GRASS_BLOCK/*, false*/);
                                 }
                             } else if (j1 > seaLevel + 3 + k) {
-                                auto blockstate5 = ORANGE_TERRACOTTA;
+                                auto blockstate5 = States::ORANGE_TERRACOTTA;
                                 if (j1 >= 64 && j1 <= 127) {
                                     if (flag) {
-                                        blockstate5 = TERRACOTTA;
+                                        blockstate5 = States::TERRACOTTA;
                                     } else {
                                         blockstate5 = clayBands.getClay(xStart, j1, zStart);
                                     }
@@ -462,8 +416,8 @@ struct WoodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
                                 flag1 = true;
                             }
                         } else {
-                            if (underBlock == WHITE_TERRACOTTA) {
-                                chunk.setData(blockpos, ORANGE_TERRACOTTA/*, false*/);
+                            if (underBlock == States::WHITE_TERRACOTTA) {
+                                chunk.setData(blockpos, States::ORANGE_TERRACOTTA/*, false*/);
                             } else {
                                 chunk.setData(blockpos, underBlock/*, false*/);
                             }
@@ -471,7 +425,7 @@ struct WoodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
                     } else if (l > 0) {
                         --l;
                         if (flag1) {
-                            chunk.setData(blockpos, ORANGE_TERRACOTTA/*, false*/);
+                            chunk.setData(blockpos, States::ORANGE_TERRACOTTA/*, false*/);
                         } else {
                             chunk.setData(blockpos, clayBands.getClay(xStart, j1, zStart)/*, false*/);
                         }
@@ -507,7 +461,7 @@ struct ErodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
         const auto underBlockDefault = biomeSurfaceConfig.getUnder();
         const auto topBlockDefault = biomeSurfaceConfig.getTop();
         auto underBlock = underBlockDefault;
-        auto topBlock = WHITE_TERRACOTTA;
+        auto topBlock = States::WHITE_TERRACOTTA;
         const auto j = static_cast<int>(noise / 3.0 + 3.0 + rand.nextDouble() * 0.25);
         const auto flag = std::cos(noise / 3.0 * M_PI) > 0.0;
         int k = -1;
@@ -526,10 +480,10 @@ struct ErodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
                 if (k == -1) {
                     flag1 = false;
                     if (j <= 0) {
-                        topBlock = AIR;
+                        topBlock = States::AIR;
                         underBlock = defaultBlock;
                     } else if (l >= seaLevel - 4 && l <= seaLevel + 1) {
-                        topBlock = WHITE_TERRACOTTA;
+                        topBlock = States::WHITE_TERRACOTTA;
                         underBlock = underBlockDefault;
                     }
 
@@ -543,10 +497,10 @@ struct ErodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
                             chunk.setData(blockpos, topBlockDefault/*, false*/);
                             flag1 = true;
                         } else {
-                            auto blockstate5 = ORANGE_TERRACOTTA;
+                            auto blockstate5 = States::ORANGE_TERRACOTTA;
                             if (l >= 64 && l <= 127) {
                                 if (flag) {
-                                    blockstate5 = TERRACOTTA;
+                                    blockstate5 = States::TERRACOTTA;
                                 } else {
                                     blockstate5 = clayBands.getClay(xStart, l, zStart);
                                 }
@@ -573,13 +527,13 @@ struct ErodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
                             block == Blocks::GREEN_TERRACOTTA ||
                             block == Blocks::RED_TERRACOTTA ||
                             block == Blocks::BLACK_TERRACOTTA) {
-                            chunk.setData(blockpos, ORANGE_TERRACOTTA/*, false*/);
+                            chunk.setData(blockpos, States::ORANGE_TERRACOTTA/*, false*/);
                         }
                     }
                 } else if (k > 0) {
                     --k;
                     if (flag1) {
-                        chunk.setData(blockpos, ORANGE_TERRACOTTA/*, false*/);
+                        chunk.setData(blockpos, States::ORANGE_TERRACOTTA/*, false*/);
                     } else {
                         chunk.setData(blockpos, clayBands.getClay(xStart, l, zStart)/*, false*/);
                     }
@@ -590,12 +544,6 @@ struct ErodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
 };
 
 struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
-    const BlockData AIR = Blocks::AIR->getDefaultState();
-    const BlockData ICE = Blocks::ICE->getDefaultState();
-    const BlockData PACKED_ICE = Blocks::PACKED_ICE->getDefaultState();
-    const BlockData SNOW_BLOCK = Blocks::SNOW_BLOCK->getDefaultState();
-    const BlockData GRAVEL = Blocks::GRAVEL->getDefaultState();
-
     struct Cache {
         std::optional<int64_t> seed = std::nullopt;
         std::optional<PerlinNoiseGenerator> noise1 = std::nullopt;
@@ -671,21 +619,21 @@ struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
             const auto blockpos = BlockPos::from(xpos, k1, zpos);
             auto data = chunk.getData(blockpos);
             if (data.isAir() && k1 < static_cast<int>(d0) && rand.nextDouble() > 0.01) {
-                chunk.setData(blockpos, PACKED_ICE/*, false*/);
+                chunk.setData(blockpos, States::PACKED_ICE/*, false*/);
             } else if (data.getBlock()->getMaterial() == Materials::WATER && k1 > static_cast<int>(d1) && k1 < seaLevel && d1 != 0.0 && rand.nextDouble() > 0.15) {
-                chunk.setData(blockpos, PACKED_ICE/*, false*/);
+                chunk.setData(blockpos, States::PACKED_ICE/*, false*/);
             }
             data = chunk.getData(blockpos);
             if (data.isAir()) {
                 k = -1;
             } else if (!data.is(defaultBlock.getBlock())) {
                 if (data.is(Blocks::PACKED_ICE) && l <= i1 && k1 > j1) {
-                    chunk.setData(blockpos, SNOW_BLOCK/*, false*/);
+                    chunk.setData(blockpos, States::SNOW_BLOCK/*, false*/);
                     ++l;
                 }
             } else if (k == -1) {
                 if (j <= 0) {
-                    blockstate2 = AIR;
+                    blockstate2 = States::AIR;
                     blockstate1 = defaultBlock;
                 } else if (k1 >= seaLevel - 4 && k1 <= seaLevel + 1) {
                     blockstate2 = topDefault;
@@ -694,7 +642,7 @@ struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
 
                 if (k1 < seaLevel && blockstate2.isAir()) {
                     if (biome.getTemperature(BlockPos{xStart, k1, zStart}) < 0.15F) {
-                        blockstate2 = ICE;
+                        blockstate2 = States::ICE;
                     } else {
                         blockstate2 = defaultFluid;
                     }
@@ -704,9 +652,9 @@ struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
                 if (k1 >= seaLevel - 1) {
                     chunk.setData(blockpos, blockstate2/*, false*/);
                 } else if (k1 < seaLevel - 7 - j) {
-                    blockstate2 = AIR;
+                    blockstate2 = States::AIR;
                     blockstate1 = defaultBlock;
-                    chunk.setData(blockpos, GRAVEL/*, false*/);
+                    chunk.setData(blockpos, States::GRAVEL/*, false*/);
                 } else {
                     chunk.setData(blockpos, blockstate1/*, false*/);
                 }
@@ -715,9 +663,7 @@ struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
                 chunk.setData(blockpos, blockstate1/*, false*/);
                 if (k == 0 && blockstate1.is(Blocks::SAND) && j > 1) {
                     k = rand.nextInt(4) + std::max(0, k1 - 63);
-                    blockstate1 = blockstate1.is(Blocks::RED_SAND)
-                                          ? Blocks::RED_SANDSTONE->getDefaultState()
-                                          : Blocks::SANDSTONE->getDefaultState();
+                    blockstate1 = blockstate1.is(Blocks::RED_SAND) ? States::RED_SANDSTONE : States::SANDSTONE;
                 }
             }
         }

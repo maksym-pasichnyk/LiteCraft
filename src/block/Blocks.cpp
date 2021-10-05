@@ -1796,6 +1796,8 @@ void Blocks::init() {
         .setHardnessAndResistance(0.2F)
         .setSound(SoundType::SNOW));
     CACTUS = create<CactusBlock>("cactus", BlockBehaviourUtil::create(Materials::CACTUS)
+        .setRenderType(RenderType::Cactus)
+        .setRenderLayer(RenderLayer::Cutout)
         .setTickRandomly()
         .setHardnessAndResistance(0.4F)
         .setSound(SoundType::CLOTH));
@@ -1803,6 +1805,8 @@ void Blocks::init() {
         .setHardnessAndResistance(0.6F)
         .setSound(SoundType::GROUND));
     SUGAR_CANE = create<SugarCaneBlock>("sugar_cane", BlockBehaviourUtil::create(Materials::PLANTS)
+        .setRenderType(RenderType::Cross)
+        .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .setTickRandomly()
         .zeroHardnessAndResistance()
@@ -1838,7 +1842,11 @@ void Blocks::init() {
         .setRequiresTool()
         .setHardnessAndResistance(1.25F, 4.2F)
         .setSound(SoundType::BASALT));
-    SOUL_TORCH = create<TorchBlock>("soul_torch", BlockBehaviourUtil::create(Materials::MISCELLANEOUS).doesNotBlockMovement().zeroHardnessAndResistance().setLightLevel([](auto) -> int32_t { return 10; }).setSound(SoundType::WOOD), ParticleType::SOUL_FIRE_FLAME);
+    SOUL_TORCH = create<TorchBlock>("soul_torch", BlockBehaviourUtil::create(Materials::MISCELLANEOUS)
+        .doesNotBlockMovement()
+        .zeroHardnessAndResistance()
+        .setLightLevel([](auto) -> int32_t { return 10; })
+        .setSound(SoundType::WOOD), ParticleType::SOUL_FIRE_FLAME);
     SOUL_WALL_TORCH = create<WallTorchBlock>("soul_wall_torch", BlockBehaviourUtil::create(Materials::MISCELLANEOUS)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()

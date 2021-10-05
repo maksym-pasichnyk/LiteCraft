@@ -1,4 +1,5 @@
 {
+    "name": "ruined_portal_swamp",
     "type": "ruined_portal",
     "config": {
         "location": "swamp"

@@ -1,4 +1,5 @@
 {
+    "name": "desert",
     "type": "default",
     "config": {
         "top_material": "sand",

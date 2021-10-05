@@ -1,4 +1,5 @@
 {
+    "name": "crimson_forest",
     "type": "nether_forest",
     "config": {
         "top_material": "crimson_nylium",

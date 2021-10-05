@@ -1,4 +1,5 @@
 {
+    "name": "gravelly_mountain",
     "type": "gravelly_mountain",
     "config": {
         "top_material": "grass_block",

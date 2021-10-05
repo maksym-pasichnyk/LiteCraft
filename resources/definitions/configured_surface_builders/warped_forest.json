@@ -1,4 +1,5 @@
 {
+    "name": "warped_forest",
     "type": "nether_forest",
     "config": {
         "top_material": "warped_nylium",

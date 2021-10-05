@@ -1,4 +1,5 @@
 {
+    "name": "mycelium",
     "type": "default",
     "config": {
         "top_material": "mycelium",

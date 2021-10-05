@@ -1,4 +1,5 @@
 {
+    "name": "ruined_portal_nether",
     "type": "ruined_portal",
     "config": {
         "location": "nether"

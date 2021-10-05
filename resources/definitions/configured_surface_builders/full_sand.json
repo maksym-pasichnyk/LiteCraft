@@ -1,4 +1,5 @@
 {
+    "name": "full_sand",
     "type": "default",
     "config": {
         "top_material": "sand",

@@ -1,7 +1,8 @@
 #include "DefaultFlowersFeature.hpp"
 #include "../../WorldGenRegion.hpp"
-#include "../../../block/Block.hpp"
-#include "../../../block/Blocks.hpp"
+#include <block/Block.hpp>
+#include <block/Blocks.hpp>
+#include <block/States.hpp>
 
 bool DefaultFlowersFeature::isValidPosition(WorldGenRegion &reader, BlockPos pos, const BlockClusterFeatureConfig &config) {
     return !config.blacklist.contains(reader.getData(pos));
@@ -22,5 +23,5 @@ BlockPos DefaultFlowersFeature::getNearbyPos(Random &rand, BlockPos pos, const B
 }
 
 BlockData DefaultFlowersFeature::getFlowerToPlace(Random &rand, BlockPos pos, const BlockClusterFeatureConfig &config) {
-    return Blocks::DANDELION->getDefaultState();
+    return States::DANDELION;
 }

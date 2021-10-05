@@ -1,20 +1,20 @@
 #include "PlainFlowerBlockStateProvider.hpp"
-#include "../../biome/Biome.hpp"
-#include "../../../block/Block.hpp"
-#include "../../../block/Blocks.hpp"
+
+#include <block/States.hpp>
+#include <world/biome/Biome.hpp>
 
 PlainFlowerBlockStateProvider::PlainFlowerBlockStateProvider() {
     RARE_FLOWERS = {
-        Blocks::ORANGE_TULIP->getDefaultState(),
-        Blocks::RED_TULIP->getDefaultState(),
-        Blocks::PINK_TULIP->getDefaultState(),
-        Blocks::WHITE_TULIP->getDefaultState(),
+        States::ORANGE_TULIP,
+        States::RED_TULIP,
+        States::PINK_TULIP,
+        States::WHITE_TULIP,
     };
     COMMON_FLOWERS = {
-        Blocks::POPPY->getDefaultState(),
-        Blocks::AZURE_BLUET->getDefaultState(),
-        Blocks::OXEYE_DAISY->getDefaultState(),
-        Blocks::CORNFLOWER->getDefaultState(),
+        States::POPPY,
+        States::AZURE_BLUET,
+        States::OXEYE_DAISY,
+        States::CORNFLOWER,
     };
 }
 
@@ -25,5 +25,5 @@ BlockData PlainFlowerBlockStateProvider::getBlockState(Random &random, BlockPos 
     }
     return random.nextInt(3) > 0
         ? COMMON_FLOWERS[random.nextInt(COMMON_FLOWERS.size())]
-        : Blocks::DANDELION->getDefaultState();
+        : States::DANDELION;
 }

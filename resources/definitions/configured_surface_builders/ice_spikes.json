@@ -1,4 +1,5 @@
 {
+    "name": "ice_spikes",
     "type": "default",
     "config": {
         "top_material": "snow",

@@ -1,4 +1,5 @@
 {
+    "name": "village_savanna",
     "type": "village",
     "config": {
         "pool": "village/savanna/town_centers",

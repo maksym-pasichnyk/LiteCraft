@@ -8,6 +8,7 @@
 struct Feature;
 struct Features {
     static Registry<Feature> features;
+
     static Feature* NO_OP;
     static Feature* TREE;
     static Feature* FLOWER;
@@ -60,6 +61,11 @@ struct Features {
     static Feature* SIMPLE_RANDOM_SELECTOR;
     static Feature* RANDOM_BOOLEAN_SELECTOR;
     static Feature* DECORATED;
+
+    template <typename T, typename... Args>
+    static auto create(std::string name, Args&&... args) -> Feature* {
+        return features.add(std::move(name), std::make_unique<T>(std::forward<Args>(args)...));
+    }
 
     static void init();
 };

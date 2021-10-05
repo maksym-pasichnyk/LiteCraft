@@ -1,4 +1,5 @@
 {
+    "name": "nope",
     "type": "noop",
     "config": {
         "top_material": "stone",

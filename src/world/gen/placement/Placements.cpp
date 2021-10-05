@@ -30,6 +30,7 @@
 #include "CountMultilayerPlacement.hpp"
 
 Registry<Placement> Placements::placements{};
+
 Placement* Placements::NOPE;
 Placement* Placements::CHANCE;
 Placement* Placements::COUNT;
@@ -60,39 +61,34 @@ Placement* Placements::END_ISLAND;
 Placement* Placements::DECORATED;
 Placement* Placements::COUNT_MULTILAYER;
 
-template<typename T, typename... Args>
-static T* createPlacement(std::string name, Args&&... args) {
-    return dynamic_cast<T*>(Placements::placements.add(std::move(name), std::make_unique<T>(std::forward<Args>(args)...)));
-}
-
 void Placements::init() {
-    NOPE = createPlacement<Passthrough>("nope");
-    CHANCE = createPlacement<ChancePlacement>("chance");
-    COUNT = createPlacement<CountPlacement>("count");
-    COUNT_NOISE = createPlacement<CountNoisePlacement>("count_noise");
-    COUNT_NOISE_BIASED = createPlacement<CountNoiseBiasedPlacement>("count_noise_biased");
-    COUNT_EXTRA = createPlacement<CountExtraPlacement>("count_extra");
-    SQUARE = createPlacement<SquarePlacement>("square");
-    HEIGHTMAP = createPlacement<HeightmapPlacement>("heightmap");
-    HEIGHTMAP_SPREAD_DOUBLE = createPlacement<HeightmapSpreadDoublePlacement>("heightmap_spread_double");
-    TOP_SOLID_HEIGHTMAP = createPlacement<TopSolidOncePlacement>("top_solid_heightmap");
-    HEIGHTMAP_WORLD_SURFACE = createPlacement<HeightmapWorldSurfacePlacement>("heightmap_world_surface");
-    RANGE = createPlacement<RangePlacement>("range");
-    RANGE_BIASED = createPlacement<RangeBiasedPlacement>("range_biased");
-    RANGE_VERY_BIASED = createPlacement<RangeVeryBiasedPlacement>("range_very_biased");
-    DEPTH_AVERAGE = createPlacement<DepthAveragePlacement>("depth_average");
-    SPREAD_32_ABOVE = createPlacement<Spread32AbovePlacement>("spread_32_above");
-    CARVING_MASK = createPlacement<CaveEdgePlacement>("carving_mask");
-    FIRE = createPlacement<FirePlacement>("fire");
-    MAGMA = createPlacement<NetherMagmaPlacement>("magma");
-    EMERALD_ORE = createPlacement<Height4To32Placement>("emerald_ore");
-    LAVA_LAKE = createPlacement<LakeLavaPlacement>("lava_lake");
-    WATER_LAKE = createPlacement<LakeWaterPlacement>("water_lake");
-    GLOWSTONE = createPlacement<GlowstonePlacement>("glowstone");
-    END_GATEWAY = createPlacement<EndGatewayPlacement>("end_gateway");
-    DARK_OAK_TREE = createPlacement<DarkOakTreePlacement>("dark_oak_tree");
-    ICEBERG = createPlacement<IcebergPlacement>("iceberg");
-    END_ISLAND = createPlacement<EndIslandPlacement>("end_island");
-    DECORATED = createPlacement<DecoratedPlacement>("decorated");
-    COUNT_MULTILAYER = createPlacement<CountMultilayerPlacement>("count_multilayer");
+    NOPE = create<Passthrough>("nope");
+    CHANCE = create<ChancePlacement>("chance");
+    COUNT = create<CountPlacement>("count");
+    COUNT_NOISE = create<CountNoisePlacement>("count_noise");
+    COUNT_NOISE_BIASED = create<CountNoiseBiasedPlacement>("count_noise_biased");
+    COUNT_EXTRA = create<CountExtraPlacement>("count_extra");
+    SQUARE = create<SquarePlacement>("square");
+    HEIGHTMAP = create<HeightmapPlacement>("heightmap");
+    HEIGHTMAP_SPREAD_DOUBLE = create<HeightmapSpreadDoublePlacement>("heightmap_spread_double");
+    TOP_SOLID_HEIGHTMAP = create<TopSolidOncePlacement>("top_solid_heightmap");
+    HEIGHTMAP_WORLD_SURFACE = create<HeightmapWorldSurfacePlacement>("heightmap_world_surface");
+    RANGE = create<RangePlacement>("range");
+    RANGE_BIASED = create<RangeBiasedPlacement>("range_biased");
+    RANGE_VERY_BIASED = create<RangeVeryBiasedPlacement>("range_very_biased");
+    DEPTH_AVERAGE = create<DepthAveragePlacement>("depth_average");
+    SPREAD_32_ABOVE = create<Spread32AbovePlacement>("spread_32_above");
+    CARVING_MASK = create<CaveEdgePlacement>("carving_mask");
+    FIRE = create<FirePlacement>("fire");
+    MAGMA = create<NetherMagmaPlacement>("magma");
+    EMERALD_ORE = create<Height4To32Placement>("emerald_ore");
+    LAVA_LAKE = create<LakeLavaPlacement>("lava_lake");
+    WATER_LAKE = create<LakeWaterPlacement>("water_lake");
+    GLOWSTONE = create<GlowstonePlacement>("glowstone");
+    END_GATEWAY = create<EndGatewayPlacement>("end_gateway");
+    DARK_OAK_TREE = create<DarkOakTreePlacement>("dark_oak_tree");
+    ICEBERG = create<IcebergPlacement>("iceberg");
+    END_ISLAND = create<EndIslandPlacement>("end_island");
+    DECORATED = create<DecoratedPlacement>("decorated");
+    COUNT_MULTILAYER = create<CountMultilayerPlacement>("count_multilayer");
 }

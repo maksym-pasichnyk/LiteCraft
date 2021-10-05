@@ -1,4 +1,5 @@
 {
+    "name": "ruined_portal_ocean",
     "type": "ruined_portal",
     "config": {
         "location": "ocean"

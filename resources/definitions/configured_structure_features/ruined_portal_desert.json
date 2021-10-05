@@ -1,4 +1,5 @@
 {
+    "name": "ruined_portal_desert",
     "type": "ruined_portal",
     "config": {
         "location": "desert"

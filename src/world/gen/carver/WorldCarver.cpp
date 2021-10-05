@@ -119,9 +119,9 @@ bool WorldCarver::carveBlock(Chunk& chunk, const BiomeReadFn& getBiome, Random& 
         return false;
     }
     if (ypos < 11) {
-        chunk.setData(xpos, ypos, zpos, Blocks::LAVA->getDefaultState()/*, false*/);
+        chunk.setData(xpos, ypos, zpos, States::LAVA/*, false*/);
     } else {
-        chunk.setData(xpos, ypos, zpos, Blocks::AIR->getDefaultState()/*, false*/);
+        chunk.setData(xpos, ypos, zpos, States::AIR/*, false*/);
 
         if (is_surface) {
             if (chunk.getData(xpos, ypos - 1, zpos).is(Blocks::DIRT)) {

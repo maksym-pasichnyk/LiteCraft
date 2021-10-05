@@ -1,6 +1,7 @@
 #include "CoralFeature.hpp"
 #include <tags/BlockTags.hpp>
 #include <block/Blocks.hpp>
+#include <block/States.hpp>
 #include <block/SeaPickleBlock.hpp>
 #include <world/WorldGenRegion.hpp>
 
@@ -20,7 +21,7 @@ bool CoralFeature::generateCorals(WorldGenRegion& reader, Random& random, const 
 //            reader.setData(blockpos, BlockTags::CORALS.getRandomElement(random).getDefaultState(), 2);
         } else if (random.nextFloat() < 0.05F) {
             const auto age = random.nextInt(4) + 1;
-            reader.setData(blockpos, Blocks::SEA_PICKLE->getDefaultState().set<SeaPickleBlock::PICKLES>(age)/*, 2*/);
+            reader.setData(blockpos, States::SEA_PICKLE.set<SeaPickleBlock::PICKLES>(age)/*, 2*/);
         }
 
         for (const auto direction : DirectionUtil::Plane::HORIZONTAL) {

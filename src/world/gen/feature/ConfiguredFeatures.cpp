@@ -34,6 +34,7 @@
 #include "../treedecorator/TrunkVineTreeDecorator.hpp"
 #include "../treedecorator/AlterGroundTreeDecorator.hpp"
 
+#include <block/States.hpp>
 #include <block/Blocks.hpp>
 #include <block/HugeMushroomBlock.hpp>
 
@@ -230,11 +231,11 @@ ConfiguredFeature* ConfiguredFeatures::TREES_JUNGLE;
 ConfiguredFeature* ConfiguredFeatures::BAMBOO_VEGETATION;
 ConfiguredFeature* ConfiguredFeatures::MUSHROOM_FIELD_VEGETATION;
 
-static ConfiguredFeature* registerFeature(std::string name, ConfiguredFeature* feature) {
+static auto registerFeature(std::string name, ConfiguredFeature* feature) -> ConfiguredFeature* {
 	return ConfiguredFeatures::features.add(std::move(name), std::unique_ptr<ConfiguredFeature>(feature));
 }
 
-void ConfiguredFeatures::init() {
+void ConfiguredFeatures::init(ResourceManager& resources) {
     auto BEES_0002_PLACEMENT = new BeehiveTreeDecorator(0.002F);
     auto BEES_002_PLACEMENT = new BeehiveTreeDecorator(0.02F);
     auto BEES_005_PLACEMENT = new BeehiveTreeDecorator(0.05F);
@@ -251,28 +252,28 @@ void ConfiguredFeatures::init() {
     auto DISK_PLACEMENT = TOP_SOLID_PLACEMENT->square();
 
     static BlockClusterFeatureConfig GRASS_PATCH_CONFIG {
-        .stateProvider = new SimpleBlockStateProvider(Blocks::GRASS->getDefaultState()),
+        .stateProvider = new SimpleBlockStateProvider(States::GRASS),
         .blockPlacer = new SimpleBlockPlacer(),
         .tries = 32,
     };
     static BlockClusterFeatureConfig TAIGA_GRASS_CONFIG {
         .stateProvider = new WeightedBlockStateProvider(WeightedList<BlockData>()
-            .add(Blocks::GRASS->getDefaultState(), 1)
-            .add(Blocks::FERN->getDefaultState(), 4)),
+            .add(States::GRASS, 1)
+            .add(States::FERN, 4)),
         .blockPlacer = new SimpleBlockPlacer(),
         .tries = 32,
     };
     static BlockClusterFeatureConfig JUNGLE_VEGETATION_CONFIG {
         .stateProvider = new WeightedBlockStateProvider(WeightedList<BlockData>()
-            .add(Blocks::GRASS->getDefaultState(), 3)
-            .add(Blocks::FERN->getDefaultState(), 1)),
+            .add(States::GRASS, 3)
+            .add(States::FERN, 1)),
         .blockPlacer = new SimpleBlockPlacer(),
         .tries = 32
     };
     static BlockClusterFeatureConfig NORMAL_FLOWER_CONFIG {
         .stateProvider = new WeightedBlockStateProvider(WeightedList<BlockData>()
-            .add(Blocks::POPPY->getDefaultState(), 2)
-            .add(Blocks::DANDELION->getDefaultState(), 1)),
+            .add(States::POPPY, 2)
+            .add(States::DANDELION, 1)),
         .blockPlacer = new SimpleBlockPlacer(),
         .tries = 64
     };
@@ -282,36 +283,36 @@ void ConfiguredFeatures::init() {
         .tries = 64
     };
     static BlockClusterFeatureConfig FLOWER_SWAMP_CONFIG {
-        .stateProvider = new SimpleBlockStateProvider(Blocks::BLUE_ORCHID->getDefaultState()),
+        .stateProvider = new SimpleBlockStateProvider(States::BLUE_ORCHID),
         .blockPlacer = new SimpleBlockPlacer(),
         .tries = 64
     };
     static BlockClusterFeatureConfig DEAD_BUSH_CONFIG {
-        .stateProvider = new SimpleBlockStateProvider(Blocks::DEAD_BUSH->getDefaultState()),
+        .stateProvider = new SimpleBlockStateProvider(States::DEAD_BUSH),
         .blockPlacer = new SimpleBlockPlacer(),
         .tries = 4
     };
     static BlockClusterFeatureConfig BERRY_BUSH_PATCH_CONFIG {
         .whitelist = {Blocks::GRASS_BLOCK},
-        .stateProvider = new SimpleBlockStateProvider(Blocks::SWEET_BERRY_BUSH->getDefaultState()),
+        .stateProvider = new SimpleBlockStateProvider(States::SWEET_BERRY_BUSH),
         .blockPlacer = new SimpleBlockPlacer(),
         .tries = 64,
         .project = false
     };
     static BlockClusterFeatureConfig TALL_GRASS_CONFIG {
-        .stateProvider = new SimpleBlockStateProvider(Blocks::TALL_GRASS->getDefaultState()),
+        .stateProvider = new SimpleBlockStateProvider(States::TALL_GRASS),
         .blockPlacer = new DoublePlantBlockPlacer(),
         .tries = 64,
         .project = false
     };
     static BlockClusterFeatureConfig LARGE_FERN_CONFIG {
-        .stateProvider = new SimpleBlockStateProvider(Blocks::LARGE_FERN->getDefaultState()),
+        .stateProvider = new SimpleBlockStateProvider(States::LARGE_FERN),
         .blockPlacer = new DoublePlantBlockPlacer(),
         .tries = 64,
         .project = false
     };
     static BlockClusterFeatureConfig SUGAR_CANE_PATCH_CONFIG {
-        .stateProvider = new SimpleBlockStateProvider(Blocks::SUGAR_CANE->getDefaultState()),
+        .stateProvider = new SimpleBlockStateProvider(States::SUGAR_CANE),
         .blockPlacer = new ColumnBlockPlacer(2, 2),
         .tries = 20,
         .xspread = 4,
@@ -322,7 +323,7 @@ void ConfiguredFeatures::init() {
     };
 
     static LiquidsConfig LAVA_SPRING_CONFIG{
-        .state = Blocks::LAVA->getDefaultState(),
+        .state = States::LAVA,
         .needsBlockBelow = true,
         .rockAmount = 4,
         .holeAmount = 1,
@@ -334,7 +335,7 @@ void ConfiguredFeatures::init() {
         }
     };
     static LiquidsConfig CLOSED_SPRING_CONFIG{
-        .state = Blocks::LAVA->getDefaultState(),
+        .state = States::LAVA,
         .needsBlockBelow = false,
         .rockAmount = 5,
         .holeAmount = 0,
@@ -344,19 +345,19 @@ void ConfiguredFeatures::init() {
     };
     static BlockStateProvidingFeatureConfig CRIMSON_FOREST_VEGETATION_CONFIG{
         .stateProvider = new WeightedBlockStateProvider(WeightedList<BlockData>()
-            .add(Blocks::CRIMSON_ROOTS->getDefaultState(), 87)
-            .add(Blocks::CRIMSON_FUNGUS->getDefaultState(), 11)
-            .add(Blocks::WARPED_FUNGUS->getDefaultState(), 1))
+            .add(States::CRIMSON_ROOTS, 87)
+            .add(States::CRIMSON_FUNGUS, 11)
+            .add(States::WARPED_FUNGUS, 1))
     };
     static BlockStateProvidingFeatureConfig WARPED_FOREST_VEGETATION_CONFIG {
         .stateProvider = new WeightedBlockStateProvider(WeightedList<BlockData>()
-            .add(Blocks::WARPED_ROOTS->getDefaultState(), 85)
-            .add(Blocks::CRIMSON_ROOTS->getDefaultState(), 1)
-            .add(Blocks::WARPED_FUNGUS->getDefaultState(), 13)
-            .add(Blocks::CRIMSON_FUNGUS->getDefaultState(), 1))
+            .add(States::WARPED_ROOTS, 85)
+            .add(States::CRIMSON_ROOTS, 1)
+            .add(States::WARPED_FUNGUS, 13)
+            .add(States::CRIMSON_FUNGUS, 1))
     };
     static BlockStateProvidingFeatureConfig NETHER_SPROUTS_CONFIG{
-        .stateProvider = new SimpleBlockStateProvider(Blocks::NETHER_SPROUTS->getDefaultState())
+        .stateProvider = new SimpleBlockStateProvider(States::NETHER_SPROUTS)
     };
     static BlockClusterFeatureConfig PLAINS_FLOWER_CONFIG {
         .stateProvider = new PlainFlowerBlockStateProvider(),
@@ -364,83 +365,83 @@ void ConfiguredFeatures::init() {
         .tries = 64
     };
     static BlockClusterFeatureConfig PATCH_CACTUS_CONFIG {
-        .stateProvider = new SimpleBlockStateProvider(Blocks::CACTUS->getDefaultState()),
+        .stateProvider = new SimpleBlockStateProvider(States::CACTUS),
         .blockPlacer = new ColumnBlockPlacer(1, 2),
         .tries = 10,
         .project = false
     };
     static BlockClusterFeatureConfig PATCH_BROWN_MUSHROOM_CONFIG {
-        .stateProvider = new SimpleBlockStateProvider(Blocks::BROWN_MUSHROOM->getDefaultState()),
+        .stateProvider = new SimpleBlockStateProvider(States::BROWN_MUSHROOM),
         .blockPlacer = new SimpleBlockPlacer(),
         .tries = 64,
         .project = false
     };
     static BlockClusterFeatureConfig PATCH_RED_MUSHROOM_CONFIG {
-        .stateProvider = new SimpleBlockStateProvider(Blocks::RED_MUSHROOM->getDefaultState()),
+        .stateProvider = new SimpleBlockStateProvider(States::RED_MUSHROOM),
         .blockPlacer = new SimpleBlockPlacer(),
         .tries = 64,
         .project = false
     };
     static BlockClusterFeatureConfig PATCH_CRIMSON_ROOTS_CONFIG {
-        .stateProvider = new SimpleBlockStateProvider(Blocks::CRIMSON_ROOTS->getDefaultState()),
+        .stateProvider = new SimpleBlockStateProvider(States::CRIMSON_ROOTS),
         .blockPlacer = new SimpleBlockPlacer(),
         .tries = 64,
         .project = false
     };
     static BlockClusterFeatureConfig PATCH_SUNFLOWER_CONFIG {
-        .stateProvider = new SimpleBlockStateProvider(Blocks::SUNFLOWER->getDefaultState()),
+        .stateProvider = new SimpleBlockStateProvider(States::SUNFLOWER),
         .blockPlacer = new DoublePlantBlockPlacer(),
         .tries = 64,
         .project = false
     };
     static BlockClusterFeatureConfig PATCH_MELON_CONFIG {
         .whitelist = {Blocks::GRASS_BLOCK},
-        .stateProvider = new SimpleBlockStateProvider(Blocks::MELON->getDefaultState()),
+        .stateProvider = new SimpleBlockStateProvider(States::MELON),
         .blockPlacer = new SimpleBlockPlacer(),
         .tries = 64,
         .can_replace = true,
         .project = false
     };
     static BlockClusterFeatureConfig PATCH_WATERLILLY_CONFIG {
-        .stateProvider = new SimpleBlockStateProvider(Blocks::LILY_PAD->getDefaultState()),
+        .stateProvider = new SimpleBlockStateProvider(States::LILY_PAD),
         .blockPlacer = new SimpleBlockPlacer(),
         .tries = 10
     };
     static BlockClusterFeatureConfig PATCH_PUMKIN_CONFIG {
         .whitelist = {Blocks::GRASS_BLOCK},
-        .stateProvider = new SimpleBlockStateProvider(Blocks::PUMPKIN->getDefaultState()),
+        .stateProvider = new SimpleBlockStateProvider(States::PUMPKIN),
         .blockPlacer = new SimpleBlockPlacer(),
         .tries = 64,
         .can_replace = true,
         .project = false
     };
     static BigMushroomFeatureConfig HUGE_BROWN_MUSHROOM_CONFIG {
-        .capProvider = new SimpleBlockStateProvider(Blocks::BROWN_MUSHROOM_BLOCK->getDefaultState().set<HugeMushroomBlock::UP>(true).set<HugeMushroomBlock::DOWN>(false)),
-        .stemProvider = new SimpleBlockStateProvider(Blocks::MUSHROOM_STEM->getDefaultState().set<HugeMushroomBlock::UP>(false).set<HugeMushroomBlock::DOWN>(false)),
+        .capProvider = new SimpleBlockStateProvider(States::BROWN_MUSHROOM_BLOCK.set<HugeMushroomBlock::UP>(true).set<HugeMushroomBlock::DOWN>(false)),
+        .stemProvider = new SimpleBlockStateProvider(States::MUSHROOM_STEM.set<HugeMushroomBlock::UP>(false).set<HugeMushroomBlock::DOWN>(false)),
         .foliageRadius = 3
     };
     static BigMushroomFeatureConfig HUGE_RED_MUSHROOM_CONFIG {
-        .capProvider = new SimpleBlockStateProvider(Blocks::RED_MUSHROOM_BLOCK->getDefaultState().set<HugeMushroomBlock::UP>(true).set<HugeMushroomBlock::DOWN>(false)),
-        .stemProvider = new SimpleBlockStateProvider(Blocks::MUSHROOM_STEM->getDefaultState().set<HugeMushroomBlock::UP>(false).set<HugeMushroomBlock::DOWN>(false)),
+        .capProvider = new SimpleBlockStateProvider(States::RED_MUSHROOM_BLOCK.set<HugeMushroomBlock::UP>(true).set<HugeMushroomBlock::DOWN>(false)),
+        .stemProvider = new SimpleBlockStateProvider(States::MUSHROOM_STEM.set<HugeMushroomBlock::UP>(false).set<HugeMushroomBlock::DOWN>(false)),
         .foliageRadius = 2
     };
     static BlockStateFeatureConfig LAKE_WATER_CONFIG {
-        .state = Blocks::WATER->getDefaultState()
+        .state = States::WATER
     };
     static BlockStateFeatureConfig LAKE_LAVA_CONFIG {
-        .state = Blocks::LAVA->getDefaultState()
+        .state = States::LAVA
     };
     static BaseTreeFeatureConfig OAK_CONFIG {
-        .trunkProvider = new SimpleBlockStateProvider(Blocks::OAK_LOG->getDefaultState()),
-        .leavesProvider = new SimpleBlockStateProvider(Blocks::OAK_LEAVES->getDefaultState()),
+        .trunkProvider = new SimpleBlockStateProvider(States::OAK_LOG),
+        .leavesProvider = new SimpleBlockStateProvider(States::OAK_LEAVES),
         .foliagePlacer = new BlobFoliagePlacer(FeatureSpread{2, 0}, FeatureSpread{0, 0}, 3),
         .trunkPlacer = new StraightTrunkPlacer(4, 2, 0),
         .minimumSize = TwoLayerFeature{1, 0, 1, std::nullopt},
         .ignoreVines = true
     };
     static BaseTreeFeatureConfig DARK_OAK_CONFIG {
-        .trunkProvider = new SimpleBlockStateProvider(Blocks::DARK_OAK_LOG->getDefaultState()),
-        .leavesProvider = new SimpleBlockStateProvider(Blocks::DARK_OAK_LEAVES->getDefaultState()),
+        .trunkProvider = new SimpleBlockStateProvider(States::DARK_OAK_LOG),
+        .leavesProvider = new SimpleBlockStateProvider(States::DARK_OAK_LEAVES),
         .foliagePlacer = new DarkOakFoliagePlacer(FeatureSpread{0, 0}, FeatureSpread{0, 0}),
         .trunkPlacer = new DarkOakTrunkPlacer(6, 2, 1),
         .minimumSize = ThreeLayerFeature{1, 1, 0, 1, 2, std::nullopt},
@@ -449,40 +450,40 @@ void ConfiguredFeatures::init() {
         .heightmap = HeightmapType::MOTION_BLOCKING
     };
     static BaseTreeFeatureConfig BIRCH_CONFIG {
-        .trunkProvider = new SimpleBlockStateProvider(Blocks::BIRCH_LOG->getDefaultState()),
-        .leavesProvider = new SimpleBlockStateProvider(Blocks::BIRCH_LEAVES->getDefaultState()),
+        .trunkProvider = new SimpleBlockStateProvider(States::BIRCH_LOG),
+        .leavesProvider = new SimpleBlockStateProvider(States::BIRCH_LEAVES),
         .foliagePlacer = new BlobFoliagePlacer(FeatureSpread{2, 0}, FeatureSpread{0, 0}, 3),
         .trunkPlacer = new StraightTrunkPlacer(5, 2, 0),
         .minimumSize = TwoLayerFeature{1, 0, 1, std::nullopt},
         .ignoreVines = true
     };
     static BaseTreeFeatureConfig ACACIA_CONFIG {
-        .trunkProvider = new SimpleBlockStateProvider(Blocks::ACACIA_LOG->getDefaultState()),
-        .leavesProvider = new SimpleBlockStateProvider(Blocks::ACACIA_LEAVES->getDefaultState()),
+        .trunkProvider = new SimpleBlockStateProvider(States::ACACIA_LOG),
+        .leavesProvider = new SimpleBlockStateProvider(States::ACACIA_LEAVES),
         .foliagePlacer = new AcaciaFoliagePlacer(FeatureSpread{2, 0}, FeatureSpread{0, 0}),
         .trunkPlacer = new ForkyTrunkPlacer(5, 2, 2),
         .minimumSize = TwoLayerFeature{1, 0, 2, std::nullopt},
         .ignoreVines = true,
     };
     static BaseTreeFeatureConfig SPRUCE_CONFIG {
-        .trunkProvider = new SimpleBlockStateProvider(Blocks::SPRUCE_LOG->getDefaultState()),
-        .leavesProvider = new SimpleBlockStateProvider(Blocks::SPRUCE_LEAVES->getDefaultState()),
+        .trunkProvider = new SimpleBlockStateProvider(States::SPRUCE_LOG),
+        .leavesProvider = new SimpleBlockStateProvider(States::SPRUCE_LEAVES),
         .foliagePlacer = new SpruceFoliagePlacer(FeatureSpread{2, 1}, FeatureSpread{0, 2}, FeatureSpread{1, 1}),
         .trunkPlacer = new StraightTrunkPlacer(5, 2, 1),
         .minimumSize = TwoLayerFeature{2, 0, 2, std::nullopt},
         .ignoreVines = true,
     };
     static BaseTreeFeatureConfig PINE_CONFIG {
-        .trunkProvider = new SimpleBlockStateProvider(Blocks::SPRUCE_LOG->getDefaultState()),
-        .leavesProvider = new SimpleBlockStateProvider(Blocks::SPRUCE_LEAVES->getDefaultState()),
+        .trunkProvider = new SimpleBlockStateProvider(States::SPRUCE_LOG),
+        .leavesProvider = new SimpleBlockStateProvider(States::SPRUCE_LEAVES),
         .foliagePlacer = new PineFoliagePlacer(FeatureSpread{1, 0}, FeatureSpread{1, 0}, FeatureSpread{3, 1}),
         .trunkPlacer = new StraightTrunkPlacer(6, 4, 0),
         .minimumSize = TwoLayerFeature{2, 0, 2, std::nullopt},
         .ignoreVines = true,
     };
     static BaseTreeFeatureConfig JUNGLE_TREE_CONFIG {
-        .trunkProvider = new SimpleBlockStateProvider(Blocks::JUNGLE_LOG->getDefaultState()),
-        .leavesProvider = new SimpleBlockStateProvider(Blocks::JUNGLE_LEAVES->getDefaultState()),
+        .trunkProvider = new SimpleBlockStateProvider(States::JUNGLE_LOG),
+        .leavesProvider = new SimpleBlockStateProvider(States::JUNGLE_LEAVES),
         .decorators {
             new CocoaTreeDecorator(0.2F),
             new TrunkVineTreeDecorator(),
@@ -495,8 +496,8 @@ void ConfiguredFeatures::init() {
     };
 
     static BaseTreeFeatureConfig FANCY_OAK_CONFIG {
-        .trunkProvider = new SimpleBlockStateProvider(Blocks::OAK_LOG->getDefaultState()),
-        .leavesProvider = new SimpleBlockStateProvider(Blocks::OAK_LEAVES->getDefaultState()),
+        .trunkProvider = new SimpleBlockStateProvider(States::OAK_LOG),
+        .leavesProvider = new SimpleBlockStateProvider(States::OAK_LEAVES),
         .foliagePlacer = new FancyFoliagePlacer(FeatureSpread{2, 0}, FeatureSpread{4, 0}, 4),
         .trunkPlacer = new FancyTrunkPlacer(3, 11, 0),
         .minimumSize = TwoLayerFeature{0, 0, 0, 4},
@@ -505,8 +506,8 @@ void ConfiguredFeatures::init() {
     };
 
     static BaseTreeFeatureConfig JUNGLE_TREE_NO_VINE_CONFIG {
-        .trunkProvider = new SimpleBlockStateProvider(Blocks::JUNGLE_LOG->getDefaultState()),
-        .leavesProvider = new SimpleBlockStateProvider(Blocks::JUNGLE_LEAVES->getDefaultState()),
+        .trunkProvider = new SimpleBlockStateProvider(States::JUNGLE_LOG),
+        .leavesProvider = new SimpleBlockStateProvider(States::JUNGLE_LEAVES),
         .foliagePlacer = new BlobFoliagePlacer(FeatureSpread{2, 0}, FeatureSpread{0, 0}, 3),
         .trunkPlacer = new StraightTrunkPlacer(4, 8, 0),
         .minimumSize = TwoLayerFeature{1, 0, 1, std::nullopt},
@@ -514,8 +515,8 @@ void ConfiguredFeatures::init() {
     };
 
     static BaseTreeFeatureConfig MEGA_JUNGLE_TREE_CONFIG {
-        .trunkProvider = new SimpleBlockStateProvider(Blocks::JUNGLE_LOG->getDefaultState()),
-        .leavesProvider = new SimpleBlockStateProvider(Blocks::JUNGLE_LEAVES->getDefaultState()),
+        .trunkProvider = new SimpleBlockStateProvider(States::JUNGLE_LOG),
+        .leavesProvider = new SimpleBlockStateProvider(States::JUNGLE_LEAVES),
         .decorators {
             new TrunkVineTreeDecorator(),
             new LeaveVineTreeDecorator()
@@ -526,10 +527,10 @@ void ConfiguredFeatures::init() {
     };
 
     static BaseTreeFeatureConfig MEGA_SPRUCE_CONFIG {
-        .trunkProvider = new SimpleBlockStateProvider(Blocks::SPRUCE_LOG->getDefaultState()),
-        .leavesProvider = new SimpleBlockStateProvider(Blocks::SPRUCE_LEAVES->getDefaultState()),
+        .trunkProvider = new SimpleBlockStateProvider(States::SPRUCE_LOG),
+        .leavesProvider = new SimpleBlockStateProvider(States::SPRUCE_LEAVES),
         .decorators {
-            new AlterGroundTreeDecorator(new SimpleBlockStateProvider(Blocks::PODZOL->getDefaultState()))
+            new AlterGroundTreeDecorator(new SimpleBlockStateProvider(States::PODZOL))
         },
         .foliagePlacer = new MegaPineFoliagePlacer(FeatureSpread{0, 0}, FeatureSpread{0, 0}, FeatureSpread{13, 4}),
         .trunkPlacer = new GiantTrunkPlacer(13, 2, 14),
@@ -537,10 +538,10 @@ void ConfiguredFeatures::init() {
     };
 
     static BaseTreeFeatureConfig MEGA_PINE_CONFIG {
-        .trunkProvider = new SimpleBlockStateProvider(Blocks::SPRUCE_LOG->getDefaultState()),
-        .leavesProvider = new SimpleBlockStateProvider(Blocks::SPRUCE_LEAVES->getDefaultState()),
+        .trunkProvider = new SimpleBlockStateProvider(States::SPRUCE_LOG),
+        .leavesProvider = new SimpleBlockStateProvider(States::SPRUCE_LEAVES),
         .decorators {
-            new AlterGroundTreeDecorator(new SimpleBlockStateProvider(Blocks::PODZOL->getDefaultState()))
+            new AlterGroundTreeDecorator(new SimpleBlockStateProvider(States::PODZOL))
         },
         .foliagePlacer = new MegaPineFoliagePlacer(FeatureSpread{0, 0}, FeatureSpread{0, 0}, FeatureSpread{3, 4}),
         .trunkPlacer = new GiantTrunkPlacer(13, 2, 14),
@@ -548,8 +549,8 @@ void ConfiguredFeatures::init() {
     };
 
     static BaseTreeFeatureConfig SUPER_BIRCH_BEES_0002_CONFIG {
-        .trunkProvider = new SimpleBlockStateProvider(Blocks::BIRCH_LOG->getDefaultState()),
-        .leavesProvider = new SimpleBlockStateProvider(Blocks::BIRCH_LEAVES->getDefaultState()),
+        .trunkProvider = new SimpleBlockStateProvider(States::BIRCH_LOG),
+        .leavesProvider = new SimpleBlockStateProvider(States::BIRCH_LEAVES),
         .decorators {
             BEES_0002_PLACEMENT
         },
@@ -560,8 +561,8 @@ void ConfiguredFeatures::init() {
     };
 
     static BaseTreeFeatureConfig SWAMP_TREE_CONFIG {
-        .trunkProvider = new SimpleBlockStateProvider(Blocks::OAK_LOG->getDefaultState()),
-        .leavesProvider = new SimpleBlockStateProvider(Blocks::OAK_LEAVES->getDefaultState()),
+        .trunkProvider = new SimpleBlockStateProvider(States::OAK_LOG),
+        .leavesProvider = new SimpleBlockStateProvider(States::OAK_LEAVES),
         .decorators {
             new LeaveVineTreeDecorator()
         },
@@ -573,8 +574,8 @@ void ConfiguredFeatures::init() {
     };
 
     static BaseTreeFeatureConfig JUNGLE_BUSH_CONFIG {
-        .trunkProvider = new SimpleBlockStateProvider(Blocks::JUNGLE_LOG->getDefaultState()),
-        .leavesProvider = new SimpleBlockStateProvider(Blocks::JUNGLE_LEAVES->getDefaultState()),
+        .trunkProvider = new SimpleBlockStateProvider(States::JUNGLE_LOG),
+        .leavesProvider = new SimpleBlockStateProvider(States::JUNGLE_LEAVES),
         .foliagePlacer = new BushFoliagePlacer(FeatureSpread{2, 0}, FeatureSpread{1, 0}, 2),
         .trunkPlacer = new StraightTrunkPlacer(1, 0, 0),
         .minimumSize = TwoLayerFeature{0, 0, 0, std::nullopt},
@@ -586,26 +587,26 @@ void ConfiguredFeatures::init() {
     };
 
     static BlockStateProvidingFeatureConfig PILE_MELON_CONFIG {
-        .stateProvider = new SimpleBlockStateProvider(Blocks::MELON->getDefaultState())
+        .stateProvider = new SimpleBlockStateProvider(States::MELON)
     };
 
     static BlockStateProvidingFeatureConfig PILE_SNOW_CONFIG {
-        .stateProvider = new SimpleBlockStateProvider(Blocks::SNOW->getDefaultState())
+        .stateProvider = new SimpleBlockStateProvider(States::SNOW)
     };
 
     static BlockStateProvidingFeatureConfig PILE_ICE_CONFIG {
         .stateProvider = new WeightedBlockStateProvider(WeightedList<BlockData>()
-            .add(Blocks::BLUE_ICE->getDefaultState(), 1)
-            .add(Blocks::PACKED_ICE->getDefaultState(), 5))
+            .add(States::BLUE_ICE, 1)
+            .add(States::PACKED_ICE, 5))
     };
     static BlockStateProvidingFeatureConfig PILE_PUMPKIN_CONFIG {
         .stateProvider = new WeightedBlockStateProvider(WeightedList<BlockData>()
-            .add(Blocks::PUMPKIN->getDefaultState(), 19)
-            .add(Blocks::JACK_O_LANTERN->getDefaultState(), 1))
+            .add(States::PUMPKIN, 19)
+            .add(States::JACK_O_LANTERN, 1))
     };
     static BlockClusterFeatureConfig PATCH_FIRE_CONFIG {
         .whitelist = {Blocks::NETHERRACK},
-        .stateProvider = new SimpleBlockStateProvider(Blocks::FIRE->getDefaultState()),
+        .stateProvider = new SimpleBlockStateProvider(States::FIRE),
         .blockPlacer = new SimpleBlockPlacer(),
         .tries = 64,
         .project = false
@@ -613,39 +614,39 @@ void ConfiguredFeatures::init() {
 
     static BlockClusterFeatureConfig PATCH_SOUL_FIRE_CONFIG {
         .whitelist = {Blocks::SOUL_SOIL},
-        .stateProvider = new SimpleBlockStateProvider(Blocks::SOUL_FIRE->getDefaultState()),
+        .stateProvider = new SimpleBlockStateProvider(States::SOUL_FIRE),
         .blockPlacer = new SimpleBlockPlacer(),
         .tries = 64,
         .project = false
     };
 
     static HugeFungusConfig CRIMSON_FUNGI_PLANTED_CONFIG{
-        Blocks::CRIMSON_NYLIUM->getDefaultState(),
-        Blocks::CRIMSON_STEM->getDefaultState(),
-        Blocks::NETHER_WART_BLOCK->getDefaultState(),
-        Blocks::SHROOMLIGHT->getDefaultState(),
+        States::CRIMSON_NYLIUM,
+        States::CRIMSON_STEM,
+        States::NETHER_WART_BLOCK,
+        States::SHROOMLIGHT,
         true
     };
     static HugeFungusConfig CRIMSON_FUNGI_CONFIG{
-        Blocks::CRIMSON_NYLIUM->getDefaultState(),
-        Blocks::CRIMSON_STEM->getDefaultState(),
-        Blocks::NETHER_WART_BLOCK->getDefaultState(),
-        Blocks::SHROOMLIGHT->getDefaultState(),
+        States::CRIMSON_NYLIUM,
+        States::CRIMSON_STEM,
+        States::NETHER_WART_BLOCK,
+        States::SHROOMLIGHT,
         false
     };
 
     static HugeFungusConfig WARPED_FUNGI_PLANTED_CONFIG{
-        Blocks::WARPED_NYLIUM->getDefaultState(),
-        Blocks::WARPED_STEM->getDefaultState(),
-        Blocks::WARPED_WART_BLOCK->getDefaultState(),
-        Blocks::SHROOMLIGHT->getDefaultState(),
+        States::WARPED_NYLIUM,
+        States::WARPED_STEM,
+        States::WARPED_WART_BLOCK,
+        States::SHROOMLIGHT,
         true
     };
     static HugeFungusConfig WARPED_FUNGI_CONFIG{
-        Blocks::WARPED_NYLIUM->getDefaultState(),
-        Blocks::WARPED_STEM->getDefaultState(),
-        Blocks::WARPED_WART_BLOCK->getDefaultState(),
-        Blocks::SHROOMLIGHT->getDefaultState(),
+        States::WARPED_NYLIUM,
+        States::WARPED_STEM,
+        States::WARPED_WART_BLOCK,
+        States::SHROOMLIGHT,
         false
     };
 
@@ -659,11 +660,11 @@ void ConfiguredFeatures::init() {
     CHORUS_PLANT = registerFeature("chorus_plant", Features::CHORUS_PLANT->withConfiguration(NoFeatureConfig{})->withPlacement(HEIGHTMAP_PLACEMENT)->func_242732_c(4));
     END_ISLAND = registerFeature("end_island", Features::END_ISLAND->withConfiguration(NoFeatureConfig{}));
     END_ISLAND_DECORATED = registerFeature("end_island_decorated", END_ISLAND->withPlacement(Placements::END_ISLAND->withConfiguration(NoPlacementConfig{})));
-    DELTA = registerFeature("delta", Features::DELTA_FEATURE->withConfiguration(BasaltDeltasFeature{Blocks::LAVA->getDefaultState(), Blocks::MAGMA_BLOCK->getDefaultState(), FeatureSpread{3, 4}, FeatureSpread{0, 2}})->withPlacement(Placements::COUNT_MULTILAYER->withConfiguration(FeatureSpreadConfig::create(40))));
+    DELTA = registerFeature("delta", Features::DELTA_FEATURE->withConfiguration(BasaltDeltasFeature{States::LAVA, States::MAGMA_BLOCK, FeatureSpread{3, 4}, FeatureSpread{0, 2}})->withPlacement(Placements::COUNT_MULTILAYER->withConfiguration(FeatureSpreadConfig::create(40))));
     SMALL_BASALT_COLUMNS = registerFeature("small_basalt_columns", Features::BASALT_COLUMNS->withConfiguration(ColumnConfig{FeatureSpread{1}, FeatureSpread{1, 3}})->withPlacement(Placements::COUNT_MULTILAYER->withConfiguration(FeatureSpreadConfig::create(4))));
     LARGE_BASALT_COLUMNS = registerFeature("large_basalt_columns", Features::BASALT_COLUMNS->withConfiguration(ColumnConfig{FeatureSpread{2, 1}, FeatureSpread{5, 5}})->withPlacement(Placements::COUNT_MULTILAYER->withConfiguration(FeatureSpreadConfig::create(2))));
-    BASALT_BLOBS = registerFeature("basalt_blobs", Features::NETHERRACK_REPLACE_BLOBS->withConfiguration(BlobReplacementConfig{Blocks::NETHERRACK->getDefaultState(), Blocks::BASALT->getDefaultState(), FeatureSpread{3, 4}})->range(128)->square()->withSpreadPlacement(75));
-    BLACKSTONE_BLOBS = registerFeature("blackstone_blobs", Features::NETHERRACK_REPLACE_BLOBS->withConfiguration(BlobReplacementConfig{Blocks::NETHERRACK->getDefaultState(), Blocks::BLACKSTONE->getDefaultState(), FeatureSpread{3, 4}})->range(128)->square()->withSpreadPlacement(25));
+    BASALT_BLOBS = registerFeature("basalt_blobs", Features::NETHERRACK_REPLACE_BLOBS->withConfiguration(BlobReplacementConfig{States::NETHERRACK, States::BASALT, FeatureSpread{3, 4}})->range(128)->square()->withSpreadPlacement(75));
+    BLACKSTONE_BLOBS = registerFeature("blackstone_blobs", Features::NETHERRACK_REPLACE_BLOBS->withConfiguration(BlobReplacementConfig{States::NETHERRACK, States::BLACKSTONE, FeatureSpread{3, 4}})->range(128)->square()->withSpreadPlacement(25));
     GLOWSTONE_EXTRA = registerFeature("glowstone_extra", Features::GLOWSTONE_BLOB->withConfiguration(NoFeatureConfig{})->withPlacement(Placements::GLOWSTONE->withConfiguration(FeatureSpreadConfig::create(10))));
     GLOWSTONE = registerFeature("glowstone", Features::GLOWSTONE_BLOB->withConfiguration(NoFeatureConfig{})->range(128)->square()->withSpreadPlacement(10));
     CRIMSON_FOREST_VEGETATION = registerFeature("crimson_forest_vegetation", Features::NETHER_FOREST_VEGETATION->withConfiguration(CRIMSON_FOREST_VEGETATION_CONFIG)->withPlacement(Placements::COUNT_MULTILAYER->withConfiguration(FeatureSpreadConfig::create(6))));
@@ -682,11 +683,11 @@ void ConfiguredFeatures::init() {
     SEAGRASS_DEEP_WARM = registerFeature("seagrass_deep_warm", Features::SEAGRASS->withConfiguration(ProbabilityConfig{0.8F})->withSpreadPlacement(80)->withPlacement(DISK_PLACEMENT));
     SEA_PICKLE = registerFeature("sea_pickle", Features::SEA_PICKLE->withConfiguration(FeatureSpreadConfig::create(20))->withPlacement(DISK_PLACEMENT)->chance(16));
     ICE_SPIKE = registerFeature("ice_spike", Features::ICE_SPIKE->withConfiguration(NoFeatureConfig{})->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(3));
-    ICE_PATCH = registerFeature("ice_patch", Features::ICE_PATCH->withConfiguration(SphereReplaceConfig{Blocks::PACKED_ICE->getDefaultState(), FeatureSpread{2, 1}, 1, {Blocks::DIRT->getDefaultState(), Blocks::GRASS_BLOCK->getDefaultState(), Blocks::PODZOL->getDefaultState(), Blocks::COARSE_DIRT->getDefaultState(), Blocks::MYCELIUM->getDefaultState(), Blocks::SNOW_BLOCK->getDefaultState(), Blocks::ICE->getDefaultState()}})->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(2));
-    FOREST_ROCK = registerFeature("forest_rock", Features::FOREST_ROCK->withConfiguration(BlockStateFeatureConfig{Blocks::MOSSY_COBBLESTONE->getDefaultState()})->withPlacement(HEIGHTMAP_PLACEMENT)->func_242732_c(2));
-    SEAGRASS_SIMPLE = registerFeature("seagrass_simple", Features::SIMPLE_BLOCK->withConfiguration(BlockWithContextConfig{Blocks::SEAGRASS->getDefaultState(), {Blocks::STONE->getDefaultState()}, {Blocks::WATER->getDefaultState()}, {Blocks::WATER->getDefaultState()}})->withPlacement(Placements::CARVING_MASK->withConfiguration(CaveEdgeConfig{GenerationStage::Carving::LIQUID, 0.1F})));
-    ICEBERG_PACKED = registerFeature("iceberg_packed", Features::ICEBERG->withConfiguration(BlockStateFeatureConfig{Blocks::PACKED_ICE->getDefaultState()})->withPlacement(Placements::ICEBERG->withConfiguration(NoPlacementConfig{}))->chance(16));
-    ICEBERG_BLUE = registerFeature("iceberg_blue", Features::ICEBERG->withConfiguration(BlockStateFeatureConfig{Blocks::BLUE_ICE->getDefaultState()})->withPlacement(Placements::ICEBERG->withConfiguration(NoPlacementConfig{}))->chance(200));
+    ICE_PATCH = registerFeature("ice_patch", Features::ICE_PATCH->withConfiguration(SphereReplaceConfig{States::PACKED_ICE, FeatureSpread{2, 1}, 1, {States::DIRT, States::GRASS_BLOCK, States::PODZOL, States::COARSE_DIRT, States::MYCELIUM, States::SNOW_BLOCK, States::ICE}})->withPlacement(HEIGHTMAP_PLACEMENT)->withSpreadPlacement(2));
+    FOREST_ROCK = registerFeature("forest_rock", Features::FOREST_ROCK->withConfiguration(BlockStateFeatureConfig{States::MOSSY_COBBLESTONE})->withPlacement(HEIGHTMAP_PLACEMENT)->func_242732_c(2));
+    SEAGRASS_SIMPLE = registerFeature("seagrass_simple", Features::SIMPLE_BLOCK->withConfiguration(BlockWithContextConfig{States::SEAGRASS, {States::STONE}, {States::WATER}, {States::WATER}})->withPlacement(Placements::CARVING_MASK->withConfiguration(CaveEdgeConfig{GenerationStage::Carving::LIQUID, 0.1F})));
+    ICEBERG_PACKED = registerFeature("iceberg_packed", Features::ICEBERG->withConfiguration(BlockStateFeatureConfig{States::PACKED_ICE})->withPlacement(Placements::ICEBERG->withConfiguration(NoPlacementConfig{}))->chance(16));
+    ICEBERG_BLUE = registerFeature("iceberg_blue", Features::ICEBERG->withConfiguration(BlockStateFeatureConfig{States::BLUE_ICE})->withPlacement(Placements::ICEBERG->withConfiguration(NoPlacementConfig{}))->chance(200));
     KELP_COLD = registerFeature("kelp_cold", Features::KELP->withConfiguration(NoFeatureConfig{})->withPlacement(TOP_SOLID_PLACEMENT)->square()->withPlacement(Placements::COUNT_NOISE_BIASED->withConfiguration(TopSolidWithNoiseConfig{120, 80.0, 0.0})));
     KELP_WARM = registerFeature("kelp_warm", Features::KELP->withConfiguration(NoFeatureConfig{})->withPlacement(TOP_SOLID_PLACEMENT)->square()->withPlacement(Placements::COUNT_NOISE_BIASED->withConfiguration(TopSolidWithNoiseConfig{80, 80.0, 0.0})));
     BLUE_ICE = registerFeature("blue_ice", Features::BLUE_ICE->withConfiguration(NoFeatureConfig{})->withPlacement(Placements::RANGE->withConfiguration(TopSolidRangeConfig{30, 32, 64}))->square()->func_242732_c(19));
@@ -695,9 +696,9 @@ void ConfiguredFeatures::init() {
     VINES = registerFeature("vines", Features::VINES->withConfiguration(NoFeatureConfig{})->square()->withSpreadPlacement(50));
     LAKE_WATER = registerFeature("lake_water", Features::LAKE->withConfiguration(LAKE_WATER_CONFIG)->withPlacement(Placements::WATER_LAKE->withConfiguration(ChanceConfig{4})));
     LAKE_LAVA = registerFeature("lake_lava", Features::LAKE->withConfiguration(LAKE_LAVA_CONFIG)->withPlacement(Placements::LAVA_LAKE->withConfiguration(ChanceConfig{80})));
-    DISK_CLAY = registerFeature("disk_clay", Features::DISK->withConfiguration(SphereReplaceConfig{Blocks::CLAY->getDefaultState(), FeatureSpread{2, 1}, 1, {Blocks::DIRT->getDefaultState(), Blocks::CLAY->getDefaultState()}})->withPlacement(DISK_PLACEMENT));
-    DISK_GRAVEL = registerFeature("disk_gravel", Features::DISK->withConfiguration(SphereReplaceConfig{Blocks::GRAVEL->getDefaultState(), FeatureSpread{2, 3}, 2, {Blocks::DIRT->getDefaultState(), Blocks::GRASS_BLOCK->getDefaultState()}})->withPlacement(DISK_PLACEMENT));
-    DISK_SAND = registerFeature("disk_sand", Features::DISK->withConfiguration(SphereReplaceConfig{Blocks::SAND->getDefaultState(), FeatureSpread{2, 4}, 2, {Blocks::DIRT->getDefaultState(), Blocks::GRASS_BLOCK->getDefaultState()}})->withPlacement(DISK_PLACEMENT)->withSpreadPlacement(3));
+    DISK_CLAY = registerFeature("disk_clay", Features::DISK->withConfiguration(SphereReplaceConfig{States::CLAY, FeatureSpread{2, 1}, 1, {States::DIRT, States::CLAY}})->withPlacement(DISK_PLACEMENT));
+    DISK_GRAVEL = registerFeature("disk_gravel", Features::DISK->withConfiguration(SphereReplaceConfig{States::GRAVEL, FeatureSpread{2, 3}, 2, {States::DIRT, States::GRASS_BLOCK}})->withPlacement(DISK_PLACEMENT));
+    DISK_SAND = registerFeature("disk_sand", Features::DISK->withConfiguration(SphereReplaceConfig{States::SAND, FeatureSpread{2, 4}, 2, {States::DIRT, States::GRASS_BLOCK}})->withPlacement(DISK_PLACEMENT)->withSpreadPlacement(3));
     FREEZE_TOP_LAYER = registerFeature("freeze_top_layer", Features::FREEZE_TOP_LAYER->withConfiguration(NoFeatureConfig{}));
     BONUS_CHEST = registerFeature("bonus_chest", Features::BONUS_CHEST->withConfiguration(NoFeatureConfig{}));
     VOID_START_PLATFORM = registerFeature("void_start_platform", Features::VOID_START_PLATFORM->withConfiguration(NoFeatureConfig{}));
@@ -706,11 +707,11 @@ void ConfiguredFeatures::init() {
 	FOSSIL = registerFeature("fossil", Features::FOSSIL->withConfiguration(NoFeatureConfig{})->chance(64));
     SPRING_LAVA_DOUBLE = registerFeature("spring_lava_double", Features::SPRING_FEATURE->withConfiguration(LAVA_SPRING_CONFIG)->withPlacement(Placements::RANGE_VERY_BIASED->withConfiguration(TopSolidRangeConfig{8, 16, 256}))->square()->withSpreadPlacement(40));
     SPRING_LAVA = registerFeature("spring_lava", Features::SPRING_FEATURE->withConfiguration(LAVA_SPRING_CONFIG)->withPlacement(Placements::RANGE_VERY_BIASED->withConfiguration(TopSolidRangeConfig{8, 16, 256}))->square()->withSpreadPlacement(20));
-    SPRING_DELTA = registerFeature("spring_delta", Features::SPRING_FEATURE->withConfiguration(LiquidsConfig{Blocks::LAVA->getDefaultState(), true, 4, 1, { Blocks::NETHERRACK, Blocks::SOUL_SAND, Blocks::GRAVEL, Blocks::MAGMA_BLOCK, Blocks::BLACKSTONE}})->withPlacement(SPRING_PLACEMENT)->square()->withSpreadPlacement(16));
+    SPRING_DELTA = registerFeature("spring_delta", Features::SPRING_FEATURE->withConfiguration(LiquidsConfig{States::LAVA, true, 4, 1, { Blocks::NETHERRACK, Blocks::SOUL_SAND, Blocks::GRAVEL, Blocks::MAGMA_BLOCK, Blocks::BLACKSTONE}})->withPlacement(SPRING_PLACEMENT)->square()->withSpreadPlacement(16));
     SPRING_CLOSED = registerFeature("spring_closed", Features::SPRING_FEATURE->withConfiguration(CLOSED_SPRING_CONFIG)->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(16));
     SPRING_CLOSED_DOUBLE = registerFeature("spring_closed_double", Features::SPRING_FEATURE->withConfiguration(CLOSED_SPRING_CONFIG)->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(32));
-    SPRING_OPEN = registerFeature("spring_open", Features::SPRING_FEATURE->withConfiguration(LiquidsConfig{Blocks::LAVA->getDefaultState(), false, 4, 1, {Blocks::NETHERRACK}})->withPlacement(SPRING_PLACEMENT)->square()->withSpreadPlacement(8));
-    SPRING_WATER = registerFeature("spring_water", Features::SPRING_FEATURE->withConfiguration(LiquidsConfig{Blocks::WATER->getDefaultState(), true, 4, 1, {Blocks::STONE, Blocks::GRANITE, Blocks::DIORITE, Blocks::ANDESITE}})->withPlacement(Placements::RANGE_BIASED->withConfiguration(TopSolidRangeConfig{8, 8, 256}))->square()->withSpreadPlacement(50));
+    SPRING_OPEN = registerFeature("spring_open", Features::SPRING_FEATURE->withConfiguration(LiquidsConfig{States::LAVA, false, 4, 1, {Blocks::NETHERRACK}})->withPlacement(SPRING_PLACEMENT)->square()->withSpreadPlacement(8));
+    SPRING_WATER = registerFeature("spring_water", Features::SPRING_FEATURE->withConfiguration(LiquidsConfig{States::WATER, true, 4, 1, {Blocks::STONE, Blocks::GRANITE, Blocks::DIORITE, Blocks::ANDESITE}})->withPlacement(Placements::RANGE_BIASED->withConfiguration(TopSolidRangeConfig{8, 8, 256}))->square()->withSpreadPlacement(50));
     PILE_HAY = registerFeature("pile_hay", Features::BLOCK_PILE->withConfiguration(PILE_HAY_CONFIG));
     PILE_MELON = registerFeature("pile_melon", Features::BLOCK_PILE->withConfiguration(PILE_MELON_CONFIG));
     PILE_SNOW = registerFeature("pile_snow", Features::BLOCK_PILE->withConfiguration(PILE_SNOW_CONFIG));
@@ -760,30 +761,30 @@ void ConfiguredFeatures::init() {
     RED_MUSHROOM_GIANT = registerFeature("red_mushroom_giant", RED_MUSHROOM_TAIGA->withSpreadPlacement(3));
     BROWN_MUSHROOM_SWAMP = registerFeature("brown_mushroom_swamp", BROWN_MUSHROOM_TAIGA->withSpreadPlacement(8));
     RED_MUSHROOM_SWAMP = registerFeature("red_mushroom_swamp", RED_MUSHROOM_TAIGA->withSpreadPlacement(8));
-    ORE_MAGMA = registerFeature("ore_magma", Features::ORE->withConfiguration(OreFeatureConfig{NETHERRACK, Blocks::MAGMA_BLOCK->getDefaultState(), 33})->withPlacement(Placements::MAGMA->withConfiguration(NoPlacementConfig{}))->square()->withSpreadPlacement(4));
-    ORE_SOUL_SAND = registerFeature("ore_soul_sand", Features::ORE->withConfiguration(OreFeatureConfig{NETHERRACK, Blocks::SOUL_SAND->getDefaultState(), 12})->range(32)->square()->withSpreadPlacement(12));
-    ORE_GOLD_DELTAS = registerFeature("ore_gold_deltas", Features::ORE->withConfiguration(OreFeatureConfig{NETHERRACK, Blocks::NETHER_GOLD_ORE->getDefaultState(), 10})->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(20));
-    ORE_QUARTZ_DELTAS = registerFeature("ore_quartz_deltas", Features::ORE->withConfiguration(OreFeatureConfig{NETHERRACK, Blocks::NETHER_QUARTZ_ORE->getDefaultState(), 14})->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(32));
-    ORE_GOLD_NETHER = registerFeature("ore_gold_nether", Features::ORE->withConfiguration(OreFeatureConfig{NETHERRACK, Blocks::NETHER_GOLD_ORE->getDefaultState(), 10})->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(10));
-    ORE_QUARTZ_NETHER = registerFeature("ore_quartz_nether", Features::ORE->withConfiguration(OreFeatureConfig{NETHERRACK, Blocks::NETHER_QUARTZ_ORE->getDefaultState(), 14})->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(16));
-    ORE_GRAVEL_NETHER = registerFeature("ore_gravel_nether", Features::ORE->withConfiguration(OreFeatureConfig{NETHERRACK, Blocks::GRAVEL->getDefaultState(), 33})->withPlacement(Placements::RANGE->withConfiguration(TopSolidRangeConfig{5, 0, 37}))->square()->withSpreadPlacement(2));
-    ORE_BLACKSTONE = registerFeature("ore_blackstone", Features::ORE->withConfiguration(OreFeatureConfig{NETHERRACK, Blocks::BLACKSTONE->getDefaultState(), 33})->withPlacement(Placements::RANGE->withConfiguration(TopSolidRangeConfig{5, 10, 37}))->square()->withSpreadPlacement(2));
-    ORE_DIRT = registerFeature("ore_dirt", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::DIRT->getDefaultState(), 33})->range(256)->square()->withSpreadPlacement(10));
-    ORE_GRAVEL = registerFeature("ore_gravel", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::GRAVEL->getDefaultState(), 33})->range(256)->square()->withSpreadPlacement(8));
-    ORE_GRANITE = registerFeature("ore_granite", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::GRANITE->getDefaultState(), 33})->range(80)->square()->withSpreadPlacement(10));
-    ORE_DIORITE = registerFeature("ore_diorite", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::DIORITE->getDefaultState(), 33})->range(80)->square()->withSpreadPlacement(10));
-    ORE_ANDESITE = registerFeature("ore_andesite", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::ANDESITE->getDefaultState(), 33})->range(80)->square()->withSpreadPlacement(10));
-    ORE_COAL = registerFeature("ore_coal", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::COAL_ORE->getDefaultState(), 17})->range(128)->square()->withSpreadPlacement(20));
-    ORE_IRON = registerFeature("ore_iron", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::IRON_ORE->getDefaultState(), 9})->range(64)->square()->withSpreadPlacement(20));
-    ORE_GOLD_EXTRA = registerFeature("ore_gold_extra", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::GOLD_ORE->getDefaultState(), 9})->withPlacement(Placements::RANGE->withConfiguration(TopSolidRangeConfig{32, 32, 80}))->square()->withSpreadPlacement(20));
-    ORE_GOLD = registerFeature("ore_gold", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::GOLD_ORE->getDefaultState(), 9})->range(32)->square()->withSpreadPlacement(2));
-    ORE_REDSTONE = registerFeature("ore_redstone", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::REDSTONE_ORE->getDefaultState(), 8})->range(16)->square()->withSpreadPlacement(8));
-    ORE_DIAMOND = registerFeature("ore_diamond", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::DIAMOND_ORE->getDefaultState(), 8})->range(16)->square());
-    ORE_LAPIS = registerFeature("ore_lapis", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::LAPIS_ORE->getDefaultState(), 7})->withPlacement(Placements::DEPTH_AVERAGE->withConfiguration(DepthAverageConfig{16, 16}))->square());
-    ORE_INFESTED = registerFeature("ore_infested", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, Blocks::INFESTED_STONE->getDefaultState(), 9})->range(64)->square()->withSpreadPlacement(7));
-    ORE_EMERALD = registerFeature("ore_emerald", Features::EMERALD_ORE->withConfiguration(ReplaceBlockConfig{Blocks::STONE->getDefaultState(), Blocks::EMERALD_ORE->getDefaultState()})->withPlacement(Placements::EMERALD_ORE->withConfiguration(NoPlacementConfig{})));
-    ORE_DEBRIS_LARGE = registerFeature("ore_debris_large", Features::NO_SURFACE_ORE->withConfiguration(OreFeatureConfig{BASE_STONE_NETHER, Blocks::ANCIENT_DEBRIS->getDefaultState(), 3})->withPlacement(Placements::DEPTH_AVERAGE->withConfiguration(DepthAverageConfig{16, 8}))->square());
-    ORE_DEBRIS_SMALL = registerFeature("ore_debris_small", Features::NO_SURFACE_ORE->withConfiguration(OreFeatureConfig{BASE_STONE_NETHER, Blocks::ANCIENT_DEBRIS->getDefaultState(), 2})->withPlacement(Placements::RANGE->withConfiguration(TopSolidRangeConfig{8, 16, 128}))->square());
+    ORE_MAGMA = registerFeature("ore_magma", Features::ORE->withConfiguration(OreFeatureConfig{NETHERRACK, States::MAGMA_BLOCK, 33})->withPlacement(Placements::MAGMA->withConfiguration(NoPlacementConfig{}))->square()->withSpreadPlacement(4));
+    ORE_SOUL_SAND = registerFeature("ore_soul_sand", Features::ORE->withConfiguration(OreFeatureConfig{NETHERRACK, States::SOUL_SAND, 12})->range(32)->square()->withSpreadPlacement(12));
+    ORE_GOLD_DELTAS = registerFeature("ore_gold_deltas", Features::ORE->withConfiguration(OreFeatureConfig{NETHERRACK, States::NETHER_GOLD_ORE, 10})->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(20));
+    ORE_QUARTZ_DELTAS = registerFeature("ore_quartz_deltas", Features::ORE->withConfiguration(OreFeatureConfig{NETHERRACK, States::NETHER_QUARTZ_ORE, 14})->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(32));
+    ORE_GOLD_NETHER = registerFeature("ore_gold_nether", Features::ORE->withConfiguration(OreFeatureConfig{NETHERRACK, States::NETHER_GOLD_ORE, 10})->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(10));
+    ORE_QUARTZ_NETHER = registerFeature("ore_quartz_nether", Features::ORE->withConfiguration(OreFeatureConfig{NETHERRACK, States::NETHER_QUARTZ_ORE, 14})->withPlacement(SPRING_CLOSED_PLACEMENT)->square()->withSpreadPlacement(16));
+    ORE_GRAVEL_NETHER = registerFeature("ore_gravel_nether", Features::ORE->withConfiguration(OreFeatureConfig{NETHERRACK, States::GRAVEL, 33})->withPlacement(Placements::RANGE->withConfiguration(TopSolidRangeConfig{5, 0, 37}))->square()->withSpreadPlacement(2));
+    ORE_BLACKSTONE = registerFeature("ore_blackstone", Features::ORE->withConfiguration(OreFeatureConfig{NETHERRACK, States::BLACKSTONE, 33})->withPlacement(Placements::RANGE->withConfiguration(TopSolidRangeConfig{5, 10, 37}))->square()->withSpreadPlacement(2));
+    ORE_DIRT = registerFeature("ore_dirt", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, States::DIRT, 33})->range(256)->square()->withSpreadPlacement(10));
+    ORE_GRAVEL = registerFeature("ore_gravel", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, States::GRAVEL, 33})->range(256)->square()->withSpreadPlacement(8));
+    ORE_GRANITE = registerFeature("ore_granite", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, States::GRANITE, 33})->range(80)->square()->withSpreadPlacement(10));
+    ORE_DIORITE = registerFeature("ore_diorite", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, States::DIORITE, 33})->range(80)->square()->withSpreadPlacement(10));
+    ORE_ANDESITE = registerFeature("ore_andesite", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, States::ANDESITE, 33})->range(80)->square()->withSpreadPlacement(10));
+    ORE_COAL = registerFeature("ore_coal", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, States::COAL_ORE, 17})->range(128)->square()->withSpreadPlacement(20));
+    ORE_IRON = registerFeature("ore_iron", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, States::IRON_ORE, 9})->range(64)->square()->withSpreadPlacement(20));
+    ORE_GOLD_EXTRA = registerFeature("ore_gold_extra", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, States::GOLD_ORE, 9})->withPlacement(Placements::RANGE->withConfiguration(TopSolidRangeConfig{32, 32, 80}))->square()->withSpreadPlacement(20));
+    ORE_GOLD = registerFeature("ore_gold", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, States::GOLD_ORE, 9})->range(32)->square()->withSpreadPlacement(2));
+    ORE_REDSTONE = registerFeature("ore_redstone", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, States::REDSTONE_ORE, 8})->range(16)->square()->withSpreadPlacement(8));
+    ORE_DIAMOND = registerFeature("ore_diamond", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, States::DIAMOND_ORE, 8})->range(16)->square());
+    ORE_LAPIS = registerFeature("ore_lapis", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, States::LAPIS_ORE, 7})->withPlacement(Placements::DEPTH_AVERAGE->withConfiguration(DepthAverageConfig{16, 16}))->square());
+    ORE_INFESTED = registerFeature("ore_infested", Features::ORE->withConfiguration(OreFeatureConfig{BASE_STONE_OVERWORLD, States::INFESTED_STONE, 9})->range(64)->square()->withSpreadPlacement(7));
+    ORE_EMERALD = registerFeature("ore_emerald", Features::EMERALD_ORE->withConfiguration(ReplaceBlockConfig{States::STONE, States::EMERALD_ORE})->withPlacement(Placements::EMERALD_ORE->withConfiguration(NoPlacementConfig{})));
+    ORE_DEBRIS_LARGE = registerFeature("ore_debris_large", Features::NO_SURFACE_ORE->withConfiguration(OreFeatureConfig{BASE_STONE_NETHER, States::ANCIENT_DEBRIS, 3})->withPlacement(Placements::DEPTH_AVERAGE->withConfiguration(DepthAverageConfig{16, 8}))->square());
+    ORE_DEBRIS_SMALL = registerFeature("ore_debris_small", Features::NO_SURFACE_ORE->withConfiguration(OreFeatureConfig{BASE_STONE_NETHER, States::ANCIENT_DEBRIS, 2})->withPlacement(Placements::RANGE->withConfiguration(TopSolidRangeConfig{8, 16, 128}))->square());
     CRIMSON_FUNGI = registerFeature("crimson_fungi", Features::HUGE_FUNGUS->withConfiguration(CRIMSON_FUNGI_CONFIG)->withPlacement(Placements::COUNT_MULTILAYER->withConfiguration(FeatureSpreadConfig::create(8))));
     CRIMSON_FUNGI_PLANTED = registerFeature("crimson_fungi_planted", Features::HUGE_FUNGUS->withConfiguration(CRIMSON_FUNGI_PLANTED_CONFIG));
     WARPED_FUNGI = registerFeature("warped_fungi", Features::HUGE_FUNGUS->withConfiguration(WARPED_FUNGI_CONFIG)->withPlacement(Placements::COUNT_MULTILAYER->withConfiguration(FeatureSpreadConfig::create(8))));
@@ -824,25 +825,25 @@ void ConfiguredFeatures::init() {
     FLOWER_PLAIN_DECORATED = registerFeature("flower_plain_decorated", FLOWER_PLAIN->withPlacement(VEGETATION_PLACEMENT)->withPlacement(FLOWER_TALL_GRASS_PLACEMENT)->square()->withPlacement(Placements::COUNT_NOISE->withConfiguration(NoiseDependantConfig{-0.8, 15, 4})));
     std::vector FOREST_FLOWER_VEGETATION_LIST {
         Features::RANDOM_PATCH->withConfiguration(BlockClusterFeatureConfig{
-            .stateProvider = new SimpleBlockStateProvider(Blocks::LILAC->getDefaultState()),
+            .stateProvider = new SimpleBlockStateProvider(States::LILAC),
             .blockPlacer = new DoublePlantBlockPlacer(),
             .tries = 64,
             .project = false,
         }),
         Features::RANDOM_PATCH->withConfiguration(BlockClusterFeatureConfig{
-            .stateProvider = new SimpleBlockStateProvider(Blocks::ROSE_BUSH->getDefaultState()),
+            .stateProvider = new SimpleBlockStateProvider(States::ROSE_BUSH),
             .blockPlacer = new DoublePlantBlockPlacer(),
             .tries = 64,
             .project = false,
         }),
         Features::RANDOM_PATCH->withConfiguration(BlockClusterFeatureConfig{
-            .stateProvider = new SimpleBlockStateProvider(Blocks::PEONY->getDefaultState()),
+            .stateProvider = new SimpleBlockStateProvider(States::PEONY),
             .blockPlacer = new DoublePlantBlockPlacer(),
             .tries = 64,
             .project = false,
         }),
         Features::NO_BONEMEAL_FLOWER->withConfiguration(BlockClusterFeatureConfig{
-            .stateProvider = new SimpleBlockStateProvider(Blocks::LILY_OF_THE_VALLEY->getDefaultState()),
+            .stateProvider = new SimpleBlockStateProvider(States::LILY_OF_THE_VALLEY),
             .blockPlacer = new SimpleBlockPlacer(),
             .tries = 64
         })

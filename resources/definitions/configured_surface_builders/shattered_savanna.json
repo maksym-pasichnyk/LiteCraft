@@ -1,4 +1,5 @@
 {
+    "name": "shattered_savanna",
     "type": "shattered_savanna",
     "config": {
         "top_material": "grass_block",

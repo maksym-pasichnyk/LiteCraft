@@ -1,4 +1,5 @@
 {
+    "name": "shipwreck_beached",
     "type": "shipwreck",
     "config": {
         "is_beached": true

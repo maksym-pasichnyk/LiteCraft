@@ -1,4 +1,5 @@
 {
+    "name": "grass",
     "type": "default",
     "config": {
         "top_material": "grass_block",

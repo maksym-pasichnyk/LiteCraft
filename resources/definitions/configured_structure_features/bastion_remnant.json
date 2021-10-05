@@ -1,4 +1,5 @@
 {
+    "name": "bastion_remnant",
     "type": "bastion_remnant",
     "config": {
         "pool": "bastion/starts",

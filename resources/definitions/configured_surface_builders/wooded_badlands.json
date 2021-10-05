@@ -1,4 +1,5 @@
 {
+    "name": "wooded_badlands",
     "type": "wooded_badlands",
     "config": {
         "top_material": "red_sand",

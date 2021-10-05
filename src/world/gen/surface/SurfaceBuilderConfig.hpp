@@ -1,8 +1,26 @@
 #pragma once
 
-#include "../../../block/BlockData.hpp"
+#include <block/BlockData.hpp>
 
 struct SurfaceBuilderConfig {
+    BlockData top;
+    BlockData mid;
+    BlockData underWater;
+
+    BlockData getTop() const {
+        return top;
+    }
+
+    BlockData getUnder() const {
+        return mid;
+    }
+
+    BlockData getUnderWaterMaterial() const {
+        return underWater;
+    }
+};
+
+struct SurfaceBuilderConfigs {
     static SurfaceBuilderConfig PODZOL_DIRT_GRAVEL_CONFIG;
     static SurfaceBuilderConfig GRAVEL_CONFIG;
     static SurfaceBuilderConfig GRASS_DIRT_GRAVEL_CONFIG;
@@ -22,20 +40,4 @@ struct SurfaceBuilderConfig {
     static SurfaceBuilderConfig BASALT_DELTAS_CONFIG;
 
     static void init();
-
-    BlockData top;
-    BlockData mid;
-    BlockData underWater;
-
-    BlockData getTop() const {
-        return top;
-    }
-
-    BlockData getUnder() const {
-        return mid;
-    }
-
-    BlockData getUnderWaterMaterial() const {
-        return underWater;
-    }
 };

@@ -8,6 +8,7 @@
 struct Placement;
 struct Placements {
     static Registry<Placement> placements;
+
     static Placement* NOPE;
     static Placement* CHANCE;
     static Placement* COUNT;
@@ -37,6 +38,11 @@ struct Placements {
     static Placement* END_ISLAND;
     static Placement* DECORATED;
     static Placement* COUNT_MULTILAYER;
+
+    template<typename T, typename... Args>
+    static auto create(std::string name, Args&&... args) -> Placement* {
+        return placements.add(std::move(name), std::make_unique<T>(std::forward<Args>(args)...));
+    }
 
     static void init();
 };

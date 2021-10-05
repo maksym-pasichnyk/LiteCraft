@@ -2,28 +2,27 @@
 #include "Structures.hpp"
 #include "Structure.hpp"
 
-#include <fstream>
-#include <filesystem>
 #include <configs.hpp>
+#include <resource_manager.hpp>
 
 Registry<StructureFeature> StructureFeatures::registry{};
 
-void StructureFeatures::init() {
-    for (auto&& entry : std::filesystem::directory_iterator{"definitions/configured_structure_features"}) {
-        if (!entry.is_regular_file()) {
-            continue;
-        }
-
-        auto o = Json::Read::read(std::ifstream{entry.path(), std::ios::binary}).value();
+void StructureFeatures::init(ResourceManager& resources) {
+    resources.enumerate("definitions/configured_structure_features", [](std::istream& stream) {
+        auto o = Json::Read::read(stream).value();
         auto structure = Structures::registry.get(o.at("type").to_string()).value();
         auto config = structure->deserialize(o.at("config")).value();
 
-        configure(entry.path().stem().string(), structure, config);
-    }
+        registry.add(o.at("name").to_string(), std::make_unique<StructureFeature>(StructureFeature{
+            .structure = structure,
+            .config = config
+        }));
+    });
 
 //    for (auto&& [name, structure] : registry.objects) {
 //        std::ofstream out{fmt::format("definitions/configured_structure_features/{}.json", name), std::ios::binary};
 //        out << Json{
+//            {"name", name},
 //            {"type", structure->structure},
 //            {"config", structure->config}
 //        };

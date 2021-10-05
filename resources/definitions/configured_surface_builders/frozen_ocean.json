@@ -1,4 +1,5 @@
 {
+    "name": "frozen_ocean",
     "type": "frozen_ocean",
     "config": {
         "top_material": "grass_block",

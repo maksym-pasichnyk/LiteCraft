@@ -1,4 +1,5 @@
 {
+    "name": "mineshaft_mesa",
     "type": "mineshaft",
     "config": {
         "probability": 0.004,

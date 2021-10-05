@@ -1,4 +1,5 @@
 {
+    "name": "basalt_deltas",
     "type": "basalt_deltas",
     "config": {
         "top_material": "blackstone",

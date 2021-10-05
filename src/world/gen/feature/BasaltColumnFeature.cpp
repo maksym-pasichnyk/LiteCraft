@@ -48,8 +48,6 @@ bool BasaltColumnFeature::generate(WorldGenRegion &reader, ChunkGenerator &gener
 bool BasaltColumnFeature::func_236248_a_(WorldGenRegion &reader, int max_y, const BlockPos &start, int p_236248_4_, int xz_range) {
     bool flag = false;
 
-    const auto BASALT = Blocks::BASALT->getDefaultState();
-
     for (const auto pos : BlockPos::getAllInBox(start.sub(xz_range, 0, xz_range), start.add(xz_range, 0, xz_range))) {
 //        const auto dist = pos.manhattanDistance(start);
 //        const auto lowest = func_236247_a_(reader, max_y, pos)
@@ -61,7 +59,7 @@ bool BasaltColumnFeature::func_236248_a_(WorldGenRegion &reader, int max_y, cons
 //
 //            for (auto blockpos = *lowest; j >= 0; --j, blockpos = blockpos.up()) {
 //                if (func_236247_a_(reader, max_y, blockpos)) {
-//                    setBlockState(reader, blockpos, BASALT);
+//                    setBlockState(reader, blockpos, States::BASALT);
 //                    flag = true;
 //                } else if (!reader.getBlockState(blockpos).in(Blocks::BASALT)) {
 //                    break;

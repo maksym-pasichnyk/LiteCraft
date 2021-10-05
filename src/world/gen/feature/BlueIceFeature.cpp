@@ -1,9 +1,10 @@
 #include "BlueIceFeature.hpp"
-#include "../../WorldGenRegion.hpp"
-#include "../../../block/Block.hpp"
-#include "../../../block/Blocks.hpp"
-#include "../../../block/material/Materials.hpp"
+#include <block/Block.hpp>
+#include <block/Blocks.hpp>
+#include <block/States.hpp>
+#include <block/material/Materials.hpp>
 #include "../../../util/Direction.hpp"
+#include "../../WorldGenRegion.hpp"
 
 bool BlueIceFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator, Random &random, BlockPos pos, const FeatureConfig &config) {
     if (pos.y > reader.getSeaLevel() - 1) {
@@ -25,9 +26,7 @@ bool BlueIceFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator,
         return false;
     }
 
-    const auto BLUE_ICE = Blocks::BLUE_ICE->getDefaultState();
-
-    reader.setData(pos, BLUE_ICE/*, 2*/);
+    reader.setData(pos, States::BLUE_ICE/*, 2*/);
 
     for (int i = 0; i < 200; ++i) {
         const auto g0 = random.nextInt(5);
@@ -48,7 +47,7 @@ bool BlueIceFeature::generate(WorldGenRegion &reader, ChunkGenerator &generator,
             if (state.getMaterial() == Materials::AIR || state.is(Blocks::WATER) || state.is(Blocks::PACKED_ICE) || state.is(Blocks::ICE)) {
                 for (const auto direction : DirectionUtil::values()) {
                     if (reader.getData(blockpos.offset(direction)).is(Blocks::BLUE_ICE)) {
-                        reader.setData(blockpos, BLUE_ICE/*, 2*/);
+                        reader.setData(blockpos, States::BLUE_ICE/*, 2*/);
                         break;
                     }
                 }

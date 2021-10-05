@@ -3,6 +3,7 @@
 #include <util/Registry.hpp>
 
 struct JigsawPattern;
+struct ResourceManager;
 struct JigsawPools {
     static Registry<JigsawPattern> pools;
 
@@ -10,7 +11,7 @@ struct JigsawPools {
         return pools.get(name).value_or(nullptr);
     }
 
-    static void init();
+    static void init(ResourceManager& resources);
 };
 
 struct PlainVillagePools {

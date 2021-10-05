@@ -25,7 +25,6 @@ struct Blocks {
     [[maybe_unused]] static Block* COARSE_DIRT;
     [[maybe_unused]] static Block* PODZOL;
     [[maybe_unused]] static Block* COBBLESTONE;
-    /*[[maybe_unused]] static Block* PLANKS;*/
     [[maybe_unused]] static Block* OAK_PLANKS;
     [[maybe_unused]] static Block* SPRUCE_PLANKS;
     [[maybe_unused]] static Block* BIRCH_PLANKS;

@@ -1,11 +1,10 @@
 #include "ConfiguredSurfaceBuilders.hpp"
 #include "SurfaceBuilders.hpp"
 
-#include <fstream>
-#include <filesystem>
 #include <configs.hpp>
 #include <block/Block.hpp>
 #include <block/Blocks.hpp>
+#include <resource_manager.hpp>
 
 template<>
 struct Json::Serialize<BlockData> {
@@ -53,20 +52,20 @@ struct Json::Deserialize<SurfaceBuilderConfig> {
 
 Registry<ConfiguredSurfaceBuilder> ConfiguredSurfaceBuilders::builders{};
 
-void ConfiguredSurfaceBuilders::init() {
-    for (auto&& entry : std::filesystem::directory_iterator{"definitions/configured_surface_builders"}) {
-        if (!entry.is_regular_file()) {
-            continue;
-        }
+void ConfiguredSurfaceBuilders::init(ResourceManager& resources) {
+    resources.enumerate("definitions/configured_surface_builders", [](std::istream& stream) {
+        auto o = Json::Read::read(stream).value();
 
-        auto o = Json::Read::read(std::ifstream{entry.path(), std::ios::binary}).value();
-        auto surface_builder = SurfaceBuilders::builders.get(o.at("type").to_string()).value();
-        configure(entry.path().stem().string(), surface_builder, o.at("config"));
-    }
+        builders.add(o.at("name").to_string(), std::make_unique<ConfiguredSurfaceBuilder>(ConfiguredSurfaceBuilder{
+            .builder = SurfaceBuilders::builders.get(o.at("type").to_string()).value(),
+            .config = o.at("config")
+        }));
+    });
 
 //    for (auto&& [name, csb] : builders.objects) {
 //        std::ofstream out{fmt::format("definitions/configured_surface_builders/{}.json", name), std::ios::binary};
 //        out << Json{
+//            {"name", name},
 //            {"type", csb->builder},
 //            {"config", csb->config}
 //        };

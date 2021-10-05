@@ -1,4 +1,5 @@
 {
+    "name": "cave",
     "type": "cave",
     "config": {
         "probability": 0.142857

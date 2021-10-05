@@ -1,4 +1,5 @@
 {
+    "name": "giant_tree_taiga",
     "type": "giant_tree_taiga",
     "config": {
         "top_material": "grass_block",

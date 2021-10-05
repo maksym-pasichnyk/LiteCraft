@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 
+struct ResourceManager;
 struct ConfiguredFeature;
 struct ConfiguredFeatures {
     static Registry<ConfiguredFeature> features;
@@ -200,5 +201,5 @@ struct ConfiguredFeatures {
     static ConfiguredFeature* BAMBOO_VEGETATION;
     static ConfiguredFeature* MUSHROOM_FIELD_VEGETATION;
 
-    static void init();
+    static void init(ResourceManager& resources);
 };

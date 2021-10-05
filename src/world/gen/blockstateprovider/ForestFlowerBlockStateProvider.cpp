@@ -1,21 +1,21 @@
 #include "ForestFlowerBlockStateProvider.hpp"
-#include "../../biome/Biome.hpp"
-#include "../../../block/Block.hpp"
-#include "../../../block/Blocks.hpp"
+
+#include <block/States.hpp>
+#include <world/biome/Biome.hpp>
 
 ForestFlowerBlockStateProvider::ForestFlowerBlockStateProvider() {
     STATES = {
-        Blocks::DANDELION->getDefaultState(),
-        Blocks::POPPY->getDefaultState(),
-        Blocks::ALLIUM->getDefaultState(),
-        Blocks::AZURE_BLUET->getDefaultState(),
-        Blocks::RED_TULIP->getDefaultState(),
-        Blocks::ORANGE_TULIP->getDefaultState(),
-        Blocks::WHITE_TULIP->getDefaultState(),
-        Blocks::PINK_TULIP->getDefaultState(),
-        Blocks::OXEYE_DAISY->getDefaultState(),
-        Blocks::CORNFLOWER->getDefaultState(),
-        Blocks::LILY_OF_THE_VALLEY->getDefaultState()
+        States::DANDELION,
+        States::POPPY,
+        States::ALLIUM,
+        States::AZURE_BLUET,
+        States::RED_TULIP,
+        States::ORANGE_TULIP,
+        States::WHITE_TULIP,
+        States::PINK_TULIP,
+        States::OXEYE_DAISY,
+        States::CORNFLOWER,
+        States::LILY_OF_THE_VALLEY
     };
 }
 

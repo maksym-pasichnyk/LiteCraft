@@ -1,4 +1,5 @@
 {
+    "name": "swamp",
     "type": "swamp",
     "config": {
         "top_material": "grass_block",

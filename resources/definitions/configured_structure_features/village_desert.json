@@ -1,4 +1,5 @@
 {
+    "name": "village_desert",
     "type": "village",
     "config": {
         "pool": "village/desert/town_centers",

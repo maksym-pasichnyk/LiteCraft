@@ -1,4 +1,5 @@
 {
+    "name": "ruined_portal_mountain",
     "type": "ruined_portal",
     "config": {
         "location": "mountain"

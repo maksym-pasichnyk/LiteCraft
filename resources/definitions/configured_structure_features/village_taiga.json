@@ -1,4 +1,5 @@
 {
+    "name": "village_taiga",
     "type": "village",
     "config": {
         "pool": "village/taiga/town_centers",

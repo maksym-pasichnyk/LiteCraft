@@ -23,7 +23,10 @@
 #include "input.hpp"
 #include "raytrace.hpp"
 #include "transform.hpp"
-#include "block/BlockGraphics.hpp"
+
+#include <block/Blocks.hpp>
+#include <block/States.hpp>
+#include <block/BlockGraphics.hpp>
 
 #include <world/biome/Biome.hpp>
 #include <world/biome/Biomes.hpp>
@@ -118,6 +121,7 @@ struct App {
         BlockGraphics::init(*resources);
 
         Blocks::init();
+        States::init();
         BlockTags::init();
 
         Carvers::init();
@@ -125,16 +129,16 @@ struct App {
         Placements::init();
         Structures::init();
         SurfaceBuilders::init();
-        SurfaceBuilderConfig::init();
+        SurfaceBuilderConfigs::init();
 
-        ConfiguredCarvers::init();
-        ConfiguredFeatures::init();
+        ConfiguredCarvers::init(*resources);
+        ConfiguredFeatures::init(*resources);
         ProcessorLists::init();
-        JigsawPools::init();
-        StructureFeatures::init();
-        ConfiguredSurfaceBuilders::init();
+        JigsawPools::init(*resources);
+        StructureFeatures::init(*resources);
+        ConfiguredSurfaceBuilders::init(*resources);
 
-        Biomes::init();
+        Biomes::init(*resources);
         Models::init(*resources);
 
         entity_model = std::make_unique<ModelRendered>(*Models::models.get("geometry.armor_stand").value());
@@ -460,16 +464,16 @@ struct AppServer {
         Blocks::init();
         BlockTags::init();
         SurfaceBuilders::init();
-        SurfaceBuilderConfig::init();
-        ConfiguredSurfaceBuilders::init();
+        SurfaceBuilderConfigs::init();
+        ConfiguredSurfaceBuilders::init(*resources);
         Carvers::init();
-        ConfiguredCarvers::init();
+        ConfiguredCarvers::init(*resources);
         Features::init();
         Placements::init();
-        ConfiguredFeatures::init();
+        ConfiguredFeatures::init(*resources);
         Structures::init();
-        StructureFeatures::init();
-        Biomes::init();
+        StructureFeatures::init(*resources);
+        Biomes::init(*resources);
 
         /**************************************************************************************************************/
     }

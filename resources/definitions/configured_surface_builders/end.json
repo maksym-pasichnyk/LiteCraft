@@ -1,4 +1,5 @@
 {
+    "name": "end",
     "type": "default",
     "config": {
         "top_material": "end_stone",

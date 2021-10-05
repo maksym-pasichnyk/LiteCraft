@@ -1,21 +1,22 @@
 #include "SwampHutPiece.hpp"
 #include <block/Blocks.hpp>
+#include <block/States.hpp>
 #include <block/StairsBlock.hpp>
 
 bool SwampHutPiece::addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) {
     if (!isInsideBounds(region, bb, 0)) {
         return false;
     }
-    
-    const auto AIR = Blocks::AIR->getDefaultState();
-    const auto OAK_LOG = Blocks::OAK_LOG->getDefaultState();
-    const auto CAULDRON = Blocks::CAULDRON->getDefaultState();
-    const auto OAK_FENCE = Blocks::OAK_FENCE->getDefaultState();
-    const auto SPRUCE_STAIRS = Blocks::SPRUCE_STAIRS->getDefaultState();
-    const auto SPRUCE_PLANKS = Blocks::SPRUCE_PLANKS->getDefaultState();
-    const auto CRAFTING_TABLE = Blocks::CRAFTING_TABLE->getDefaultState();
-    const auto POTTED_RED_MUSHROOM = Blocks::POTTED_RED_MUSHROOM->getDefaultState();
-    
+
+    const auto AIR = States::AIR;
+    const auto OAK_LOG = States::OAK_LOG;
+    const auto CAULDRON = States::CAULDRON;
+    const auto OAK_FENCE = States::OAK_FENCE;
+    const auto SPRUCE_STAIRS = States::SPRUCE_STAIRS;
+    const auto SPRUCE_PLANKS = States::SPRUCE_PLANKS;
+    const auto CRAFTING_TABLE = States::CRAFTING_TABLE;
+    const auto POTTED_RED_MUSHROOM = States::POTTED_RED_MUSHROOM;
+
     const auto SPRUCE_STAIRS_NORTH = SPRUCE_STAIRS.set<StairsBlock::FACING>(Direction::NORTH);
     const auto SPRUCE_STAIRS_SOUTH = SPRUCE_STAIRS.set<StairsBlock::FACING>(Direction::SOUTH);
     const auto SPRUCE_STAIRS_EAST = SPRUCE_STAIRS.set<StairsBlock::FACING>(Direction::EAST);

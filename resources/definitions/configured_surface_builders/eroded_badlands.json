@@ -1,4 +1,5 @@
 {
+    "name": "eroded_badlands",
     "type": "eroded_badlands",
     "config": {
         "top_material": "red_sand",

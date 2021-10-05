@@ -24,7 +24,6 @@ struct LeavesBlock : Block {
         return payload.distance;
     }
 
-
     static auto get_PERSISTENT(BlockData state) -> int {
         auto payload = std::bit_cast<Payload>(state.dv);
         return payload.persistent == 1;

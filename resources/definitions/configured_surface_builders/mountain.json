@@ -1,4 +1,5 @@
 {
+    "name": "mountain",
     "type": "mountain",
     "config": {
         "top_material": "grass_block",

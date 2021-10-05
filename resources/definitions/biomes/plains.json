@@ -1,4 +1,5 @@
 {
+    "name": "plains",
     "depth": 0.125,
     "scale": 0.05,
     "precipitation": "rain",
