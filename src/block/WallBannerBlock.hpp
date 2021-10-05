@@ -9,9 +9,9 @@ struct WallBannerBlock : AbstractBannerBlock {
         uint16_t : 13;
     };
 
-    static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
+    static constexpr auto FACING = Property::HORIZONTAL_FACING;
 
-    WallBannerBlock(int id, DyeColors color, Properties properties) : AbstractBannerBlock(id, std::move(properties)) {}
+    WallBannerBlock(int id, DyeColors color, BlockBehaviour behaviour) : AbstractBannerBlock(id, std::move(behaviour)) {}
 
     void fillStateContainer() override {
         bind<FACING, get_FACING, set_FACING>();

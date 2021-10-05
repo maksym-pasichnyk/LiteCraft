@@ -8,7 +8,7 @@ struct BubbleColumnBlock : Block {
         uint16_t : 15;
     };
 
-    static constexpr auto DRAG = BlockStateProperty::DRAG;
+    static constexpr auto DRAG = Property::DRAG;
     
     using Block::Block;
 

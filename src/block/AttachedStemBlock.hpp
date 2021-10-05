@@ -10,9 +10,9 @@ struct AttachedStemBlock : Block {
         uint16_t : 13;
     };
 
-    static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
+    static constexpr auto FACING = Property::HORIZONTAL_FACING;
 
-    AttachedStemBlock(int id, StemGrownBlock* block, Properties properties) : Block(id, std::move(properties)) {}
+    AttachedStemBlock(int id, StemGrownBlock* block, BlockBehaviour behaviour) : Block(id, std::move(behaviour)) {}
 
     void fillStateContainer() override {
         bind<FACING, get_FACING, set_FACING>();

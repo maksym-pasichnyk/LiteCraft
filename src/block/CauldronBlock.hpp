@@ -8,7 +8,7 @@ struct CauldronBlock : Block {
         uint16_t : 14;
     };
     
-    static constexpr auto LEVEL = BlockStateProperty::LEVEL_0_3;
+    static constexpr auto LEVEL = Property::LEVEL_0_3;
 
     using Block::Block;
 

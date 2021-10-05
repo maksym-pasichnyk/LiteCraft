@@ -8,7 +8,7 @@ struct SugarCaneBlock : Block {
         uint16_t : 12;
     };
 
-    static constexpr auto AGE = BlockStateProperty::AGE_0_15;
+    static constexpr auto AGE = Property::AGE_0_15;
 
     using Block::Block;
 
@@ -30,10 +30,10 @@ struct SugarCaneBlock : Block {
 
     bool isValidPosition(const BlockData& data, WorldReader &reader, const BlockPos &pos) override;
 
-    RenderType getRenderType() const override {
-        return RenderType::Cross;
-    }
-    RenderLayer getRenderLayer() const override {
-        return RenderLayer::Cutout;
-    }
+//    RenderType getRenderType() const override {
+//        return RenderType::Cross;
+//    }
+//    RenderLayer getRenderLayer() const override {
+//        return RenderLayer::Cutout;
+//    }
 };

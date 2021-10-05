@@ -3,5 +3,5 @@
 #include "AbstractCoralPlantBlock.hpp"
 
 struct CoralPlantBlock : AbstractCoralPlantBlock {
-    CoralPlantBlock(int id, Block* block, Properties properties) : AbstractCoralPlantBlock(id, std::move(properties)) {}
+    CoralPlantBlock(int id, Block* block, BlockBehaviour behaviour) : AbstractCoralPlantBlock(id, std::move(behaviour)) {}
 };

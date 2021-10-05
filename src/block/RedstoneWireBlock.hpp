@@ -12,11 +12,11 @@ struct RedstoneWireBlock : Block {
         uint16_t : 4;
     };
     
-    static constexpr auto POWER = BlockStateProperty::POWER_0_15;
-    static constexpr auto NORTH = BlockStateProperty::REDSTONE_NORTH;
-    static constexpr auto EAST = BlockStateProperty::REDSTONE_EAST;
-    static constexpr auto SOUTH = BlockStateProperty::REDSTONE_SOUTH;
-    static constexpr auto WEST = BlockStateProperty::REDSTONE_WEST;
+    static constexpr auto POWER = Property::POWER_0_15;
+    static constexpr auto NORTH = Property::REDSTONE_NORTH;
+    static constexpr auto EAST = Property::REDSTONE_EAST;
+    static constexpr auto SOUTH = Property::REDSTONE_SOUTH;
+    static constexpr auto WEST = Property::REDSTONE_WEST;
 
     using Block::Block;
 

@@ -11,9 +11,9 @@ struct BrewingStandBlock : ContainerBlock {
     };
 
     static constexpr auto HAS_BOTTLE = std::array{
-        BlockStateProperty::HAS_BOTTLE_0,
-        BlockStateProperty::HAS_BOTTLE_1,
-        BlockStateProperty::HAS_BOTTLE_2
+            Property::HAS_BOTTLE_0,
+            Property::HAS_BOTTLE_1,
+            Property::HAS_BOTTLE_2
     };
 
     using ContainerBlock::ContainerBlock;

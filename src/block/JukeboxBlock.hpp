@@ -10,7 +10,7 @@ struct JukeboxBlock : ContainerBlock {
         uint16_t : 15;
     };
 
-    static constexpr auto RECORD = BlockStateProperty::HAS_RECORD;
+    static constexpr auto RECORD = Property::HAS_RECORD;
 
     void fillStateContainer() override {
         bind<RECORD, get_RECORD, set_RECORD>();

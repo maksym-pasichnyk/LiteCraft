@@ -8,7 +8,7 @@ struct CropsBlock : BushBlock {
         uint16_t : 13;
     };
 
-    static constexpr auto AGE = BlockStateProperty::AGE_0_7;
+    static constexpr auto AGE = Property::AGE_0_7;
 
     using BushBlock::BushBlock;
 

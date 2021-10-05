@@ -11,8 +11,8 @@ struct DaylightDetectorBlock : Block {
         uint16_t : 11;
     };
 
-    static constexpr auto POWER = BlockStateProperty::POWER_0_15;
-    static constexpr auto INVERTED = BlockStateProperty::INVERTED;
+    static constexpr auto POWER = Property::POWER_0_15;
+    static constexpr auto INVERTED = Property::INVERTED;
 
     void fillStateContainer() override {
         bind<POWER, get_POWER, set_POWER>();

@@ -8,7 +8,7 @@ struct TallSeaGrassBlock : DoublePlantBlock {
         uint16_t : 14;
     };
 
-    static constexpr auto HALF = BlockStateProperty::DOUBLE_BLOCK_HALF;
+    static constexpr auto HALF = Property::DOUBLE_BLOCK_HALF;
 
     using DoublePlantBlock::DoublePlantBlock;
 

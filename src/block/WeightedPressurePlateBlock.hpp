@@ -8,9 +8,9 @@ struct WeightedPressurePlateBlock : AbstractPressurePlateBlock {
         uint16_t : 12;
     };
 
-    static constexpr auto POWER = BlockStateProperty::POWER_0_15;
+    static constexpr auto POWER = Property::POWER_0_15;
 
-    WeightedPressurePlateBlock(int id, int preassure, Properties properties) : AbstractPressurePlateBlock(id, std::move(properties)) {}
+    WeightedPressurePlateBlock(int id, int preassure, BlockBehaviour behaviour) : AbstractPressurePlateBlock(id, std::move(behaviour)) {}
 
     void fillStateContainer() override {
         bind<POWER, get_POWER, set_POWER>();

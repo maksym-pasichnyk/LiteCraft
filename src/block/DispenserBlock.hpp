@@ -9,8 +9,8 @@ struct DispenserBlock : ContainerBlock {
         uint16_t : 12;
     };
 
-    static constexpr auto FACING = BlockStateProperty::FACING;
-    static constexpr auto TRIGGERED = BlockStateProperty::TRIGGERED;
+    static constexpr auto FACING = Property::FACING;
+    static constexpr auto TRIGGERED = Property::TRIGGERED;
 
     using ContainerBlock::ContainerBlock;
 

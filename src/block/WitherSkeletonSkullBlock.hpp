@@ -3,5 +3,5 @@
 #include "SkullBlock.hpp"
 
 struct WitherSkeletonSkullBlock : SkullBlock {
-    WitherSkeletonSkullBlock(int id, Properties properties) : SkullBlock(id, Type::WITHER_SKELETON, std::move(properties)) {}
+    WitherSkeletonSkullBlock(int id, BlockBehaviour behaviour) : SkullBlock(id, Type::WITHER_SKELETON, std::move(behaviour)) {}
 };

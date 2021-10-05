@@ -10,7 +10,7 @@ struct RotatedPillarBlock : Block {
 
     using Block::Block;
 
-    static constexpr auto AXIS = BlockStateProperty::AXIS;
+    static constexpr auto AXIS = Property::AXIS;
 
     void fillStateContainer() override {
         bind<AXIS, get_AXIS, set_AXIS>();

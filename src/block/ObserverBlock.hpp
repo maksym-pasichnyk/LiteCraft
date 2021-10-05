@@ -9,7 +9,7 @@ struct ObserverBlock : DirectionalBlock {
         uint16_t : 12;
     };
 
-    static constexpr auto POWERED = BlockStateProperty::POWERED;
+    static constexpr auto POWERED = Property::POWERED;
 
     using DirectionalBlock::DirectionalBlock;
 

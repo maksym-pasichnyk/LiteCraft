@@ -3,7 +3,7 @@
 #include "DirectionalBlock.hpp"
 
 struct PistonBlock : DirectionalBlock {
-    PistonBlock(int id, bool sticky, Properties properties) : DirectionalBlock(id, std::move(properties)) {}
+    PistonBlock(int id, bool sticky, BlockBehaviour behaviour) : DirectionalBlock(id, std::move(behaviour)) {}
 
     struct Payload {
         uint16_t facing : 3;
@@ -11,7 +11,7 @@ struct PistonBlock : DirectionalBlock {
         uint16_t : 12;
     };
 
-    static constexpr auto EXTENDED = BlockStateProperty::EXTENDED;
+    static constexpr auto EXTENDED = Property::EXTENDED;
 
     void fillStateContainer() override {
         bind<FACING, get_FACING, set_FACING>();

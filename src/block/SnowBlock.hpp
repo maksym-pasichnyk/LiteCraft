@@ -8,7 +8,7 @@ struct SnowBlock : Block {
         uint16_t : 13;
     };
 
-    static constexpr auto LAYERS = BlockStateProperty::LAYERS_1_8;
+    static constexpr auto LAYERS = Property::LAYERS_1_8;
 
     using Block::Block;
 
@@ -30,7 +30,7 @@ struct SnowBlock : Block {
 
     bool isValidPosition(const BlockData& data, WorldReader &reader, const BlockPos &pos) override;
 
-    RenderType getRenderType() const override {
-        return RenderType::SnowLayer;
-    }
+//    RenderType getRenderType() const override {
+//        return RenderType::SnowLayer;
+//    }
 };

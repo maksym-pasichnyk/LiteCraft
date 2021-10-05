@@ -5,7 +5,7 @@
 struct TallGrassBlock : BushBlock {
     using BushBlock::BushBlock;
 
-    TintType getTintType() const override {
-        return TintType::Grass;
-    }
+//    TintType getTintType() const override {
+//        return TintType::Grass;
+//    }
 };

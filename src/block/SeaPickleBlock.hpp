@@ -8,7 +8,7 @@ struct SeaPickleBlock : BushBlock {
         uint16_t : 14;
     };
 
-    static constexpr auto PICKLES = BlockStateProperty::PICKLES_1_4;
+    static constexpr auto PICKLES = Property::PICKLES_1_4;
 
     using BushBlock::BushBlock;
 

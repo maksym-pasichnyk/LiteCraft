@@ -10,7 +10,7 @@ struct JigsawBlock : Block {
         uint16_t : 15;
     };
 
-    static constexpr auto ORIENTATION = BlockStateProperty::ORIENTATION;
+    static constexpr auto ORIENTATION = Property::ORIENTATION;
 
     void fillStateContainer() override {
         bind<ORIENTATION, get_ORIENTATION, set_ORIENTATION>();

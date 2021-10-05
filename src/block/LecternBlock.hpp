@@ -10,9 +10,9 @@ struct LecternBlock : ContainerBlock {
         uint16_t : 11;
     };
 
-    static constexpr auto FACING = BlockStateProperty::FACING;
-    static constexpr auto BOOK = BlockStateProperty::HAS_BOOK;
-    static constexpr auto POWERED = BlockStateProperty::POWERED;
+    static constexpr auto FACING = Property::FACING;
+    static constexpr auto BOOK = Property::HAS_BOOK;
+    static constexpr auto POWERED = Property::POWERED;
 
     using ContainerBlock::ContainerBlock;
 

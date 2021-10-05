@@ -3,12 +3,12 @@
 #include "Block.hpp"
 
 struct SixWayBlock : Block {
-    static constexpr auto NORTH = BlockStateProperty::NORTH;
-    static constexpr auto EAST = BlockStateProperty::EAST;
-    static constexpr auto SOUTH = BlockStateProperty::SOUTH;
-    static constexpr auto WEST = BlockStateProperty::WEST;
-    static constexpr auto UP = BlockStateProperty::UP;
-    static constexpr auto DOWN = BlockStateProperty::DOWN;
+    static constexpr auto NORTH = Property::NORTH;
+    static constexpr auto EAST = Property::EAST;
+    static constexpr auto SOUTH = Property::SOUTH;
+    static constexpr auto WEST = Property::WEST;
+    static constexpr auto UP = Property::UP;
+    static constexpr auto DOWN = Property::DOWN;
 
     static constexpr auto FACING_TO_PROPERTY = std::array {
         DOWN,

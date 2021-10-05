@@ -10,9 +10,9 @@ struct TripWireHookBlock : Block {
         uint16_t : 11;
     };
 
-    static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
-    static constexpr auto POWERED = BlockStateProperty::POWERED;
-    static constexpr auto ATTACHED = BlockStateProperty::ATTACHED;
+    static constexpr auto FACING = Property::HORIZONTAL_FACING;
+    static constexpr auto POWERED = Property::POWERED;
+    static constexpr auto ATTACHED = Property::ATTACHED;
 
     using Block::Block;
     

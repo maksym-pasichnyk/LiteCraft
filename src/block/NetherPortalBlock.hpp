@@ -10,7 +10,7 @@ struct NetherPortalBlock : Block {
 
     using Block::Block;
 
-    static constexpr auto AXIS = BlockStateProperty::HORIZONTAL_AXIS;
+    static constexpr auto AXIS = Property::HORIZONTAL_AXIS;
 
     void fillStateContainer() override {
         bind<AXIS, get_AXIS, set_AXIS>();

@@ -13,12 +13,12 @@ struct HugeMushroomBlock : Block {
         uint16_t : 10;
     };
 
-    static constexpr auto NORTH = BlockStateProperty::NORTH;
-    static constexpr auto SOUTH = BlockStateProperty::SOUTH;
-    static constexpr auto EAST = BlockStateProperty::EAST;
-    static constexpr auto WEST = BlockStateProperty::WEST;
-    static constexpr auto UP = BlockStateProperty::UP;
-    static constexpr auto DOWN = BlockStateProperty::DOWN;
+    static constexpr auto NORTH = Property::NORTH;
+    static constexpr auto SOUTH = Property::SOUTH;
+    static constexpr auto EAST = Property::EAST;
+    static constexpr auto WEST = Property::WEST;
+    static constexpr auto UP = Property::UP;
+    static constexpr auto DOWN = Property::DOWN;
 
     using Block::Block;
 

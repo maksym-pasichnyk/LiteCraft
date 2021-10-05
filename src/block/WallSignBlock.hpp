@@ -9,7 +9,7 @@ struct WallSignBlock : AbstractSignBlock {
         uint16_t : 13;
     };
 
-    static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
+    static constexpr auto FACING = Property::HORIZONTAL_FACING;
 
     using AbstractSignBlock::AbstractSignBlock;
 

@@ -10,7 +10,7 @@ struct RedstoneDiodeBlock : Block {
         uint16_t : 15;
     };
 
-    static constexpr auto POWERED = BlockStateProperty::POWERED;
+    static constexpr auto POWERED = Property::POWERED;
 
     void fillStateContainer() override {
         bind<POWERED, get_POWERED, set_POWERED>();

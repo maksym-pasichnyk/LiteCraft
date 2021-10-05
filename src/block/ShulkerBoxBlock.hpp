@@ -6,14 +6,14 @@
 #include <optional>
 
 struct ShulkerBoxBlock : ContainerBlock {
-    ShulkerBoxBlock(int id, std::optional<DyeColors> color, Properties properties) : ContainerBlock(id, std::move(properties)) {}
+    ShulkerBoxBlock(int id, std::optional<DyeColors> color, BlockBehaviour behaviour) : ContainerBlock(id, std::move(behaviour)) {}
 
     struct Payload {
         uint16_t facing : 3;
         uint16_t : 13;
     };
 
-    static constexpr auto FACING = BlockStateProperty::FACING;
+    static constexpr auto FACING = Property::FACING;
 
     void fillStateContainer() override {
         bind<FACING, get_FACING, set_FACING>();

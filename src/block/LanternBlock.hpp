@@ -10,7 +10,7 @@ struct LanternBlock : Block {
         uint16_t : 15;
     };
 
-    static constexpr auto HANGING = BlockStateProperty::HANGING;
+    static constexpr auto HANGING = Property::HANGING;
 
     void fillStateContainer() override {
         bind<HANGING, get_HANGING, set_HANGING>();

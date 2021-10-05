@@ -9,8 +9,8 @@ struct HopperBlock : ContainerBlock {
         uint16_t : 12;
     };
 
-    static constexpr auto FACING = BlockStateProperty::FACING_EXCEPT_UP;
-    static constexpr auto ENABLED = BlockStateProperty::ENABLED;
+    static constexpr auto FACING = Property::FACING_EXCEPT_UP;
+    static constexpr auto ENABLED = Property::ENABLED;
 
     using ContainerBlock::ContainerBlock;
 

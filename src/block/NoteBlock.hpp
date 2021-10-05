@@ -12,9 +12,9 @@ struct NoteBlock : Block {
         uint16_t : 6;
     };
 
-    static constexpr auto NOTE = BlockStateProperty::NOTE_0_24;
-    static constexpr auto POWERED = BlockStateProperty::POWERED;
-    static constexpr auto INSTRUMENT = BlockStateProperty::NOTE_BLOCK_INSTRUMENT;
+    static constexpr auto NOTE = Property::NOTE_0_24;
+    static constexpr auto POWERED = Property::POWERED;
+    static constexpr auto INSTRUMENT = Property::NOTE_BLOCK_INSTRUMENT;
 
     void fillStateContainer() override {
         bind<INSTRUMENT, get_INSTRUMENT, set_INSTRUMENT>();

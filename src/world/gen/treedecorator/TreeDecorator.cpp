@@ -11,6 +11,6 @@ void TreeDecorator::placeBlock(WorldWriter &writer, const BlockPos &pos, BlockDa
     boundingBox.expandTo(BoundingBox::from(pos, pos));
 }
 
-void TreeDecorator::placeVine(WorldWriter &writer, const BlockPos &pos, BlockStateProperty property, std::set<BlockPos> &positions, BoundingBox &boundingBox) {
+void TreeDecorator::placeVine(WorldWriter &writer, const BlockPos &pos, Property property, std::set<BlockPos> &positions, BoundingBox &boundingBox) {
     placeBlock(writer, pos, Blocks::VINE->getDefaultState().set(property, true), positions, boundingBox);
 }

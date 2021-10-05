@@ -15,15 +15,15 @@ struct TripWireBlock : Block {
         uint16_t : 9;
     };
 
-    static constexpr auto POWERED = BlockStateProperty::POWERED;
-    static constexpr auto ATTACHED = BlockStateProperty::ATTACHED;
-    static constexpr auto DISARMED = BlockStateProperty::DISARMED;
-    static constexpr auto NORTH = BlockStateProperty::NORTH;
-    static constexpr auto EAST = BlockStateProperty::EAST;
-    static constexpr auto SOUTH = BlockStateProperty::SOUTH;
-    static constexpr auto WEST = BlockStateProperty::WEST;
+    static constexpr auto POWERED = Property::POWERED;
+    static constexpr auto ATTACHED = Property::ATTACHED;
+    static constexpr auto DISARMED = Property::DISARMED;
+    static constexpr auto NORTH = Property::NORTH;
+    static constexpr auto EAST = Property::EAST;
+    static constexpr auto SOUTH = Property::SOUTH;
+    static constexpr auto WEST = Property::WEST;
 
-    TripWireBlock(int id, TripWireHookBlock* block, Properties properties) : Block(id, std::move(properties)) {}
+    TripWireBlock(int id, TripWireHookBlock* block, BlockBehaviour behaviour) : Block(id, std::move(behaviour)) {}
 
     void fillStateContainer() override {
         bind<POWERED, get_POWERED, set_POWERED>();

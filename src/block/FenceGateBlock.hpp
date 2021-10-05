@@ -11,9 +11,9 @@ struct FenceGateBlock : HorizontalBlock {
         uint16_t : 10;
     };
 
-    static constexpr auto OPEN = BlockStateProperty::OPEN;
-    static constexpr auto WALL = BlockStateProperty::IN_WALL;
-    static constexpr auto POWERED = BlockStateProperty::POWERED;
+    static constexpr auto OPEN = Property::OPEN;
+    static constexpr auto WALL = Property::IN_WALL;
+    static constexpr auto POWERED = Property::POWERED;
 
     using HorizontalBlock::HorizontalBlock;
 

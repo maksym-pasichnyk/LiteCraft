@@ -4,5 +4,5 @@
 #include "../potion/Effects.hpp"
 
 struct FlowerBlock : BushBlock {
-    FlowerBlock(int id, Effects effect, int duration, Properties properties) : BushBlock(id, std::move(properties)) {}
+    FlowerBlock(int id, Effects effect, int duration, BlockBehaviour behaviour) : BushBlock(id, std::move(behaviour)) {}
 };

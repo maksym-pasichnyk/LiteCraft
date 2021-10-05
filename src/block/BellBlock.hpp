@@ -11,9 +11,9 @@ struct BellBlock : ContainerBlock {
         uint16_t : 8;
     };
 
-    static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
-    static constexpr auto POWERED = BlockStateProperty::POWERED;
-    static constexpr auto ATTACHMENT = BlockStateProperty::BELL_ATTACHMENT;
+    static constexpr auto FACING = Property::HORIZONTAL_FACING;
+    static constexpr auto POWERED = Property::POWERED;
+    static constexpr auto ATTACHMENT = Property::BELL_ATTACHMENT;
 
     using ContainerBlock::ContainerBlock;
 

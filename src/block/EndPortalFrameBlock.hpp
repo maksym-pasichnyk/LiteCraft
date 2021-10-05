@@ -9,8 +9,8 @@ struct EndPortalFrameBlock : Block {
         uint16_t : 12;
     };
 
-    static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
-    static constexpr auto EYE = BlockStateProperty::EYE;
+    static constexpr auto FACING = Property::HORIZONTAL_FACING;
+    static constexpr auto EYE = Property::EYE;
 
     using Block::Block;
 

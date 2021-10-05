@@ -9,7 +9,7 @@ bool BlockData::in(const BlockTag &tag) const {
 }
 
 bool BlockData::isAir() const {
-    return getBlock()->properties.isAir;
+    return getBlock()->behaviour.isAir;
 }
 auto BlockData::getBlock() const -> Block* {
     return Blocks::blocks.entries[static_cast<size_t>(id)].get();
@@ -21,7 +21,7 @@ auto BlockData::isOpaque() const -> bool {
     return getMaterial()->isOpaque;
 }
 auto BlockData::isSolid() const -> bool {
-    return getBlock()->properties.isSolid;
+    return getBlock()->behaviour.isSolid;
 }
 auto BlockData::getLightLevel() const -> int32_t {
     return getBlock()->getLightLevel(*this);
@@ -29,13 +29,13 @@ auto BlockData::getLightLevel() const -> int32_t {
 auto BlockData::isValidPosition(WorldReader &reader, const glm::vec3 &pos) const -> bool {
     return getBlock()->isValidPosition(*this, reader, pos);
 }
-auto BlockData::has(BlockStateProperty property) const -> bool {
+auto BlockData::has(Property property) const -> bool {
     return getBlock()->state_properties_binds.contains(property);
 }
-auto BlockData::get(BlockStateProperty prop) const -> Property {
+auto BlockData::get(Property prop) const -> PropertyValue {
     return getBlock()->state_properties_binds.at(prop).first(*this);
 }
-auto BlockData::set(BlockStateProperty prop, const Property &property) const -> BlockData {
+auto BlockData::set(Property prop, const PropertyValue &property) const -> BlockData {
     return getBlock()->state_properties_binds.at(prop).second(*this, property);
 }
 

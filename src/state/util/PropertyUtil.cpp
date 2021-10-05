@@ -1,4 +1,4 @@
-#include "BlockStatePropertyUtil.hpp"
+#include "PropertyUtil.hpp"
 
 #include <map>
 #include <string>
@@ -365,128 +365,128 @@ template <> struct FromString<NoteBlockInstrument> {
 namespace {
     struct PropertyInfo {
         std::string name;
-        Codec<Property> codec;
+        Codec<PropertyValue> codec;
     };
 
-    template<BlockStateProperty property>
-    constexpr auto codec = Codec<Property>{
-        .parse = [](const Nbt::Tag& tag) -> std::optional<Property> {
+    template<Property property>
+    constexpr auto codec = Codec<PropertyValue>{
+        .parse = [](const Nbt::Tag& tag) -> std::optional<PropertyValue> {
             using T = typename TypeFrom<property>::type;
             return FromString<T>::from(std::get<Nbt::String>(tag.m_storage));
         },
-        .write = [](const Property& value) -> std::optional<Nbt::Tag> {
+        .write = [](const PropertyValue & value) -> std::optional<Nbt::Tag> {
             return std::nullopt;
         }
     };
 
-    const auto properties = std::array{
+    const auto behaviour = std::array{
         // BooleanProperty
-        PropertyInfo{"attached", codec<BlockStateProperty::ATTACHED>},
-        PropertyInfo{"bottom", codec<BlockStateProperty::BOTTOM>},
-        PropertyInfo{"conditional", codec<BlockStateProperty::CONDITIONAL>},
-        PropertyInfo{"disarmed", codec<BlockStateProperty::DISARMED>},
-        PropertyInfo{"drag", codec<BlockStateProperty::DRAG>},
-        PropertyInfo{"enabled", codec<BlockStateProperty::ENABLED>},
-        PropertyInfo{"extended", codec<BlockStateProperty::EXTENDED>},
-        PropertyInfo{"eye", codec<BlockStateProperty::EYE>},
-        PropertyInfo{"falling", codec<BlockStateProperty::FALLING>},
-        PropertyInfo{"hanging", codec<BlockStateProperty::HANGING>},
-        PropertyInfo{"has_bottle_0", codec<BlockStateProperty::HAS_BOTTLE_0>},
-        PropertyInfo{"has_bottle_1", codec<BlockStateProperty::HAS_BOTTLE_1>},
-        PropertyInfo{"has_bottle_2", codec<BlockStateProperty::HAS_BOTTLE_2>},
-        PropertyInfo{"has_record", codec<BlockStateProperty::HAS_RECORD>},
-        PropertyInfo{"has_book", codec<BlockStateProperty::HAS_BOOK>},
-        PropertyInfo{"inverted", codec<BlockStateProperty::INVERTED>},
-        PropertyInfo{"in_wall", codec<BlockStateProperty::IN_WALL>},
-        PropertyInfo{"lit", codec<BlockStateProperty::LIT>},
-        PropertyInfo{"locked", codec<BlockStateProperty::LOCKED>},
-        PropertyInfo{"occupied", codec<BlockStateProperty::OCCUPIED>},
-        PropertyInfo{"open", codec<BlockStateProperty::OPEN>},
-        PropertyInfo{"persistent", codec<BlockStateProperty::PERSISTENT>},
-        PropertyInfo{"powered", codec<BlockStateProperty::POWERED>},
-        PropertyInfo{"short", codec<BlockStateProperty::SHORT>},
-        PropertyInfo{"fire", codec<BlockStateProperty::SIGNAL_FIRE>},
-        PropertyInfo{"snowy", codec<BlockStateProperty::SNOWY>},
-        PropertyInfo{"triggered", codec<BlockStateProperty::TRIGGERED>},
-        PropertyInfo{"unstable", codec<BlockStateProperty::UNSTABLE>},
-        PropertyInfo{"waterlogged", codec<BlockStateProperty::WATERLOGGED>},
-        PropertyInfo{"vine_end", codec<BlockStateProperty::VINE_END>},
-        PropertyInfo{"up", codec<BlockStateProperty::UP>},
-        PropertyInfo{"down", codec<BlockStateProperty::DOWN>},
-        PropertyInfo{"north", codec<BlockStateProperty::NORTH>},
-        PropertyInfo{"east", codec<BlockStateProperty::EAST>},
-        PropertyInfo{"south", codec<BlockStateProperty::SOUTH>},
-        PropertyInfo{"west", codec<BlockStateProperty::WEST>},
+        PropertyInfo{"attached", codec<Property::ATTACHED>},
+        PropertyInfo{"bottom", codec<Property::BOTTOM>},
+        PropertyInfo{"conditional", codec<Property::CONDITIONAL>},
+        PropertyInfo{"disarmed", codec<Property::DISARMED>},
+        PropertyInfo{"drag", codec<Property::DRAG>},
+        PropertyInfo{"enabled", codec<Property::ENABLED>},
+        PropertyInfo{"extended", codec<Property::EXTENDED>},
+        PropertyInfo{"eye", codec<Property::EYE>},
+        PropertyInfo{"falling", codec<Property::FALLING>},
+        PropertyInfo{"hanging", codec<Property::HANGING>},
+        PropertyInfo{"has_bottle_0", codec<Property::HAS_BOTTLE_0>},
+        PropertyInfo{"has_bottle_1", codec<Property::HAS_BOTTLE_1>},
+        PropertyInfo{"has_bottle_2", codec<Property::HAS_BOTTLE_2>},
+        PropertyInfo{"has_record", codec<Property::HAS_RECORD>},
+        PropertyInfo{"has_book", codec<Property::HAS_BOOK>},
+        PropertyInfo{"inverted", codec<Property::INVERTED>},
+        PropertyInfo{"in_wall", codec<Property::IN_WALL>},
+        PropertyInfo{"lit", codec<Property::LIT>},
+        PropertyInfo{"locked", codec<Property::LOCKED>},
+        PropertyInfo{"occupied", codec<Property::OCCUPIED>},
+        PropertyInfo{"open", codec<Property::OPEN>},
+        PropertyInfo{"persistent", codec<Property::PERSISTENT>},
+        PropertyInfo{"powered", codec<Property::POWERED>},
+        PropertyInfo{"short", codec<Property::SHORT>},
+        PropertyInfo{"fire", codec<Property::SIGNAL_FIRE>},
+        PropertyInfo{"snowy", codec<Property::SNOWY>},
+        PropertyInfo{"triggered", codec<Property::TRIGGERED>},
+        PropertyInfo{"unstable", codec<Property::UNSTABLE>},
+        PropertyInfo{"waterlogged", codec<Property::WATERLOGGED>},
+        PropertyInfo{"vine_end", codec<Property::VINE_END>},
+        PropertyInfo{"up", codec<Property::UP>},
+        PropertyInfo{"down", codec<Property::DOWN>},
+        PropertyInfo{"north", codec<Property::NORTH>},
+        PropertyInfo{"east", codec<Property::EAST>},
+        PropertyInfo{"south", codec<Property::SOUTH>},
+        PropertyInfo{"west", codec<Property::WEST>},
         // DirectionProperty
-        PropertyInfo{"facing", codec<BlockStateProperty::FACING>},
-        PropertyInfo{"facing", codec<BlockStateProperty::FACING_EXCEPT_UP>},
-        PropertyInfo{"facing", codec<BlockStateProperty::HORIZONTAL_FACING>},
+        PropertyInfo{"facing", codec<Property::FACING>},
+        PropertyInfo{"facing", codec<Property::FACING_EXCEPT_UP>},
+        PropertyInfo{"facing", codec<Property::HORIZONTAL_FACING>},
         // EnumProperty
-        PropertyInfo{"axis", codec<BlockStateProperty::HORIZONTAL_AXIS>},
-        PropertyInfo{"axis", codec<BlockStateProperty::AXIS>},
-        PropertyInfo{"orientation", codec<BlockStateProperty::ORIENTATION>},
-        PropertyInfo{"face", codec<BlockStateProperty::FACE>},
-        PropertyInfo{"attachment", codec<BlockStateProperty::BELL_ATTACHMENT>},
-        PropertyInfo{"east", codec<BlockStateProperty::WALL_HEIGHT_EAST>},
-        PropertyInfo{"north", codec<BlockStateProperty::WALL_HEIGHT_NORTH>},
-        PropertyInfo{"south", codec<BlockStateProperty::WALL_HEIGHT_SOUTH>},
-        PropertyInfo{"west", codec<BlockStateProperty::WALL_HEIGHT_WEST>},
-        PropertyInfo{"east", codec<BlockStateProperty::REDSTONE_EAST>},
-        PropertyInfo{"north", codec<BlockStateProperty::REDSTONE_NORTH>},
-        PropertyInfo{"south", codec<BlockStateProperty::REDSTONE_SOUTH>},
-        PropertyInfo{"west", codec<BlockStateProperty::REDSTONE_WEST>},
-        PropertyInfo{"half", codec<BlockStateProperty::DOUBLE_BLOCK_HALF>},
-        PropertyInfo{"half", codec<BlockStateProperty::HALF>},
-        PropertyInfo{"shape", codec<BlockStateProperty::RAIL_SHAPE>},
-        PropertyInfo{"shape", codec<BlockStateProperty::RAIL_SHAPE_STRAIGHT>},
-        PropertyInfo{"part", codec<BlockStateProperty::BED_PART>},
-        PropertyInfo{"type", codec<BlockStateProperty::CHEST_TYPE>},
-        PropertyInfo{"mode", codec<BlockStateProperty::COMPARATOR_MODE>},
-        PropertyInfo{"hinge", codec<BlockStateProperty::DOOR_HINGE>},
-        PropertyInfo{"instrument", codec<BlockStateProperty::NOTE_BLOCK_INSTRUMENT>},
-        PropertyInfo{"type", codec<BlockStateProperty::PISTON_TYPE>},
-        PropertyInfo{"type", codec<BlockStateProperty::SLAB_TYPE>},
-        PropertyInfo{"shape", codec<BlockStateProperty::STAIRS_SHAPE>},
-        PropertyInfo{"mode", codec<BlockStateProperty::STRUCTURE_BLOCK_MODE>},
-        PropertyInfo{"leaves", codec<BlockStateProperty::BAMBOO_LEAVES>},
+        PropertyInfo{"axis", codec<Property::HORIZONTAL_AXIS>},
+        PropertyInfo{"axis", codec<Property::AXIS>},
+        PropertyInfo{"orientation", codec<Property::ORIENTATION>},
+        PropertyInfo{"face", codec<Property::FACE>},
+        PropertyInfo{"attachment", codec<Property::BELL_ATTACHMENT>},
+        PropertyInfo{"east", codec<Property::WALL_HEIGHT_EAST>},
+        PropertyInfo{"north", codec<Property::WALL_HEIGHT_NORTH>},
+        PropertyInfo{"south", codec<Property::WALL_HEIGHT_SOUTH>},
+        PropertyInfo{"west", codec<Property::WALL_HEIGHT_WEST>},
+        PropertyInfo{"east", codec<Property::REDSTONE_EAST>},
+        PropertyInfo{"north", codec<Property::REDSTONE_NORTH>},
+        PropertyInfo{"south", codec<Property::REDSTONE_SOUTH>},
+        PropertyInfo{"west", codec<Property::REDSTONE_WEST>},
+        PropertyInfo{"half", codec<Property::DOUBLE_BLOCK_HALF>},
+        PropertyInfo{"half", codec<Property::HALF>},
+        PropertyInfo{"shape", codec<Property::RAIL_SHAPE>},
+        PropertyInfo{"shape", codec<Property::RAIL_SHAPE_STRAIGHT>},
+        PropertyInfo{"part", codec<Property::BED_PART>},
+        PropertyInfo{"type", codec<Property::CHEST_TYPE>},
+        PropertyInfo{"mode", codec<Property::COMPARATOR_MODE>},
+        PropertyInfo{"hinge", codec<Property::DOOR_HINGE>},
+        PropertyInfo{"instrument", codec<Property::NOTE_BLOCK_INSTRUMENT>},
+        PropertyInfo{"type", codec<Property::PISTON_TYPE>},
+        PropertyInfo{"type", codec<Property::SLAB_TYPE>},
+        PropertyInfo{"shape", codec<Property::STAIRS_SHAPE>},
+        PropertyInfo{"mode", codec<Property::STRUCTURE_BLOCK_MODE>},
+        PropertyInfo{"leaves", codec<Property::BAMBOO_LEAVES>},
         // IntegerProperty
-        PropertyInfo{"age", codec<BlockStateProperty::AGE_0_1>},
-        PropertyInfo{"age", codec<BlockStateProperty::AGE_0_2>},
-        PropertyInfo{"age", codec<BlockStateProperty::AGE_0_3>},
-        PropertyInfo{"age", codec<BlockStateProperty::AGE_0_5>},
-        PropertyInfo{"age", codec<BlockStateProperty::AGE_0_7>},
-        PropertyInfo{"age", codec<BlockStateProperty::AGE_0_15>},
-        PropertyInfo{"age", codec<BlockStateProperty::AGE_0_25>},
-        PropertyInfo{"bites", codec<BlockStateProperty::BITES_0_6>},
-        PropertyInfo{"delay", codec<BlockStateProperty::DELAY_1_4>},
-        PropertyInfo{"distance", codec<BlockStateProperty::DISTANCE_1_7>},
-        PropertyInfo{"eggs", codec<BlockStateProperty::EGGS_1_4>},
-        PropertyInfo{"hatch", codec<BlockStateProperty::HATCH_0_2>},
-        PropertyInfo{"layers", codec<BlockStateProperty::LAYERS_1_8>},
-        PropertyInfo{"level", codec<BlockStateProperty::LEVEL_0_3>},
-        PropertyInfo{"level", codec<BlockStateProperty::LEVEL_0_8>},
-        PropertyInfo{"level", codec<BlockStateProperty::LEVEL_1_8>},
-        PropertyInfo{"level", codec<BlockStateProperty::HONEY_LEVEL>},
-        PropertyInfo{"level", codec<BlockStateProperty::LEVEL_0_15>},
-        PropertyInfo{"moisture", codec<BlockStateProperty::MOISTURE_0_7>},
-        PropertyInfo{"note", codec<BlockStateProperty::NOTE_0_24>},
-        PropertyInfo{"pickles", codec<BlockStateProperty::PICKLES_1_4>},
-        PropertyInfo{"power", codec<BlockStateProperty::POWER_0_15>},
-        PropertyInfo{"stage", codec<BlockStateProperty::STAGE_0_1>},
-        PropertyInfo{"distance", codec<BlockStateProperty::DISTANCE_0_7>},
-        PropertyInfo{"charges", codec<BlockStateProperty::CHARGES>},
-        PropertyInfo{"rotation", codec<BlockStateProperty::ROTATION_0_15>},
+        PropertyInfo{"age", codec<Property::AGE_0_1>},
+        PropertyInfo{"age", codec<Property::AGE_0_2>},
+        PropertyInfo{"age", codec<Property::AGE_0_3>},
+        PropertyInfo{"age", codec<Property::AGE_0_5>},
+        PropertyInfo{"age", codec<Property::AGE_0_7>},
+        PropertyInfo{"age", codec<Property::AGE_0_15>},
+        PropertyInfo{"age", codec<Property::AGE_0_25>},
+        PropertyInfo{"bites", codec<Property::BITES_0_6>},
+        PropertyInfo{"delay", codec<Property::DELAY_1_4>},
+        PropertyInfo{"distance", codec<Property::DISTANCE_1_7>},
+        PropertyInfo{"eggs", codec<Property::EGGS_1_4>},
+        PropertyInfo{"hatch", codec<Property::HATCH_0_2>},
+        PropertyInfo{"layers", codec<Property::LAYERS_1_8>},
+        PropertyInfo{"level", codec<Property::LEVEL_0_3>},
+        PropertyInfo{"level", codec<Property::LEVEL_0_8>},
+        PropertyInfo{"level", codec<Property::LEVEL_1_8>},
+        PropertyInfo{"level", codec<Property::HONEY_LEVEL>},
+        PropertyInfo{"level", codec<Property::LEVEL_0_15>},
+        PropertyInfo{"moisture", codec<Property::MOISTURE_0_7>},
+        PropertyInfo{"note", codec<Property::NOTE_0_24>},
+        PropertyInfo{"pickles", codec<Property::PICKLES_1_4>},
+        PropertyInfo{"power", codec<Property::POWER_0_15>},
+        PropertyInfo{"stage", codec<Property::STAGE_0_1>},
+        PropertyInfo{"distance", codec<Property::DISTANCE_0_7>},
+        PropertyInfo{"charges", codec<Property::CHARGES>},
+        PropertyInfo{"rotation", codec<Property::ROTATION_0_15>},
     };
 }
 
-auto BlockStatePropertyUtil::name(BlockStateProperty property) -> std::optional<std::string> {
-    return properties[static_cast<size_t>(property)].name;
+auto PropertyUtil::name(Property property) -> std::optional<std::string> {
+    return behaviour[static_cast<size_t>(property)].name;
 }
 
-auto BlockStatePropertyUtil::parse(BlockStateProperty property, const Nbt::Tag& tag) -> std::optional<Property> {
-    return properties[static_cast<size_t>(property)].codec.parse(tag);
+auto PropertyUtil::parse(Property property, const Nbt::Tag& tag) -> std::optional<PropertyValue> {
+    return behaviour[static_cast<size_t>(property)].codec.parse(tag);
 }
 
-auto BlockStatePropertyUtil::write(BlockStateProperty property, const Property& value) -> std::optional<Nbt::Tag> {
-    return properties[static_cast<size_t>(property)].codec.write(value);
+auto PropertyUtil::write(Property property, const PropertyValue & value) -> std::optional<Nbt::Tag> {
+    return behaviour[static_cast<size_t>(property)].codec.write(value);
 }

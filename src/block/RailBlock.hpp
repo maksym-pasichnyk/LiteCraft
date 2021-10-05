@@ -8,7 +8,7 @@ struct RailBlock : AbstractRailBlock {
         uint16_t : 12;
     };
 
-    static constexpr auto SHAPE = BlockStateProperty::RAIL_SHAPE;
+    static constexpr auto SHAPE = Property::RAIL_SHAPE;
 
     using AbstractRailBlock::AbstractRailBlock;
 

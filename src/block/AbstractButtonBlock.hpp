@@ -12,7 +12,7 @@ struct AbstractButtonBlock : HorizontalFaceBlock {
         uint16_t : 8;
     };
 
-    static constexpr auto POWERED = BlockStateProperty::POWERED;
+    static constexpr auto POWERED = Property::POWERED;
 
     using HorizontalFaceBlock::HorizontalFaceBlock;
 

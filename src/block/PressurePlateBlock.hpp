@@ -8,14 +8,14 @@ struct PressurePlateBlock : AbstractPressurePlateBlock {
         MOBS
     };
 
-    PressurePlateBlock(int id, Sensitivity sensitivity, Properties properties) : AbstractPressurePlateBlock(id, std::move(properties)) {}
+    PressurePlateBlock(int id, Sensitivity sensitivity, BlockBehaviour behaviour) : AbstractPressurePlateBlock(id, std::move(behaviour)) {}
 
     struct Payload {
         uint16_t powered : 1;
         uint16_t : 15;
     };
 
-    static constexpr auto POWERED = BlockStateProperty::POWERED;
+    static constexpr auto POWERED = Property::POWERED;
 
     void fillStateContainer() override {
         bind<POWERED, get_POWERED, set_POWERED>();

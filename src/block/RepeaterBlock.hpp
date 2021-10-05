@@ -3,8 +3,8 @@
 #include "Block.hpp"
 
 struct RepeaterBlock : Block {
-    static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
-    static constexpr auto DELAY = BlockStateProperty::DELAY_1_4;
+    static constexpr auto FACING = Property::HORIZONTAL_FACING;
+    static constexpr auto DELAY = Property::DELAY_1_4;
 
     using Block::Block;
 

@@ -10,21 +10,13 @@ struct BambooBlock : Block {
         uint16_t : 12;
     };
 
-    static constexpr auto AGE = BlockStateProperty::AGE_0_1;
-    static constexpr auto LEAVES = BlockStateProperty::BAMBOO_LEAVES;
-    static constexpr auto STAGE = BlockStateProperty::STAGE_0_1;
+    static constexpr auto AGE = Property::AGE_0_1;
+    static constexpr auto LEAVES = Property::BAMBOO_LEAVES;
+    static constexpr auto STAGE = Property::STAGE_0_1;
 
     using Block::Block;
 
     bool isValidPosition(const BlockData& data, WorldReader &reader, const BlockPos &pos) override;
-
-    RenderType getRenderType() const override {
-        return RenderType::BambooStem;
-    }
-
-    RenderLayer getRenderLayer() const override {
-        return RenderLayer::Cutout;
-    }
 
     void fillStateContainer() override {
         bind<AGE, get_AGE, set_AGE>();

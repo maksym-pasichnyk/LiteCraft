@@ -9,9 +9,9 @@ struct ChorusFlowerBlock : Block {
         uint16_t : 13;
     };
 
-    static constexpr auto AGE = BlockStateProperty::AGE_0_5;
+    static constexpr auto AGE = Property::AGE_0_5;
 
-    ChorusFlowerBlock(int id, ChorusPlantBlock* block, Properties properties) : Block(id, std::move(properties)) {}
+    ChorusFlowerBlock(int id, ChorusPlantBlock* block, BlockBehaviour behaviour) : Block(id, std::move(behaviour)) {}
     
     void fillStateContainer() override {
         bind<AGE, get_AGE, set_AGE>();

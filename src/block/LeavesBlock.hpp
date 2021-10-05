@@ -11,8 +11,8 @@ struct LeavesBlock : Block {
         uint16_t : 12;
     };
 
-    static constexpr auto DISTANCE = BlockStateProperty::DISTANCE_1_7;
-    static constexpr auto PERSISTENT = BlockStateProperty::PERSISTENT;
+    static constexpr auto DISTANCE = Property::DISTANCE_1_7;
+    static constexpr auto PERSISTENT = Property::PERSISTENT;
 
     void fillStateContainer() override {
         bind<DISTANCE, get_DISTANCE, set_DISTANCE>();
@@ -42,17 +42,5 @@ struct LeavesBlock : Block {
         payload.distance = flag ? 1 : 0;
         state.dv = std::bit_cast<uint16_t>(payload);
         return state;
-    }
-
-    TintType getTintType() const override {
-        return TintType::Foliage;
-    }
-
-    RenderType getRenderType() const override {
-        return RenderType::Leaves;
-    }
-
-    RenderLayer getRenderLayer() const override {
-        return RenderLayer::Cutout;
     }
 };

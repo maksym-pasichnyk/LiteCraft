@@ -12,8 +12,8 @@ struct PistonHeadBlock : DirectionalBlock {
         uint16_t : 11;
     };
 
-    static constexpr auto TYPE = BlockStateProperty::PISTON_TYPE;
-    static constexpr auto SHORT = BlockStateProperty::SHORT;
+    static constexpr auto TYPE = Property::PISTON_TYPE;
+    static constexpr auto SHORT = Property::SHORT;
 
     void fillStateContainer() override {
         bind<FACING, get_FACING, set_FACING>();

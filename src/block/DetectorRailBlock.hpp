@@ -5,8 +5,8 @@
 struct DetectorRailBlock : AbstractRailBlock {
     using AbstractRailBlock::AbstractRailBlock;
 
-    static constexpr auto SHAPE = BlockStateProperty::RAIL_SHAPE_STRAIGHT;
-    static constexpr auto POWERED = BlockStateProperty::POWERED;
+    static constexpr auto SHAPE = Property::RAIL_SHAPE_STRAIGHT;
+    static constexpr auto POWERED = Property::POWERED;
 
     struct Payload {
         uint16_t shape : 4;

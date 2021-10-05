@@ -4,8 +4,4 @@
 
 struct AirBlock : Block {
     using Block::Block;
-
-    RenderType getRenderType() const override {
-        return RenderType::Air;
-    }
 };

@@ -9,8 +9,8 @@ struct CommandBlockBlock : ContainerBlock {
         uint16_t : 12;
     };
 
-    static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
-    static constexpr auto CONDITIONAL = BlockStateProperty::CONDITIONAL;
+    static constexpr auto FACING = Property::HORIZONTAL_FACING;
+    static constexpr auto CONDITIONAL = Property::CONDITIONAL;
 
     using ContainerBlock::ContainerBlock;
 

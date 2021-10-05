@@ -3,7 +3,7 @@
 #include "Block.hpp"
 
 struct DirectionalBlock : Block {
-    static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
+    static constexpr auto FACING = Property::HORIZONTAL_FACING;
 
     using Block::Block;
 };

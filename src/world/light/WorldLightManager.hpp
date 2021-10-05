@@ -126,7 +126,7 @@ struct WorldLightManager {
 
         auto chunk = reader.getChunk(xstart >> 4, zstart >> 4);
         for (auto pos : chunk->getLightSources()) {
-            auto level = chunk->getLightLevel(pos);
+            const auto level = chunk->getLightLevel(pos);
             if (level > 0) {
                 sources.emplace(pos.x, pos.y, pos.z, BLOCK);
                 reader.setLightFor(pos.x, pos.y, pos.z, BLOCK, level);

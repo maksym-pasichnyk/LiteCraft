@@ -4,5 +4,5 @@
 #include "material/DyeColors.hpp"
 
 struct CarpetBlock : Block {
-    CarpetBlock(int id, DyeColors color, Properties properties) : Block(id, std::move(properties)) {}
+    CarpetBlock(int id, DyeColors color, BlockBehaviour behaviour) : Block(id, std::move(behaviour)) {}
 };

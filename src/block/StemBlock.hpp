@@ -9,9 +9,9 @@ struct StemBlock : BushBlock {
         uint16_t : 12;
     };
 
-    static constexpr auto AGE = BlockStateProperty::AGE_0_7;
+    static constexpr auto AGE = Property::AGE_0_7;
 
-    StemBlock(int id, StemGrownBlock* block, Properties properties) : BushBlock(id, std::move(properties)) {}
+    StemBlock(int id, StemGrownBlock* block, BlockBehaviour behaviour) : BushBlock(id, std::move(behaviour)) {}
 
     void fillStateContainer() override {
         bind<AGE, get_AGE, set_AGE>();

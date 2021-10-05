@@ -89,259 +89,286 @@ enum class SoundType {
 
 struct Block;
 struct BlockData;
-enum class EntityType;
 struct WorldReader;
 struct BlockReader;
 struct BlockGraphics;
+enum class EntityType;
 
-struct AbstractBlock {
-    using IBlockColor = std::function<MaterialColor(const BlockData& data)>;
-    using ILightLevel = std::function<int32_t(const BlockData& data)>;
-    using IPositionPredicate = std::function<bool(BlockReader& reader, const BlockData& data, const BlockPos& pos)>;
-    using IExtendedPositionPredicate = std::function<bool(BlockReader& reader, const BlockData& data, const BlockPos& pos, const EntityType& type)>;
+struct AbstractBlock;
 
-    struct Properties {
-        Material *material = nullptr;
-        IBlockColor blockColors;
-        bool blocksMovement = true;
-        SoundType soundType = SoundType::STONE;
-        ILightLevel lightLevel = [](const BlockData &data) -> int32_t {
-            return 0;
-        };
-        float resistance = 0.0f;
-        float hardness = 0.0f;
-        bool requiresTool = false;
-        bool ticksRandomly = false;
-        float slipperiness = 0.6F;
-        float speedFactor = 1.0F;
-        float jumpFactor = 1.0F;
-        /*ResourceLocation lootTable;*/
-        bool isSolid = true;
-        bool isAir = false;
-        IPositionPredicate isOpaque = [](BlockReader &reader, const BlockData &data, const BlockPos &pos) -> bool {
-            return data.getMaterial()->isOpaque;// && data.hasOpaqueCollisionShape(reader, pos);
-        };
-        IPositionPredicate suffocates = [](BlockReader &reader, const BlockData &data, const BlockPos &pos) -> bool {
-            return data.getMaterial()->isBlocksMovement;// && data.hasOpaqueCollisionShape(reader, pos);
-        };
-        IPositionPredicate blocksVision = suffocates;
-        IPositionPredicate needsPostProcessing = [](BlockReader &reader, const BlockData &data, const BlockPos &pos) -> bool {
-            return false;
-        };
-        IPositionPredicate emmissiveRendering = [](BlockReader &reader, const BlockData &data, const BlockPos &pos) -> bool {
-            return false;
-        };
-        bool variableOpacity = false;
+struct BlockBehaviour {
+//    using TintTypeImpl = auto(*)(const BlockData&) -> TintType;
+//    using RenderTypeImpl = auto(*)(const BlockData& data) -> RenderType;
+//    using RenderLayerImpl = auto(*)(const BlockData& data) -> RenderLayer;
 
-        static Properties create(Material* material) {
-            return {
-                .material = material,
-                .blockColors = [material](const BlockData& data) {
-                    return material->color;
-                }
-            };
-        }
-//
-        static Properties create(Material* material, DyeColors color) {
-            return {
-                .material = material,
-                .blockColors = [material, color](const BlockData& data) {
-                    return material->color; //color.getMapColor()
-                }
-            };
-        }
+    using BlockColorImpl = std::function<MaterialColor(const BlockData& data)>;
+    using LightLevelImpl = auto(*)(const BlockData& data) -> int32_t;
+    using PositionPredicate = auto(*)(BlockReader& reader, const BlockData& data, const BlockPos& pos) -> bool;
+    using ExtendedPositionPredicate = auto(*)(BlockReader& reader, const BlockData& data, const BlockPos& pos, const EntityType& type) -> bool;
 
-        static Properties create(Material* material, MaterialColor color) {
-            return {
-                .material = material,
-                .blockColors = [color](const BlockData& data) {
-                    return color;
-                }
-            };
-        }
-
-        static Properties create(Material* material, IBlockColor blockColors) {
-            return {
-                .material = material,
-                .blockColors = std::move(blockColors)
-            };
-        }
-
-        static Properties from(AbstractBlock* block) {
-            return block->properties;
-        }
-
-        Properties &doesNotBlockMovement() {
-            blocksMovement = false;
-            isSolid = false;
-            return *this;
-        }
-
-        Properties &notSolid() {
-            isSolid = false;
-            return *this;
-        }
-
-        Properties &setSlipperiness(float slipperinessIn) {
-            slipperiness = slipperinessIn;
-            return *this;
-        }
-
-        Properties &setSpeedFactor(float factor) {
-            speedFactor = factor;
-            return *this;
-        }
-
-        Properties &setJumpFactor(float factor) {
-            jumpFactor = factor;
-            return *this;
-        }
-
-        Properties &setSound(SoundType soundTypeIn) {
-            soundType = soundTypeIn;
-            return *this;
-        }
-
-        Properties &setLightLevel(ILightLevel stateLightFunction) {
-            lightLevel = std::move(stateLightFunction);
-            return *this;
-        }
-
-        Properties &setHardnessAndResistance(float hardnessIn, float resistanceIn) {
-            hardness = hardnessIn;
-            resistance = std::max(0.0F, resistanceIn);
-            return *this;
-        }
-
-        Properties &zeroHardnessAndResistance() {
-            return setHardnessAndResistance(0.0F);
-        }
-
-        Properties &setHardnessAndResistance(float hardnessAndResistance) {
-            return setHardnessAndResistance(hardnessAndResistance, hardnessAndResistance);
-        }
-
-        Properties &setTickRandomly() {
-            ticksRandomly = true;
-            return *this;
-        }
-
-        Properties &setVariableOpacity() {
-            variableOpacity = true;
-            return *this;
-        }
-
-        Properties &noDrops() {
-//            lootTable = LootTables.EMPTY;
-            return *this;
-        }
-
-        Properties &setLootFrom(Block* block) {
-//            lootTable = block->getLootTable();
-            return *this;
-        }
-
-        Properties &setAir() {
-            isAir = true;
-            return *this;
-        }
-
-        Properties &setAllowsSpawn(IExtendedPositionPredicate allowsSpawn) {
-            allowsSpawn = std::move(allowsSpawn);
-            return *this;
-        }
-
-        Properties &setOpaque(IPositionPredicate opaquePredicate) {
-            isOpaque = std::move(opaquePredicate);
-            return *this;
-        }
-
-        Properties &setSuffocates(IPositionPredicate suffocatesPredicate) {
-            suffocates = std::move(suffocatesPredicate);
-            return *this;
-        }
-
-        Properties &setBlocksVision(IPositionPredicate blocksVisionPredicate) {
-            blocksVision = std::move(blocksVisionPredicate);
-            return *this;
-        }
-
-        Properties &setNeedsPostProcessing(IPositionPredicate postProcessingPredicate) {
-            needsPostProcessing = std::move(postProcessingPredicate);
-            return *this;
-        }
-
-        Properties &setEmmisiveRendering(IPositionPredicate emmisiveRenderPredicate) {
-            emmissiveRendering = std::move(emmisiveRenderPredicate);
-            return *this;
-        }
-
-        Properties &setRequiresTool() {
-            requiresTool = true;
-            return *this;
-        }
+    Material *material = nullptr;
+    BlockColorImpl blockColors;
+    bool blocksMovement = true;
+    SoundType soundType = SoundType::STONE;
+    LightLevelImpl lightLevel = [](const BlockData &data) -> int32_t {
+        return 0;
     };
+    TintType tintType = TintType::None;
+    RenderType renderType = RenderType::Block;
+    RenderLayer renderLayer = RenderLayer::Opaque;
 
-    int id;
-    Properties properties;
-    BlockGraphics* graphics{nullptr};
+    float resistance = 0.0f;
+    float hardness = 0.0f;
+    bool requiresTool = false;
+    bool ticksRandomly = false;
+    float slipperiness = 0.6F;
+    float speedFactor = 1.0F;
+    float jumpFactor = 1.0F;
+    /*ResourceLocation lootTable;*/
+    bool isSolid = true;
+    bool isAir = false;
+    PositionPredicate isOpaque = [](BlockReader &reader, const BlockData &data, const BlockPos &pos) -> bool {
+        return data.getMaterial()->isOpaque;// && data.hasOpaqueCollisionShape(reader, pos);
+    };
+    PositionPredicate suffocates = [](BlockReader &reader, const BlockData &data, const BlockPos &pos) -> bool {
+        return data.getMaterial()->isBlocksMovement;// && data.hasOpaqueCollisionShape(reader, pos);
+    };
+    PositionPredicate blocksVision = suffocates;
+    PositionPredicate needsPostProcessing = [](BlockReader &reader, const BlockData &data, const BlockPos &pos) -> bool {
+        return false;
+    };
+    PositionPredicate emmissiveRendering = [](BlockReader &reader, const BlockData &data, const BlockPos &pos) -> bool {
+        return false;
+    };
+    bool variableOpacity = false;
 
-    using PropertyGet = auto(*)(BlockData) -> Property;
-    using PropertySet = auto(*)(BlockData, const Property&) -> BlockData;
-
-    std::map<BlockStateProperty, std::pair<PropertyGet, PropertySet>> state_properties_binds{};
-    std::map<std::string, BlockStateProperty> state_properties_names{};
-
-    explicit AbstractBlock(int id, Properties properties) : id(id), properties(std::move(properties)) {}
-
-    Material* getMaterial() {
-        return properties.material;
+    BlockBehaviour &doesNotBlockMovement() {
+        blocksMovement = false;
+        isSolid = false;
+        return *this;
     }
 
-    BlockGraphics& getGraphics() {
+    BlockBehaviour &notSolid() {
+        isSolid = false;
+        return *this;
+    }
+
+    BlockBehaviour &setSlipperiness(float slipperinessIn) {
+        slipperiness = slipperinessIn;
+        return *this;
+    }
+
+    BlockBehaviour &setSpeedFactor(float factor) {
+        speedFactor = factor;
+        return *this;
+    }
+
+    BlockBehaviour &setJumpFactor(float factor) {
+        jumpFactor = factor;
+        return *this;
+    }
+
+    BlockBehaviour &setSound(SoundType soundTypeIn) {
+        soundType = soundTypeIn;
+        return *this;
+    }
+
+    BlockBehaviour &setLightLevel(LightLevelImpl fn) {
+        lightLevel = fn;
+        return *this;
+    }
+
+    BlockBehaviour &setHardnessAndResistance(float hardnessIn, float resistanceIn) {
+        hardness = hardnessIn;
+        resistance = std::max(0.0F, resistanceIn);
+        return *this;
+    }
+
+    BlockBehaviour &zeroHardnessAndResistance() {
+        return setHardnessAndResistance(0.0F);
+    }
+
+    BlockBehaviour &setHardnessAndResistance(float hardnessAndResistance) {
+        return setHardnessAndResistance(hardnessAndResistance, hardnessAndResistance);
+    }
+
+    BlockBehaviour &setTickRandomly() {
+        ticksRandomly = true;
+        return *this;
+    }
+
+    BlockBehaviour &setVariableOpacity() {
+        variableOpacity = true;
+        return *this;
+    }
+
+    BlockBehaviour &noDrops() {
+//        lootTable = LootTables.EMPTY;
+        return *this;
+    }
+
+    BlockBehaviour &setLootFrom(Block* block) {
+//        lootTable = block->getLootTable();
+        return *this;
+    }
+
+    BlockBehaviour &setAir() {
+        isAir = true;
+        return *this;
+    }
+
+    BlockBehaviour &setTintType(TintType v) {
+        tintType = v;
+        return *this;
+    }
+
+    BlockBehaviour &setRenderType(RenderType v) {
+        renderType = v;
+        return *this;
+    }
+
+    BlockBehaviour &setRenderLayer(RenderLayer v) {
+        renderLayer = v;
+        return *this;
+    }
+
+    BlockBehaviour &setAllowsSpawn(ExtendedPositionPredicate fn) {
+//        allowsSpawn = std::move(fn);
+        return *this;
+    }
+
+    BlockBehaviour &setOpaque(PositionPredicate fn) {
+        isOpaque = fn;
+        return *this;
+    }
+
+    BlockBehaviour &setSuffocates(PositionPredicate fn) {
+        suffocates = fn;
+        return *this;
+    }
+
+    BlockBehaviour &setBlocksVision(PositionPredicate fn) {
+        blocksVision = fn;
+        return *this;
+    }
+
+    BlockBehaviour &setNeedsPostProcessing(PositionPredicate fn) {
+        needsPostProcessing = fn;
+        return *this;
+    }
+
+    BlockBehaviour &setEmmisiveRendering(PositionPredicate fn) {
+        emmissiveRendering = fn;
+        return *this;
+    }
+
+    BlockBehaviour &setRequiresTool() {
+        requiresTool = true;
+        return *this;
+    }
+};
+
+struct AbstractBlock {
+    int id;
+    BlockBehaviour behaviour;
+    BlockGraphics* graphics{nullptr};
+
+    using PropertyGet = auto(*)(BlockData) -> PropertyValue;
+    using PropertySet = auto(*)(BlockData, const PropertyValue &) -> BlockData;
+
+    std::map<Property, std::pair<PropertyGet, PropertySet>> state_properties_binds{};
+    std::map<std::string, Property> state_properties_names{};
+
+    explicit AbstractBlock(int id, BlockBehaviour behaviour) : id(id), behaviour(std::move(behaviour)) {}
+
+    auto getMaterial() -> Material* {
+        return behaviour.material;
+    }
+
+    auto getGraphics() -> BlockGraphics& {
         return *graphics;
     }
 
-    MaterialColor getMaterialColor() {
-        return properties.material->color;
+    auto getMaterialColor() -> MaterialColor {
+        return behaviour.material->color;
     }
 
-    int32_t getLightLevel(const BlockData& data) {
-        return properties.lightLevel(data);
+    auto getLightLevel(const BlockData& data) -> int32_t {
+        return behaviour.lightLevel(data);
     }
 
-    bool isOpaque(BlockReader &reader, const BlockData &data, const BlockPos &pos) const {
-        return properties.isOpaque(reader, data, pos);
+    auto isOpaque(BlockReader &reader, const BlockData &data, const BlockPos &pos) const -> bool {
+        return behaviour.isOpaque(reader, data, pos);
     }
 
-    virtual TintType getTintType() const {
-        return TintType::None;
+    auto getTintType() const -> TintType {
+        return behaviour.tintType;
     }
 
-    virtual RenderType getRenderType() const {
-        return RenderType::Block;
+    auto getRenderType() const -> RenderType {
+        return behaviour.renderType;
     }
 
-    virtual RenderLayer getRenderLayer() const {
-        return RenderLayer::Opaque;
+    auto getRenderLayer() const -> RenderLayer {
+        return behaviour.renderLayer;
     }
 
-    virtual bool isValidPosition(const BlockData& data, WorldReader &reader, const BlockPos &pos) {
+    virtual auto isValidPosition(const BlockData& data, WorldReader &reader, const BlockPos &pos) -> bool {
         return true;
     }
 
-    template <BlockStateProperty property, auto get, auto set>
+    template <Property property, auto get, auto set>
     void bind() {
         using T = typename TypeFrom<property>::type;
 
         state_properties_binds.insert_or_assign(property, std::pair<PropertyGet, PropertySet>{
-            [](BlockData state) -> Property {
+            [](BlockData state) -> PropertyValue {
                 return get(state);
             },
-            [](BlockData state, const Property& value) -> BlockData {
+            [](BlockData state, const PropertyValue & value) -> BlockData {
                 return set(state, std::get<T>(value));
             }
         });
-        state_properties_names.insert_or_assign(BlockStatePropertyUtil::name(property).value(), property);
+        state_properties_names.insert_or_assign(PropertyUtil::name(property).value(), property);
+    }
+};
+
+struct BlockBehaviourUtil {
+    static auto create(Material* material) -> BlockBehaviour {
+        return {
+            .material = material,
+            .blockColors = [material](const BlockData& data) {
+                return material->color;
+            }
+        };
+    }
+
+    static auto create(Material* material, DyeColors color) -> BlockBehaviour {
+        return {
+            .material = material,
+            .blockColors = [material, color](const BlockData& data) {
+                return material->color; //color.getMapColor()
+            }
+        };
+    }
+
+    static auto create(Material* material, MaterialColor color) -> BlockBehaviour {
+        return {
+            .material = material,
+            .blockColors = [color](const BlockData& data) {
+                return color;
+            }
+        };
+    }
+
+    static auto create(Material* material, BlockBehaviour::BlockColorImpl blockColors) -> BlockBehaviour {
+        return {
+            .material = material,
+            .blockColors = std::move(blockColors)
+        };
+    }
+
+    static auto from(AbstractBlock* block) -> BlockBehaviour {
+        return block->behaviour;
     }
 };

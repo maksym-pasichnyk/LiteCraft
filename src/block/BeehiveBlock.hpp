@@ -9,8 +9,8 @@ struct BeehiveBlock : ContainerBlock {
         uint16_t : 10;
     };
 
-    static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
-    static constexpr auto HONEY = BlockStateProperty::HONEY_LEVEL;
+    static constexpr auto FACING = Property::HORIZONTAL_FACING;
+    static constexpr auto HONEY = Property::HONEY_LEVEL;
 
     using ContainerBlock::ContainerBlock;
 

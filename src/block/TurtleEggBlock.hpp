@@ -9,8 +9,8 @@ struct TurtleEggBlock : Block {
         uint16_t : 10;
     };
 
-    static constexpr auto HATCH = BlockStateProperty::HATCH_0_2;
-    static constexpr auto EGGS = BlockStateProperty::EGGS_1_4;
+    static constexpr auto HATCH = Property::HATCH_0_2;
+    static constexpr auto EGGS = Property::EGGS_1_4;
 
     using Block::Block;
 

@@ -15,11 +15,11 @@ struct VineBlock : Block {
         uint16_t : 11;
     };
 
-    static constexpr auto NORTH = BlockStateProperty::NORTH;
-    static constexpr auto EAST = BlockStateProperty::EAST;
-    static constexpr auto SOUTH = BlockStateProperty::SOUTH;
-    static constexpr auto WEST = BlockStateProperty::WEST;
-    static constexpr auto UP = BlockStateProperty::UP;
+    static constexpr auto NORTH = Property::NORTH;
+    static constexpr auto EAST = Property::EAST;
+    static constexpr auto SOUTH = Property::SOUTH;
+    static constexpr auto WEST = Property::WEST;
+    static constexpr auto UP = Property::UP;
 
     using Block::Block;
 
@@ -95,7 +95,7 @@ struct VineBlock : Block {
         return false;
     }
 
-    static constexpr auto getPropertyFor(Direction side) -> BlockStateProperty {
+    static constexpr auto getPropertyFor(Direction side) -> Property {
         return SixWayBlock::FACING_TO_PROPERTY[static_cast<size_t>(side)];
     }
 };

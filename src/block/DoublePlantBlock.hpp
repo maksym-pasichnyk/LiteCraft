@@ -8,7 +8,7 @@ struct DoublePlantBlock : BushBlock {
         uint16_t : 15;
     };
 
-    static constexpr auto HALF = BlockStateProperty::DOUBLE_BLOCK_HALF;
+    static constexpr auto HALF = Property::DOUBLE_BLOCK_HALF;
 
     using BushBlock::BushBlock;
 

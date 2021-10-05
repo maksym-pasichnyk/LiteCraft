@@ -11,10 +11,10 @@ struct BedBlock : HorizontalBlock {
         uint16_t : 8;
     };
 
-    static constexpr auto PART = BlockStateProperty::BED_PART;
-    static constexpr auto OCCUPIED = BlockStateProperty::OCCUPIED;
+    static constexpr auto PART = Property::BED_PART;
+    static constexpr auto OCCUPIED = Property::OCCUPIED;
 
-    BedBlock(int id, DyeColors color, Properties properties) : HorizontalBlock(id, std::move(properties)) {}
+    BedBlock(int id, DyeColors color, BlockBehaviour behaviour) : HorizontalBlock(id, std::move(behaviour)) {}
     
     void fillStateContainer() override {
         bind<FACING, get_FACING, set_FACING>();

@@ -8,7 +8,7 @@ struct RedstoneOreBlock : Block {
         uint16_t : 15;
     };
 
-    static constexpr auto LIT = BlockStateProperty::LIT;
+    static constexpr auto LIT = Property::LIT;
 
     using Block::Block;
 

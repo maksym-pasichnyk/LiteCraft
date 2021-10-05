@@ -10,11 +10,11 @@ struct CampfireBlock : ContainerBlock {
         uint16_t : 11;
     };
 
-    static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
-    static constexpr auto LIT = BlockStateProperty::LIT;
-    static constexpr auto SIGNAL_FIRE = BlockStateProperty::SIGNAL_FIRE;
+    static constexpr auto FACING = Property::HORIZONTAL_FACING;
+    static constexpr auto LIT = Property::LIT;
+    static constexpr auto SIGNAL_FIRE = Property::SIGNAL_FIRE;
 
-    CampfireBlock(int id, bool smokey, int fireDamage, Properties properties) : ContainerBlock(id, std::move(properties)) {}
+    CampfireBlock(int id, bool smokey, int fireDamage, BlockBehaviour behaviour) : ContainerBlock(id, std::move(behaviour)) {}
     
     void fillStateContainer() override {
         bind<FACING, get_FACING, set_FACING>();

@@ -9,9 +9,9 @@ struct WallTorchBlock : TorchBlock {
         uint16_t : 13;
     };
 
-    static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
+    static constexpr auto FACING = Property::HORIZONTAL_FACING;
 
-    WallTorchBlock(int id, Properties properties, ParticleType particleType) : TorchBlock(id, std::move(properties), particleType) {}
+    WallTorchBlock(int id, BlockBehaviour behaviour, ParticleType particleType) : TorchBlock(id, std::move(behaviour), particleType) {}
 
     void fillStateContainer() override {
         bind<FACING, get_FACING, set_FACING>();

@@ -3,5 +3,5 @@
 #include "Block.hpp"
 
 struct SilverfishBlock : Block {
-    SilverfishBlock(int id, Block* block, Properties properties) : Block(id, std::move(properties)) {}
+    SilverfishBlock(int id, Block* block, BlockBehaviour behaviour) : Block(id, std::move(behaviour)) {}
 };

@@ -8,7 +8,7 @@ struct TNTBlock : Block {
         uint16_t : 15;
     };
 
-    static constexpr auto UNSTABLE = BlockStateProperty::UNSTABLE;
+    static constexpr auto UNSTABLE = Property::UNSTABLE;
 
     using Block::Block;
     

@@ -3,10 +3,10 @@
 #include "Block.hpp"
 
 struct FourWayBlock : Block {
-    static constexpr auto EAST = BlockStateProperty::EAST;
-    static constexpr auto NORTH = BlockStateProperty::NORTH;
-    static constexpr auto SOUTH = BlockStateProperty::SOUTH;
-    static constexpr auto WEST = BlockStateProperty::WEST;
+    static constexpr auto EAST = Property::EAST;
+    static constexpr auto NORTH = Property::NORTH;
+    static constexpr auto SOUTH = Property::SOUTH;
+    static constexpr auto WEST = Property::WEST;
 
     using Block::Block;
 };

@@ -3,11 +3,11 @@
 #include "Block.hpp"
 
 struct DoorBlock : Block {
-    static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
-    static constexpr auto HALF = BlockStateProperty::DOUBLE_BLOCK_HALF;
-    static constexpr auto OPEN = BlockStateProperty::OPEN;
-    static constexpr auto HINGE = BlockStateProperty::DOOR_HINGE;
-    static constexpr auto POWERED = BlockStateProperty::POWERED;
+    static constexpr auto FACING = Property::HORIZONTAL_FACING;
+    static constexpr auto HALF = Property::DOUBLE_BLOCK_HALF;
+    static constexpr auto OPEN = Property::OPEN;
+    static constexpr auto HINGE = Property::DOOR_HINGE;
+    static constexpr auto POWERED = Property::POWERED;
 
     using Block::Block;
     

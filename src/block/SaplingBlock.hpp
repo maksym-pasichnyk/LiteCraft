@@ -13,14 +13,14 @@ struct AcaciaTree : Tree {};
 struct DarkOakTree : Tree {};
 
 struct SaplingBlock : BushBlock {
-    SaplingBlock(int id, Tree* tree, Properties properties) : BushBlock(id, std::move(properties)) {}
+    SaplingBlock(int id, Tree* tree, BlockBehaviour behaviour) : BushBlock(id, std::move(behaviour)) {}
     
     struct Payload {
         uint16_t stage : 1;
         uint16_t : 15;
     };
 
-    static constexpr auto STAGE = BlockStateProperty::STAGE_0_1;
+    static constexpr auto STAGE = Property::STAGE_0_1;
 
     using BushBlock::BushBlock;
 

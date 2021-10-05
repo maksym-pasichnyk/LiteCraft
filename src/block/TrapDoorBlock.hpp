@@ -11,9 +11,9 @@ struct TrapDoorBlock : HorizontalBlock {
         uint16_t : 10;
     };
 
-    static constexpr auto OPEN = BlockStateProperty::OPEN;
-    static constexpr auto HALF = BlockStateProperty::HALF;
-    static constexpr auto POWERED = BlockStateProperty::POWERED;
+    static constexpr auto OPEN = Property::OPEN;
+    static constexpr auto HALF = Property::HALF;
+    static constexpr auto POWERED = Property::POWERED;
 
     using HorizontalBlock::HorizontalBlock;
     

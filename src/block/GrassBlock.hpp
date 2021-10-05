@@ -5,7 +5,7 @@
 struct GrassBlock : SpreadableSnowyDirtBlock {
     using SpreadableSnowyDirtBlock::SpreadableSnowyDirtBlock;
 
-    TintType getTintType() const override {
-        return TintType::Grass;
-    }
+//    TintType getTintType() const override {
+//        return TintType::Grass;
+//    }
 };

@@ -10,8 +10,8 @@ struct ScaffoldingBlock : Block {
         uint16_t : 11;
     };
 
-    static constexpr auto DISTANCE = BlockStateProperty::DISTANCE_0_7;
-    static constexpr auto BOTTOM = BlockStateProperty::BOTTOM;
+    static constexpr auto DISTANCE = Property::DISTANCE_0_7;
+    static constexpr auto BOTTOM = Property::BOTTOM;
 
     using Block::Block;
 

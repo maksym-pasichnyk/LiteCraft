@@ -9,8 +9,8 @@ struct AbstractFurnaceBlock : ContainerBlock {
         uint16_t : 12;
     };
 
-    static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
-    static constexpr auto LIT = BlockStateProperty::LIT;
+    static constexpr auto FACING = Property::HORIZONTAL_FACING;
+    static constexpr auto LIT = Property::LIT;
 
     using ContainerBlock::ContainerBlock;
 

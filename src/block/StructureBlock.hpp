@@ -8,7 +8,7 @@ struct StructureBlock : ContainerBlock {
         uint16_t : 14;
     };
 
-    static constexpr auto MODE = BlockStateProperty::STRUCTURE_BLOCK_MODE;
+    static constexpr auto MODE = Property::STRUCTURE_BLOCK_MODE;
 
     using ContainerBlock::ContainerBlock;
 

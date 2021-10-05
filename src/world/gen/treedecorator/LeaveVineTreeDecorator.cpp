@@ -3,7 +3,7 @@
 #include "../../WorldGenRegion.hpp"
 #include <block/VineBlock.hpp>
 
-void LeaveVineTreeDecorator::placeVines(WorldGenRegion& reader, const BlockPos& pos, BlockStateProperty property, std::set<BlockPos>& positions, BoundingBox& boundingBox) {
+void LeaveVineTreeDecorator::placeVines(WorldGenRegion& reader, const BlockPos& pos, Property property, std::set<BlockPos>& positions, BoundingBox& boundingBox) {
     placeVine(reader, pos, property, positions, boundingBox);
 
     auto blockpos = pos.down();

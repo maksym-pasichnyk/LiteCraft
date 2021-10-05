@@ -10,7 +10,7 @@ struct SlabBlock : Block {
         uint16_t : 14;
     };
 
-    static constexpr auto TYPE = BlockStateProperty::SLAB_TYPE;
+    static constexpr auto TYPE = Property::SLAB_TYPE;
 
     void fillStateContainer() override {
         bind<TYPE, get_TYPE, set_TYPE>();

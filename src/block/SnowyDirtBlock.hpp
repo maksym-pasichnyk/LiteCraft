@@ -9,7 +9,7 @@ struct SnowyDirtBlock : Block {
         uint16_t : 15;
     };
 
-    static constexpr auto SNOWY = BlockStateProperty::SNOWY;
+    static constexpr auto SNOWY = Property::SNOWY;
 
     using Block::Block;
 

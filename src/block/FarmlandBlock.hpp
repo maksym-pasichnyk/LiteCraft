@@ -8,7 +8,7 @@ struct FarmlandBlock : Block {
         uint16_t : 13;
     };
 
-    static constexpr auto MOISTURE = BlockStateProperty::MOISTURE_0_7;
+    static constexpr auto MOISTURE = Property::MOISTURE_0_7;
 
     using Block::Block;
 

@@ -10,7 +10,7 @@ struct TargetBlock : Block {
         uint16_t : 12;
     };
 
-    static constexpr auto POWER = BlockStateProperty::POWER_0_15;
+    static constexpr auto POWER = Property::POWER_0_15;
 
     void fillStateContainer() override {
         bind<POWER, get_POWER, set_POWER>();

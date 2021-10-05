@@ -4,5 +4,5 @@
 #include "WoodType.hpp"
 
 struct AbstractSignBlock : ContainerBlock {
-    AbstractSignBlock(int id, Properties properties, WoodType woodType) : ContainerBlock(id, std::move(properties)) {}
+    AbstractSignBlock(int id, BlockBehaviour behaviour, WoodType woodType) : ContainerBlock(id, std::move(behaviour)) {}
 };

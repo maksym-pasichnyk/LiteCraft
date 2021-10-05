@@ -11,8 +11,8 @@ struct ChestBlock : AbstractChestBlock {
         uint16_t : 10;
     };
 
-    static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
-    static constexpr auto TYPE = BlockStateProperty::CHEST_TYPE;
+    static constexpr auto FACING = Property::HORIZONTAL_FACING;
+    static constexpr auto TYPE = Property::CHEST_TYPE;
 
     void fillStateContainer() override {
         bind<FACING, get_FACING, set_FACING>();

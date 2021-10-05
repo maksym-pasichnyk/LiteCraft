@@ -10,11 +10,11 @@ struct StairsBlock : Block {
         uint16_t : 9;
     };
 
-    static constexpr auto HALF = BlockStateProperty::HALF;
-    static constexpr auto SHAPE = BlockStateProperty::STAIRS_SHAPE;
-    static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
+    static constexpr auto HALF = Property::HALF;
+    static constexpr auto SHAPE = Property::STAIRS_SHAPE;
+    static constexpr auto FACING = Property::HORIZONTAL_FACING;
 
-    StairsBlock(int id, BlockData data, Properties properties) : Block(id, std::move(properties)) {}
+    StairsBlock(int id, BlockData data, BlockBehaviour behaviour) : Block(id, std::move(behaviour)) {}
 
     void fillStateContainer() override {
         bind<HALF, get_HALF, set_HALF>();

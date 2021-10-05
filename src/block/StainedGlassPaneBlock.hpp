@@ -4,5 +4,5 @@
 #include "material/DyeColors.hpp"
 
 struct StainedGlassPaneBlock : PaneBlock {
-    StainedGlassPaneBlock(int id, DyeColors color, Properties properties) : PaneBlock(id, std::move(properties)) {}
+    StainedGlassPaneBlock(int id, DyeColors color, BlockBehaviour behaviour) : PaneBlock(id, std::move(behaviour)) {}
 };

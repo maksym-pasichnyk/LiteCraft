@@ -1,6 +1,6 @@
 #pragma once
 
-enum class BlockStateProperty {
+enum class Property {
     // BooleanProperty
     ATTACHED,
     BOTTOM,

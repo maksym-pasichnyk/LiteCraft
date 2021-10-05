@@ -9,7 +9,7 @@ struct CocoaBlock : HorizontalBlock {
         uint16_t : 11;
     };
 
-    static constexpr auto AGE = BlockStateProperty::AGE_0_2;
+    static constexpr auto AGE = Property::AGE_0_2;
 
     using HorizontalBlock::HorizontalBlock;
 

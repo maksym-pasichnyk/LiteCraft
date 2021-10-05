@@ -9,9 +9,9 @@ struct BannerBlock : AbstractBannerBlock {
         uint16_t : 12;
     };
 
-    static constexpr auto ROTATION = BlockStateProperty::ROTATION_0_15;
+    static constexpr auto ROTATION = Property::ROTATION_0_15;
 
-    BannerBlock(int id, DyeColors color, Properties properties) : AbstractBannerBlock(id, std::move(properties)) {}
+    BannerBlock(int id, DyeColors color, BlockBehaviour behaviour) : AbstractBannerBlock(id, std::move(behaviour)) {}
 
     void fillStateContainer() override {
         bind<ROTATION, get_ROTATION, set_ROTATION>();

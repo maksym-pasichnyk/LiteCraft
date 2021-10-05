@@ -22,7 +22,7 @@
 #include <state/NoteBlockInstrument.hpp>
 #include <variant>
 
-using Property = std::variant<
+using PropertyValue = std::variant<
     int,
     bool,
     Half,

@@ -8,7 +8,7 @@ struct SweetBerryBushBlock : BushBlock {
         uint16_t : 14;
     };
 
-    static constexpr auto AGE = BlockStateProperty::AGE_0_3;
+    static constexpr auto AGE = Property::AGE_0_3;
 
     using BushBlock::BushBlock;
 

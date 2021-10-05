@@ -17,9 +17,9 @@ struct SkullBlock : AbstractSkullBlock {
         uint16_t : 12;
     };
 
-    static constexpr auto ROTATION = BlockStateProperty::ROTATION_0_15;
+    static constexpr auto ROTATION = Property::ROTATION_0_15;
 
-    SkullBlock(int id, Type type, Properties properties) : AbstractSkullBlock(id, std::move(properties)) {}
+    SkullBlock(int id, Type type, BlockBehaviour behaviour) : AbstractSkullBlock(id, std::move(behaviour)) {}
 
     void fillStateContainer() override {
         bind<ROTATION, get_ROTATION, set_ROTATION>();

@@ -8,14 +8,14 @@ enum class Fluids {
 };
 
 struct FlowingFluidBlock : Block {
-    FlowingFluidBlock(int id, Fluids fluid, Properties properties) : Block(id, std::move(properties)) {}
+    FlowingFluidBlock(int id, Fluids fluid, BlockBehaviour behaviour) : Block(id, std::move(behaviour)) {}
 
     struct Payload {
         uint16_t level : 4;
         uint16_t : 12;
     };
 
-    static constexpr auto LEVEL = BlockStateProperty::LEVEL_0_15;
+    static constexpr auto LEVEL = Property::LEVEL_0_15;
 
     void fillStateContainer() override {
         bind<LEVEL, get_LEVEL, set_LEVEL>();
@@ -33,7 +33,7 @@ struct FlowingFluidBlock : Block {
         return state;
     }
     
-    RenderType getRenderType() const override {
-        return RenderType::Liquid;
-    }
+//    RenderType getRenderType() const override {
+//        return RenderType::Liquid;
+//    }
 };

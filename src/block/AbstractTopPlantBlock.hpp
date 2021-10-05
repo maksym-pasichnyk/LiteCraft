@@ -8,7 +8,7 @@ struct AbstractTopPlantBlock : AbstractPlantBlock {
         uint16_t : 11;
     };
 
-    static constexpr auto AGE = BlockStateProperty::AGE_0_25;
+    static constexpr auto AGE = Property::AGE_0_25;
 
     using AbstractPlantBlock::AbstractPlantBlock;
 

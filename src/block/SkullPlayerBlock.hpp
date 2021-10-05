@@ -3,5 +3,5 @@
 #include "SkullBlock.hpp"
 
 struct SkullPlayerBlock : SkullBlock {
-    SkullPlayerBlock(int id, Properties properties) : SkullBlock(id, Type::PLAYER, std::move(properties)) {}
+    SkullPlayerBlock(int id, BlockBehaviour behaviour) : SkullBlock(id, Type::PLAYER, std::move(behaviour)) {}
 };

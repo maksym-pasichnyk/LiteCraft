@@ -8,9 +8,9 @@ struct StandingSignBlock : AbstractSignBlock {
         uint16_t : 12;
     };
 
-    static constexpr auto ROTATION = BlockStateProperty::ROTATION_0_15;
+    static constexpr auto ROTATION = Property::ROTATION_0_15;
 
-    StandingSignBlock(int id, Properties properties, WoodType woodType) : AbstractSignBlock(id, std::move(properties), woodType) {}
+    StandingSignBlock(int id, BlockBehaviour behaviour, WoodType woodType) : AbstractSignBlock(id, std::move(behaviour), woodType) {}
 
     void fillStateContainer() override {
         bind<ROTATION, get_ROTATION, set_ROTATION>();

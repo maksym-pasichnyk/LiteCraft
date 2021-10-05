@@ -11,8 +11,8 @@ struct MovingPistonBlock : ContainerBlock {
         uint16_t : 11;
     };
 
-    static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
-    static constexpr auto TYPE = BlockStateProperty::PISTON_TYPE;
+    static constexpr auto FACING = Property::HORIZONTAL_FACING;
+    static constexpr auto TYPE = Property::PISTON_TYPE;
 
     void fillStateContainer() override {
         bind<FACING, get_FACING, set_FACING>();

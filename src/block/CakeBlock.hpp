@@ -8,7 +8,7 @@ struct CakeBlock : Block {
         uint16_t : 13;
     };
 
-    static constexpr auto BITES = BlockStateProperty::BITES_0_6;
+    static constexpr auto BITES = Property::BITES_0_6;
 
     using Block::Block;
 

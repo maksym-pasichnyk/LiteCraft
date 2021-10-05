@@ -3,5 +3,5 @@
 #include "CoralFanBlock.hpp"
 
 struct CoralFinBlock : CoralFanBlock {
-    CoralFinBlock(int id, Block* block, Properties properties) : CoralFanBlock(id, std::move(properties)) {}
+    CoralFinBlock(int id, Block* block, BlockBehaviour behaviour) : CoralFanBlock(id, std::move(behaviour)) {}
 };

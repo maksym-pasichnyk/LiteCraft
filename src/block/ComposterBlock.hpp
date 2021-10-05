@@ -8,7 +8,7 @@ struct ComposterBlock : Block {
         uint16_t : 12;
     };
 
-    static constexpr auto LEVEL = BlockStateProperty::LEVEL_0_8;
+    static constexpr auto LEVEL = Property::LEVEL_0_8;
 
     using Block::Block;
 

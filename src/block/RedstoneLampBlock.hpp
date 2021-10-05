@@ -10,7 +10,7 @@ struct RedstoneLampBlock : Block {
         uint16_t : 15;
     };
 
-    static constexpr auto LIT = BlockStateProperty::LIT;
+    static constexpr auto LIT = Property::LIT;
 
     void fillStateContainer() override {
         bind<LIT, get_LIT, set_LIT>();

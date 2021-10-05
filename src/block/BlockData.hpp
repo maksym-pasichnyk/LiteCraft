@@ -2,10 +2,10 @@
 
 #include <compare>
 #include <cstdint>
-#include <util/Mirror.hpp>
+#include <state/util/PropertyUtil.hpp>
 #include <tags/BlockTags.hpp>
+#include <util/Mirror.hpp>
 #include <util/math/BlockPos.hpp>
-#include <state/util/BlockStatePropertyUtil.hpp>
 
 struct Block;
 struct Material;
@@ -29,16 +29,16 @@ struct BlockData {
     auto getLightLevel() const -> int32_t;
     auto isValidPosition(WorldReader& reader, const glm::vec3& pos) const -> bool;
 
-    auto has(BlockStateProperty property) const -> bool;
+    auto has(Property property) const -> bool;
 
-    auto get(BlockStateProperty prop) const -> Property;
-    auto set(BlockStateProperty prop, const Property& property) const -> BlockData;
+    auto get(Property prop) const -> PropertyValue;
+    auto set(Property prop, const PropertyValue & property) const -> BlockData;
 
-    template<BlockStateProperty prop>
+    template<Property prop>
     auto get() const -> typename TypeFrom<prop>::type {
         return std::get<typename TypeFrom<prop>::type>(get(prop));
     }
-    template<BlockStateProperty prop>
+    template<Property prop>
     auto set(typename TypeFrom<prop>::type property) const -> BlockData {
         return set(prop, property);
     }

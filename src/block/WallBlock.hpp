@@ -12,11 +12,11 @@ struct WallBlock : Block {
         uint16_t : 7;
     };
 
-    static constexpr auto UP = BlockStateProperty::UP;
-    static constexpr auto EAST = BlockStateProperty::WALL_HEIGHT_EAST;
-    static constexpr auto NORTH = BlockStateProperty::WALL_HEIGHT_NORTH;
-    static constexpr auto SOUTH = BlockStateProperty::WALL_HEIGHT_SOUTH;
-    static constexpr auto WEST = BlockStateProperty::WALL_HEIGHT_WEST;
+    static constexpr auto UP = Property::UP;
+    static constexpr auto EAST = Property::WALL_HEIGHT_EAST;
+    static constexpr auto NORTH = Property::WALL_HEIGHT_NORTH;
+    static constexpr auto SOUTH = Property::WALL_HEIGHT_SOUTH;
+    static constexpr auto WEST = Property::WALL_HEIGHT_WEST;
 
     using Block::Block;
 

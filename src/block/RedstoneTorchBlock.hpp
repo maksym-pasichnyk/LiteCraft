@@ -3,14 +3,14 @@
 #include "TorchBlock.hpp"
 
 struct RedstoneTorchBlock : TorchBlock {
-    RedstoneTorchBlock(int id, Properties properties) : TorchBlock(id, std::move(properties), ParticleType::REDSTONE_DUST) {}
+    RedstoneTorchBlock(int id, BlockBehaviour behaviour) : TorchBlock(id, std::move(behaviour), ParticleType::REDSTONE_DUST) {}
 
     struct Payload {
         uint16_t lit : 1;
         uint16_t : 15;
     };
 
-    static constexpr auto LIT = BlockStateProperty::LIT;
+    static constexpr auto LIT = Property::LIT;
 
     void fillStateContainer() override {
         bind<LIT, get_LIT, set_LIT>();

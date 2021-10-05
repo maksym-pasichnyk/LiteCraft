@@ -9,8 +9,8 @@ struct BarrelBlock : ContainerBlock {
         uint16_t : 12;
     };
 
-    static constexpr auto FACING = BlockStateProperty::HORIZONTAL_FACING;
-    static constexpr auto POWERED = BlockStateProperty::POWERED;
+    static constexpr auto FACING = Property::HORIZONTAL_FACING;
+    static constexpr auto POWERED = Property::POWERED;
 
     using ContainerBlock::ContainerBlock;
 

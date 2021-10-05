@@ -10,7 +10,7 @@ struct Block : AbstractBlock {
     BlockData baseState;
     BlockData defaultState;
 
-    explicit Block(int id, Properties properties) : AbstractBlock(id, std::move(properties)) {
+    explicit Block(int id, BlockBehaviour behaviour) : AbstractBlock(id, std::move(behaviour)) {
         baseState = {static_cast<uint16_t>(id), 0};
         setDefaultState(baseState);
     }

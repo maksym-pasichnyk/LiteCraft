@@ -10,7 +10,7 @@ struct RespawnAnchorBlock : Block {
         uint16_t : 12;
     };
 
-    static constexpr auto CHARGES = BlockStateProperty::CHARGES;
+    static constexpr auto CHARGES = Property::CHARGES;
 
     void fillStateContainer() override {
         bind<CHARGES, get_CHARGES, set_CHARGES>();
