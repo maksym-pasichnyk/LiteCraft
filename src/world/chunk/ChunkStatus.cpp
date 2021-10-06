@@ -66,7 +66,7 @@ void ChunkStatus::init() {
     });
     Light = create("light", Features, 1, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, TemplateManager& templates, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {
         WorldGenRegion region{world, chunks, radius, x, z, seed};
-        lightManager.calculate(region, x << 4, z << 4);
+        lightManager.calculate(region, x, z);
     });
     Full = create("full", Light, 0, [](ServerWorld* world, WorldLightManager& lightManager, ChunkGenerator& generator, TemplateManager& templates, int32_t x, int32_t z, Chunk& chunk, std::span<std::shared_ptr<Chunk>> chunks, int64_t seed, int radius) {});
 }
