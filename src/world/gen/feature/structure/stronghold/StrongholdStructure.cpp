@@ -26,3 +26,7 @@ bool StrongholdStructure::canGenerate(ChunkGenerator &generator, BiomeProvider &
 //        markAvailableHeight(/*generator.getSeaLevel()*/63, rand, 10);
 //    }
 //}
+
+void StrongholdStructure::createComponents(StructurePieces& pieces, StructureGenerateContext& context, const StructureConfig& config) {
+
+}
