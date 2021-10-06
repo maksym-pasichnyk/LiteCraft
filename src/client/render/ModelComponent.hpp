@@ -49,10 +49,10 @@ struct ModelVertexBuilder {
     }
 };
 
-struct ModelRendered {
+struct ModelComponent {
     std::unique_ptr<Mesh> mesh;
     
-    explicit ModelRendered(const ModelFormat& model_format) /*: material(material)*/ {
+    explicit ModelComponent(const ModelFormat& model_format) /*: material(material)*/ {
         const auto attributes = std::array{
             VertexArrayAttrib{0, 3, GL_FLOAT, GL_FALSE, offsetof(BlockVertex, vertex)},
             VertexArrayAttrib{1, 3, GL_FLOAT, GL_FALSE, offsetof(BlockVertex, normal)},

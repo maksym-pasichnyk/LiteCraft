@@ -7,13 +7,16 @@
 
 #include <range/v3/algorithm.hpp>
 #include <resource_manager.hpp>
+#include <entt/entt.hpp>
 #include <thread>
 #include <memory>
 
 struct CraftServer {
+    entt::registry ecs;
+
     ResourceManager& resources;
     PacketManager<CraftServer> packetManager;
-    std::vector<std::unique_ptr<Connection>> connections;
+//    std::vector<std::unique_ptr<Connection>> connections;
 
     std::unique_ptr<ServerWorld> world = nullptr;
     std::vector<std::thread> workers{};

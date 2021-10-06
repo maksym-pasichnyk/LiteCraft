@@ -35,11 +35,11 @@
 #include <world/gen/surface/SurfaceBuilders.hpp>
 #include <world/gen/feature/processor/ProcessorLists.hpp>
 
-#include <client/world/ClientWorld.hpp>
+#include <client/render/ModelComponent.hpp>
 #include <client/render/ViewFrustum.hpp>
-#include <client/render/ModelRendered.hpp>
-#include <client/render/model/Models.hpp>
 #include <client/render/chunk/ChunkRenderDispatcher.hpp>
+#include <client/render/model/Models.hpp>
+#include <client/world/ClientWorld.hpp>
 
 #include <configs.hpp>
 
@@ -53,15 +53,34 @@ struct CameraUniform {
     void* pointer;
 };
 
+struct AABB {
+    glm::vec3 min;
+    glm::vec3 max;
+};
+
+struct VelocityComponent {
+    glm::vec3 velocity;
+};
+struct PlayerComponent {
+    int controller;
+    float cooldown;
+};
+struct GravityComponent {};
+struct CollisionComponent {
+    std::vector<AABB> boxes;
+};
+
 struct App {
+    entt::registry ecs;
+
     std::shared_ptr<Window> window{};
     std::shared_ptr<Device> device{};
     std::shared_ptr<Surface> surface{};
     std::unique_ptr<TextureAtlas> atlas{};
     std::unique_ptr<ResourceManager> resources{};
 
-    float cooldown = 0.25f;
-    int viewDistance = 11;
+    int viewDistance = 2;
+    int loaded_chunks = 0;
     PacketManager<App> handler{};
     std::unique_ptr<ClientWorld> world{};
     std::unique_ptr<CraftServer> server{};
@@ -69,11 +88,12 @@ struct App {
     std::unique_ptr<Connection> connection{};
     std::unique_ptr<ChunkRenderDispatcher> dispatcher{};
 
+    entt::entity local_player;
+
     Camera camera{};
-    Transform transform{};
     std::vector<CameraUniform> uniforms{};
     std::vector<ChunkRenderData*> chunkToRenders{};
-    std::optional<RayTraceResult> rayTraceResult{};
+//    std::optional<RayTraceResult> rayTraceResult{};
     std::chrono::high_resolution_clock::time_point startTime{};
 
     GLuint opaque_pipeline;
@@ -81,7 +101,6 @@ struct App {
     GLuint transparent_pipeline;
 
     GLuint entity_pipeline;
-    std::unique_ptr<ModelRendered> entity_model;
 
     bool joined = false;
 
@@ -141,8 +160,6 @@ struct App {
         Biomes::init(*resources);
         Models::init(*resources);
 
-        entity_model = std::make_unique<ModelRendered>(*Models::models.get("geometry.armor_stand").value());
-
         /**************************************************************************************************************/
 
 //        physfs_recursive_directory_iterator{}.next("client-extra", [](const char* path) {
@@ -190,7 +207,9 @@ struct App {
         connection->send(CHandshakePacket{720, ProtocolType::HANDSHAKING});
         connection->send(CLoginStartPacket{});
 
-        while (!joined) {
+        auto stride = viewDistance * 2 + 1;
+
+        while (!joined || loaded_chunks != stride * stride) {
             handler.handlePackets(*this, *connection);
         }
     }
@@ -213,43 +232,76 @@ struct App {
         const auto delta = Input::get().getMousePosition() - center;
         window->setMousePosition(center);
 
-        transform.rotation += getRotationDelta(transform, delta, dt);
-        transform.rotation.y = glm::clamp(transform.rotation.y, -90.0f, 90.0f);
-
-        transform.position += getVelocity(Input::get(), transform, dt);
+        auto& transform = ecs.get<Transform>(local_player);
+        auto& velocity = ecs.get<VelocityComponent>(local_player);
 
         /**************************************************************************************************************/
 
-        if (cooldown > 0) {
-            cooldown -= dt;
-        }
+        ecs.view<PlayerComponent, Transform, VelocityComponent>().each([dt, delta](auto& p, auto& tr, auto& vel) {
+            tr.rotation += getRotationDelta(tr, delta, dt);
+            tr.rotation.y = glm::clamp(tr.rotation.y, -90.0f, 90.0f);
 
-        /**************************************************************************************************************/
+            const auto speed = Input::get().isKeyPressed(Input::Key::Shift) ? 50.0f : 5.0f;
+            const auto states = std::array{
+                Input::get().isKeyPressed(Input::Key::Up) ? 1 : 0,
+                Input::get().isKeyPressed(Input::Key::Left) ? 1 : 0,
+                Input::get().isKeyPressed(Input::Key::Down) ? 1 : 0,
+                Input::get().isKeyPressed(Input::Key::Right) ? 1 : 0
+            };
+            const auto direction = glm::vec3(states[3] - states[1], 0, states[2] - states[0]);
+            vel.velocity += direction * glm::mat3(tr.getRotationMatrixY()) * speed * dt;
 
-        RayTraceContext rtc {
-            .position = transform.position + glm::vec3(0, 1.68, 0),
-            .direction = transform.forward(),
-            .ignoreLiquid = true
-        };
-
-        rayTraceResult = rayTraceBlocks(*world, rtc);
-        if (cooldown <= 0 && rayTraceResult.has_value()) {
-            if (Input::get().isMouseButtonPressed(Input::MouseButton::Left)) {
-                cooldown = 0.25f;
-
-                connection->send(CPlayerDiggingPacket{
-                    .pos = rayTraceResult->pos,
-                    .dir = rayTraceResult->dir
-                });
-            } else if (Input::get().isMouseButtonPressed(Input::MouseButton::Right)) {
-                cooldown = 0.25f;
-
-//                connection->send(SChangeBlockPacket{
-//                    .pos = rayTraceResult->pos + rayTraceResult->dir,
-//                    .data = Blocks::TORCH->getDefaultState()
-//                });
+            if (Input::get().isKeyDown(Input::Key::Jump)) {
+                vel.velocity.y += 5.0f * dt;
             }
-        }
+        });
+        ecs.view<VelocityComponent, GravityComponent>().each([dt](auto& vel) {
+            vel.velocity.y += -9.8f * dt * dt;
+        });
+        ecs.view<Transform, VelocityComponent, CollisionComponent>().each([this](auto& tr, auto& vel, const auto& col) {
+            vel.velocity = resolve_collision(*world, tr.position, vel.velocity);
+        });
+        ecs.view<Transform, VelocityComponent>().each([](auto& tr, auto& vel) {
+            tr.position += vel.velocity;
+            vel.velocity.x *= 0.5f;
+            vel.velocity.z *= 0.5f;
+
+            if (tr.position.y < 0.0f) {
+                tr.position.y = 256.0f;
+                vel.velocity.y = 0.0f;
+            }
+        });
+        ecs.view<PlayerComponent, Transform>().each([this, dt](auto& p, auto& tr) {
+            if (p.cooldown > 0) {
+                p.cooldown -= dt;
+                return;
+            }
+            RayTraceContext ctx {
+                .position = tr.position + glm::vec3(0.0f, 1.68f, 0.0f),
+                .direction = tr.forward(),
+                .ignoreLiquid = true
+            };
+
+            if (const auto result = rayTraceBlocks(*world, ctx)) {
+                if (Input::get().isMouseButtonPressed(Input::MouseButton::Left)) {
+                    p.cooldown = 0.25f;
+
+                    connection->send(CPlayerDiggingPacket{
+                        .pos = result->pos,
+                        .dir = result->dir
+                    });
+                } else if (Input::get().isMouseButtonPressed(Input::MouseButton::Right)) {
+                    p.cooldown = 0.25f;
+
+                    connection->send(SChangeBlockPacket{
+                        .pos = result->pos + result->dir,
+                        .block = States::TORCH
+                    });
+                }
+            }
+        });
+
+        /**************************************************************************************************************/
     }
 
     void render(const FrameInfo& frame) {
@@ -271,7 +323,7 @@ struct App {
             window->pumpEvents();
 
             const auto time = std::chrono::high_resolution_clock::now();
-            const auto dt = float(std::chrono::duration<double>(time - startTime).count());
+            const auto dt = static_cast<float>(std::chrono::duration<double>(time - startTime).count());
             startTime = time;
 
             update(dt);
@@ -282,14 +334,144 @@ struct App {
 
             surface->present();
             window->swapBuffers();
-
-//            fmt::print("fps: {}\n", 1.0f / dt);
         }
 
         return 0;
     }
 
 private:
+    /**************************************************************************************************************/
+
+    static auto check_collide(IBlockReader auto& blocks, float x, float y, float z) -> bool {
+        const auto ix = glm::floor(x);
+        const auto iy = glm::floor(y);
+        const auto iz = glm::floor(z);
+        return !blocks.getData(ix, iy, iz).isAir();
+    }
+
+    static auto check_down_velocity(IBlockReader auto& blocks, glm::vec3 position, float velocity, float half_collider_width = 0.3f) -> float {
+        if (check_collide(blocks, position.x - half_collider_width, position.y + velocity, position.z - half_collider_width)) {
+            return 0;
+        }
+        if (check_collide(blocks, position.x + half_collider_width, position.y + velocity, position.z - half_collider_width)) {
+            return 0;
+        }
+        if (check_collide(blocks, position.x + half_collider_width, position.y + velocity, position.z + half_collider_width)) {
+            return 0;
+        }
+        if (check_collide(blocks, position.x - half_collider_width, position.y + velocity, position.z + half_collider_width)) {
+            return 0;
+        }
+        return velocity;
+    }
+
+    static auto check_up_velocity(IBlockReader auto& blocks, glm::vec3 entity_pos, float vel, float half_collider_width = 0.3f, float collider_height = 1.8f) -> float {
+        if (check_collide(blocks, entity_pos.x - half_collider_width, entity_pos.y + collider_height + vel, entity_pos.z - half_collider_width)) {
+            return 0;
+        }
+        if (check_collide(blocks, entity_pos.x + half_collider_width, entity_pos.y + collider_height + vel, entity_pos.z - half_collider_width)) {
+            return 0;
+        }
+        if (check_collide(blocks, entity_pos.x + half_collider_width, entity_pos.y + collider_height + vel, entity_pos.z + half_collider_width)) {
+            return 0;
+        }
+        if (check_collide(blocks, entity_pos.x - half_collider_width, entity_pos.y + collider_height + vel, entity_pos.z + half_collider_width)) {
+            return 0;
+        }
+        return vel;
+    }
+
+    static auto check_front_velocity(IBlockReader auto& blocks, const glm::vec3& position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) -> float {
+        const auto new_pos = position + velocity;
+        if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y, new_pos.z + half_collider_width)) {
+            return 0;
+        }
+        if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z + half_collider_width)) {
+            return 0;
+        }
+        if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
+            return 0;
+        }
+        if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
+            return 0;
+        }
+        return velocity.z;
+    }
+
+    static auto check_back_velocity(IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) -> float {
+        const auto new_pos = position + velocity;
+        if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y, new_pos.z - half_collider_width)) {
+            return 0;
+        }
+        if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z - half_collider_width)) {
+            return 0;
+        }
+        if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y + collider_height, new_pos.z - half_collider_width)) {
+            return 0;
+        }
+        if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z - half_collider_width)) {
+            return 0;
+        }
+        return velocity.z;
+    }
+
+    static auto check_left_velocity(IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) -> float {
+        const auto new_pos = position + velocity;
+        if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z - half_collider_width)) {
+            return 0;
+        }
+        if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z + half_collider_width)) {
+            return 0;
+        }
+        if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z - half_collider_width)) {
+            return 0;
+        }
+        if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
+            return 0;
+        }
+        return velocity.x;
+    }
+
+    static auto check_right_velocity(IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) -> float {
+        const auto new_pos = position + velocity;
+        if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y, new_pos.z - half_collider_width)) {
+            return 0;
+        }
+        if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y, new_pos.z + half_collider_width)) {
+            return 0;
+        }
+        if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y + collider_height, new_pos.z - half_collider_width)) {
+            return 0;
+        }
+        if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y + collider_height, new_pos.z + half_collider_width)) {
+            return 0;
+        }
+        return velocity.x;
+    }
+
+    static auto resolve_collision(IBlockReader auto& blocks, const glm::vec3& pos, const glm::vec3& vel) -> glm::vec3 {
+        auto velocity = vel;
+        if (velocity.y > 0) {
+            velocity.y = check_up_velocity(blocks, pos, velocity.y);
+        } else if (velocity.y < 0) {
+            velocity.y = check_down_velocity(blocks, pos, velocity.y);
+        }
+        if (velocity.z > 0) {
+            velocity.z = check_front_velocity(blocks, pos, velocity);
+        } else if (velocity.z < 0) {
+            velocity.z = check_back_velocity(blocks, pos, velocity);
+        }
+        if (velocity.x > 0) {
+            velocity.x = check_right_velocity(blocks, pos, velocity);
+        } else if (velocity.x < 0) {
+            velocity.x = check_left_velocity(blocks, pos, velocity);
+        }
+        return velocity;
+    }
+
+    /**************************************************************************************************************/
+
+
     void processEncryptionRequest(Connection& connection, const SEncryptionRequestPacket& packet) {
         connection.send(CEncryptionResponsePacket{});
     }
@@ -298,6 +480,8 @@ private:
     void processLoginSuccess(Connection& _, const SLoginSuccessPacket& packet) {}
 
     void processLoadChunk(Connection& _, const SLoadChunkPacket& packet) {
+        loaded_chunks += 1;
+
         world->loadChunk(packet.x, packet.z, packet.chunk);
 
         for (int x = packet.x - 1; x <= packet.x + 1; ++x) {
@@ -327,14 +511,21 @@ private:
         const auto pos = glm::ivec3(glm::floor(packet.pos));
         world->provider->chunkArray.setCenter(pos.x >> 4, pos.z >> 4);
 
-        transform = {
-            .position = packet.pos,
-            .rotation = {0, 10}
-        };
+        auto model = Models::models.get("geometry.armor_stand").value();
+
+        local_player = ecs.create();
+        ecs.emplace<Transform>(local_player, packet.pos, glm::vec2{0, 10});
+        ecs.emplace<ModelComponent>(local_player, *model);
+        ecs.emplace<PlayerComponent>(local_player, 0, 0.0f);
+        ecs.emplace<GravityComponent>(local_player);
+        ecs.emplace<VelocityComponent>(local_player);
+        ecs.emplace<CollisionComponent>(local_player);
     }
 
 private:
     void setupCamera(const FrameInfo& frame) {
+        auto& transform = ecs.get<Transform>(local_player);
+
         const auto projection_matrix = camera.getProjection();
         const auto transform_matrix = transform.getTransformMatrix({0.0f, 1.68f, 0.0f});
         const auto camera_matrix = projection_matrix * transform_matrix;
@@ -351,6 +542,8 @@ private:
     }
 
     void setupTerrain() {
+        auto& transform = ecs.get<Transform>(local_player);
+
         chunkToRenders.clear();
 
         const auto pos = glm::ivec3(glm::floor(transform.position));
@@ -411,8 +604,14 @@ private:
 
         glDisable(GL_BLEND);
         glUseProgram(entity_pipeline);
-        glBindVertexArray(entity_model->mesh->vao);
-        glDrawElements(GL_TRIANGLES, entity_model->mesh->index_count, GL_UNSIGNED_INT, nullptr);
+
+        ecs.view<Transform, ModelComponent>().each([](const auto& tr, const auto& mr) {
+            // todo: transform
+            // todo: animation
+
+            glBindVertexArray(mr.mesh->vao);
+            glDrawElements(GL_TRIANGLES, mr.mesh->index_count, GL_UNSIGNED_INT, nullptr);
+        });
     }
 
     void renderLayer(RenderLayer layer) {
@@ -421,22 +620,9 @@ private:
 
             if (count != 0) {
                 glBindVertexArray(chunk->mesh.vao);
-
                 glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, static_cast<std::byte*>(nullptr) + offset * sizeof(int32_t));
             }
         }
-    }
-
-    static auto getVelocity(Input& input, const Transform& transform, float dt) -> glm::vec3 {
-        const auto speed = input.isKeyPressed(Input::Key::Shift) ? 100.0f : 10.0f;
-        const auto states = std::array{
-            input.isKeyPressed(Input::Key::Up) ? 1 : 0,
-            input.isKeyPressed(Input::Key::Left) ? 1 : 0,
-            input.isKeyPressed(Input::Key::Down) ? 1 : 0,
-            input.isKeyPressed(Input::Key::Right) ? 1 : 0
-        };
-        const auto direction = glm::vec3(states[3] - states[1], 0, states[2] - states[0]);
-        return direction * glm::mat3(transform.getRotationMatrix()) * speed * dt;
     }
 
     static auto getRotationDelta(const Transform& transform, glm::ivec2 delta, float dt) -> glm::vec2 {

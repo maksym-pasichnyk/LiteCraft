@@ -25,16 +25,17 @@ CraftServer::CraftServer(int viewDistance, ResourceManager& resources) : resourc
 void CraftServer::runLoop(std::stop_token &&token) {
     while (!token.stop_requested()) {
         while (auto connection = listener.accept()) {
-            connections.emplace_back(std::make_unique<Connection>(connection->first));
+            auto player = ecs.create();
+            ecs.emplace<Connection>(player, connection->first);
         }
 
-        for (auto& connection : connections) {
-            packetManager.handlePackets(*this, *connection);
-        }
+        ecs.view<Connection>().each([this](auto& connection) {
+            packetManager.handlePackets(*this, connection);
+        });
 
-        if (!connections.empty()) {
-            world->manager->tick(*connections[0]);
-        }
+        ecs.view<Connection>().each([this](auto& connection) {
+            world->manager->tick(connection);
+        });
 
 //            const auto stride = (world->manager->viewDistance + 10 + 2) * 2 + 1;
 //            if (world->manager->holders.size() > stride * stride) {
@@ -74,9 +75,9 @@ void CraftServer::processEncryptionResponse(Connection& connection, const CEncry
     connection.send(SLoginSuccessPacket{});
 
     // todo: join
-    last_player_position = ChunkPos::from(glm::ivec3{0, 80, 10});
+    last_player_position = ChunkPos::from(glm::ivec3{0, 120, 10});
     connection.send(SSpawnPlayerPacket{
-        .pos = {0, 80, 10}
+        .pos = {0, 120, 10}
     });
     world->manager->setPlayerTracking(connection, last_player_position, true);
 }

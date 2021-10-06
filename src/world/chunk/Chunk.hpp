@@ -117,7 +117,7 @@ struct Chunk {
 
     explicit Chunk(ChunkPos pos) : pos{pos} {}
 
-    std::span<BlockPos> getLightSources() {
+    auto getLightSources() -> std::span<const BlockPos> {
         return blockLightSources;
     }
 

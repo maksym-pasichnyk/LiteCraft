@@ -7,6 +7,10 @@ struct Transform {
     glm::vec3 position{};
     glm::vec2 rotation{};
 
+    auto getRotationMatrixY() const -> glm::mat4 {
+        return getRotationMatrix({rotation.x, 0.0});
+    }
+
     auto getRotationMatrix() const -> glm::mat4 {
         return getRotationMatrix(rotation);
     }
