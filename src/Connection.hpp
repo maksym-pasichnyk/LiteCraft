@@ -1,17 +1,21 @@
 #pragma once
 
 #include "Packet.hpp"
-#include "net/tcp.hpp"
 
-#include <vector>
 #include <span>
+#include <vector>
+#include <net/tcp.hpp>
+#include <entt/entt.hpp>
 
 struct Connection {
-    explicit Connection(TcpStream socket) : socket(socket) {
+    entt::entity player;
+    std::optional<TcpStream> socket;
+
+    explicit Connection(entt::entity player, TcpStream socket) : player(player), socket(socket) {
         socket.set_blocking(false);
     }
 
-    explicit Connection(const SocketAddr& address) : socket(TcpStream::connect(address)) {
+    explicit Connection(entt::entity player, const SocketAddr& address) : player(player), socket(TcpStream::connect(address)) {
         if (socket.has_value()) {
             socket->set_blocking(false);
         }
@@ -54,7 +58,4 @@ struct Connection {
         socket->recv(bytes);
         return std::pair{header.id, PacketData::from(std::move(bytes))};
     }
-
-private:
-    std::optional<TcpStream> socket;
 };

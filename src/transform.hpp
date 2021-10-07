@@ -1,34 +1,35 @@
 #pragma once
 
-#include <glm/glm.hpp>
 #include <glm/ext.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
 struct Transform {
     glm::vec3 position{};
     glm::vec2 rotation{};
 
-    auto getRotationMatrixY() const -> glm::mat4 {
-        return getRotationMatrix({rotation.x, 0.0});
-    }
-
-    auto getRotationMatrix() const -> glm::mat4 {
-        return getRotationMatrix(rotation);
-    }
-
-    auto getTransformMatrix() const -> glm::mat4 {
-        return glm::translate(getRotationMatrix(), -position);
-    }
-
-    auto getTransformMatrix(glm::vec3 offset) const -> glm::mat4 {
-        return glm::translate(getRotationMatrix(), -(position + offset));
+    auto orientation() const -> glm::mat4 {
+        return glm::yawPitchRoll(glm::radians(rotation.x), glm::radians(rotation.y), 0.0f);
     }
 
     auto forward() const -> glm::vec3 {
-        return glm::vec3(0, 0, -1) * glm::mat3(getRotationMatrix());
+        return glm::normalize(glm::vec3(orientation() * glm::vec4(0, 0, -1, 1)));
     }
 
-    static auto getRotationMatrix(const glm::vec2& rotation) -> glm::mat4 {
-        return glm::eulerAngleXY(glm::radians(rotation.y), glm::radians(rotation.x));
+    auto right() const -> glm::vec3 {
+        return glm::normalize(glm::vec3(orientation() * glm::vec4(1, 0, 0, 1)));
+    }
+
+    auto up() const -> glm::vec3 {
+        return glm::normalize(glm::vec3(orientation() * glm::vec4(0, 1, 0, 1)));
+    }
+
+    auto localToWorldMatrix() const -> glm::mat4 {
+        return glm::translate(glm::mat4(1.0f), position) * orientation();
+    }
+
+    auto transformPoint(const glm::vec3& p) const -> glm::vec3 {
+        return position + glm::mat3(orientation()) * p;
     }
 };
 

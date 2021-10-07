@@ -48,7 +48,7 @@ struct SocketAddr {
 template <>
 struct fmt::formatter<SocketAddr> : formatter<std::string> {
     template <typename FormatContext>
-    auto format(SocketAddr addr, FormatContext& ctx) {
-        return formatter::format(fmt::format("{}:{}", addr.ip(), addr.port()), ctx);
+    auto format(const SocketAddr& addr, FormatContext& ctx) {
+        return formatter<std::string>::format(fmt::format("{}:{}", addr.ip(), addr.port()), ctx);
     }
 };

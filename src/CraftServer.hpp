@@ -15,12 +15,10 @@ struct CraftServer {
     entt::registry ecs;
 
     ResourceManager& resources;
-    PacketManager<CraftServer> packetManager;
-//    std::vector<std::unique_ptr<Connection>> connections;
+    PacketManager<CraftServer> packets;
 
     std::unique_ptr<ServerWorld> world = nullptr;
     std::vector<std::thread> workers{};
-    ChunkPos last_player_position{};
     TcpListener listener{};
 
     std::stop_source stop_source;

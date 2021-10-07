@@ -3,16 +3,17 @@
 #include "world/ChunkManager.hpp"
 
 #include <functional>
+#include <transform.hpp>
 
 // todo: fix cleanup crash (wait for chunk tasks finished? check around chunks?)
 
 CraftServer::CraftServer(int viewDistance, ResourceManager& resources) : resources(resources), viewDistance(viewDistance) {
-    packetManager.bind<CHandshakePacket, &CraftServer::processHandshake>();
-    packetManager.bind<CLoginStartPacket, &CraftServer::processLoginStart>();
-    packetManager.bind<CEncryptionResponsePacket, &CraftServer::processEncryptionResponse>();
-    packetManager.bind<PositionPacket, &CraftServer::processPlayerPosition>();
-    packetManager.bind<CPlayerDiggingPacket, &CraftServer::processPlayerDigging>();
-//    packetManager.bind<SChangeBlockPacket, &CraftServer::processChangeBlock>();
+    packets.bind<CHandshakePacket, &CraftServer::processHandshake>();
+    packets.bind<CLoginStartPacket, &CraftServer::processLoginStart>();
+    packets.bind<CEncryptionResponsePacket, &CraftServer::processEncryptionResponse>();
+    packets.bind<PositionPacket, &CraftServer::processPlayerPosition>();
+    packets.bind<CPlayerDiggingPacket, &CraftServer::processPlayerDigging>();
+//    packets.bind<SChangeBlockPacket, &CraftServer::processChangeBlock>();
 
     listener = TcpListener::bind(SocketAddr::from(Ipv4Addr::localhost(), 0)).value();
     listener.set_blocking(false);
@@ -26,11 +27,12 @@ void CraftServer::runLoop(std::stop_token &&token) {
     while (!token.stop_requested()) {
         while (auto connection = listener.accept()) {
             auto player = ecs.create();
-            ecs.emplace<Connection>(player, connection->first);
+            ecs.emplace<Transform>(player, glm::vec3{0, 0, 0}, glm::vec2{0, 0});
+            ecs.emplace<Connection>(player, player, connection->first);
         }
 
         ecs.view<Connection>().each([this](auto& connection) {
-            packetManager.handlePackets(*this, connection);
+            packets.handlePackets(*this, connection);
         });
 
         ecs.view<Connection>().each([this](auto& connection) {
@@ -74,24 +76,36 @@ void CraftServer::processEncryptionResponse(Connection& connection, const CEncry
     connection.send(SEnableCompressionPacket{});
     connection.send(SLoginSuccessPacket{});
 
-    // todo: join
-    last_player_position = ChunkPos::from(glm::ivec3{0, 120, 10});
-    connection.send(SSpawnPlayerPacket{
-        .pos = {0, 120, 10}
-    });
-    world->manager->setPlayerTracking(connection, last_player_position, true);
+    const auto position = glm::vec3{0, 120, 10};
+    const auto rotation = glm::vec2{};
+
+    ecs.replace<Transform>(connection.player, position, rotation);
+//    ecs.view<Connection>().each([&position](auto e, auto&& c) {
+//        c.send(SSpawnPlayerPacket{position});
+//    });
+    connection.send(SJoinGamePacket{});
+    connection.send(SPlayerPositionLookPacket{position, rotation});
+
+    world->manager->setPlayerTracking(connection, ChunkPos::from(glm::ivec3(position)), true);
 }
 
 void CraftServer::processPlayerPosition(Connection& connection, const PositionPacket &packet) {
     const auto pos = ChunkPos::from(glm::ivec3(packet.pos));
+    const auto last_pos = ChunkPos::from(glm::ivec3(ecs.get<Transform>(connection.player).position));
 
-    if (last_player_position != pos) {
-        world->manager->updatePlayerPosition(connection, pos, last_player_position);
-        last_player_position = pos;
+    if (pos != last_pos) {
+        world->manager->updatePlayerPosition(connection, pos, last_pos);
     }
+
+    ecs.get<Transform>(connection.player).position = packet.pos;
+//    ecs.view<Connection>().each([&connection, &packet](auto e, auto&& c) {
+//        if (c.player != conection.player) {
+////            c.send(SSpawnPlayerPacket{position});
+//        }
+//    });
 }
 
-void CraftServer::processPlayerDigging(Connection& connection, const CPlayerDiggingPacket& packet) {
+void CraftServer::processPlayerDigging(Connection& _, const CPlayerDiggingPacket& packet) {
     const auto pos = packet.pos;
     const auto [x, z] = ChunkPos::from(pos);
 
@@ -102,14 +116,18 @@ void CraftServer::processPlayerDigging(Connection& connection, const CPlayerDigg
         if (chunk->setData(pos, new_block)) {
             world->manager->lightManager->update(*world, pos.x, pos.y, pos.z, old_block, new_block);
 
-            connection.send(SChangeBlockPacket{
-                .pos = pos,
-                .block = new_block
+            ecs.view<Connection>().each([&pos, &new_block](auto& connection) {
+                connection.send(SChangeBlockPacket{
+                    .pos = pos,
+                    .block = new_block
+                });
             });
         } else {
-            connection.send(SChangeBlockPacket{
-                .pos = pos,
-                .block = old_block
+            ecs.view<Connection>().each([&pos, &old_block](auto& connection) {
+                connection.send(SChangeBlockPacket{
+                    .pos = pos,
+                    .block = old_block
+                });
             });
         }
     }

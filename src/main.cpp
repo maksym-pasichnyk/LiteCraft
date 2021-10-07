@@ -64,6 +64,7 @@ struct VelocityComponent {
 struct PlayerComponent {
     int controller;
     float cooldown;
+    Transform camera;
 };
 struct GravityComponent {};
 struct CollisionComponent {
@@ -80,15 +81,12 @@ struct App {
     std::unique_ptr<ResourceManager> resources{};
 
     int viewDistance = 2;
-    int loaded_chunks = 0;
     PacketManager<App> handler{};
     std::unique_ptr<ClientWorld> world{};
     std::unique_ptr<CraftServer> server{};
     std::unique_ptr<ViewFrustum> frustum{};
     std::unique_ptr<Connection> connection{};
     std::unique_ptr<ChunkRenderDispatcher> dispatcher{};
-
-    entt::entity local_player;
 
     Camera camera{};
     std::vector<CameraUniform> uniforms{};
@@ -102,8 +100,6 @@ struct App {
 
     GLuint entity_pipeline;
 
-    bool joined = false;
-
     App(const char* title, uint32_t width, uint32_t height) {
         handler.bind<SEncryptionRequestPacket, &App::processEncryptionRequest>();
         handler.bind<SEnableCompressionPacket, &App::processEnableCompression>();
@@ -112,6 +108,8 @@ struct App {
         handler.bind<SUnloadChunkPacket, &App::processUnloadChunk>();
         handler.bind<SChangeBlockPacket, &App::processChangeBlock>();
         handler.bind<SSpawnPlayerPacket, &App::processSpawnPlayer>();
+        handler.bind<SPlayerPositionLookPacket, &App::processPlayerPositionLook>();
+        handler.bind<SJoinGamePacket, &App::processJoinGame>();
 
         /**************************************************************************************************************/
 
@@ -203,15 +201,16 @@ struct App {
         frustum = std::make_unique<ViewFrustum>(viewDistance);
         dispatcher = std::make_unique<ChunkRenderDispatcher>();
 
-        connection = std::make_unique<Connection>(server->getLocalAddress());
+        connection = std::make_unique<Connection>(entt::null, server->getLocalAddress());
         connection->send(CHandshakePacket{720, ProtocolType::HANDSHAKING});
         connection->send(CLoginStartPacket{});
 
-        auto stride = viewDistance * 2 + 1;
-
-        while (!joined || loaded_chunks != stride * stride) {
+        const auto stride = viewDistance * 2 + 1;
+        while (world->provider->chunkArray.getLoaded() != stride * stride) {
             handler.handlePackets(*this, *connection);
         }
+
+        fmt::print("server: {}\n", server->getLocalAddress());
     }
 
     void createUniforms() {
@@ -229,27 +228,40 @@ struct App {
         handler.handlePackets(*this, *connection);
 
         const auto center = window->getWindowSize() / 2;
-        const auto delta = Input::get().getMousePosition() - center;
+        auto delta = Input::get().getMousePosition() - center;
         window->setMousePosition(center);
-
-        auto& transform = ecs.get<Transform>(local_player);
-        auto& velocity = ecs.get<VelocityComponent>(local_player);
 
         /**************************************************************************************************************/
 
         ecs.view<PlayerComponent, Transform, VelocityComponent>().each([dt, delta](auto& p, auto& tr, auto& vel) {
-            tr.rotation += getRotationDelta(tr, delta, dt);
-            tr.rotation.y = glm::clamp(tr.rotation.y, -90.0f, 90.0f);
+            p.camera.rotation -= getRotationDelta(p.camera, delta, dt);
+            p.camera.rotation.y = glm::clamp(p.camera.rotation.y, -90.0f, 90.0f);
+
+            tr.rotation.x = p.camera.rotation.x;
 
             const auto speed = Input::get().isKeyPressed(Input::Key::Shift) ? 50.0f : 5.0f;
             const auto states = std::array{
-                Input::get().isKeyPressed(Input::Key::Up) ? 1 : 0,
-                Input::get().isKeyPressed(Input::Key::Left) ? 1 : 0,
+                Input::get().isKeyPressed(Input::Key::Up) ? -1 : 0,
+                Input::get().isKeyPressed(Input::Key::Left) ? -1 : 0,
                 Input::get().isKeyPressed(Input::Key::Down) ? 1 : 0,
                 Input::get().isKeyPressed(Input::Key::Right) ? 1 : 0
             };
-            const auto direction = glm::vec3(states[3] - states[1], 0, states[2] - states[0]);
-            vel.velocity += direction * glm::mat3(tr.getRotationMatrixY()) * speed * dt;
+            const auto direction = glm::vec4(states[1] + states[3], 0, states[0] + states[2], 1);
+
+            vel.velocity.x = 0;
+            vel.velocity.z = 0;
+            if (Input::get().isKeyPressed(Input::Key::Up)) {
+                vel.velocity += tr.forward() * speed * dt;
+            }
+            if (Input::get().isKeyPressed(Input::Key::Down)) {
+                vel.velocity -= tr.forward() * speed * dt;
+            }
+            if (Input::get().isKeyPressed(Input::Key::Left)) {
+                vel.velocity -= tr.right() * speed * dt;
+            }
+            if (Input::get().isKeyPressed(Input::Key::Right)) {
+                vel.velocity += tr.right() * speed * dt;
+            }
 
             if (Input::get().isKeyDown(Input::Key::Jump)) {
                 vel.velocity.y += 5.0f * dt;
@@ -261,24 +273,21 @@ struct App {
         ecs.view<Transform, VelocityComponent, CollisionComponent>().each([this](auto& tr, auto& vel, const auto& col) {
             vel.velocity = resolve_collision(*world, tr.position, vel.velocity);
         });
-        ecs.view<Transform, VelocityComponent>().each([](auto& tr, auto& vel) {
+        ecs.view<PlayerComponent, Transform, VelocityComponent>().each([](auto& p, auto& tr, auto& vel) {
             tr.position += vel.velocity;
             vel.velocity.x *= 0.5f;
             vel.velocity.z *= 0.5f;
 
-            if (tr.position.y < 0.0f) {
-                tr.position.y = 256.0f;
-                vel.velocity.y = 0.0f;
-            }
+            p.camera.position = tr.transformPoint(glm::vec3{0.0f, 1.68f, 0.0f});
         });
-        ecs.view<PlayerComponent, Transform>().each([this, dt](auto& p, auto& tr) {
+        ecs.view<PlayerComponent>().each([this, dt](auto& p) {
             if (p.cooldown > 0) {
                 p.cooldown -= dt;
                 return;
             }
             RayTraceContext ctx {
-                .position = tr.position + glm::vec3(0.0f, 1.68f, 0.0f),
-                .direction = tr.forward(),
+                .position = p.camera.position,
+                .direction = p.camera.forward(),
                 .ignoreLiquid = true
             };
 
@@ -293,10 +302,10 @@ struct App {
                 } else if (Input::get().isMouseButtonPressed(Input::MouseButton::Right)) {
                     p.cooldown = 0.25f;
 
-                    connection->send(SChangeBlockPacket{
-                        .pos = result->pos + result->dir,
-                        .block = States::TORCH
-                    });
+//                    connection->send(SChangeBlockPacket{
+//                        .pos = result->pos + result->dir,
+//                        .block = States::TORCH
+//                    });
                 }
             }
         });
@@ -349,7 +358,7 @@ private:
         return !blocks.getData(ix, iy, iz).isAir();
     }
 
-    static auto check_down_velocity(IBlockReader auto& blocks, glm::vec3 position, float velocity, float half_collider_width = 0.3f) -> float {
+    static auto check_down_velocity(IBlockReader auto& blocks, glm::vec3 position, float velocity, float half_collider_width = 0.5f) -> float {
         if (check_collide(blocks, position.x - half_collider_width, position.y + velocity, position.z - half_collider_width)) {
             return 0;
         }
@@ -365,7 +374,7 @@ private:
         return velocity;
     }
 
-    static auto check_up_velocity(IBlockReader auto& blocks, glm::vec3 entity_pos, float vel, float half_collider_width = 0.3f, float collider_height = 1.8f) -> float {
+    static auto check_up_velocity(IBlockReader auto& blocks, glm::vec3 entity_pos, float vel, float half_collider_width = 0.5f, float collider_height = 1.8f) -> float {
         if (check_collide(blocks, entity_pos.x - half_collider_width, entity_pos.y + collider_height + vel, entity_pos.z - half_collider_width)) {
             return 0;
         }
@@ -381,7 +390,7 @@ private:
         return vel;
     }
 
-    static auto check_front_velocity(IBlockReader auto& blocks, const glm::vec3& position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) -> float {
+    static auto check_front_velocity(IBlockReader auto& blocks, const glm::vec3& position, glm::vec3 velocity, float half_collider_width = 0.5f, float collider_height = 1.8f) -> float {
         const auto new_pos = position + velocity;
         if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y, new_pos.z + half_collider_width)) {
             return 0;
@@ -398,7 +407,7 @@ private:
         return velocity.z;
     }
 
-    static auto check_back_velocity(IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) -> float {
+    static auto check_back_velocity(IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.5f, float collider_height = 1.8f) -> float {
         const auto new_pos = position + velocity;
         if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y, new_pos.z - half_collider_width)) {
             return 0;
@@ -415,7 +424,7 @@ private:
         return velocity.z;
     }
 
-    static auto check_left_velocity(IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) -> float {
+    static auto check_left_velocity(IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.5f, float collider_height = 1.8f) -> float {
         const auto new_pos = position + velocity;
         if (check_collide(blocks, new_pos.x - half_collider_width, new_pos.y, new_pos.z - half_collider_width)) {
             return 0;
@@ -432,7 +441,7 @@ private:
         return velocity.x;
     }
 
-    static auto check_right_velocity(IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.3f, float collider_height = 1.8f) -> float {
+    static auto check_right_velocity(IBlockReader auto& blocks, glm::vec3 position, glm::vec3 velocity, float half_collider_width = 0.5f, float collider_height = 1.8f) -> float {
         const auto new_pos = position + velocity;
         if (check_collide(blocks, new_pos.x + half_collider_width, new_pos.y, new_pos.z - half_collider_width)) {
             return 0;
@@ -471,7 +480,6 @@ private:
 
     /**************************************************************************************************************/
 
-
     void processEncryptionRequest(Connection& connection, const SEncryptionRequestPacket& packet) {
         connection.send(CEncryptionResponsePacket{});
     }
@@ -480,8 +488,6 @@ private:
     void processLoginSuccess(Connection& _, const SLoginSuccessPacket& packet) {}
 
     void processLoadChunk(Connection& _, const SLoadChunkPacket& packet) {
-        loaded_chunks += 1;
-
         world->loadChunk(packet.x, packet.z, packet.chunk);
 
         for (int x = packet.x - 1; x <= packet.x + 1; ++x) {
@@ -505,30 +511,39 @@ private:
         }
     }
 
+    void processJoinGame(Connection& _, const SJoinGamePacket& packet) {
+        if (connection->player == entt::null) {
+            connection->player = ecs.create();
+
+            ecs.emplace<Transform>(connection->player, glm::vec3{}, glm::vec2{});
+//            ecs.emplace<ModelComponent>(connection->player, *Models::models.get("geometry.humanoid").value());
+            ecs.emplace<PlayerComponent>(connection->player, 0, 0.0f, Transform{});
+            ecs.emplace<GravityComponent>(connection->player);
+            ecs.emplace<VelocityComponent>(connection->player);
+            ecs.emplace<CollisionComponent>(connection->player);
+        }
+    }
+
+    void processPlayerPositionLook(Connection& _, const SPlayerPositionLookPacket& packet) {
+        ecs.replace<Transform>(connection->player, packet.pos, packet.rot);
+    }
+
     void processSpawnPlayer(Connection& _, const SSpawnPlayerPacket& packet) {
-        joined = true;
-
-        const auto pos = glm::ivec3(glm::floor(packet.pos));
-        world->provider->chunkArray.setCenter(pos.x >> 4, pos.z >> 4);
-
-        auto model = Models::models.get("geometry.armor_stand").value();
-
-        local_player = ecs.create();
-        ecs.emplace<Transform>(local_player, packet.pos, glm::vec2{0, 10});
-        ecs.emplace<ModelComponent>(local_player, *model);
-        ecs.emplace<PlayerComponent>(local_player, 0, 0.0f);
-        ecs.emplace<GravityComponent>(local_player);
-        ecs.emplace<VelocityComponent>(local_player);
-        ecs.emplace<CollisionComponent>(local_player);
+        auto player = ecs.create();
+        ecs.emplace<Transform>(player, packet.pos, glm::vec2{});
+        ecs.emplace<ModelComponent>(player, *Models::models.get("geometry.humanoid").value());
+//        ecs.emplace<GravityComponent>(player);
+        ecs.emplace<VelocityComponent>(player);
+//        ecs.emplace<CollisionComponent>(player);
     }
 
 private:
     void setupCamera(const FrameInfo& frame) {
-        auto& transform = ecs.get<Transform>(local_player);
+        auto& transform = ecs.get<PlayerComponent>(connection->player).camera;
 
-        const auto projection_matrix = camera.getProjection();
-        const auto transform_matrix = transform.getTransformMatrix({0.0f, 1.68f, 0.0f});
-        const auto camera_matrix = projection_matrix * transform_matrix;
+        const auto projection = camera.getProjection();
+        const auto view = glm::inverse(transform.localToWorldMatrix());
+        const auto camera_matrix = projection * view;
 
         CameraConstants constants {
             .transform = camera_matrix,
@@ -542,7 +557,7 @@ private:
     }
 
     void setupTerrain() {
-        auto& transform = ecs.get<Transform>(local_player);
+        auto& transform = ecs.get<Transform>(connection->player);
 
         chunkToRenders.clear();
 
@@ -606,9 +621,10 @@ private:
         glUseProgram(entity_pipeline);
 
         ecs.view<Transform, ModelComponent>().each([](const auto& tr, const auto& mr) {
-            // todo: transform
             // todo: animation
+            const auto m = tr.localToWorldMatrix();
 
+            glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(m));
             glBindVertexArray(mr.mesh->vao);
             glDrawElements(GL_TRIANGLES, mr.mesh->index_count, GL_UNSIGNED_INT, nullptr);
         });

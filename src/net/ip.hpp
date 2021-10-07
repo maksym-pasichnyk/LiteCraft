@@ -66,8 +66,8 @@ struct Ipv4Addr {
 template <>
 struct fmt::formatter<Ipv4Addr> : formatter<std::string> {
     template <typename FormatContext>
-    auto format(Ipv4Addr addr, FormatContext& ctx) {
+    auto format(const Ipv4Addr& addr, FormatContext& ctx) {
         const auto [a, b, c, d] = addr.octets();
-        return formatter::format(fmt::format("{}.{}.{}.{}", a, b, c, d), ctx);
+        return formatter<std::string>::format(fmt::format("{}.{}.{}.{}", a, b, c, d), ctx);
     }
 };

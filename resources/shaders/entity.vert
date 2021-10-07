@@ -17,8 +17,10 @@ layout(location = 0) out vec3 vertex;
 layout(location = 1) out vec3 normal;
 layout(location = 2) out vec2 coords;
 
+layout(location = 0) uniform mat4 model_transform;
+
 void main() {
-	gl_Position = constants.transform * vec4(inPosition, 1.0);
+	gl_Position = constants.transform * model_transform * vec4(inPosition, 1.0);
 
 	vertex = inPosition;
 	normal = inNormal;

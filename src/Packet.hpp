@@ -151,6 +151,8 @@ enum class SPacketType {
     EncryptionRequest,
     EnableCompression,
     LoginSuccess,
+    JoinGame,
+    PlayerPositionLook,
     LoadChunk,
     UnloadChunk,
     SpawnPlayer,
@@ -229,6 +231,32 @@ struct SSpawnPlayerPacket {
     static constexpr auto ID = SPacketType::SpawnPlayer;
 
     glm::vec3 pos;
+
+    void read(PacketData& data) {
+        pos.x = data.read_i32().value();
+        pos.y = data.read_i32().value();
+        pos.z = data.read_i32().value();
+    }
+
+    void write(PacketData& data) const {
+        data.write_i32(pos.x);
+        data.write_i32(pos.y);
+        data.write_i32(pos.z);
+    }
+};
+
+struct SJoinGamePacket {
+    static constexpr auto ID = SPacketType::JoinGame;
+
+    void read(PacketData& data) {}
+    void write(PacketData& data) const {}
+};
+
+struct SPlayerPositionLookPacket {
+    static constexpr auto ID = SPacketType::PlayerPositionLook;
+
+    glm::vec3 pos;
+    glm::vec2 rot;
 
     void read(PacketData& data) {
         pos.x = data.read_i32().value();
