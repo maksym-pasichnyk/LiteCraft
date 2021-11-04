@@ -5,7 +5,7 @@
 #include <vector>
 
 struct ChunkArray {
-private:
+//private:
     int viewDistance = -1;
     int sideLength = -1;
     int loaded = 0;
@@ -48,7 +48,7 @@ public:
         centerZ = z;
     }
 
-private:
+//private:
     static auto floorMod(int32_t x, int32_t y) -> int32_t {
         return ((x % y) + y) % y;
     }

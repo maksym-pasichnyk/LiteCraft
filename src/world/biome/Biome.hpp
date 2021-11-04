@@ -96,9 +96,9 @@ struct Biome {
         return biomeGenerationSettings;
     }
 
-    void buildSurface(Random& rand, Chunk& chunk, int xStart, int zStart, int startHeight, double noise, BlockData defaultBlock, BlockData defaultFluid, int sealevel, int64_t worldSeed) {
-        biomeGenerationSettings.surfaceBuilder->setSeed(worldSeed);
-        biomeGenerationSettings.surfaceBuilder->buildSurface(rand, chunk, *this, xStart, zStart, startHeight, noise, defaultBlock, defaultFluid, sealevel);
+    void buildSurface(SurfaceBuilderContext& ctx, int64_t seed) {
+        biomeGenerationSettings.surfaceBuilder->setSeed(seed);
+        biomeGenerationSettings.surfaceBuilder->buildSurface(ctx);
     }
 
     void decorate(ChunkGenerator& generator, WorldGenRegion& region, TemplateManager& templates, int64_t seed, const BlockPos& pos);

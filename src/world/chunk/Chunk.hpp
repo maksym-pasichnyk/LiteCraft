@@ -221,8 +221,13 @@ struct Chunk {
         return getData(x, y, z).getBlock();
     }
 
+    auto getHeight(HeightmapType type, const BlockPos& pos) -> BlockPos {
+        const auto y = getHeight(type, pos.x, pos.z);
+        return BlockPos::from(pos.x, y, pos.z);
+    }
+
     auto getHeight(HeightmapType type, int32_t x, int32_t z) -> int32_t {
-        return heightmaps[0].get(x, z);
+        return heightmaps[0].get(x & 15, z & 15);
     }
 
     auto getTopBlockY(HeightmapType type, int32_t x, int32_t z) -> int32_t {

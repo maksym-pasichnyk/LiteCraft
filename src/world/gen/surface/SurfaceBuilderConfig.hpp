@@ -7,37 +7,15 @@ struct SurfaceBuilderConfig {
     BlockData mid;
     BlockData underWater;
 
-    BlockData getTop() const {
+    auto getTop() const -> BlockData {
         return top;
     }
 
-    BlockData getUnder() const {
+    auto getUnder() const -> BlockData {
         return mid;
     }
 
-    BlockData getUnderWaterMaterial() const {
+    auto getUnderWaterMaterial() const -> BlockData {
         return underWater;
     }
-};
-
-struct SurfaceBuilderConfigs {
-    static SurfaceBuilderConfig PODZOL_DIRT_GRAVEL_CONFIG;
-    static SurfaceBuilderConfig GRAVEL_CONFIG;
-    static SurfaceBuilderConfig GRASS_DIRT_GRAVEL_CONFIG;
-    static SurfaceBuilderConfig STONE_STONE_GRAVEL_CONFIG;
-    static SurfaceBuilderConfig CORASE_DIRT_DIRT_GRAVEL_CONFIG;
-    static SurfaceBuilderConfig SAND_SAND_GRAVEL_CONFIG;
-    static SurfaceBuilderConfig GRASS_DIRT_SAND_CONFIG;
-    static SurfaceBuilderConfig SNOW_DIRT_GRAVEL_CONFIG;
-    static SurfaceBuilderConfig SAND_CONFIG;
-    static SurfaceBuilderConfig RED_SAND_WHITE_TERRACOTTA_GRAVEL_CONFIG;
-    static SurfaceBuilderConfig MYCELIUM_DIRT_GRAVEL_CONFIG;
-    static SurfaceBuilderConfig NETHERRACK_CONFIG;
-    static SurfaceBuilderConfig SOUL_SAND__CONFIG;
-    static SurfaceBuilderConfig END_STONE_CONFIG;
-    static SurfaceBuilderConfig crimson_forest_config;
-    static SurfaceBuilderConfig WARPED_FOREST_CONFIG;
-    static SurfaceBuilderConfig BASALT_DELTAS_CONFIG;
-
-    static void init();
 };

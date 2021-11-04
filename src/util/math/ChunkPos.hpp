@@ -68,4 +68,8 @@ struct ChunkPos {
     constexpr auto getBlockZ(int offset) const noexcept -> int32_t {
         return getStartZ() + offset;
     }
+
+    constexpr auto getBlockPos(int _x, int _y, int _z) const noexcept -> BlockPos {
+        return BlockPos::from(getBlockX(_x), _y, getBlockZ(_z));
+    }
 };

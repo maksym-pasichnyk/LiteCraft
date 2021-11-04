@@ -5,7 +5,8 @@
 struct ClientChunkProvider {
     ChunkArray chunkArray;
 
-    explicit ClientChunkProvider(int viewDistance) : chunkArray{viewDistance} {}
+    explicit ClientChunkProvider(int viewDistance)
+        : chunkArray{adjustViewDistance(viewDistance)} {}
 
     void loadChunk(int32_t x, int32_t z, Chunk* chunk) {
         if (chunkArray.inView(x, z)) {
@@ -35,5 +36,9 @@ struct ClientChunkProvider {
 
     static auto isValid(Chunk* chunk, int32_t x, int32_t z) -> bool {
         return chunk != nullptr && chunk->pos.x == x && chunk->pos.z == z;
+    }
+
+    static auto adjustViewDistance(int viewDistance) -> int {
+        return std::max(2, viewDistance) + 3;
     }
 };

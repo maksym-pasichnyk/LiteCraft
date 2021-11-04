@@ -65,6 +65,6 @@ struct ServerWorld {
         return getChunk(x >> 4, z >> 4)->setData(x, y, z, data);
     }
     int getHeight(HeightmapType type, int x, int z) {
-        return getChunk(x >> 4, z >> 4)->getHeight(type, x & 15, z & 15);
+        return getChunk(x >> 4, z >> 4)->getHeight(type, x, z);
     }
 };

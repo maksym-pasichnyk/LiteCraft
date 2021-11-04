@@ -80,7 +80,7 @@ struct App {
     std::unique_ptr<TextureAtlas> atlas{};
     std::unique_ptr<ResourceManager> resources{};
 
-    int viewDistance = 2;
+    int renderDistance = -1;
     PacketManager<App> handler{};
     std::unique_ptr<ClientWorld> world{};
     std::unique_ptr<CraftServer> server{};
@@ -146,7 +146,6 @@ struct App {
         Placements::init();
         Structures::init();
         SurfaceBuilders::init();
-        SurfaceBuilderConfigs::init();
 
         ConfiguredCarvers::init(*resources);
         ConfiguredFeatures::init(*resources);
@@ -157,23 +156,6 @@ struct App {
 
         Biomes::init(*resources);
         Models::init(*resources);
-
-        /**************************************************************************************************************/
-
-//        physfs_recursive_directory_iterator{}.next("client-extra", [](const char* path) {
-//            auto handle = PHYSFS_openRead(path);
-//            auto len = PHYSFS_fileLength(handle);
-//
-//            std::vector<char> bytes(len);
-//            PHYSFS_readBytes(handle, bytes.data(), len);
-//
-//            std::stringstream s;
-//            s.write(bytes.data(), len);
-//
-//            auto root = Nbt::Read::read(zlib_istream(s)).value().root;
-//
-//            PHYSFS_close(handle);
-//        });
 
         /**************************************************************************************************************/
 
@@ -196,16 +178,18 @@ struct App {
 
         /**************************************************************************************************************/
 
+        renderDistance = 12;
+        const auto viewDistance = std::max(2, renderDistance - 1);
         world = std::make_unique<ClientWorld>(viewDistance);
-        server = std::make_unique<CraftServer>(viewDistance, *resources);
-        frustum = std::make_unique<ViewFrustum>(viewDistance);
+        server = std::make_unique<CraftServer>(viewDistance + 1, *resources);
+        frustum = std::make_unique<ViewFrustum>(renderDistance);
         dispatcher = std::make_unique<ChunkRenderDispatcher>();
 
         connection = std::make_unique<Connection>(entt::null, server->getLocalAddress());
         connection->send(CHandshakePacket{720, ProtocolType::HANDSHAKING});
         connection->send(CLoginStartPacket{});
 
-        const auto stride = viewDistance * 2 + 1;
+        const auto stride = renderDistance * 2 + 1;
         while (world->provider->chunkArray.getLoaded() != stride * stride) {
             handler.handlePackets(*this, *connection);
         }
@@ -492,7 +476,11 @@ private:
 
         for (int x = packet.x - 1; x <= packet.x + 1; ++x) {
             for (int z = packet.z - 1; z <= packet.z + 1; ++z) {
-                frustum->chunks[world->provider->chunkArray.getIndex(x, z)].needRender = true;
+                const auto ix = ChunkArray::floorMod(x, frustum->stride);
+                const auto iz = ChunkArray::floorMod(z, frustum->stride);
+                const auto i = static_cast<size_t>(ix + iz * frustum->stride);
+
+                frustum->chunks[i].needRender = true;
             }
         }
     }
@@ -506,7 +494,11 @@ private:
 
         for (int x = (pos.x - 1) >> 4; x <= (pos.x + 1) >> 4; x++) {
             for (int z = (pos.z - 1) >> 4; z <= (pos.z + 1) >> 4; z++) {
-                frustum->chunks[world->provider->chunkArray.getIndex(x, z)].needRender = true;
+                const auto ix = ChunkArray::floorMod(x, frustum->stride);
+                const auto iz = ChunkArray::floorMod(z, frustum->stride);
+                const auto i = static_cast<size_t>(ix + iz * frustum->stride);
+
+                frustum->chunks[i].needRender = true;
             }
         }
     }
@@ -545,7 +537,7 @@ private:
         const auto view = glm::inverse(transform.localToWorldMatrix());
         const auto camera_matrix = projection * view;
 
-        CameraConstants constants {
+        const auto constants = CameraConstants{
             .transform = camera_matrix,
             .position = glm::vec4(transform.position, 0.0f)
         };
@@ -572,13 +564,15 @@ private:
 
         world->provider->chunkArray.setCenter(chunk_x, chunk_z);
 
-        for (int x = chunk_x - viewDistance; x <= chunk_x + viewDistance; ++x) {
-            for (int z = chunk_z - viewDistance; z <= chunk_z + viewDistance; ++z) {
+        for (int x = chunk_x - renderDistance; x <= chunk_x + renderDistance; ++x) {
+            for (int z = chunk_z - renderDistance; z <= chunk_z + renderDistance; ++z) {
                 const auto from = glm::vec3{x << 4, 0, z << 4};
                 const auto to = from + glm::vec3{16, 256, 16};
 
-                if (frustum->TestAABB(from, to)) {
-                    const auto i = static_cast<size_t>(world->provider->chunkArray.getIndex(x, z));
+//                if (frustum->TestAABB(from, to)) {
+                    const auto ix = ChunkArray::floorMod(x, frustum->stride);
+                    const auto iz = ChunkArray::floorMod(z, frustum->stride);
+                    const auto i = static_cast<size_t>(ix + iz * frustum->stride);
 
                     if (std::exchange(frustum->chunks[i].needRender, false)) {
                         const auto dx = chunk_x - x;
@@ -589,9 +583,14 @@ private:
                     }
 
                     chunkToRenders.emplace_back(&frustum->chunks[i]);
-                }
+//                }
             }
         }
+
+//        fmt::print("Chunks[C] W: {}, {}\n",
+//            world->provider->chunkArray.chunks.size(),
+//            world->provider->chunkArray.getLoaded()
+//        );
     }
 
     void renderTerrain() {
@@ -652,7 +651,7 @@ private:
 };
 
 struct AppServer {
-    int viewDistance = 11;
+    int renderDistance = 11;
     std::unique_ptr<ResourceManager> resources{};
 
     AppServer() {
@@ -666,7 +665,6 @@ struct AppServer {
         Blocks::init();
         BlockTags::init();
         SurfaceBuilders::init();
-        SurfaceBuilderConfigs::init();
         ConfiguredSurfaceBuilders::init(*resources);
         Carvers::init();
         ConfiguredCarvers::init(*resources);
@@ -685,7 +683,7 @@ struct AppServer {
         std::string cmd{};
         while (running) {
             fmt::print("Run dedicated server!\n");
-            CraftServer server{viewDistance, *resources};
+            CraftServer server{renderDistance, *resources};
             while (true) {
                 if (std::getline(std::cin, cmd)) {
                     if (cmd == "restart") {
