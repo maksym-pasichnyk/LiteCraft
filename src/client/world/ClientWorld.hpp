@@ -26,7 +26,7 @@ struct ClientWorld {
         return provider->getChunk(x, z);
     }
 
-    auto getData(glm::ivec3 pos) const -> BlockData {
+    auto getData(const glm::ivec3& pos) const -> BlockData {
         return getData(pos.x, pos.y, pos.z);
     }
 
@@ -39,7 +39,7 @@ struct ClientWorld {
         return {};
     }
 
-    auto getBlock(glm::ivec3 pos) const -> Block* {
+    auto getBlock(const glm::ivec3& pos) const -> Block* {
         return getBlock(pos.x, pos.y, pos.z);
     }
 
@@ -47,7 +47,7 @@ struct ClientWorld {
         return getData(x, y, z).getBlock();
     }
 
-    auto getBiome(glm::ivec3 pos) const -> Biome* {
+    auto getBiome(const glm::ivec3& pos) const -> Biome* {
         return getBiome(pos.x, pos.y, pos.z);
     }
 

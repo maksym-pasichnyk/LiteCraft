@@ -4,11 +4,10 @@
 #include "../../../util/linked_unordered_map.hpp"
 #include "../../../util/math/ChunkPos.hpp"
 
-#include <functional>
-#include <memory>
 #include <map>
-
-#include <fmt/format.h>
+#include <memory>
+#include <functional>
+#include <spdlog/spdlog.h>
 
 struct IPixelTransformer : private std::function<int(int, int)> {
     using function::function;

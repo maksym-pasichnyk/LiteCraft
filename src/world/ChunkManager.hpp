@@ -41,9 +41,10 @@ struct ChunkHolder {
 
     void updateChunkToSave(ChunkResult task) {
         chunkToSave = async::when_all(std::move(chunkToSave), std::move(task))
-                        .then([](const std::tuple<ChunkResult, ChunkResult>& results) {
-                              return std::get<0>(results).get();
-                        }).share();
+            .then([](const std::tuple<ChunkResult, ChunkResult>& results) {
+                  return std::get<0>(results).get();
+            })
+            .share();
     }
 };
 
@@ -51,29 +52,30 @@ struct ThreadPool {
     ThreadPool(size_t thread_count = std::thread::hardware_concurrency()) {
         workers.reserve(thread_count);
         for (int i = 0; i < thread_count; ++i) {
-            workers.emplace_back(&ThreadPool::loop, this, stop_source.get_token());
+            workers.emplace_back(&ThreadPool::loop, this/*, stop_source.get_token()*/);
         }
     }
 
     ~ThreadPool() {
-        stop_source.request_stop();
+        request_stop = true;
+//        stop_source.request_stop();
         signal.notify_all();
         std::for_each(workers.begin(), workers.end(), std::mem_fn(&std::thread::join));
         workers.clear();
     }
 
-    void loop(std::stop_token &&token) {
-        while (auto task = get_task(token)) {
+    void loop(/*std::stop_token &&token*/) {
+        while (auto task = get_task(/*token*/)) {
             task->run();
         }
     }
 
-    auto get_task(std::stop_token& token) -> std::optional<async::task_run_handle> {
+    auto get_task(/*std::stop_token& token*/) -> std::optional<async::task_run_handle> {
         std::unique_lock lock{mutex};
-        signal.wait(lock, [this, &token] {
-            return !tasks.empty() || token.stop_requested();
+        signal.wait(lock, [this/*, &token*/] {
+            return !tasks.empty()/* || token.stop_requested()*/ || request_stop;
         });
-        if (token.stop_requested()) {
+        if (/*token.stop_requested()*/request_stop) {
             return std::nullopt;
         }
         auto task = std::move(tasks.front());
@@ -90,7 +92,8 @@ struct ThreadPool {
     }
 
 private:
-    std::stop_source stop_source;
+    bool request_stop = false;
+//    std::stop_source stop_source;
     std::vector<std::thread> workers{};
 
     std::mutex mutex{};

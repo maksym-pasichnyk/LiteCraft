@@ -2,14 +2,14 @@
 
 #include "Connection.hpp"
 #include "PacketManager.hpp"
-#include "util/math/ChunkPos.hpp"
 #include "world/ServerWorld.hpp"
+#include "util/math/ChunkPos.hpp"
 
-#include <range/v3/algorithm.hpp>
-#include <resource_manager.hpp>
-#include <entt/entt.hpp>
-#include <thread>
 #include <memory>
+#include <thread>
+#include <entt/entt.hpp>
+#include <ResourceManager.hpp>
+#include <range/v3/algorithm.hpp>
 
 struct CraftServer {
     entt::registry ecs;
@@ -21,21 +21,23 @@ struct CraftServer {
     std::vector<std::thread> workers{};
     TcpListener listener{};
 
-    std::stop_source stop_source;
+//    std::stop_source stop_source;
+    bool request_stop = false;
     int viewDistance = -1;
 
     explicit CraftServer(int viewDistance, ResourceManager& resources);
 
     ~CraftServer() {
         listener.close();
-        stop_source.request_stop();
+        request_stop = true;
+//        stop_source.request_stop();
         ranges::for_each(workers, std::mem_fn(&std::thread::join));
         workers.clear();
 
         world.reset();
     }
 
-    void runLoop(std::stop_token&& token);
+    void runLoop(/*std::stop_token&& token*/);
 
     auto getLocalAddress() const -> SocketAddr {
         return listener.local_addr().value();

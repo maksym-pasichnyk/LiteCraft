@@ -3,7 +3,7 @@
 #include "TexturedQuad.hpp"
 #include "model/ModelFormat.hpp"
 
-#include <mesh.hpp>
+#include <Mesh.hpp>
 #include <util/match.hpp>
 
 struct BlockVertex {
@@ -50,22 +50,22 @@ struct ModelVertexBuilder {
 };
 
 struct ModelComponent {
-    std::unique_ptr<Mesh> mesh;
+    Mesh mesh;
     
     explicit ModelComponent(const ModelFormat& model_format) /*: material(material)*/ {
-        const auto attributes = std::array{
-            VertexArrayAttrib{0, 3, GL_FLOAT, GL_FALSE, offsetof(BlockVertex, vertex)},
-            VertexArrayAttrib{1, 3, GL_FLOAT, GL_FALSE, offsetof(BlockVertex, normal)},
-            VertexArrayAttrib{2, 2, GL_FLOAT, GL_FALSE, offsetof(BlockVertex, coords)},
-        };
-        
-        const auto bindings = std::array{
-            VertexArrayBinding{0, 0},
-            VertexArrayBinding{1, 0},
-            VertexArrayBinding{2, 0}
-        };
-        
-        mesh = std::make_unique<Mesh>(attributes, bindings, sizeof(BlockVertex), GL_STREAM_DRAW);
+//        const auto attributes = std::array{
+//            VertexArrayAttrib{0, 3, GL_FLOAT, GL_FALSE, offsetof(BlockVertex, vertex)},
+//            VertexArrayAttrib{1, 3, GL_FLOAT, GL_FALSE, offsetof(BlockVertex, normal)},
+//            VertexArrayAttrib{2, 2, GL_FLOAT, GL_FALSE, offsetof(BlockVertex, coords)},
+//        };
+//
+//        const auto bindings = std::array{
+//            VertexArrayBinding{0, 0},
+//            VertexArrayBinding{1, 0},
+//            VertexArrayBinding{2, 0}
+//        };
+//
+//        mesh = std::make_unique<Mesh>(attributes, bindings, sizeof(BlockVertex), GL_STREAM_DRAW);
         
         const auto tex_width = model_format.texture_width;
         const auto tex_height = model_format.texture_height;
@@ -187,9 +187,12 @@ struct ModelComponent {
                 );
             }
         }
-        
-        mesh->SetIndices(std::span(builder.indices));
-        mesh->SetVertices(std::span(builder.vertices));
+
+        mesh.setIndexBufferParams(builder.indices.size(), sizeof(glm::u32));
+        mesh.setIndexBufferData(std::as_bytes(std::span(builder.indices)), 0);
+
+        mesh.setVertexBufferParams(builder.vertices.size(), sizeof(BlockVertex));
+        mesh.setVertexBufferData(std::as_bytes(std::span(builder.vertices)), 0);
     }
 
     static void create_face(ModelVertexBuilder& builder, const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec3& p4, float u0, float v0, float u1, float v1, int texWidth, int texHeight, const glm::vec3& normal) {

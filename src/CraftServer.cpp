@@ -20,11 +20,11 @@ CraftServer::CraftServer(int viewDistance, ResourceManager& resources) : resourc
 
     world = std::make_unique<ServerWorld>(this, viewDistance);
 
-    workers.emplace_back(&CraftServer::runLoop, this, stop_source.get_token());
+    workers.emplace_back(&CraftServer::runLoop, this/*, stop_source.get_token()*/);
 }
 
-void CraftServer::runLoop(std::stop_token &&token) {
-    while (!token.stop_requested()) {
+void CraftServer::runLoop(/*std::stop_token &&token*/) {
+    while (/*!token.stop_requested()*/!request_stop) {
         while (auto connection = listener.accept()) {
             auto player = ecs.create();
             ecs.emplace<Transform>(player, glm::vec3{0, 0, 0}, glm::vec2{0, 0});
@@ -76,7 +76,7 @@ void CraftServer::processEncryptionResponse(Connection& connection, const CEncry
     connection.send(SEnableCompressionPacket{});
     connection.send(SLoginSuccessPacket{});
 
-    const auto position = glm::vec3{0, 120, 10};
+    const auto position = glm::vec3{0, 63, 10};
     const auto rotation = glm::vec2{};
 
     ecs.replace<Transform>(connection.player, position, rotation);

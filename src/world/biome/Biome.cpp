@@ -13,9 +13,11 @@
 #include <range/v3/view.hpp>
 #include <world/chunk/ChunkStatus.hpp>
 
-const PerlinNoiseGenerator Biome::TEMPERATURE_NOISE = PerlinNoiseGenerator(Random::from(1234), ranges::views::single(0));
-const PerlinNoiseGenerator Biome::FROZEN_TEMPERATURE_NOISE = PerlinNoiseGenerator(Random::from(3456), ranges::views::iota(-2, 0 + 1));
-const PerlinNoiseGenerator Biome::INFO_NOISE = PerlinNoiseGenerator(Random::from(2345), ranges::views::single(0));
+thread_local linked_unordered_map<uint64_t, float> Biome::temperatureCache;
+
+PerlinNoiseGenerator Biome::TEMPERATURE_NOISE = PerlinNoiseGenerator(Random::from(1234), ranges::views::single(0));
+PerlinNoiseGenerator Biome::FROZEN_TEMPERATURE_NOISE = PerlinNoiseGenerator(Random::from(3456), ranges::views::iota(-2, 0 + 1));
+PerlinNoiseGenerator Biome::INFO_NOISE = PerlinNoiseGenerator(Random::from(2345), ranges::views::single(0));
 
 void Biome::decorate(ChunkGenerator &generator, WorldGenRegion &region, TemplateManager& templates, int64_t seed, const BlockPos& pos) {
     const auto chunk_pos = ChunkPos::from(pos);

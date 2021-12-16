@@ -2,7 +2,6 @@
 
 #include <mutex>
 #include <queue>
-#include <stop_token>
 #include <condition_variable>
 
 template <typename T>

@@ -17,14 +17,16 @@ struct ChunkRenderDispatcher {
     generate_queue<std::pair<ChunkRenderData*, std::unique_ptr<ChunkRenderCache>>> tasks;
     complete_queue<ChunkRenderData*> uploadTasks;
 
-    std::stop_source stop_source;
+//    std::stop_source stop_source;
+    bool request_stop = false;
 
     explicit ChunkRenderDispatcher() {
-        workers.emplace_back(&ChunkRenderDispatcher::runLoop, this, stop_source.get_token());
+        workers.emplace_back(&ChunkRenderDispatcher::runLoop, this/*, stop_source.get_token()*/);
     }
 
     ~ChunkRenderDispatcher() {
-        stop_source.request_stop();
+        request_stop = true;
+//        stop_source.request_stop();
         uploadTasks.clear();
         tasks.clear();
         ranges::for_each(workers, std::mem_fn(&std::thread::join));
@@ -43,8 +45,8 @@ struct ChunkRenderDispatcher {
         renderBlocks(rb, blocks);
     }
 
-    void runLoop(std::stop_token&& token) {
-        while (!token.stop_requested()) {
+    void runLoop(/*std::stop_token&& token*/) {
+        while (/*!token.stop_requested()*/!request_stop) {
             while (auto task = tasks.try_pop()) {
                 auto [data, cache] = std::move(*task);
                 render(data->rb, *cache);
@@ -72,7 +74,7 @@ struct ChunkRenderDispatcher {
         return cache;
     }
 
-    void rebuildChunk(ClientWorld& world, ChunkRenderData& renderData, glm::i32 chunk_x, glm::i32 chunk_z, bool immediate) {
+    void rebuild(ClientWorld& world, ChunkRenderData& renderData, glm::i32 chunk_x, glm::i32 chunk_z, bool immediate) {
         if (auto cache = createRenderCache(world, chunk_x, chunk_z)) {
             if (immediate) {
                 render(renderData.rb, *cache);

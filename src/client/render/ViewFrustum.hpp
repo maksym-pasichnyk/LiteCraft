@@ -11,7 +11,7 @@ struct ViewFrustum {
 
     explicit ViewFrustum(int viewDistance) : stride(viewDistance * 2 + 1), chunks(stride * stride) {}
 
-    static glm::vec4 NormalizePlane(const glm::vec4& plane) {
+    [[nodiscard]] static auto NormalizePlane(const glm::vec4& plane) -> glm::vec4 {
         const auto normal = glm::vec3(plane.x, plane.y, plane.z);
         return plane * glm::inversesqrt(glm::dot(normal, normal));
     }
@@ -41,7 +41,7 @@ struct ViewFrustum {
         }
     }
 
-    bool TestAABB(const glm::vec3& bounds_min, const glm::vec3& bounds_max) const {
+    auto TestAABB(const glm::vec3& bounds_min, const glm::vec3& bounds_max) const -> bool {
         for (const auto& [nx, ny, nz, distance] : planes) {
             const auto normal = glm::vec3(nx, ny, nz);
             if (glm::dot(normal, glm::mix(bounds_max, bounds_min, glm::lessThan(normal, glm::vec3(0.0f)))) + distance < 0) {
@@ -49,5 +49,16 @@ struct ViewFrustum {
             }
         }
         return true;
+    }
+
+    [[nodiscard]] auto getChunk(int32_t x, int32_t z) -> ChunkRenderData& {
+        const auto ix = floorMod(x, stride);
+        const auto iz = floorMod(z, stride);
+        return chunks[ix + iz * static_cast<size_t>(stride)];
+    }
+
+private:
+    static auto floorMod(int32_t x, int32_t y) -> int32_t {
+        return ((x % y) + y) % y;
     }
 };

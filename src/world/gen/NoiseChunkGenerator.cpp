@@ -151,11 +151,11 @@ double NoiseChunkGenerator::sampleAndClampNoise(int x, int y, int z, double xzSc
             auto mainNoise = mainLimitPerlinNoise->getOctave(i);
             if (mainNoise != nullptr) {
                 c += mainNoise->getNoiseValue(
-                        OctavesNoiseGenerator::maintainPrecision(static_cast<double>(x) * xzFactor * d),
-                        OctavesNoiseGenerator::maintainPrecision(static_cast<double>(y) * yFactor * d),
-                        OctavesNoiseGenerator::maintainPrecision(static_cast<double>(z) * xzFactor * d),
-                        yFactor * d,
-                        static_cast<double>(y) * yFactor * d
+                    OctavesNoiseGenerator::maintainPrecision(static_cast<double>(x) * xzFactor * d),
+                    OctavesNoiseGenerator::maintainPrecision(static_cast<double>(y) * yFactor * d),
+                    OctavesNoiseGenerator::maintainPrecision(static_cast<double>(z) * xzFactor * d),
+                    yFactor * d,
+                    static_cast<double>(y) * yFactor * d
                 ) / d;
             }
         }
@@ -268,13 +268,13 @@ int NoiseChunkGenerator::getColumn(int x, int z, std::span<BlockData> datas, boo
 
 void NoiseChunkGenerator::generateSurface(WorldGenRegion &region, Chunk& chunk) {
     Random random{};
-    random.setBaseChunkSeed(chunk.pos.x, chunk.pos.z);
+    random.setBaseChunkSeed(chunk.coords.x, chunk.coords.z);
 
     for (auto x = 0; x < 16; x++) {
         for (auto z = 0; z < 16; z++) {
             const auto pos = chunk.getHeight(
                 HeightmapType::WORLD_SURFACE_WG,
-                chunk.pos.getBlockPos(x, 0, z)
+                chunk.coords.getBlockPos(x, 0, z)
             );
 
             const auto noise = 15.0 * surfaceNoise->noiseAt(
@@ -316,8 +316,8 @@ void NoiseChunkGenerator::generateTerrain(Chunk& chunk) {
         cacheNoiseColumns.set(cache);
     }
 
-    const auto chunkPosX = chunk.pos.x;
-    const auto chunkPosZ = chunk.pos.z;
+    const auto chunkPosX = chunk.coords.x;
+    const auto chunkPosZ = chunk.coords.z;
     const auto seaLevel = 63;
 
     auto& cache = *cacheNoiseColumns.get();

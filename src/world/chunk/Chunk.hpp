@@ -1,11 +1,10 @@
 #pragma once
 
-#include "../gen/Heightmap.hpp"
-#include "../../mesh.hpp"
-#include "../../block/BlockTable.hpp"
 #include "../../block/BlockReader.hpp"
-#include "../../util/math/ChunkPos.hpp"
+#include "../../block/BlockTable.hpp"
 #include "../../util/math/BoundingBox.hpp"
+#include "../../util/math/ChunkPos.hpp"
+#include "../gen/Heightmap.hpp"
 
 #include <set>
 #include <map>
@@ -19,58 +18,9 @@
 #include <cassert>
 #include <functional>
 #include <glm/vec3.hpp>
-#include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 struct WorldGenRegion;
-
-struct SimpleVBuffer {
-    std::vector<Vertex> vertices;
-    std::vector<int32_t> indices;
-
-    void clear() {
-        vertices.clear();
-        indices.clear();
-    }
-
-	void quad(int a1, int b1, int c1, int a2, int b2, int c2) {
-        auto i = vertices.size();
-        indices.reserve(6);
-        indices.push_back(i + a1);
-        indices.push_back(i + b1);
-        indices.push_back(i + c1);
-        indices.push_back(i + a2);
-        indices.push_back(i + b2);
-        indices.push_back(i + c2);
-    }
-
-	void quad(int a1, int b1, int c1, int d1, int a2, int b2, int c2, int d2) {
-        auto i = vertices.size();
-        indices.reserve(8);
-        indices.push_back(i + a1);
-        indices.push_back(i + b1);
-        indices.push_back(i + c1);
-        indices.push_back(i + d1);
-        indices.push_back(i + a2);
-        indices.push_back(i + b2);
-        indices.push_back(i + c2);
-        indices.push_back(i + d2);
-    }
-
-	void quad() {
-        quad(0, 1, 2, 0, 2, 3);
-    }
-    void quadInv() {
-        quad(0, 2, 1, 0, 3, 2);
-    }
-
-    void vertex(float x, float y, float z, float u, float v, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-        vertices.push_back(Vertex{
-            .pos{x, y, z},
-			.tex{u, v},
-			.color{r, g, b, a}
-        });
-    }
-};
 
 struct ChunkSection {
     std::array<BlockData, 4096> blocks{};
@@ -103,7 +53,7 @@ private:
 struct Structure;
 struct StructureStart;
 struct Chunk {
-    ChunkPos pos;
+    ChunkPos coords;
 	std::array<std::unique_ptr<ChunkSection>, 16> sections{};
     std::array<std::unique_ptr<LightSection>, 18> skyLightSections{};
     std::array<std::unique_ptr<LightSection>, 18> blockLightSections{};
@@ -115,7 +65,7 @@ struct Chunk {
     std::bitset<65536> carvingMask;
     std::vector<BlockPos> blockLightSources;
 
-    explicit Chunk(ChunkPos pos) : pos{pos} {}
+    explicit Chunk(const ChunkPos& pos) : coords{pos} {}
 
     auto getLightSources() -> std::span<const BlockPos> {
         return blockLightSources;
@@ -179,14 +129,14 @@ struct Chunk {
         updateHeightmap(x & 15, y, z & 15, data);
 
         if (data.getLightLevel() > 0) {
-            blockLightSources.emplace_back((x & 15) + pos.getStartX(), y, (z & 15) + pos.getStartZ());
+            blockLightSources.emplace_back(coords.getBlockX(x & 15), y, coords.getBlockZ(z & 15));
         }
     	return true;
     }
 
     void updateHeightmap(int32_t x, int32_t y, int32_t z, BlockData data) {
-        const int32_t i = x | (z << 4);
-        const int32_t height = heightmaps[0].getAt(i);
+        const auto i = x | (z << 4);
+        const auto height = heightmaps[0].getAt(i);
 
         if (y > height - 2) {
             if (!data.isAir()) {

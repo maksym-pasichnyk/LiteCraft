@@ -1,13 +1,12 @@
 #pragma once
 
-#include "resource_manager.hpp"
+#include "ResourceManager.hpp"
 
 #include <set>
 #include <string>
+#include <Json.hpp>
+#include <Texture.hpp>
 #include <range/v3/all.hpp>
-#include <json/json.hpp>
-
-#include <GL/gl3w.h>
 
 struct TextureRect {
 	int x;
@@ -23,11 +22,11 @@ struct TextureUVCoordinateSet {
     float maxV;
 
     inline constexpr float getInterpolatedU(float t) const {
-        return (1 - t) * minU + t * maxU;
+        return t;//(1 - t) * minU + t * maxU;
     }
 
     inline constexpr float getInterpolatedV(float t) const {
-        return (1 - t) * minV + t * maxV;
+        return t;//(1 - t) * minV + t * maxV;
     }
 };
 
@@ -252,10 +251,6 @@ struct ParsedAtlasNode {
 	std::vector<ParsedAtlasNodeElement> elements;
 };
 
-struct Texture {
-
-};
-
 struct TextureManager {
     static auto load(ResourceManager& resources, const std::string& name, bool flip) -> std::optional<NativeImage> {
         for (auto ext : {".png", ".tga"}) {
@@ -273,8 +268,7 @@ struct TextureAtlas /*: Texture*/ {
 	int padding;
 	int num_mip_levels;
 
-//	sf::Texture texture;
-	GLuint texture;
+    Texture2D texture;
 
 //	TextureAtlasTextureItem* pMissingTexture;
 
@@ -295,7 +289,7 @@ struct TextureAtlas /*: Texture*/ {
 	}
 
 	void _readNode(const Json& data, ParsedAtlasNode& node) {
-		node.quad = data.value("quad", 0);
+		node.quad = data.value_or("quad", 0);
 
 		auto elements = data.at("textures");
 		if (elements.is_array()) {
@@ -354,7 +348,7 @@ struct TextureAtlas /*: Texture*/ {
 			for (const auto &element : node.elements) {
 				const auto& sprite = sprites.at(element.path).get();
 
-				TextureRect rect{
+				const auto rect = TextureRect{
                     sprite.originX,
                     sprite.originY,
                     sprite.info.width(),
@@ -374,11 +368,11 @@ struct TextureAtlas /*: Texture*/ {
 		return &items.at(name);
 	}
 
-	void loadTexture(/*TextureManager* textureManager*/) /*override*/ {
-		std::vector<uint8_t> pixels(sheet->width * sheet->height * 4);
+	void loadTexture() {
+		auto pixels = std::vector<glm::u8vec4>(sheet->width * sheet->height);
 
 		for (auto& sprite : sheet->sprites) {
-			TextureRect rect {
+			const auto rect = TextureRect {
 				sprite.originX,
 				sprite.originY,
 				sprite.info.width(),
@@ -387,33 +381,18 @@ struct TextureAtlas /*: Texture*/ {
 
 			int i2 = 0;
 			for (int y = rect.y; y < rect.y + rect.height; y++) {
-				auto i = (y * sheet->width + rect.x) * 4;
+				auto i = y * sheet->width + rect.x;
 
-				for (int x = 0; x < rect.width; x++) {
-					pixels[i++] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
-					pixels[i++] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
-					pixels[i++] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
-					pixels[i++] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
+				for (int x = 0; x < rect.width; x++, i++) {
+                    pixels[i][0] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
+                    pixels[i][1] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
+                    pixels[i][2] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
+                    pixels[i][3] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
 				}
 			}
 		}
 
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sheet->width, sheet->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-//		texture.create(sheet->width, sheet->height);
-//		texture.update(pixels.data());
-//		texture.generateMipmap();
+        texture = Texture2D(sheet->width, sheet->height, vk::Format::eR8G8B8A8Unorm);
+        texture.setPixels(pixels);
 	}
 };

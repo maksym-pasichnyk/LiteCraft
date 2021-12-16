@@ -8,7 +8,6 @@
 
 #include "gen/feature/structure/TemplateManager.hpp"
 
-
 //NoiseSettings settings{
 //    .sampling{
 //        .xz_scale = 1,

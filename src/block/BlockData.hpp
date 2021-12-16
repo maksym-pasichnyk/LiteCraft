@@ -8,7 +8,7 @@
 #include <util/math/BlockPos.hpp>
 
 struct Block;
-struct Material;
+struct BlockMaterial;
 struct WorldReader;
 struct BlockData {
     uint16_t id = 0;
@@ -23,7 +23,7 @@ struct BlockData {
 
     bool isAir() const;
     auto getBlock() const -> Block*;
-    auto getMaterial() const -> Material*;
+    auto getMaterial() const -> BlockMaterial *;
     auto isOpaque() const -> bool;
     auto isSolid() const -> bool;
     auto getLightLevel() const -> int32_t;

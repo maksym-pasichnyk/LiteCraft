@@ -1,12 +1,18 @@
 #pragma once
 
-#include "mesh.hpp"
-
 #include <array>
 #include <vector>
 #include <cstdint>
+#include <glm/glm.hpp>
 
 enum class RenderLayer;
+
+struct Vertex {
+    glm::vec3 pos;
+    glm::vec2 tex;
+    glm::u8vec4 color;
+    glm::u8vec4 light;
+};
 
 struct RenderLayerBuilder {
     std::vector<Vertex>& vertices;

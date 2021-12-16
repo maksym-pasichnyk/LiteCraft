@@ -2,8 +2,8 @@
 #include "Structures.hpp"
 #include "Structure.hpp"
 
+#include <ResourceManager.hpp>
 #include <configs.hpp>
-#include <resource_manager.hpp>
 
 Registry<StructureFeature> StructureFeatures::registry{};
 

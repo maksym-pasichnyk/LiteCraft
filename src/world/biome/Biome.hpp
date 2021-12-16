@@ -28,9 +28,11 @@ struct Random;
 struct Chunk;
 
 struct Biome {
-    static const PerlinNoiseGenerator TEMPERATURE_NOISE;
-    static const PerlinNoiseGenerator FROZEN_TEMPERATURE_NOISE;
-    static const PerlinNoiseGenerator INFO_NOISE;
+    static thread_local linked_unordered_map<uint64_t, float> temperatureCache;
+
+    static PerlinNoiseGenerator TEMPERATURE_NOISE;
+    static PerlinNoiseGenerator FROZEN_TEMPERATURE_NOISE;
+    static PerlinNoiseGenerator INFO_NOISE;
 
     BiomeClimate climate;
     BiomeGenerationSettings biomeGenerationSettings;
@@ -40,7 +42,8 @@ struct Biome {
     BiomeCategory category;
     BiomeAmbience effects;
 
-    ThreadLocal<linked_unordered_map<uint64_t, float>> temperatureCache{};
+//     Crash on MacOS
+//    ThreadLocal<linked_unordered_map<uint64_t, float>> temperatureCache{};
 
     float getDepth() const {
         return depth;
@@ -71,13 +74,13 @@ struct Biome {
     }
 
     auto getTemperature(BlockPos pos) const -> float {
-        if (!temperatureCache.has_value()) {
-            temperatureCache.set(new linked_unordered_map<uint64_t, float>());
-        }
+//        if (!temperatureCache.has_value()) {
+//            temperatureCache.set(new linked_unordered_map<uint64_t, float>());
+//        }
 
         const auto i = BlockPos::pack(pos.x, pos.y, pos.z);
 
-        auto& cache = *temperatureCache.get();
+        auto& cache = temperatureCache;//*temperatureCache.get();
 
         if (cache.contains(i)) {
             return cache.at(i);
@@ -85,9 +88,9 @@ struct Biome {
 
         const auto f = getTemperatureAtPosition(pos);
 
-        if (cache.size() >= 1024) {
-            cache.pop_front();
-        }
+//        if (cache.size() >= 1024) {
+//            cache.pop_front();
+//        }
         cache.insert({i, f});
         return f;
     }

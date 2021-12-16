@@ -64,8 +64,9 @@ struct TcpListener {
     }
 
     auto accept() const -> std::optional<std::pair<TcpStream, SocketAddr>> {
+        auto len = static_cast<socklen_t>(sizeof(sockaddr));
+
         sockaddr addr{};
-        int len = sizeof(sockaddr);
 
         Socket c {::accept(s.fd, &addr, &len)};
         if (c.fd == -1) {
@@ -75,9 +76,10 @@ struct TcpListener {
     }
 
     auto local_addr() const -> std::optional<SocketAddr> {
+        auto len = static_cast<socklen_t>(sizeof(sockaddr));
+
         sockaddr name{};
-        int size = sizeof(sockaddr);
-        if (getsockname(s.fd, &name, &size) == -1) {
+        if (getsockname(s.fd, &name, &len) == -1) {
             return std::nullopt;
         }
         return std::bit_cast<SocketAddr>(name);

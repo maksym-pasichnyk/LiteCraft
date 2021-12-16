@@ -4,7 +4,7 @@
 
 #include <memory>
 #include <functional>
-#include <json/json.hpp>
+#include <Json.hpp>
 
 struct ConfiguredFeature;
 struct StructureProcessorList;

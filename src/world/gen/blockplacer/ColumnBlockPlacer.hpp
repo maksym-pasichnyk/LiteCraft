@@ -3,7 +3,7 @@
 #include "BlockPlacer.hpp"
 #include "../../WorldGenRegion.hpp"
 
-#include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 struct ColumnBlockPlacer : public BlockPlacer {
     int minSize;

@@ -2,7 +2,7 @@
 #include <WinSock2.h>
 #endif
 
-#include <fmt/format.h>
+#include <spdlog/spdlog.h>
 #include <curl/curl.h>
 #include <filesystem>
 #include <physfs.h>
@@ -24,7 +24,7 @@ namespace {
 #endif
 
             PHYSFS_init(nullptr);
-            curl_global_init(CURL_GLOBAL_DEFAULT);
+//            curl_global_init(CURL_GLOBAL_DEFAULT);
 
             PHYSFS_mount("client-extra.zip", "/client-extra", 1);
             PHYSFS_mount("Vanilla_Behavior_Pack_1.16.220.zip", "/behavior_packs/vanilla", 1);
@@ -33,7 +33,7 @@ namespace {
 
         ~Bootstrap() {
             PHYSFS_deinit();
-            curl_global_cleanup();
+//            curl_global_cleanup();
 
 #ifdef _WIN32
             WSACleanup();

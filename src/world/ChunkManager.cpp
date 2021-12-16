@@ -118,9 +118,9 @@ auto ChunkManager::generateChunk(int32_t chunk_x, int32_t chunk_z, ChunkStatus* 
     return async::when_all(results).then(*executor, [this, status](const std::vector<ChunkResult>& results) {
         auto chunks = results | ranges::views::transform(&ChunkResult::get) | ranges::to_vector;
         auto chunk = chunks[chunks.size() / 2];
-        status->generate(world, *lightManager, *generator, *templates, chunk->pos.x, chunk->pos.z, *chunk, chunks, world->seed);
+        status->generate(world, *lightManager, *generator, *templates, chunk->coords.x, chunk->coords.z, *chunk, chunks, world->seed);
         if (status == ChunkStatus::Full) {
-            complete.emplace(chunk->pos);
+            complete.emplace(chunk->coords);
         }
         return chunk;
     }).share();

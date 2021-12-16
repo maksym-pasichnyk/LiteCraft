@@ -2,7 +2,7 @@
 
 #include "block/Block.hpp"
 #include "block/BlockReader.hpp"
-#include "block/material/Material.hpp"
+#include "block/material/BlockMaterial.hpp"
 #include "block/material/Materials.hpp"
 
 #include <glm/glm.hpp>
@@ -19,7 +19,7 @@ struct RayTraceContext {
 struct RayTraceResult {
 	glm::ivec3 pos;
 	glm::ivec3 dir;
-//	BlockData blockData;
+	BlockData state;
 };
 
 template <typename IBlockReader>
@@ -48,7 +48,7 @@ auto rayTraceBlocks(IBlockReader /*auto*/& blocks, const RayTraceContext& contex
 			return RayTraceResult{
 				.pos = pos,
 				.dir = -dir,
-//				.blockState = block
+				.state = state
 			};
 		}
 	}

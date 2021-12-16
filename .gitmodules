@@ -1,15 +1,3 @@
-[submodule "ThirdParty/json"]
-	path = ThirdParty/json
-	url = https://github.com/nlohmann/json
-[submodule "ThirdParty/fmt"]
-	path = ThirdParty/fmt
-	url = https://github.com/fmtlib/fmt
-[submodule "ThirdParty/glm"]
-	path = ThirdParty/glm
-	url = https://github.com/g-truc/glm.git
-[submodule "ThirdParty/imgui"]
-	path = ThirdParty/imgui
-	url = https://github.com/ocornut/imgui.git
 [submodule "ThirdParty/entt"]
 	path = ThirdParty/entt
 	url = https://github.com/skypjack/entt.git
@@ -19,12 +7,6 @@
 [submodule "ThirdParty/range-v3"]
 	path = ThirdParty/range-v3
 	url = https://github.com/ericniebler/range-v3
-[submodule "ThirdParty/gl3w"]
-	path = ThirdParty/gl3w
-	url = https://github.com/skaslev/gl3w.git
-[submodule "ThirdParty/glfw"]
-	path = ThirdParty/glfw
-	url = https://github.com/glfw/glfw.git
 [submodule "ThirdParty/curl"]
 	path = ThirdParty/curl
 	url = https://github.com/curl/curl.git
@@ -43,3 +25,9 @@
 [submodule "ThirdParty/asyncplusplus"]
 	path = ThirdParty/asyncplusplus
 	url = https://github.com/Amanieu/asyncplusplus.git
+[submodule "ThirdParty/Blaze"]
+	path = ThirdParty/Blaze
+	url = https://github.com/maksym-pasichnyk/Blaze.git
+[submodule "ThirdParty/co_lib"]
+	path = ThirdParty/co_lib
+	url = https://github.com/dmitryikh/co_lib.git

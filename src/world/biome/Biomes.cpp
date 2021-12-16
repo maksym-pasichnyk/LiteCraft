@@ -1,7 +1,7 @@
 #include "Biomes.hpp"
 #include "Biome.hpp"
 
-#include <resource_manager.hpp>
+#include <ResourceManager.hpp>
 #include <configs.hpp>
 
 Registry<Biome> Biomes::biomes;

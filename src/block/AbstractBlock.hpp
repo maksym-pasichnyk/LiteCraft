@@ -1,8 +1,8 @@
 #pragma once
 
-#include "material/Material.hpp"
-#include "material/DyeColors.hpp"
 #include "BlockData.hpp"
+#include "block/material/BlockMaterial.hpp"
+#include "material/DyeColors.hpp"
 
 #include <glm/vec3.hpp>
 #include <functional>
@@ -106,7 +106,7 @@ struct BlockBehaviour {
     using PositionPredicate = auto(*)(BlockReader& reader, const BlockData& data, const BlockPos& pos) -> bool;
     using ExtendedPositionPredicate = auto(*)(BlockReader& reader, const BlockData& data, const BlockPos& pos, const EntityType& type) -> bool;
 
-    Material *material = nullptr;
+    BlockMaterial *material = nullptr;
     BlockColorImpl blockColors;
     bool blocksMovement = true;
     SoundType soundType = SoundType::STONE;
@@ -281,7 +281,7 @@ struct AbstractBlock {
 
     explicit AbstractBlock(int id, BlockBehaviour behaviour) : id(id), behaviour(std::move(behaviour)) {}
 
-    auto getMaterial() -> Material* {
+    auto getMaterial() -> BlockMaterial * {
         return behaviour.material;
     }
 
@@ -334,7 +334,7 @@ struct AbstractBlock {
 };
 
 struct BlockBehaviourUtil {
-    static auto create(Material* material) -> BlockBehaviour {
+    static auto create(BlockMaterial * material) -> BlockBehaviour {
         return {
             .material = material,
             .blockColors = [material](const BlockData& data) {
@@ -343,7 +343,7 @@ struct BlockBehaviourUtil {
         };
     }
 
-    static auto create(Material* material, DyeColors color) -> BlockBehaviour {
+    static auto create(BlockMaterial * material, DyeColors color) -> BlockBehaviour {
         return {
             .material = material,
             .blockColors = [material, color](const BlockData& data) {
@@ -352,7 +352,7 @@ struct BlockBehaviourUtil {
         };
     }
 
-    static auto create(Material* material, MaterialColor color) -> BlockBehaviour {
+    static auto create(BlockMaterial * material, MaterialColor color) -> BlockBehaviour {
         return {
             .material = material,
             .blockColors = [color](const BlockData& data) {
@@ -361,7 +361,7 @@ struct BlockBehaviourUtil {
         };
     }
 
-    static auto create(Material* material, BlockBehaviour::BlockColorImpl blockColors) -> BlockBehaviour {
+    static auto create(BlockMaterial * material, BlockBehaviour::BlockColorImpl blockColors) -> BlockBehaviour {
         return {
             .material = material,
             .blockColors = std::move(blockColors)

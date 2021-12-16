@@ -2,18 +2,25 @@
 #include "../TextureAtlas.hpp"
 
 BlockGraphics* BlockGraphics::mMissingTexture;
-TextureAtlas* BlockGraphics::mTerrainTextureAtlas;
-std::unordered_map<std::string, BlockGraphics*> BlockGraphics::mBlockLookupMap;
+std::unique_ptr<TextureAtlas> BlockGraphics::mTerrainTextureAtlas;
 std::vector<std::unique_ptr<BlockGraphics>> BlockGraphics::mOwnedBlocks;
+std::unordered_map<std::string, BlockGraphics*> BlockGraphics::mBlockLookupMap;
 
 void BlockGraphics::init(ResourceManager& resources) {
     using namespace std::string_view_literals;
 
-    resources.for_each("blocks.json", [](std::istream& stream) {
-        auto blocks = nlohmann::json::parse(stream, nullptr, true, true);
-        auto format_version = blocks.erase("format_version");
+    mTerrainTextureAtlas = std::make_unique<TextureAtlas>();
+    mTerrainTextureAtlas->loadMetaFile(resources);
+    mTerrainTextureAtlas->loadTexture();
 
-        for (auto& [name, data] : blocks.items()) {
+    resources.for_each("blocks.json", [](std::istream& stream) {
+        auto blocks = Json::Read::read(stream).value();
+        auto format_version = blocks.at("format_version");
+
+        for (auto& [name, data] : blocks.to_object()) {
+            if (name == "format_version") {
+                continue;
+            }
             registerBlockGraphics(data, name);
         }
     });
@@ -307,59 +314,57 @@ void BlockGraphics::init(ResourceManager& resources) {
     mBlockLookupMap.insert_or_assign("potted_warped_roots", mBlockLookupMap.at("flower_pot"));
 }
 
-void BlockGraphics::registerBlockGraphics(const nlohmann::json& data, const std::string& name) {
+void BlockGraphics::registerBlockGraphics(const Json& data, const std::string& name) {
     auto graphics = std::make_unique<BlockGraphics>(name);
 
-    if (auto isotropic = data.find("isotropic"); isotropic != data.end()) {
-        graphics->setTextureIsotropic(isotropic.value());
+//    if (auto isotropic = data.find("isotropic"); isotropic != data.end()) {
+//        graphics->setTextureIsotropic(isotropic.value());
+//    }
+
+    if (data.contains("textures")) {
+        graphics->setTextures(data.at("textures"));
     }
 
-    if (auto textures = data.find("textures"); textures != data.end()) {
-        graphics->setTextures(textures.value());
-    }
+//    if (auto carried_textures = data.find("carried_textures"); carried_textures != data.end()) {
+//        graphics->setCarriedTextures(carried_textures.value());
+//    }
 
-    if (auto carried_textures = data.find("carried_textures"); carried_textures != data.end()) {
-        graphics->setCarriedTextures(carried_textures.value());
-    }
+//    if (auto sound = data.find("sound"); sound != data.end()) {
+//    }
 
-    if (auto sound = data.find("sound"); sound != data.end()) {
-    }
-
-    if (auto brightness_gamma = data.find("brightness_gamma"); brightness_gamma != data.end()) {
-    }
+//    if (auto brightness_gamma = data.find("brightness_gamma"); brightness_gamma != data.end()) {
+//    }
 
     mBlockLookupMap.emplace(name, graphics.get());
     mOwnedBlocks.emplace_back(std::move(graphics));
 }
 
-TextureAtlasTextureItem* BlockGraphics::getTextureItem(const std::string& name) {
+auto BlockGraphics::getTextureItem(const std::string& name) -> TextureAtlasTextureItem* {
     return mTerrainTextureAtlas->getTextureItem(name);
 }
 
-BlockGraphics::BlockGraphics(std::string name) : name(std::move(name)) {
+BlockGraphics::BlockGraphics(std::string name) : name(std::move(name)) {}
 
-}
-
-void BlockGraphics::setTextures(const nlohmann::json &data) {
+void BlockGraphics::setTextures(const Json &data) {
     if (data.is_object()) {
-        topTexture = getTextureItem(data["up"].get<std::string>());
-        bottomTexture = getTextureItem(data["down"].get<std::string>());
+        topTexture = getTextureItem(data.at("up").to_string());
+        bottomTexture = getTextureItem(data.at("down").to_string());
 
-        if (auto side = data.find("side"); side != data.end()) {
-            auto texture = getTextureItem(side->get<std::string>());
+        if (data.contains("side")) {
+            auto texture = getTextureItem(data.at("side").to_string());
 
             southTexture = texture;
             northTexture = texture;
             eastTexture = texture;
             westTexture = texture;
         } else {
-            southTexture = getTextureItem(data["south"].get<std::string>());
-            northTexture = getTextureItem(data["north"].get<std::string>());
-            eastTexture = getTextureItem(data["east"].get<std::string>());
-            westTexture = getTextureItem(data["west"].get<std::string>());
+            southTexture = getTextureItem(data.at("south").to_string());
+            northTexture = getTextureItem(data.at("north").to_string());
+            eastTexture = getTextureItem(data.at("east").to_string());
+            westTexture = getTextureItem(data.at("west").to_string());
         }
     } else {
-        auto texture = getTextureItem(data.get<std::string>());
+        auto texture = getTextureItem(data.to_string());
 
         topTexture = texture;
         bottomTexture = texture;
@@ -370,9 +375,9 @@ void BlockGraphics::setTextures(const nlohmann::json &data) {
     }
 }
 
-void BlockGraphics::setCarriedTextures(const nlohmann::json &data) {
+void BlockGraphics::setCarriedTextures(const Json &data) {
 
 }
 
-void BlockGraphics::setTextureIsotropic(const nlohmann::json &data) {
+void BlockGraphics::setTextureIsotropic(const Json &data) {
 }

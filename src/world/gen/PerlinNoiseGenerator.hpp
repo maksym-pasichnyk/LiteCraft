@@ -5,7 +5,7 @@
 #include <vector>
 #include <optional>
 #include <algorithm>
-#include <fmt/format.h>
+#include <spdlog/spdlog.h>
 #include <range/v3/algorithm.hpp>
 
 struct PerlinNoiseGenerator : public INoiseGenerator {

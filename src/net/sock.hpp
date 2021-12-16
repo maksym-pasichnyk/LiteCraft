@@ -1,13 +1,19 @@
 #pragma once
 
 #include "addr.hpp"
-#include <optional>
-#include <span>
+
 #include <bit>
+#include <span>
+#include <optional>
 
 #ifdef _WIN32
 #include <WinSock2.h>
 #include <ws2ipdef.h>
+#endif
+
+#ifdef __APPLE__
+#include <sys/fcntl.h>
+#include <unistd.h>
 #endif
 
 struct Socket {
@@ -56,7 +62,7 @@ struct Socket {
             const auto buf = bytes.subspan(sent);
 
             const auto name = std::bit_cast<sockaddr>(addr.inner);
-            const int len = sendto(fd, reinterpret_cast<const char*>(buf.data()), static_cast<int>(buf.size()), 0, &name, sizeof(sockaddr));
+            const auto len = sendto(fd, reinterpret_cast<const char*>(buf.data()), static_cast<int>(buf.size()), 0, &name, sizeof(sockaddr));
             if (len <= 0) {
                 return std::nullopt;
             }
@@ -69,10 +75,10 @@ struct Socket {
 #ifdef _WIN32
         int size = sizeof(sockaddr);
 #else
-        socklen_t size = sizeof(sockaddr);
+        auto size = static_cast<socklen_t>(sizeof(sockaddr));
 #endif
         sockaddr name{};
-        const int n = recvfrom(fd, reinterpret_cast<char *>(bytes.data()), static_cast<int>(bytes.size()), 0, &name, &size);
+        const auto n = recvfrom(fd, reinterpret_cast<char *>(bytes.data()), static_cast<int>(bytes.size()), 0, &name, &size);
 
         if (n <= 0) {
 #ifdef _WIN32
@@ -92,7 +98,7 @@ struct Socket {
         u_long mode = flag ? 0 : 1;
         ioctlsocket(fd, FIONBIO, &mode);
 #else
-        int flags = fcntl(fd, F_GETFL, 0);
+        const auto flags = fcntl(fd, F_GETFL, 0);
         if (flags == -1) {
             return;
         }

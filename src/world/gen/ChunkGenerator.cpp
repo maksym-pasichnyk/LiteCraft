@@ -15,19 +15,19 @@
 ChunkGenerator::ChunkGenerator(std::unique_ptr<BiomeProvider>&& biomeProvider) : biomeProvider(std::move(biomeProvider)) {}
 
 void ChunkGenerator::generateStructures(WorldGenRegion &region, Chunk& chunk, TemplateManager& templates) {
-    const auto [xpos, zpos] = chunk.pos;
+    const auto [xpos, zpos] = chunk.coords;
     auto biome = biomeProvider->getNoiseBiome(xpos << 2, 0, zpos << 2);
 
     for (auto feature : biome->getGenerationSettings().structures) {
-        createStarts(feature, chunk, templates, region.getSeed(), chunk.pos, *biome);
+        createStarts(feature, chunk, templates, region.getSeed(), chunk.coords, *biome);
     }
 }
 
 void ChunkGenerator::getStructureReferences(WorldGenRegion &region, Chunk& chunk) {
-    const auto sbb = BoundingBox::fromChunkPos(chunk.pos.x, chunk.pos.z);
+    const auto sbb = BoundingBox::fromChunkPos(chunk.coords.x, chunk.coords.z);
 
-    for (auto x = chunk.pos.x - 8; x <= chunk.pos.x + 8; x++) {
-        for (auto z = chunk.pos.z - 8; z <= chunk.pos.z + 8; z++) {
+    for (auto x = chunk.coords.x - 8; x <= chunk.coords.x + 8; x++) {
+        for (auto z = chunk.coords.z - 8; z <= chunk.coords.z + 8; z++) {
             for (auto [structure, start] : region.getChunk(x, z)->starts) {
                 if (sbb.intersectsWith(start->getBoundingBox())) {
                     chunk.references[structure].emplace(ChunkPos::asLong(x, z));
@@ -38,7 +38,7 @@ void ChunkGenerator::getStructureReferences(WorldGenRegion &region, Chunk& chunk
 }
 
 void ChunkGenerator::generateCarvers(WorldGenRegion& region, int64_t seed, Chunk& chunk/*, GenerationStage::Carving carving*/) {
-    const auto [xpos, zpos] = chunk.pos;
+    const auto [xpos, zpos] = chunk.coords;
 
     const auto getBiome = [&region] (BlockPos pos) {
         return region.getBiome(pos);

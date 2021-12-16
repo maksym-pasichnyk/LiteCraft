@@ -1,9 +1,9 @@
 #include "RandomPatchFeature.hpp"
+#include "../../../block/material/Materials.hpp"
+#include "../../WorldGenRegion.hpp"
 #include "../blockplacer/BlockPlacer.hpp"
 #include "../blockstateprovider/BlockStateProvider.hpp"
-#include "../../WorldGenRegion.hpp"
-#include "../../../block/material/Material.hpp"
-#include "../../../block/material/Materials.hpp"
+#include "block/material/BlockMaterial.hpp"
 
 static bool hasWater(WorldReader& reader, const BlockPos& pos) {
     return reader.getData(pos).getMaterial() == Materials::WATER;

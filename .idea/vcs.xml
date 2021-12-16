@@ -2,17 +2,20 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ThirdParty/Blaze" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ThirdParty/Blaze/blaze/third_party/SPIRV-Cross" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ThirdParty/Blaze/blaze/third_party/VulkanMemoryAllocator" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ThirdParty/Blaze/blaze/third_party/glfw" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ThirdParty/Blaze/blaze/third_party/glm" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ThirdParty/Blaze/blaze/third_party/imgui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ThirdParty/Blaze/blaze/third_party/range-v3" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ThirdParty/Blaze/blaze/third_party/range-v3/doc/gh-pages" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ThirdParty/Blaze/blaze/third_party/spdlog" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/asyncplusplus" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ThirdParty/continuable" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/curl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/entt" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ThirdParty/fmt" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/function2" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ThirdParty/gl3w" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ThirdParty/glfw" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ThirdParty/glm" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ThirdParty/imgui" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ThirdParty/json" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ThirdParty/function2/test/googletest" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/physfs" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/promise.hpp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/range-v3" vcs="Git" />

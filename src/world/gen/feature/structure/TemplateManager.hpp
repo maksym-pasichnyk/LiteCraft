@@ -1,10 +1,10 @@
 #pragma once
 
-#include <resource_manager.hpp>
+#include <ResourceManager.hpp>
+#include <map>
+#include <memory>
 #include <optional>
 #include <string>
-#include <memory>
-#include <map>
 
 struct Template final {
     Template() = default;

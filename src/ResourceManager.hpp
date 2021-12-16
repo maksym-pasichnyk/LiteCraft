@@ -3,13 +3,12 @@
 #include <span>
 #include <memory>
 #include <vector>
-#include <ranges>
 #include <cstring>
 #include <fstream>
 #include <optional>
 #include <physfs.h>
 #include <filesystem>
-#include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 #include "stb_image.hpp"
 
@@ -77,15 +76,15 @@ namespace physfs {
 }
 
 struct NativeImage {
-	struct ImageDataPtrFree {
+	struct ImageDataFree {
 		void operator()(void* ptr) {
 			stbi_image_free(ptr);
 		}
 	};
 
-	using ImageDataPtr = std::unique_ptr<void, ImageDataPtrFree>;
+	using ImageData = std::unique_ptr<void, ImageDataFree>;
 
-	ImageDataPtr pixels;
+	ImageData pixels;
 	int width = 0;
 	int height = 0;
 	int channels = 0;
@@ -103,7 +102,7 @@ struct NativeImage {
 			stbi_vertical_flip(pixels, width, height, channels * sizeof(stbi_uc));
 		}
 		return NativeImage{
-			.pixels = ImageDataPtr{pixels},
+			.pixels = ImageData{pixels},
 			.width = width,
 			.height = height,
 			.channels = channels
@@ -134,7 +133,7 @@ private:
 	}
 };
 
-struct Resource {
+struct ResourceIO {
     std::shared_ptr<std::istream> io;
 };
 
@@ -146,7 +145,7 @@ struct ResourcePack {
 	virtual auto contains(const std::string& path) -> bool = 0;
     virtual void enumerate(const std::string& path, void(*fn)(std::istream&)) = 0;
 
-    virtual auto open(const std::string& path) -> std::optional<Resource> = 0;
+    virtual auto open(const std::string& path) -> std::optional<ResourceIO> = 0;
 };
 
 struct PhysFsResourcePack : ResourcePack {
@@ -156,10 +155,10 @@ struct PhysFsResourcePack : ResourcePack {
 		return physfs::exists(get_full_path(path));
 	}
 
-    auto open(const std::string& path) -> std::optional<Resource> override {
+    auto open(const std::string& path) -> std::optional<ResourceIO> override {
         auto file = std::make_shared<physfs::ifstream>(get_full_path(path));
         if (*file) {
-            return Resource{.io = std::move(file)};
+            return ResourceIO{.io = std::move(file)};
         }
         return std::nullopt;
     }
@@ -210,10 +209,10 @@ struct FolderResourcePack : ResourcePack {
 		return std::filesystem::exists(get_full_path(path));
 	}
 
-    auto open(const std::string& path) -> std::optional<Resource> override {
+    auto open(const std::string& path) -> std::optional<ResourceIO> override {
         auto file = std::make_shared<std::ifstream>(get_full_path(path));
         if (*file) {
-            return Resource{.io = std::move(file)};
+            return ResourceIO{.io = std::move(file)};
         }
         return std::nullopt;
     }
@@ -262,7 +261,7 @@ struct ResourceManager {
 		return std::nullopt;
 	}
 
-    auto open(const std::string& path) -> std::optional<Resource> {
+    auto open(const std::string& path) -> std::optional<ResourceIO> {
         for (auto& pack : packs) {
             if (auto resource = pack->open(path)) {
                 return resource;

@@ -1,13 +1,17 @@
 #pragma once
 
-#include <fmt/format.h>
-#include <string_view>
-#include <optional>
-#include <array>
 #include <bit>
+#include <array>
+#include <optional>
+#include <string_view>
+#include <spdlog/spdlog.h>
 
 #ifdef _WIN32
 #include <WinSock2.h>
+#endif
+
+#ifdef __APPLE__
+#include <netinet/in.h>
 #endif
 
 struct Ipv4Addr {

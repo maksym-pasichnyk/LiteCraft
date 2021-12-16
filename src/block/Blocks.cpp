@@ -180,7 +180,7 @@
 #include "ShulkerBoxBlock.hpp"
 #include "material/Materials.hpp"
 
-#include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 BlockTable Blocks::pallete{};
 Registry<Block> Blocks::blocks{};
@@ -1020,7 +1020,7 @@ static auto create(const std::string& name, Args &&...args) -> T* {
     if (auto it = BlockGraphics::mBlockLookupMap.find(name); it != BlockGraphics::mBlockLookupMap.end()) {
         block->graphics = it->second;
     } else {
-        fmt::print("missing block graphics: {}\n", name);
+//        fmt::print("missing block graphics: {}\n", name);
         block->graphics = BlockGraphics::mMissingTexture;
     }
 
@@ -1230,14 +1230,14 @@ void Blocks::init() {
     WATER = create<FlowingFluidBlock>("water", Fluids::WATER, BlockBehaviourUtil::create(Materials::WATER)
         // .setTintType(TintType::Grass)
         .setRenderType(RenderType::Liquid)
-        // .setRenderLayer(RenderLayer::Cutout)
+        .setRenderLayer(RenderLayer::Transparent)
         .doesNotBlockMovement()
         .setHardnessAndResistance(100.0F)
         .noDrops());
     LAVA = create<FlowingFluidBlock>("lava", Fluids::LAVA, BlockBehaviourUtil::create(Materials::LAVA)
         // .setTintType(TintType::Grass)
         .setRenderType(RenderType::Liquid)
-        // .setRenderLayer(RenderLayer::Cutout)
+        .setRenderLayer(RenderLayer::Transparent)
         .doesNotBlockMovement()
         .setTickRandomly()
         .setHardnessAndResistance(100.0F)
@@ -2009,7 +2009,7 @@ void Blocks::init() {
         .setSound(SoundType::PLANT));
     LILY_PAD = create<LilyPadBlock>("lily_pad", BlockBehaviourUtil::create(Materials::PLANTS)
         .setTintType(TintType::Grass)
-        .setRenderType(RenderType::Cross)
+        .setRenderType(RenderType::LilyPad)
         .setRenderLayer(RenderLayer::Cutout)
         .zeroHardnessAndResistance()
         .setSound(SoundType::LILY_PADS)

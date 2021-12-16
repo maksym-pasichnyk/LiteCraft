@@ -9,7 +9,7 @@
 
 #include <map>
 #include <vector>
-#include <json/json.hpp>
+#include <Json.hpp>
 
 struct Biome;
 struct Random;
@@ -43,6 +43,6 @@ struct CfgStructure : Structure {
     CfgStructure(PieceGenerator piece_generator) : Structure(deserialize, piece_generator) {}
 
     static auto deserialize(const Json& obj) -> std::optional<StructureConfig> {
-        return Json::Deserialize<std::decay_t<Config>>::from_json(obj);
+        return Json::Into<std::decay_t<Config>>::into(obj);
     }
 };

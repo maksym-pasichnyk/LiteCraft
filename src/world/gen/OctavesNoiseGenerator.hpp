@@ -5,10 +5,10 @@
 
 #include "../../util/math/Math.hpp"
 
-#include <optional>
 #include <memory>
 #include <vector>
-#include <fmt/format.h>
+#include <optional>
+#include <spdlog/spdlog.h>
 
 struct OctavesNoiseGenerator : public INoiseGenerator {
     std::vector<std::optional<ImprovedNoiseGenerator>> octaves;

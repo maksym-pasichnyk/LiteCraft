@@ -5,7 +5,7 @@
 
 #include <cmath>
 #include <array>
-#include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 class SimplexNoiseGenerator {
 public:

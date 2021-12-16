@@ -14,7 +14,7 @@ bool BlockData::isAir() const {
 auto BlockData::getBlock() const -> Block* {
     return Blocks::blocks.entries[static_cast<size_t>(id)].get();
 }
-auto BlockData::getMaterial() const -> Material * {
+auto BlockData::getMaterial() const -> BlockMaterial * {
     return getBlock()->getMaterial();
 }
 auto BlockData::isOpaque() const -> bool {

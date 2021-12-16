@@ -1,6 +1,6 @@
 #pragma once
 
-#include <json/json.hpp>
+#include <Json.hpp>
 
 #include <entity/EntityClassification.hpp>
 #include <entity/EntityType.hpp>
@@ -26,8 +26,8 @@
 
 
 template <>
-struct Json::Serialize<RainType> {
-    static auto to_json(const RainType& type) -> Json {
+struct Json::From<RainType> {
+    static auto from(const RainType& type) -> Json {
         using namespace std::string_literals;
 
         switch (type) {
@@ -40,8 +40,8 @@ struct Json::Serialize<RainType> {
 };
 
 template <>
-struct Json::Deserialize<RainType> {
-    static auto from_json(const Json& obj) -> std::optional<RainType> {
+struct Json::Into<RainType> {
+    static auto into(const Json& obj) -> std::optional<RainType> {
         using namespace std::string_literals;
 
         static auto table = std::map<std::string, RainType> {
@@ -58,8 +58,8 @@ struct Json::Deserialize<RainType> {
 };
 
 template <>
-struct Json::Serialize<BiomeCategory> {
-    static auto to_json(const BiomeCategory& category) -> Json {
+struct Json::From<BiomeCategory> {
+    static auto from(const BiomeCategory& category) -> Json {
         using namespace std::string_literals;
 
         switch (category) {
@@ -86,8 +86,8 @@ struct Json::Serialize<BiomeCategory> {
 };
 
 template <>
-struct Json::Serialize<RuinedPortalLocation> {
-    static auto to_json(const RuinedPortalLocation& location) -> Json {
+struct Json::From<RuinedPortalLocation> {
+    static auto from(const RuinedPortalLocation& location) -> Json {
         using namespace std::string_literals;
 
         switch (location) {
@@ -104,8 +104,8 @@ struct Json::Serialize<RuinedPortalLocation> {
 };
 
 template <>
-struct Json::Deserialize<RuinedPortalLocation> {
-    static auto from_json(const Json& obj) -> std::optional<RuinedPortalLocation> {
+struct Json::Into<RuinedPortalLocation> {
+    static auto into(const Json& obj) -> std::optional<RuinedPortalLocation> {
         using namespace std::string_literals;
 
         static auto table = std::map<std::string, RuinedPortalLocation> {
@@ -126,8 +126,8 @@ struct Json::Deserialize<RuinedPortalLocation> {
 };
 
 template <>
-struct Json::Serialize<JigsawProjection> {
-    static auto to_json(const JigsawProjection& projection) -> Json {
+struct Json::From<JigsawProjection> {
+    static auto from(const JigsawProjection& projection) -> Json {
         using namespace std::string_literals;
 
         switch (projection) {
@@ -139,8 +139,8 @@ struct Json::Serialize<JigsawProjection> {
 };
 
 template <>
-struct Json::Deserialize<JigsawProjection> {
-    static auto from_json(const Json& obj) -> std::optional<JigsawProjection> {
+struct Json::Into<JigsawProjection> {
+    static auto into(const Json& obj) -> std::optional<JigsawProjection> {
         using namespace std::string_literals;
 
         static auto table = std::map<std::string, JigsawProjection> {
@@ -156,8 +156,8 @@ struct Json::Deserialize<JigsawProjection> {
 };
 
 template <>
-struct Json::Serialize<OceanRuinType> {
-    static auto to_json(const OceanRuinType& type) -> Json {
+struct Json::From<OceanRuinType> {
+    static auto from(const OceanRuinType& type) -> Json {
         using namespace std::string_literals;
 
         switch (type) {
@@ -169,8 +169,8 @@ struct Json::Serialize<OceanRuinType> {
 };
 
 template <>
-struct Json::Deserialize<OceanRuinType> {
-    static auto from_json(const Json& obj) -> std::optional<OceanRuinType> {
+struct Json::Into<OceanRuinType> {
+    static auto into(const Json& obj) -> std::optional<OceanRuinType> {
         using namespace std::string_literals;
 
         static auto table = std::map<std::string, OceanRuinType> {
@@ -186,15 +186,15 @@ struct Json::Deserialize<OceanRuinType> {
 };
 
 template<>
-struct Json::Serialize<NoFeatureConfig> {
-    static auto to_json(const NoFeatureConfig &config) -> Json {
+struct Json::From<NoFeatureConfig> {
+    static auto from(const NoFeatureConfig &config) -> Json {
         return Json::Object{};
     }
 };
 
 template<>
-struct Json::Serialize<MineshaftType> {
-    static auto to_json(const MineshaftType &type) -> Json {
+struct Json::From<MineshaftType> {
+    static auto from(const MineshaftType &type) -> Json {
         using namespace std::string_literals;
         switch (type) {
             case MineshaftType::NORMAL: return "normal"s;
@@ -205,8 +205,8 @@ struct Json::Serialize<MineshaftType> {
 };
 
 template<>
-struct Json::Deserialize<MineshaftType> {
-    static auto from_json(const Json& obj) -> std::optional<MineshaftType> {
+struct Json::Into<MineshaftType> {
+    static auto into(const Json& obj) -> std::optional<MineshaftType> {
         using namespace std::string_literals;
 
         static auto table = std::map<std::string, MineshaftType> {
@@ -223,8 +223,8 @@ struct Json::Deserialize<MineshaftType> {
 
 
 template<>
-struct Json::Serialize<MineshaftConfig> {
-    static auto to_json(const MineshaftConfig& config) -> Json {
+struct Json::From<MineshaftConfig> {
+    static auto from(const MineshaftConfig& config) -> Json {
         return {
             {"probability", config.probability},
             {"type", config.type}
@@ -233,8 +233,8 @@ struct Json::Serialize<MineshaftConfig> {
 };
 
 template<>
-struct Json::Deserialize<MineshaftConfig> {
-    static auto from_json(const Json& obj) -> std::optional<MineshaftConfig> {
+struct Json::Into<MineshaftConfig> {
+    static auto into(const Json& obj) -> std::optional<MineshaftConfig> {
         auto&& o = obj.to_object();
         return MineshaftConfig{
             .probability = o.at("probability"),
@@ -244,25 +244,26 @@ struct Json::Deserialize<MineshaftConfig> {
 };
 
 template<>
-struct Json::Deserialize<NoFeatureConfig> {
-    static auto from_json(const Json& obj) -> std::optional<NoFeatureConfig> {
+struct Json::Into<NoFeatureConfig> {
+    static auto into(const Json& obj) -> std::optional<NoFeatureConfig> {
         return NoFeatureConfig{};
     }
 };
 
 template<>
-struct Json::Serialize<StructureConfig> {
-    static auto to_json(const StructureConfig &config) -> Json {
+struct Json::From<StructureConfig> {
+    static auto from(const StructureConfig &config) -> Json {
         return match(config, []<typename T>(T&& cfg) -> Json {
-            return std::forward<T>(cfg);
+            return {};
+//            return std::forward<T>(cfg);
         });
     }
 };
 
 
 template <>
-struct Json::Deserialize<BiomeCategory> {
-    static auto from_json(const Json &obj) -> std::optional<BiomeCategory> {
+struct Json::Into<BiomeCategory> {
+    static auto into(const Json &obj) -> std::optional<BiomeCategory> {
         using namespace std::string_literals;
 
         static auto table = std::map<std::string, BiomeCategory> {
@@ -293,8 +294,8 @@ struct Json::Deserialize<BiomeCategory> {
 };
 
 template<>
-struct Json::Serialize<TemperatureModifier> {
-    static auto to_json(const TemperatureModifier& modifier) -> Json {
+struct Json::From<TemperatureModifier> {
+    static auto from(const TemperatureModifier& modifier) -> Json {
         using namespace std::string_literals;
 
         if (modifier == TemperatureModifiers::none) {
@@ -308,8 +309,8 @@ struct Json::Serialize<TemperatureModifier> {
 };
 
 template <>
-struct Json::Deserialize<TemperatureModifier> {
-    static auto from_json(const Json& obj) -> std::optional<TemperatureModifier> {
+struct Json::Into<TemperatureModifier> {
+    static auto into(const Json& obj) -> std::optional<TemperatureModifier> {
         using namespace std::string_literals;
 
         static auto table = std::map<std::string, TemperatureModifier> {
@@ -325,8 +326,8 @@ struct Json::Deserialize<TemperatureModifier> {
 };
 
 template<>
-struct Json::Serialize<GrassColorModifier> {
-    static auto to_json(const GrassColorModifier& modifier) -> Json {
+struct Json::From<GrassColorModifier> {
+    static auto from(const GrassColorModifier& modifier) -> Json {
         using namespace std::string_literals;
 
         if (modifier == GrassColorModifiers::none) {
@@ -343,8 +344,8 @@ struct Json::Serialize<GrassColorModifier> {
 };
 
 template <>
-struct Json::Deserialize<GrassColorModifier> {
-    static auto from_json(const Json& obj) -> std::optional<GrassColorModifier> {
+struct Json::Into<GrassColorModifier> {
+    static auto into(const Json& obj) -> std::optional<GrassColorModifier> {
         using namespace std::string_literals;
 
         static auto table = std::map<std::string, GrassColorModifier> {
@@ -361,8 +362,8 @@ struct Json::Deserialize<GrassColorModifier> {
 };
 
 template <>
-struct Json::Serialize<ParticleType> {
-    static auto to_json(const ParticleType& type) -> Json {
+struct Json::From<ParticleType> {
+    static auto from(const ParticleType& type) -> Json {
         using namespace std::string_literals;
 
         switch (type) {
@@ -446,8 +447,8 @@ struct Json::Serialize<ParticleType> {
 
 
 template <>
-struct Json::Deserialize<ParticleType> {
-    static auto from_json(const Json& obj) -> std::optional<ParticleType> {
+struct Json::Into<ParticleType> {
+    static auto into(const Json& obj) -> std::optional<ParticleType> {
         using namespace std::string_literals;
 
         static auto table = std::map<std::string, ParticleType> {
@@ -534,15 +535,15 @@ struct Json::Deserialize<ParticleType> {
 };
 
 template <>
-struct Json::Serialize<SoundEvent> {
-    static auto to_json(const SoundEvent& sound) -> Json {
+struct Json::From<SoundEvent> {
+    static auto from(const SoundEvent& sound) -> Json {
         return sound.location;
     }
 };
 
 template <>
-struct Json::Deserialize<SoundEvent> {
-    static auto from_json(const Json& obj) -> std::optional<SoundEvent> {
+struct Json::Into<SoundEvent> {
+    static auto into(const Json& obj) -> std::optional<SoundEvent> {
         return SoundEvent {
             .location = obj.to_string()
         };
@@ -550,8 +551,8 @@ struct Json::Deserialize<SoundEvent> {
 };
 
 template<>
-struct Json::Serialize<ParticleEffectAmbience> {
-    static auto to_json(const ParticleEffectAmbience &effect) -> Json {
+struct Json::From<ParticleEffectAmbience> {
+    static auto from(const ParticleEffectAmbience &effect) -> Json {
         return {
             {"type", effect.type},
             {"probability", effect.probability}
@@ -560,8 +561,8 @@ struct Json::Serialize<ParticleEffectAmbience> {
 };
 
 template<>
-struct Json::Deserialize<ParticleEffectAmbience> {
-    static auto from_json(const Json& obj) -> std::optional<ParticleEffectAmbience> {
+struct Json::Into<ParticleEffectAmbience> {
+    static auto into(const Json& obj) -> std::optional<ParticleEffectAmbience> {
         auto&& o = obj.to_object();
         return ParticleEffectAmbience{
             .type = o.at("type"),
@@ -571,8 +572,8 @@ struct Json::Deserialize<ParticleEffectAmbience> {
 };
 
 template<>
-struct Json::Serialize<MoodSoundAmbience> {
-    static auto to_json(const MoodSoundAmbience &sound) -> Json {
+struct Json::From<MoodSoundAmbience> {
+    static auto from(const MoodSoundAmbience &sound) -> Json {
         return {
             {"sound", sound.sound},
             {"delay", sound.delay},
@@ -583,8 +584,8 @@ struct Json::Serialize<MoodSoundAmbience> {
 };
 
 template<>
-struct Json::Deserialize<MoodSoundAmbience> {
-    static auto from_json(const Json &obj) -> std::optional<MoodSoundAmbience> {
+struct Json::Into<MoodSoundAmbience> {
+    static auto into(const Json &obj) -> std::optional<MoodSoundAmbience> {
         auto&& o = obj.to_object();
         return MoodSoundAmbience{
             .sound = o.at("sound"),
@@ -596,8 +597,8 @@ struct Json::Deserialize<MoodSoundAmbience> {
 };
 
 template<>
-struct Json::Serialize<SoundAdditionsAmbience> {
-    static auto to_json(const SoundAdditionsAmbience &sound) -> Json {
+struct Json::From<SoundAdditionsAmbience> {
+    static auto from(const SoundAdditionsAmbience &sound) -> Json {
         return {
             {"sound", sound.sound},
             {"chance", sound.chance}
@@ -606,8 +607,8 @@ struct Json::Serialize<SoundAdditionsAmbience> {
 };
 
 template<>
-struct Json::Deserialize<SoundAdditionsAmbience> {
-    static auto from_json(const Json &obj) -> std::optional<SoundAdditionsAmbience> {
+struct Json::Into<SoundAdditionsAmbience> {
+    static auto into(const Json &obj) -> std::optional<SoundAdditionsAmbience> {
         auto&& o = obj.to_object();
         return SoundAdditionsAmbience{
             .sound = o.at("sound"),
@@ -617,8 +618,8 @@ struct Json::Deserialize<SoundAdditionsAmbience> {
 };
 
 template<>
-struct Json::Serialize<BackgroundMusicTrack> {
-    static auto to_json(const BackgroundMusicTrack &track) -> Json {
+struct Json::From<BackgroundMusicTrack> {
+    static auto from(const BackgroundMusicTrack &track) -> Json {
         return {
             { "sound", track.sound},
             { "min_delay", track.minDelay},
@@ -630,8 +631,8 @@ struct Json::Serialize<BackgroundMusicTrack> {
 
 
 template<>
-struct Json::Deserialize<BackgroundMusicTrack> {
-    static auto from_json(const Json &obj) -> std::optional<BackgroundMusicTrack> {
+struct Json::Into<BackgroundMusicTrack> {
+    static auto into(const Json &obj) -> std::optional<BackgroundMusicTrack> {
         auto&& o = obj.to_object();
         return BackgroundMusicTrack{
             .sound = o.at("sound"),
@@ -643,8 +644,8 @@ struct Json::Deserialize<BackgroundMusicTrack> {
 };
 
 template<>
-struct Json::Serialize<BiomeAmbience> {
-    static auto to_json(const BiomeAmbience &ambience) -> Json {
+struct Json::From<BiomeAmbience> {
+    static auto from(const BiomeAmbience &ambience) -> Json {
         auto obj = Json::Object{};
         obj["fog_color"] = ambience.fogColor;
         obj["water_color"] = ambience.waterColor;
@@ -682,8 +683,8 @@ struct Json::Serialize<BiomeAmbience> {
 };
 
 template<>
-struct Json::Deserialize<BiomeAmbience> {
-    static auto from_json(const Json& obj) -> std::optional<BiomeAmbience> {
+struct Json::Into<BiomeAmbience> {
+    static auto into(const Json& obj) -> std::optional<BiomeAmbience> {
         auto&& o = obj.to_object();
 
         auto foliage_color = o.find("foliage_color");
@@ -710,8 +711,8 @@ struct Json::Deserialize<BiomeAmbience> {
 };
 
 //template<>
-//struct Json::Serialize<BiomeClimate> {
-//    static auto to_json(const BiomeClimate &climate) -> Json {
+//struct Json::From<BiomeClimate> {
+//    static auto from(const BiomeClimate &climate) -> Json {
 //        return {
 //            {"precipitation", climate.precipitation},
 //            {"temperature", climate.temperature},
@@ -722,8 +723,8 @@ struct Json::Deserialize<BiomeAmbience> {
 //};
 
 //template<>
-//struct Json::Deserialize<BiomeClimate> {
-//    static auto from_json(const Json& obj) -> std::optional<BiomeClimate> {
+//struct Json::Into<BiomeClimate> {
+//    static auto into(const Json& obj) -> std::optional<BiomeClimate> {
 //        auto&& o = obj.to_object();
 //        return BiomeClimate{
 //            .precipitation = o.at("precipitation"),
@@ -735,92 +736,92 @@ struct Json::Deserialize<BiomeAmbience> {
 //};
 
 template<>
-struct Json::Serialize<SurfaceBuilder*> {
-    static auto to_json(SurfaceBuilder* builder) -> Json {
+struct Json::From<SurfaceBuilder*> {
+    static auto from(SurfaceBuilder* builder) -> Json {
         return SurfaceBuilders::builders.name(builder).value();
     }
 };
 
 template<>
-struct Json::Deserialize<SurfaceBuilder*> {
-    static auto from_json(const Json& obj) -> std::optional<SurfaceBuilder*> {
+struct Json::Into<SurfaceBuilder*> {
+    static auto into(const Json& obj) -> std::optional<SurfaceBuilder*> {
         return SurfaceBuilders::builders.get(obj.to_string());
     }
 };
 
 template<>
-struct Json::Serialize<ConfiguredSurfaceBuilder*> {
-    static auto to_json(ConfiguredSurfaceBuilder* builder) -> Json {
+struct Json::From<ConfiguredSurfaceBuilder*> {
+    static auto from(ConfiguredSurfaceBuilder* builder) -> Json {
         return ConfiguredSurfaceBuilders::builders.name(builder).value();
     }
 };
 
 template<>
-struct Json::Deserialize<ConfiguredSurfaceBuilder*> {
-    static auto from_json(const Json& obj) -> std::optional<ConfiguredSurfaceBuilder*> {
+struct Json::Into<ConfiguredSurfaceBuilder*> {
+    static auto into(const Json& obj) -> std::optional<ConfiguredSurfaceBuilder*> {
         return ConfiguredSurfaceBuilders::builders.get(obj.to_string());
     }
 };
 
 template<>
-struct Json::Serialize<ConfiguredFeature*> {
-    static auto to_json(ConfiguredFeature* feature) -> Json {
+struct Json::From<ConfiguredFeature*> {
+    static auto from(ConfiguredFeature* feature) -> Json {
         return ConfiguredFeatures::features.name(feature).value();
     }
 };
 
 template<>
-struct Json::Deserialize<ConfiguredFeature*> {
-    static auto from_json(const Json& obj) -> std::optional<ConfiguredFeature*> {
+struct Json::Into<ConfiguredFeature*> {
+    static auto into(const Json& obj) -> std::optional<ConfiguredFeature*> {
         return ConfiguredFeatures::features.get(obj.to_string());
     }
 };
 
 template<>
-struct Json::Serialize<Structure*> {
-    static auto to_json(Structure* structure) -> Json {
+struct Json::From<Structure*> {
+    static auto from(Structure* structure) -> Json {
         return Structures::registry.name(structure).value();
     }
 };
 
 template<>
-struct Json::Deserialize<Structure*> {
-    static auto from_json(const Json& obj) -> std::optional<Structure*> {
+struct Json::Into<Structure*> {
+    static auto into(const Json& obj) -> std::optional<Structure*> {
         return Structures::registry.get(obj.to_string());
     }
 };
 
 template<>
-struct Json::Serialize<StructureFeature*> {
-    static auto to_json(StructureFeature* structure) -> Json {
+struct Json::From<StructureFeature*> {
+    static auto from(StructureFeature* structure) -> Json {
         return StructureFeatures::registry.name(structure).value();
     }
 };
 
 template<>
-struct Json::Deserialize<StructureFeature*> {
-    static auto from_json(const Json& obj) -> std::optional<StructureFeature*> {
+struct Json::Into<StructureFeature*> {
+    static auto into(const Json& obj) -> std::optional<StructureFeature*> {
         return StructureFeatures::registry.get(obj.to_string());
     }
 };
 
 template<>
-struct Json::Serialize<ConfiguredCarver*> {
-    static auto to_json(ConfiguredCarver* carver) -> Json {
+struct Json::From<ConfiguredCarver*> {
+    static auto from(ConfiguredCarver* carver) -> Json {
         return ConfiguredCarvers::carvers.name(carver).value();
     }
 };
 
 template<>
-struct Json::Deserialize<ConfiguredCarver*> {
-    static auto from_json(const Json& obj) -> std::optional<ConfiguredCarver*> {
+struct Json::Into<ConfiguredCarver*> {
+    static auto into(const Json& obj) -> std::optional<ConfiguredCarver*> {
         return ConfiguredCarvers::carvers.get(obj.to_string());
     }
 };
 
 //template<>
-//struct Json::Serialize<BiomeGenerationSettings> {
-//    static auto to_json(const BiomeGenerationSettings &settings) -> Json {
+//struct Json::From<BiomeGenerationSettings> {
+//    static auto from(const BiomeGenerationSettings &settings) -> Json {
 //        return {
 //            {"surface", settings.surfaceBuilder},
 //            {"carvers", settings.carvers},
@@ -831,8 +832,8 @@ struct Json::Deserialize<ConfiguredCarver*> {
 //};
 
 //template<>
-//struct Json::Deserialize<BiomeGenerationSettings> {
-//    static auto from_json(const Json& obj) -> std::optional<BiomeGenerationSettings> {
+//struct Json::Into<BiomeGenerationSettings> {
+//    static auto into(const Json& obj) -> std::optional<BiomeGenerationSettings> {
 //        auto&& o = obj.to_object();
 //        return BiomeGenerationSettings{
 //            .surfaceBuilder = o.at("surface"),
@@ -844,8 +845,8 @@ struct Json::Deserialize<ConfiguredCarver*> {
 //};
 
 template<>
-struct Json::Serialize<RuinedPortalConfig> {
-    static auto to_json(const RuinedPortalConfig &config) -> Json {
+struct Json::From<RuinedPortalConfig> {
+    static auto from(const RuinedPortalConfig &config) -> Json {
         return {
             {"location", config.location},
         };
@@ -853,8 +854,8 @@ struct Json::Serialize<RuinedPortalConfig> {
 };
 
 template<>
-struct Json::Deserialize<RuinedPortalConfig> {
-    static auto from_json(const Json &obj) -> std::optional<RuinedPortalConfig> {
+struct Json::Into<RuinedPortalConfig> {
+    static auto into(const Json &obj) -> std::optional<RuinedPortalConfig> {
         auto&& o = obj.to_object();
         return RuinedPortalConfig{
             .location = o.at("location")
@@ -863,8 +864,8 @@ struct Json::Deserialize<RuinedPortalConfig> {
 };
 
 template<>
-struct Json::Serialize<JigsawConfig> {
-    static auto to_json(const JigsawConfig &config) -> Json {
+struct Json::From<JigsawConfig> {
+    static auto from(const JigsawConfig &config) -> Json {
         return {
             { "pool", config.pool->location },
             { "size", config.size }
@@ -873,8 +874,8 @@ struct Json::Serialize<JigsawConfig> {
 };
 
 template<>
-struct Json::Deserialize<JigsawConfig> {
-    static auto from_json(const Json &obj) -> std::optional<JigsawConfig> {
+struct Json::Into<JigsawConfig> {
+    static auto into(const Json &obj) -> std::optional<JigsawConfig> {
         auto&& o = obj.to_object();
         return JigsawConfig{
             .pool = JigsawPools::findByName(o.at("pool").to_string()),
@@ -884,8 +885,8 @@ struct Json::Deserialize<JigsawConfig> {
 };
 
 template<>
-struct Json::Serialize<ShipwreckConfig> {
-    static auto to_json(const ShipwreckConfig &config) -> Json {
+struct Json::From<ShipwreckConfig> {
+    static auto from(const ShipwreckConfig &config) -> Json {
         return {
             {"is_beached", config.isBeached}
         };
@@ -893,8 +894,8 @@ struct Json::Serialize<ShipwreckConfig> {
 };
 
 template<>
-struct Json::Deserialize<ShipwreckConfig> {
-    static auto from_json(const Json &obj) -> std::optional<ShipwreckConfig> {
+struct Json::Into<ShipwreckConfig> {
+    static auto into(const Json &obj) -> std::optional<ShipwreckConfig> {
         auto&& o = obj.to_object();
         return ShipwreckConfig{
             .isBeached = o.at("is_beached")
@@ -903,8 +904,8 @@ struct Json::Deserialize<ShipwreckConfig> {
 };
 
 template<>
-struct Json::Serialize<OceanRuinConfig> {
-    static auto to_json(const OceanRuinConfig &config) -> Json {
+struct Json::From<OceanRuinConfig> {
+    static auto from(const OceanRuinConfig &config) -> Json {
         return {
             {"type", config.type},
             {"large_probability", config.largeProbability},
@@ -914,8 +915,8 @@ struct Json::Serialize<OceanRuinConfig> {
 };
 
 template<>
-struct Json::Deserialize<OceanRuinConfig> {
-    static auto from_json(const Json &obj) -> std::optional<OceanRuinConfig> {
+struct Json::Into<OceanRuinConfig> {
+    static auto into(const Json &obj) -> std::optional<OceanRuinConfig> {
         auto&& o = obj.to_object();
         return OceanRuinConfig{
             .type = o.at("type"),
@@ -926,8 +927,8 @@ struct Json::Deserialize<OceanRuinConfig> {
 };
 
 template<>
-struct Json::Serialize<ProbabilityConfig> {
-    static auto to_json(const ProbabilityConfig &config) -> Json {
+struct Json::From<ProbabilityConfig> {
+    static auto from(const ProbabilityConfig &config) -> Json {
         return {
             {"probability", config.probability}
         };
@@ -935,8 +936,8 @@ struct Json::Serialize<ProbabilityConfig> {
 };
 
 template<>
-struct Json::Deserialize<ProbabilityConfig> {
-    static auto from_json(const Json& obj) -> std::optional<ProbabilityConfig> {
+struct Json::Into<ProbabilityConfig> {
+    static auto into(const Json& obj) -> std::optional<ProbabilityConfig> {
         auto&& o = obj.to_object();
         return ProbabilityConfig{
             .probability = o.at("probability")
@@ -945,22 +946,22 @@ struct Json::Deserialize<ProbabilityConfig> {
 };
 
 template<>
-struct Json::Serialize<WorldCarver*> {
-    static auto to_json(WorldCarver* carver) -> Json {
+struct Json::From<WorldCarver*> {
+    static auto from(WorldCarver* carver) -> Json {
         return Carvers::carvers.name(carver).value();
     }
 };
 
 template<>
-struct Json::Deserialize<WorldCarver*> {
-    static auto from_json(const Json& obj) -> std::optional<WorldCarver*> {
+struct Json::Into<WorldCarver*> {
+    static auto into(const Json& obj) -> std::optional<WorldCarver*> {
         return Carvers::carvers.get(obj.to_string());
     }
 };
 
 template<>
-struct Json::Serialize<EntityType> {
-    static auto to_json(const EntityType& type) -> Json {
+struct Json::From<EntityType> {
+    static auto from(const EntityType& type) -> Json {
         using namespace std::string_literals;
 
         switch (type) {
@@ -1078,8 +1079,8 @@ struct Json::Serialize<EntityType> {
 };
 
 template <>
-struct Json::Deserialize<EntityType> {
-    static auto from_json(const Json& obj) -> std::optional<EntityType> {
+struct Json::Into<EntityType> {
+    static auto into(const Json& obj) -> std::optional<EntityType> {
         using namespace std::string_literals;
 
         static auto table = std::map<std::string, EntityType> {
@@ -1201,8 +1202,8 @@ struct Json::Deserialize<EntityType> {
 };
 
 template<>
-struct Json::Serialize<EntityClassification> {
-    static auto to_json(const EntityClassification& entity) -> Json {
+struct Json::From<EntityClassification> {
+    static auto from(const EntityClassification& entity) -> Json {
         using namespace std::string_literals;
 
         switch (entity) {
@@ -1218,8 +1219,8 @@ struct Json::Serialize<EntityClassification> {
 };
 
 template <>
-struct Json::Deserialize<EntityClassification> {
-    static auto from_json(const Json& obj) -> std::optional<EntityClassification> {
+struct Json::Into<EntityClassification> {
+    static auto into(const Json& obj) -> std::optional<EntityClassification> {
         using namespace std::string_literals;
 
         static auto table = std::map<std::string, EntityClassification> {
@@ -1239,8 +1240,8 @@ struct Json::Deserialize<EntityClassification> {
 };
 
 template<>
-struct Json::Serialize<MobSpawnInfo::SpawnCosts> {
-    static auto to_json(const MobSpawnInfo::SpawnCosts& costs) -> Json {
+struct Json::From<MobSpawnInfo::SpawnCosts> {
+    static auto from(const MobSpawnInfo::SpawnCosts& costs) -> Json {
         return {
             {"maxSpawnCost", costs.maxSpawnCost},
             {"entitySpawnCost", costs.entitySpawnCost}
@@ -1249,8 +1250,8 @@ struct Json::Serialize<MobSpawnInfo::SpawnCosts> {
 };
 
 template<>
-struct Json::Deserialize<MobSpawnInfo::SpawnCosts> {
-    static auto from_json(const Json& obj) -> std::optional<MobSpawnInfo::SpawnCosts> {
+struct Json::Into<MobSpawnInfo::SpawnCosts> {
+    static auto into(const Json& obj) -> std::optional<MobSpawnInfo::SpawnCosts> {
         auto&& o = obj.to_object();
         return MobSpawnInfo::SpawnCosts{
             .maxSpawnCost = o.at("maxSpawnCost"),
@@ -1260,8 +1261,8 @@ struct Json::Deserialize<MobSpawnInfo::SpawnCosts> {
 };
 
 template<>
-struct Json::Serialize<MobSpawnInfo::Spawners> {
-    static auto to_json(const MobSpawnInfo::Spawners& spawners) -> Json {
+struct Json::From<MobSpawnInfo::Spawners> {
+    static auto from(const MobSpawnInfo::Spawners& spawners) -> Json {
         return {
             {"type", spawners.type},
             {"weight", spawners.weight},
@@ -1272,8 +1273,8 @@ struct Json::Serialize<MobSpawnInfo::Spawners> {
 };
 
 template<>
-struct Json::Deserialize<MobSpawnInfo::Spawners> {
-    static auto from_json(const Json& obj) -> std::optional<MobSpawnInfo::Spawners> {
+struct Json::Into<MobSpawnInfo::Spawners> {
+    static auto into(const Json& obj) -> std::optional<MobSpawnInfo::Spawners> {
         auto&& o = obj.to_object();
         return MobSpawnInfo::Spawners{
             .type = o.at("type"),

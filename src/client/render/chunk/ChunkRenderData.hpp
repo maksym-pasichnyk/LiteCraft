@@ -4,23 +4,14 @@
 
 #include <array>
 
+struct Submesh {
+    glm::i32 index_offset = 0;
+    glm::i32 index_count = 0;
+};
+
 struct ChunkRenderData {
-    static constexpr std::array attributes {
-        VertexArrayAttrib{0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, pos)},
-        VertexArrayAttrib{1, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, tex)},
-        VertexArrayAttrib{2, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, color)},
-        VertexArrayAttrib{3, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, light)}
-    };
-
-    static constexpr std::array bindings {
-        VertexArrayBinding{0, 0},
-        VertexArrayBinding{1, 0},
-        VertexArrayBinding{2, 0},
-        VertexArrayBinding{3, 0},
-    };
-
-    Mesh mesh{attributes, bindings, sizeof(Vertex), GL_DYNAMIC_DRAW};
-    std::array<Submesh, 3> layers{};
+    Mesh mesh;
+//    std::array<Submesh, 3> layers{};
 
     RenderBuffer rb{};
     bool needRender = false;
@@ -28,23 +19,28 @@ struct ChunkRenderData {
     void update() {
         glm::i32 index_count = 0;
         for (auto& subindices : rb.indices) {
-            index_count += subindices.size();
+            index_count += static_cast<glm::i32>(subindices.size());
         }
 
-        mesh.SetVertices(std::span(rb.vertices));
-        mesh.SetIndicesCount(index_count);
+        mesh.setIndexBufferParams(index_count, sizeof(glm::u32));
 
-        glm::i32 submesh_index = 0;
+        mesh.setVertexBufferParams(rb.vertices.size(), sizeof(BlockVertex));
+        mesh.setVertexBufferData(std::as_bytes(std::span(rb.vertices)), 0);
+
+        mesh.setSubmeshCount(rb.indices.size());
+
         glm::i32 index_offset = 0;
+        for (glm::i32 i = 0; i < rb.indices.size(); ++i) {
+            auto& subindices = rb.indices[i];
 
-        for (auto& submesh : rb.indices) {
-            layers[submesh_index].index_offset = index_offset;
-            layers[submesh_index].index_count = submesh.size();
-            if (!submesh.empty()) {
-                mesh.SetIndicesData(submesh, index_offset);
+            mesh.setSubmesh(i, SubMesh{
+                .indexCount = static_cast<glm::i32>(subindices.size()),
+                .indexOffset = index_offset
+            });
+            if (!subindices.empty()) {
+                mesh.setIndexBufferData(std::as_bytes(std::span(subindices)), index_offset * sizeof(glm::u32));
             }
-            index_offset += layers[submesh_index].index_count;
-            submesh_index++;
+            index_offset += static_cast<glm::i32>(subindices.size());
         }
     }
 };

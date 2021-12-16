@@ -1,14 +1,14 @@
 #include "ConfiguredSurfaceBuilders.hpp"
 #include "SurfaceBuilders.hpp"
 
-#include <configs.hpp>
+#include <ResourceManager.hpp>
 #include <block/Block.hpp>
 #include <block/Blocks.hpp>
-#include <resource_manager.hpp>
+#include <configs.hpp>
 
 template<>
-struct Json::Serialize<BlockData> {
-    static auto to_json(const BlockData &state) -> Json {
+struct Json::From<BlockData> {
+    static auto from(const BlockData &state) -> Json {
         return Blocks::blocks.name(state.getBlock()).value();
 
 //        return {
@@ -18,8 +18,8 @@ struct Json::Serialize<BlockData> {
 };
 
 template<>
-struct Json::Deserialize<BlockData> {
-    static auto from_json(const Json& obj) -> std::optional<BlockData> {
+struct Json::Into<BlockData> {
+    static auto into(const Json& obj) -> std::optional<BlockData> {
         if (obj.is_string()) {
             return Blocks::blocks.get(obj.to_string()).value()->getDefaultState();
         }
@@ -28,8 +28,8 @@ struct Json::Deserialize<BlockData> {
 };
 
 template<>
-struct Json::Serialize<SurfaceBuilderConfig> {
-    static auto to_json(const SurfaceBuilderConfig &config) -> Json {
+struct Json::From<SurfaceBuilderConfig> {
+    static auto from(const SurfaceBuilderConfig &config) -> Json {
         return {
             {"top_material", config.top},
             {"under_material", config.mid},
@@ -39,8 +39,8 @@ struct Json::Serialize<SurfaceBuilderConfig> {
 };
 
 template<>
-struct Json::Deserialize<SurfaceBuilderConfig> {
-    static auto from_json(const Json& obj) -> std::optional<SurfaceBuilderConfig> {
+struct Json::Into<SurfaceBuilderConfig> {
+    static auto into(const Json& obj) -> std::optional<SurfaceBuilderConfig> {
         auto&& o = obj.to_object();
         return SurfaceBuilderConfig{
             .top = o.at("top_material"),

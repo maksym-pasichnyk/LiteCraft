@@ -3,7 +3,7 @@
 //#include "PushReaction.hpp"
 #include "MaterialColors.hpp"
 
-struct Material {
+struct BlockMaterial {
     MaterialColor color = MaterialColors::AIR;
 //    PushReaction pushReaction = PushReaction::NORMAL;
     bool isBlocksMovement = true;
@@ -65,8 +65,8 @@ struct Material {
             return *this;
         }
 
-        /*constexpr*/ Material* build() {
-            return new Material {
+        /*constexpr*/ BlockMaterial * build() {
+            return new BlockMaterial{
                 .color = color,
 //                .pushReaction = pushReaction,
                 .isBlocksMovement = isBlocksMovement,

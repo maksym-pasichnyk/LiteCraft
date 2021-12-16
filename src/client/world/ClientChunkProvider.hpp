@@ -35,7 +35,7 @@ struct ClientChunkProvider {
     }
 
     static auto isValid(Chunk* chunk, int32_t x, int32_t z) -> bool {
-        return chunk != nullptr && chunk->pos.x == x && chunk->pos.z == z;
+        return chunk != nullptr && chunk->coords.x == x && chunk->coords.z == z;
     }
 
     static auto adjustViewDistance(int viewDistance) -> int {

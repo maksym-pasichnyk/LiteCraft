@@ -1,9 +1,9 @@
 #include "IceAndSnowFeature.hpp"
-#include "../../WorldGenRegion.hpp"
-#include "../../biome/Biome.hpp"
 #include "../../../block/Block.hpp"
 #include "../../../block/Blocks.hpp"
 #include "../../../block/SnowyDirtBlock.hpp"
+#include "../../WorldGenRegion.hpp"
+#include "../../biome/Biome.hpp"
 
 bool IceAndSnowFeature::generate(WorldGenRegion& region, ChunkGenerator &generator, Random &random, BlockPos pos, const FeatureConfig &config) {
     for (int x = 0; x < 16; x++) {
@@ -11,6 +11,7 @@ bool IceAndSnowFeature::generate(WorldGenRegion& region, ChunkGenerator &generat
             const auto top_pos = region.getHeight(HeightmapType::MOTION_BLOCKING, pos.add(x, 0, z));
             const auto down_pos = top_pos.down();
             const auto biome = region.getBiome(top_pos);
+
             if (biome->doesWaterFreeze(region, down_pos, false)) {
                 region.setData(down_pos, Blocks::ICE->getDefaultState()/*, 2*/);
             }

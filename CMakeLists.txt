@@ -1,37 +1,35 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.20)
 project(minecraft)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_USE_SCHANNEL ON)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS ON)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -lc++abi")
+
+set(PHYSFS_TARGETNAME_UNINSTALL "PHYSFS_UNINSTALL")
+
+add_definitions(-D_LIBCPP_ENABLE_CXX20_REMOVED_TYPE_TRAITS)
+
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+    set(CMAKE_USE_SCHANNEL ON)
+    target_compile_options(fmt PUBLIC /EHsc)
+endif()
 
 set(BUILD_SHARED_LIBS OFF)
-set(PHYSFS_BUILD_SHARED FALSE)
+set(PHYSFS_TARGETNAME_UNINSTALL physfs_uninstall)
 
-execute_process(COMMAND python gl3w_gen.py --root "${PROJECT_BINARY_DIR}/ThirdParty/gl3w" WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/gl3w")
+option(PHYSFS_BUILD_SHARED FALSE)
 
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/fmt")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/glm")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/gl3w")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/glfw")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/curl")
+include(FetchContent)
+
+#add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/curl")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/entt")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/json")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/physfs")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/zlib-ng")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/range-v3")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/asyncplusplus")
 
-target_compile_options(fmt PUBLIC /EHsc)
-
-add_library(imgui STATIC
-    "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui/imgui.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui/imconfig.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui/imgui_internal.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui/imgui.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui/imgui_draw.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui/imgui_tables.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui/imgui_widgets.cpp"
-)
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Blaze")
 
 file(GLOB_RECURSE craft_source_files
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
@@ -42,7 +40,6 @@ set(craft_include_directories
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
     "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui"
     "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/physfs/src"
-    "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/json/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/range-v3/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/asyncplusplus/include"
 )
@@ -54,18 +51,13 @@ set(craft_compile_definitions
     -DNOMINMAX
 )
 set(craft_link_libraries
-    glm
-    fmt
     EnTT
-    glfw
-    gl3w
-    imgui
-    libcurl
+#    libcurl
     zlibstatic
-    nlohmann_json
     physfs-static
-    WS2_32
+#    WS2_32
     Async++
+    blaze
 )
 
 add_executable("${PROJECT_NAME}-server" "${craft_source_files}")
@@ -79,3 +71,12 @@ target_compile_definitions("${PROJECT_NAME}-server" PRIVATE ${craft_compile_defi
 
 target_link_libraries("${PROJECT_NAME}-client" PRIVATE ${craft_link_libraries})
 target_link_libraries("${PROJECT_NAME}-server" PRIVATE ${craft_link_libraries})
+
+target_compile_shaders("${PROJECT_NAME}-client"
+    resources/craft/assets/shaders/cutout.frag
+    resources/craft/assets/shaders/default.frag
+    resources/craft/assets/shaders/default.vert
+    resources/craft/assets/shaders/entity.frag
+    resources/craft/assets/shaders/entity.vert
+    resources/craft/assets/shaders/transparent.frag
+)
