@@ -29,7 +29,7 @@ struct ChunkSection {
 struct LightSection {
     std::array<uint8_t, 2048> lights;
 
-    void setLight(int32_t x, int32_t y, int32_t z, int32_t new_light) {
+    void setLight(int x, int y, int z, int new_light) {
         const auto val = new_light & 0xF;
         const auto idx = toIndex(x, y, z);
         auto& light = lights[idx >> 1];
@@ -38,14 +38,14 @@ struct LightSection {
                 : ((light & 0xF0) | val);
     }
 
-    auto getLight(int32_t x, int32_t y, int32_t z) const -> int32_t {
+    auto getLight(int x, int y, int z) const -> int {
         const auto idx = toIndex(x, y, z);
         const auto light = lights[idx >> 1];
         return (((idx & 1) == 1) ? (light >> 4) : light) & 0xF;
     }
 
 private:
-    static constexpr auto toIndex(int32_t x, int32_t y, int32_t z) noexcept -> size_t {
+    static constexpr auto toIndex(int x, int y, int z) noexcept -> size_t {
         return (y << 8) | (z << 4) | x;
     }
 };
@@ -57,7 +57,7 @@ struct Chunk {
 	std::array<std::unique_ptr<ChunkSection>, 16> sections{};
     std::array<std::unique_ptr<LightSection>, 18> skyLightSections{};
     std::array<std::unique_ptr<LightSection>, 18> blockLightSections{};
-    std::array<Heightmap, 5> heightmaps{};
+    std::array<Heightmap, 6> heightmaps{};
 
     std::map<Structure*, StructureStart*> starts;
     std::map<Structure*, std::set<int64_t>> references;
@@ -71,7 +71,7 @@ struct Chunk {
         return blockLightSources;
     }
 
-    void setBlockLight(int32_t x, int32_t y, int32_t z, int32_t val) {
+    void setBlockLight(int x, int y, int z, int val) {
         auto& section = blockLightSections[(y >> 4) + 1];
         if (section == nullptr) {
             if (val == 0) {
@@ -82,7 +82,7 @@ struct Chunk {
         section->setLight(x & 15, y & 15, z & 15, val);
     }
 
-    auto getBlockLight(int32_t x, int32_t y, int32_t z) const -> int32_t {
+    auto getBlockLight(int x, int y, int z) const -> int {
         auto section = blockLightSections[(y >> 4) + 1].get();
         if (section == nullptr) {
             return 0;
@@ -90,7 +90,7 @@ struct Chunk {
         return section->getLight(x & 15, y & 15, z & 15);
     }
 
-    void setSkyLight(int32_t x, int32_t y, int32_t z, int32_t val) {
+    void setSkyLight(int x, int y, int z, int val) {
         auto& section = skyLightSections[(y >> 4) + 1];
         if (section == nullptr) {
             if (val == 0) {
@@ -101,7 +101,7 @@ struct Chunk {
         section->setLight(x & 15, y & 15, z & 15, val);
     }
 
-    auto getSkyLight(int32_t x, int32_t y, int32_t z) const -> int32_t {
+    auto getSkyLight(int x, int y, int z) const -> int {
         auto section = skyLightSections[(y >> 4) + 1].get();
         if (section == nullptr) {
             return 0;
@@ -109,7 +109,7 @@ struct Chunk {
         return section->getLight(x & 15, y & 15, z & 15);
     }
 
-    auto getLightLevel(const BlockPos& pos) const -> int32_t {
+    auto getLightLevel(const BlockPos& pos) const -> int {
         return getData(pos).getLightLevel();
     }
 
@@ -117,7 +117,7 @@ struct Chunk {
         return setData(pos.x, pos.y, pos.z, data);
     }
 
-    bool setData(int32_t x, int32_t y, int32_t z, BlockData data) {
+    bool setData(int x, int y, int z, BlockData data) {
     	auto& section = sections[y >> 4];
     	if (section == nullptr) {
     	    if (data.isAir()) {
@@ -134,23 +134,38 @@ struct Chunk {
     	return true;
     }
 
-    void updateHeightmap(int32_t x, int32_t y, int32_t z, BlockData data) {
-        const auto i = x | (z << 4);
-        const auto height = heightmaps[0].getAt(i);
+    void updateHeightmap(int x, int y, int z, BlockData data) {
+        const auto types = std::array{
+            HeightmapType::WORLD_SURFACE_WG,
+            HeightmapType::WORLD_SURFACE,
+            HeightmapType::OCEAN_FLOOR_WG,
+            HeightmapType::OCEAN_FLOOR,
+            HeightmapType::MOTION_BLOCKING,
+            HeightmapType::MOTION_BLOCKING_NO_LEAVES
+        };
 
-        if (y > height - 2) {
-            if (!data.isAir()) {
-                if (y >= height) {
-                    heightmaps[0].setAt(i, y + 1);
-                }
-            } else if (height - 1 == y) {
-                for (int y1 = y - 1; y1 >= 0; --y1) {
-                    if (!getData(x, y1, z).isAir()) {
-                        heightmaps[0].setAt(i, y1 + 1);
-                        break;
+        const auto i = x | (z << 4);
+        for (auto type : types) {
+            auto& heightmap = heightmaps.at(static_cast<size_t>(type));
+
+            const auto predicate = HeightmapUtils::predicate(type);
+            const auto height = heightmap.getAt(i);
+
+            if (y > height - 2) {
+                if (predicate(data)) {
+                    if (y >= height) {
+                        heightmap.setAt(i, y + 1);
+                    }
+                } else if (height - 1 == y) {
+                    heightmap.setAt(i, 0);
+
+                    for (int y1 = y - 1; y1 >= 0; --y1) {
+                        if (predicate(getData(x, y1, z))) {
+                            heightmap.setAt(i, y1 + 1);
+                            break;
+                        }
                     }
                 }
-                heightmaps[0].setAt(i, 0);
             }
         }
     }
@@ -159,7 +174,7 @@ struct Chunk {
         return getData(pos.x, pos.y, pos.z);
     }
 
-    auto getData(int32_t x, int32_t y, int32_t z) const -> BlockData {
+    auto getData(int x, int y, int z) const -> BlockData {
     	auto section = sections[y >> 4].get();
     	if (section == nullptr) {
 			return {};
@@ -167,7 +182,7 @@ struct Chunk {
         return section->blocks[toIndex(x & 15, y & 15, z & 15)];
     }
 
-    auto getBlock(int32_t x, int32_t y, int32_t z) const -> Block* {
+    auto getBlock(int x, int y, int z) const -> Block* {
         return getData(x, y, z).getBlock();
     }
 
@@ -176,15 +191,15 @@ struct Chunk {
         return BlockPos::from(pos.x, y, pos.z);
     }
 
-    auto getHeight(HeightmapType type, int32_t x, int32_t z) -> int32_t {
-        return heightmaps[0].get(x & 15, z & 15);
+    auto getHeight(HeightmapType type, int x, int z) -> int {
+        return heightmaps.at(static_cast<size_t>(type)).get(x & 15, z & 15);
     }
 
-    auto getTopBlockY(HeightmapType type, int32_t x, int32_t z) -> int32_t {
+    auto getTopBlockY(HeightmapType type, int x, int z) -> int {
         return getHeight(type, x, z) - 1;
     }
 
-    static constexpr auto toIndex(int32_t x, int32_t y, int32_t z) noexcept -> int32_t {
+    static constexpr auto toIndex(int x, int y, int z) noexcept -> int {
         return (x << 8) | (z << 4) | y;
     }
 

@@ -83,7 +83,7 @@ auto ChunkGenerator::getNoiseBiome(int x, int y, int z) -> Biome * {
 }
 
 void ChunkGenerator::createStarts(StructureFeature *feature, Chunk &chunk, TemplateManager &templates, int64_t seed, const ChunkPos &chunkPos, Biome &biome) {
-    StructureSeparation separation {
+    auto separation = StructureSeparation {
         .spacing = 10,
         .separation = 10,
         .salt = 0

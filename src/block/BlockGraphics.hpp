@@ -2,12 +2,12 @@
 
 #include <map>
 #include <string>
-#include <Json.hpp>
 #include <unordered_map>
 
-struct TextureAtlasTextureItem;
-struct ResourceManager;
+struct Json;
 struct TextureAtlas;
+struct ResourceManager;
+struct TextureAtlasTextureItem;
 
 struct BlockGraphics {
     std::string name;

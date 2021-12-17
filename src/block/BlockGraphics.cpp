@@ -1,5 +1,7 @@
 #include "BlockGraphics.hpp"
-#include "../TextureAtlas.hpp"
+
+#include <Json.hpp>
+#include <TextureAtlas.hpp>
 
 BlockGraphics* BlockGraphics::mMissingTexture;
 std::unique_ptr<TextureAtlas> BlockGraphics::mTerrainTextureAtlas;

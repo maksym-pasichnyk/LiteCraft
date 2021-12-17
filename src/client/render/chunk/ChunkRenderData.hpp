@@ -1,18 +1,12 @@
 #pragma once
 
-#include "client/render/RenderBuffer.hpp"
-
 #include <array>
-
-struct Submesh {
-    glm::i32 index_offset = 0;
-    glm::i32 index_count = 0;
-};
+#include <Mesh.hpp>
+#include <client/render/RenderBuffer.hpp>
+#include <client/render/ModelComponent.hpp>
 
 struct ChunkRenderData {
-    Mesh mesh;
-//    std::array<Submesh, 3> layers{};
-
+    Mesh mesh{};
     RenderBuffer rb{};
     bool needRender = false;
 

@@ -39,18 +39,16 @@
 
 #include <Blaze.hpp>
 #include <Display.hpp>
+#include <ImLogger.hpp>
 #include <Input.hpp>
 #include <Material.hpp>
+#include <Screen.hpp>
 #include <Time.hpp>
-#include <imgui.h>
+#include <WorldRenderer.hpp>
 
 struct AABB {
     glm::vec3 min;
     glm::vec3 max;
-};
-struct CameraConstants {
-    glm::mat4 transform;
-    glm::vec4 position;
 };
 struct PlayerComponent {
     int controller;
@@ -201,58 +199,6 @@ static auto getRotationDelta(const Transform& transform, glm::ivec2 delta, float
     return {};
 }
 
-struct WorldRenderer {
-    Material entityMaterial;
-    Material opaqueMaterial;
-    Material cutoutMaterial;
-    Material transparentMaterial;
-
-    ChunkRenderDispatcher dispatcher{};
-    std::vector<GraphicsBuffer> uniforms{};
-    std::vector<ChunkRenderData*> chunkToRenders{};
-
-    WorldRenderer() {
-        _createUniforms();
-
-//        entityMaterial = Material::LoadFromResources("craft:materials/entity.material");
-        opaqueMaterial = Material::LoadFromResources("craft:materials/opaque.material");
-        cutoutMaterial = Material::LoadFromResources("craft:materials/cutout.material");
-        transparentMaterial = Material::LoadFromResources("craft:materials/transparent.material");
-
-        opaqueMaterial.SetTexture(1, BlockGraphics::mTerrainTextureAtlas->texture);
-        opaqueMaterial.SetConstantBuffer(0, uniforms[0]);
-
-        cutoutMaterial.SetTexture(1, BlockGraphics::mTerrainTextureAtlas->texture);
-        cutoutMaterial.SetConstantBuffer(0, uniforms[0]);
-
-        transparentMaterial.SetTexture(1, BlockGraphics::mTerrainTextureAtlas->texture);
-        transparentMaterial.SetConstantBuffer(0, uniforms[0]);
-    }
-
-    void drawTerrain(CommandBuffer cmd) {
-        dispatcher.runChunkUploads();
-
-        _drawChunks(cmd, opaqueMaterial, RenderLayer::Opaque);
-        _drawChunks(cmd, cutoutMaterial, RenderLayer::Cutout);
-        _drawChunks(cmd, transparentMaterial, RenderLayer::Transparent);
-    }
-
-private:
-    void _drawChunks(CommandBuffer cmd, const Material& material, RenderLayer layer) {
-        for (auto chunk : chunkToRenders) {
-            if (chunk->mesh.getIndexCount() == 0) {
-                continue;
-            }
-            cmd.drawMesh(chunk->mesh, material, static_cast<int>(layer));
-        }
-    }
-
-    void _createUniforms() {
-        // todo: move to Blaze
-        uniforms.emplace_back(GraphicsBuffer::Target::Constant, sizeof(CameraConstants));
-    }
-};
-
 struct Game : Blaze::Application {
     const int renderDistance = 3;
 
@@ -266,8 +212,11 @@ struct Game : Blaze::Application {
     std::unique_ptr<WorldRenderer> renderer{};
     std::unique_ptr<ResourceManager> resources{};
     std::optional<RayTraceResult> rayTraceResult{};
+    std::shared_ptr<ImLogger> logger = std::make_shared<ImLogger>();
 
     Game() {
+        spdlog::default_logger()->sinks().push_back(logger);
+
         handler.bind<SEncryptionRequestPacket, &Game::processEncryptionRequest>();
         handler.bind<SEnableCompressionPacket, &Game::processEnableCompression>();
         handler.bind<SLoginSuccessPacket, &Game::processLoginSuccess>();
@@ -280,8 +229,7 @@ struct Game : Blaze::Application {
     }
 
     void Init() override {
-        extern auto GetDisplay() -> Display&;
-        camera.setSize(GetDisplay().getSize());
+        camera.setSize(Screen::getSize());
 
         resources = std::make_unique<ResourceManager>();
         resources->emplace(std::make_unique<PhysFsResourcePack>("/resource_packs/vanilla"));
@@ -343,7 +291,6 @@ struct Game : Blaze::Application {
         ecs.view<Transform, VelocityComponent, CollisionComponent>().each([this](auto& tr, auto& vel, const auto& col) {
             vel.velocity = resolve_collision(*world, tr.position, vel.velocity);
         });
-
         ecs.view<PlayerComponent, Transform, VelocityComponent>().each([](auto& p, auto& tr, auto& vel) {
             tr.position += vel.velocity;
             vel.velocity.x *= 0.5f;
@@ -397,11 +344,14 @@ struct Game : Blaze::Application {
         });
     }
     void DrawUI() override {
+        const auto screenSize = Screen::getSize();
+
         const auto position = glm::ivec3(glm::floor(ecs.get<Transform>(connection->player).position));
 
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_Always);
         ImGui::Begin("Info");
+        ImGui::TextUnformatted(fmt::format("FPS: {:.3}s", 1.0f / Time::getDeltaTime()).c_str());
         ImGui::TextUnformatted(fmt::format("DeltaTime: {:.3}s", Time::getDeltaTime()).c_str());
         ImGui::TextUnformatted(fmt::format("Position: {}, {}, {}", position.x, position.y, position.z).c_str());
         if (rayTraceResult.has_value()) {
@@ -409,6 +359,10 @@ struct Game : Blaze::Application {
             ImGui::TextUnformatted(fmt::format("Target Block: {}", name).c_str());
         }
         ImGui::End();
+
+        ImGui::SetNextWindowPos(ImVec2(0, glm::f32(screenSize.y - 200)), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(glm::f32(screenSize.x), 200), ImGuiCond_Always);
+        logger->Draw("Console");
     }
 
 private:

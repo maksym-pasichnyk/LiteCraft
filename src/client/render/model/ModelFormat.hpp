@@ -2,6 +2,8 @@
 
 #include "ModelBoneFormat.hpp"
 
+#include <map>
+#include <cmath>
 #include <string>
 #include <memory>
 #include <optional>

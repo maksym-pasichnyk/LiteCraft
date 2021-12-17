@@ -2,10 +2,10 @@
 
 #include <compare>
 #include <cstdint>
-#include <state/util/PropertyUtil.hpp>
-#include <tags/BlockTags.hpp>
 #include <util/Mirror.hpp>
+#include <tags/BlockTags.hpp>
 #include <util/math/BlockPos.hpp>
+#include <state/util/PropertyUtil.hpp>
 
 struct Block;
 struct BlockMaterial;

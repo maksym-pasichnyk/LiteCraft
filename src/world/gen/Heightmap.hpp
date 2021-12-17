@@ -1,7 +1,9 @@
 #pragma once
 
-#include <cstdint>
 #include <array>
+#include <cstdint>
+#include <block/BlockData.hpp>
+#include <block/material/BlockMaterial.hpp>
 
 enum class HeightmapType {
     WORLD_SURFACE_WG,
@@ -17,21 +19,61 @@ struct Heightmap {
 
     std::array<uint64_t, 37> data{};
 
-    constexpr int getAt(int32_t i) const {
-        const int32_t s = (i % 7) * 9;
+    constexpr auto getAt(int i) const -> int {
+        const auto s = (i % 7) * 9;
         return static_cast<int>((data[i / 7] >> s) & maxValue);
     }
 
-    constexpr void setAt(int32_t i, int32_t v) {
-        const int32_t s = (i % 7) * 9;
+    constexpr void setAt(int i, int v) {
+        const auto s = (i % 7) * 9;
         data[i / 7] = data[i / 7] & ~(maxValue << s) | ((static_cast<uint64_t>(v) & maxValue) << s);
     }
 
-    constexpr int get(int32_t x, int32_t z) const {
+    constexpr auto get(int x, int z) const -> int {
         return getAt(x | (z << 4));
     }
 
-    constexpr void set(int32_t x, int32_t z, int32_t v) {
+    constexpr void set(int x, int z, int v) {
         return setAt(x | (z << 4), v);
+    }
+};
+
+struct HeightmapUtils {
+    struct WorldSurface {
+        static auto test(BlockData state) -> bool {
+            return !state.isAir();
+        }
+    };
+    struct OceanFloor {
+        static auto test(BlockData state) -> bool {
+            return state.getMaterial()->isBlocksMovement;
+        }
+    };
+    struct MotionBlocking {
+        static auto test(BlockData state) -> bool {
+            return state.getMaterial()->isBlocksMovement
+				|| state.getMaterial()->isLiquid;
+        }
+    };
+    struct MotionBlockingNoLeaves {
+        static auto test(BlockData state) -> bool {
+            return MotionBlocking::test(state) && !state.in(BlockTags::LEAVES);
+        }
+    };
+
+    static auto predicate(HeightmapType type) -> auto(*)(BlockData state) -> bool {
+        const auto predicates = std::array{
+			WorldSurface::test,
+			WorldSurface::test,
+			OceanFloor::test,
+			OceanFloor::test,
+			MotionBlocking::test,
+			MotionBlockingNoLeaves::test,
+        };
+        return predicates.at(static_cast<size_t>(type));
+    }
+
+    static auto test(HeightmapType type, BlockData state) -> bool {
+		return predicate(type)(state);
     }
 };
