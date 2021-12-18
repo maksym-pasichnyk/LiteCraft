@@ -22,11 +22,11 @@ struct TextureUVCoordinateSet {
     float maxV;
 
     inline constexpr float getInterpolatedU(float t) const {
-        return t;//(1 - t) * minU + t * maxU;
+        return (1 - t) * minU + t * maxU;
     }
 
     inline constexpr float getInterpolatedV(float t) const {
-        return t;//(1 - t) * minV + t * maxV;
+        return (1 - t) * minV + t * maxV;
     }
 };
 
@@ -36,15 +36,19 @@ struct TextureAtlasSprite {
 		std::string path;
 		NativeImage image;
 
-		void *pixels() const {
+        auto channels() const -> int {
+            return image.channels;
+        }
+
+		auto pixels() const -> void* {
 			return image.pixels.get();
 		}
 
-		int width() const {
+		auto width() const -> int {
 			return image.width;
 		}
 
-		int height() const {
+		auto height() const -> int {
 			return image.height;
 		}
 	};
@@ -379,17 +383,32 @@ struct TextureAtlas /*: Texture*/ {
 				sprite.info.height()
 			};
 
-			int i2 = 0;
-			for (int y = rect.y; y < rect.y + rect.height; y++) {
-				auto i = y * sheet->width + rect.x;
+            int i2 = 0;
+            if (sprite.info.channels() == 3) {
+                for (int y = rect.y; y < rect.y + rect.height; y++) {
+                    auto i = y * sheet->width + rect.x;
 
-				for (int x = 0; x < rect.width; x++, i++) {
-                    pixels[i][0] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
-                    pixels[i][1] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
-                    pixels[i][2] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
-                    pixels[i][3] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
-				}
-			}
+                    for (int x = 0; x < rect.width; x++, i++) {
+                        pixels[i][0] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
+                        pixels[i][1] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
+                        pixels[i][2] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
+                        pixels[i][3] = 0xFF;
+                    }
+                }
+            } else if (sprite.info.channels() == 4) {
+                for (int y = rect.y; y < rect.y + rect.height; y++) {
+                    auto i = y * sheet->width + rect.x;
+
+                    for (int x = 0; x < rect.width; x++, i++) {
+                        pixels[i][0] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
+                        pixels[i][1] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
+                        pixels[i][2] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
+                        pixels[i][3] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
+                    }
+                }
+            } else {
+                spdlog::error("unsupported format [channels = {}]", sprite.info.channels());
+            }
 		}
 
         texture = Texture2D(sheet->width, sheet->height, vk::Format::eR8G8B8A8Unorm);

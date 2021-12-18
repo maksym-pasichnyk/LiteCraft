@@ -314,6 +314,200 @@ void BlockGraphics::init(ResourceManager& resources) {
     mBlockLookupMap.insert_or_assign("potted_warped_fungus", mBlockLookupMap.at("flower_pot"));
     mBlockLookupMap.insert_or_assign("potted_crimson_roots", mBlockLookupMap.at("flower_pot"));
     mBlockLookupMap.insert_or_assign("potted_warped_roots", mBlockLookupMap.at("flower_pot"));
+    mBlockLookupMap.insert_or_assign("oak_button", mBlockLookupMap.at("wooden_button"));
+    mBlockLookupMap.insert_or_assign("oak_fence", mBlockLookupMap.at("fence"));
+    mBlockLookupMap.insert_or_assign("spruce_fence", mBlockLookupMap.at("fence"));
+    mBlockLookupMap.insert_or_assign("birch_fence", mBlockLookupMap.at("fence"));
+    mBlockLookupMap.insert_or_assign("jungle_fence", mBlockLookupMap.at("fence"));
+    mBlockLookupMap.insert_or_assign("acacia_fence", mBlockLookupMap.at("fence"));
+    mBlockLookupMap.insert_or_assign("dark_oak_fence", mBlockLookupMap.at("fence"));
+    mBlockLookupMap.insert_or_assign("oak_sign", mBlockLookupMap.at("standing_sign"));
+    mBlockLookupMap.insert_or_assign("spruce_sign", mBlockLookupMap.at("spruce_standing_sign"));
+    mBlockLookupMap.insert_or_assign("birch_sign", mBlockLookupMap.at("birch_standing_sign"));
+    mBlockLookupMap.insert_or_assign("acacia_sign", mBlockLookupMap.at("acacia_standing_sign"));
+    mBlockLookupMap.insert_or_assign("jungle_sign", mBlockLookupMap.at("jungle_standing_sign"));
+    mBlockLookupMap.insert_or_assign("dark_oak_sign", mBlockLookupMap.at("darkoak_standing_sign"));
+    mBlockLookupMap.insert_or_assign("oak_wall_sign", mBlockLookupMap.at("wall_sign"));
+    mBlockLookupMap.insert_or_assign("dark_oak_wall_sign", mBlockLookupMap.at("darkoak_wall_sign"));
+    mBlockLookupMap.insert_or_assign("crimson_sign", mBlockLookupMap.at("crimson_standing_sign"));
+    mBlockLookupMap.insert_or_assign("warped_sign", mBlockLookupMap.at("warped_standing_sign"));
+    mBlockLookupMap.insert_or_assign("note_block", mBlockLookupMap.at("noteblock"));
+    mBlockLookupMap.insert_or_assign("powered_rail", mBlockLookupMap.at("activator_rail"));
+    mBlockLookupMap.insert_or_assign("tall_seagrass", mBlockLookupMap.at("seagrass"));
+    mBlockLookupMap.insert_or_assign("wall_torch", mBlockLookupMap.at("torch"));
+    mBlockLookupMap.insert_or_assign("oak_door", mBlockLookupMap.at("wooden_door"));
+    mBlockLookupMap.insert_or_assign("chipped_anvil", mBlockLookupMap.at("anvil"));
+    mBlockLookupMap.insert_or_assign("damaged_anvil", mBlockLookupMap.at("anvil"));
+    mBlockLookupMap.insert_or_assign("bricks", mBlockLookupMap.at("brick_block"));
+    mBlockLookupMap.insert_or_assign("spawner", mBlockLookupMap.at("mob_spawner"));
+    mBlockLookupMap.insert_or_assign("weeping_vines_plant", mBlockLookupMap.at("weeping_vines"));
+    mBlockLookupMap.insert_or_assign("twisting_vines_plant", mBlockLookupMap.at("twisting_vines"));
+    mBlockLookupMap.insert_or_assign("oak_pressure_plate", mBlockLookupMap.at("wooden_pressure_plate"));
+    mBlockLookupMap.insert_or_assign("redstone_wall_torch", mBlockLookupMap.at("redstone_torch"));
+    mBlockLookupMap.insert_or_assign("soul_wall_torch", mBlockLookupMap.at("soul_torch"));
+    mBlockLookupMap.insert_or_assign("oak_trapdoor", mBlockLookupMap.at("trapdoor"));
+
+    mBlockLookupMap.insert_or_assign("dead_tube_coral_block", mBlockLookupMap.at("coral_block"));
+    mBlockLookupMap.insert_or_assign("dead_brain_coral_block", mBlockLookupMap.at("coral_block"));
+    mBlockLookupMap.insert_or_assign("dead_bubble_coral_block", mBlockLookupMap.at("coral_block"));
+    mBlockLookupMap.insert_or_assign("dead_fire_coral_block", mBlockLookupMap.at("coral_block"));
+    mBlockLookupMap.insert_or_assign("dead_horn_coral_block", mBlockLookupMap.at("coral_block"));
+
+    mBlockLookupMap.insert_or_assign("tube_coral_block", mBlockLookupMap.at("coral_block"));
+    mBlockLookupMap.insert_or_assign("brain_coral_block", mBlockLookupMap.at("coral_block"));
+    mBlockLookupMap.insert_or_assign("bubble_coral_block", mBlockLookupMap.at("coral_block"));
+    mBlockLookupMap.insert_or_assign("fire_coral_block", mBlockLookupMap.at("coral_block"));
+    mBlockLookupMap.insert_or_assign("horn_coral_block", mBlockLookupMap.at("coral_block"));
+
+    mBlockLookupMap.insert_or_assign("dead_tube_coral", mBlockLookupMap.at("coral"));
+    mBlockLookupMap.insert_or_assign("dead_brain_coral", mBlockLookupMap.at("coral"));
+    mBlockLookupMap.insert_or_assign("dead_bubble_coral", mBlockLookupMap.at("coral"));
+    mBlockLookupMap.insert_or_assign("dead_fire_coral", mBlockLookupMap.at("coral"));
+    mBlockLookupMap.insert_or_assign("dead_horn_coral", mBlockLookupMap.at("coral"));
+
+    mBlockLookupMap.insert_or_assign("tube_coral", mBlockLookupMap.at("coral"));
+    mBlockLookupMap.insert_or_assign("brain_coral", mBlockLookupMap.at("coral"));
+    mBlockLookupMap.insert_or_assign("bubble_coral", mBlockLookupMap.at("coral"));
+    mBlockLookupMap.insert_or_assign("fire_coral", mBlockLookupMap.at("coral"));
+    mBlockLookupMap.insert_or_assign("horn_coral", mBlockLookupMap.at("coral"));
+
+    mBlockLookupMap.insert_or_assign("dead_tube_coral_fan", mBlockLookupMap.at("coral_fan_dead"));
+    mBlockLookupMap.insert_or_assign("dead_brain_coral_fan", mBlockLookupMap.at("coral_fan_dead"));
+    mBlockLookupMap.insert_or_assign("dead_bubble_coral_fan", mBlockLookupMap.at("coral_fan_dead"));
+    mBlockLookupMap.insert_or_assign("dead_fire_coral_fan", mBlockLookupMap.at("coral_fan_dead"));
+    mBlockLookupMap.insert_or_assign("dead_horn_coral_fan", mBlockLookupMap.at("coral_fan_dead"));
+
+    mBlockLookupMap.insert_or_assign("tube_coral_fan", mBlockLookupMap.at("coral_fan"));
+    mBlockLookupMap.insert_or_assign("brain_coral_fan", mBlockLookupMap.at("coral_fan"));
+    mBlockLookupMap.insert_or_assign("bubble_coral_fan", mBlockLookupMap.at("coral_fan"));
+    mBlockLookupMap.insert_or_assign("fire_coral_fan", mBlockLookupMap.at("coral_fan"));
+    mBlockLookupMap.insert_or_assign("horn_coral_fan", mBlockLookupMap.at("coral_fan"));
+
+    mBlockLookupMap.insert_or_assign("dead_tube_coral_wall_fan", mBlockLookupMap.at("coral_fan_hang"));
+    mBlockLookupMap.insert_or_assign("dead_brain_coral_wall_fan", mBlockLookupMap.at("coral_fan_hang"));
+    mBlockLookupMap.insert_or_assign("dead_bubble_coral_wall_fan", mBlockLookupMap.at("coral_fan_hang2"));
+    mBlockLookupMap.insert_or_assign("dead_fire_coral_wall_fan", mBlockLookupMap.at("coral_fan_hang2"));
+    mBlockLookupMap.insert_or_assign("dead_horn_coral_wall_fan", mBlockLookupMap.at("coral_fan_hang3"));
+
+    mBlockLookupMap.insert_or_assign("tube_coral_wall_fan", mBlockLookupMap.at("coral_fan_hang"));
+    mBlockLookupMap.insert_or_assign("brain_coral_wall_fan", mBlockLookupMap.at("coral_fan_hang"));
+    mBlockLookupMap.insert_or_assign("bubble_coral_wall_fan", mBlockLookupMap.at("coral_fan_hang2"));
+    mBlockLookupMap.insert_or_assign("fire_coral_wall_fan", mBlockLookupMap.at("coral_fan_hang2"));
+    mBlockLookupMap.insert_or_assign("horn_coral_wall_fan", mBlockLookupMap.at("coral_fan_hang3"));
+
+    mBlockLookupMap.insert_or_assign("prismarine_slab", mBlockLookupMap.at("stone_slab2"));
+    mBlockLookupMap.insert_or_assign("prismarine_brick_slab", mBlockLookupMap.at("stone_slab2"));
+    mBlockLookupMap.insert_or_assign("dark_prismarine_slab", mBlockLookupMap.at("stone_slab2"));
+    mBlockLookupMap.insert_or_assign("oak_slab", mBlockLookupMap.at("wooden_slab"));
+    mBlockLookupMap.insert_or_assign("spruce_slab", mBlockLookupMap.at("wooden_slab"));
+    mBlockLookupMap.insert_or_assign("birch_slab", mBlockLookupMap.at("wooden_slab"));
+    mBlockLookupMap.insert_or_assign("jungle_slab", mBlockLookupMap.at("wooden_slab"));
+    mBlockLookupMap.insert_or_assign("acacia_slab", mBlockLookupMap.at("wooden_slab"));
+    mBlockLookupMap.insert_or_assign("dark_oak_slab", mBlockLookupMap.at("wooden_slab"));
+    mBlockLookupMap.insert_or_assign("smooth_stone_slab", mBlockLookupMap.at("stone_slab"));
+    mBlockLookupMap.insert_or_assign("sandstone_slab", mBlockLookupMap.at("stone_slab"));
+    mBlockLookupMap.insert_or_assign("cut_sandstone_slab", mBlockLookupMap.at("stone_slab4"));
+    mBlockLookupMap.insert_or_assign("petrified_oak_slab", mBlockLookupMap.at("stone_slab"));
+    mBlockLookupMap.insert_or_assign("cobblestone_slab", mBlockLookupMap.at("stone_slab"));
+    mBlockLookupMap.insert_or_assign("brick_slab", mBlockLookupMap.at("stone_slab"));
+    mBlockLookupMap.insert_or_assign("stone_brick_slab", mBlockLookupMap.at("stone_slab"));
+    mBlockLookupMap.insert_or_assign("nether_brick_slab", mBlockLookupMap.at("stone_slab"));
+    mBlockLookupMap.insert_or_assign("quartz_slab", mBlockLookupMap.at("stone_slab"));
+    mBlockLookupMap.insert_or_assign("red_sandstone_slab", mBlockLookupMap.at("stone_slab2"));
+    mBlockLookupMap.insert_or_assign("cut_red_sandstone_slab", mBlockLookupMap.at("stone_slab4"));
+    mBlockLookupMap.insert_or_assign("purpur_slab", mBlockLookupMap.at("stone_slab2"));
+    mBlockLookupMap.insert_or_assign("polished_granite_slab", mBlockLookupMap.at("stone_slab3"));
+    mBlockLookupMap.insert_or_assign("smooth_red_sandstone_slab", mBlockLookupMap.at("stone_slab3"));
+    mBlockLookupMap.insert_or_assign("mossy_stone_brick_slab", mBlockLookupMap.at("stone_slab4"));
+    mBlockLookupMap.insert_or_assign("polished_diorite_slab", mBlockLookupMap.at("stone_slab3"));
+    mBlockLookupMap.insert_or_assign("mossy_cobblestone_slab", mBlockLookupMap.at("stone_slab2"));
+
+    mBlockLookupMap.insert_or_assign("end_stone_brick_slab", mBlockLookupMap.at("stone_slab3"));
+    mBlockLookupMap.insert_or_assign("smooth_sandstone_slab", mBlockLookupMap.at("stone_slab2"));
+    mBlockLookupMap.insert_or_assign("smooth_quartz_slab", mBlockLookupMap.at("stone_slab4"));
+    mBlockLookupMap.insert_or_assign("granite_slab", mBlockLookupMap.at("stone_slab3"));
+    mBlockLookupMap.insert_or_assign("andesite_slab", mBlockLookupMap.at("stone_slab3"));
+    mBlockLookupMap.insert_or_assign("red_nether_brick_slab", mBlockLookupMap.at("stone_slab2"));
+    mBlockLookupMap.insert_or_assign("polished_andesite_slab", mBlockLookupMap.at("stone_slab3"));
+    mBlockLookupMap.insert_or_assign("diorite_slab", mBlockLookupMap.at("stone_slab3"));
+
+    mBlockLookupMap.insert_or_assign("infested_stone", mBlockLookupMap.at("monster_egg"));
+    mBlockLookupMap.insert_or_assign("infested_cobblestone", mBlockLookupMap.at("monster_egg"));
+    mBlockLookupMap.insert_or_assign("infested_stone_bricks", mBlockLookupMap.at("monster_egg"));
+    mBlockLookupMap.insert_or_assign("infested_mossy_stone_bricks", mBlockLookupMap.at("monster_egg"));
+    mBlockLookupMap.insert_or_assign("infested_cracked_stone_bricks", mBlockLookupMap.at("monster_egg"));
+    mBlockLookupMap.insert_or_assign("infested_chiseled_stone_bricks", mBlockLookupMap.at("monster_egg"));
+
+    mBlockLookupMap.insert_or_assign("mossy_cobblestone_wall", mBlockLookupMap.at("cobblestone_wall"));
+    mBlockLookupMap.insert_or_assign("brick_wall", mBlockLookupMap.at("cobblestone_wall"));
+    mBlockLookupMap.insert_or_assign("prismarine_wall", mBlockLookupMap.at("cobblestone_wall"));
+    mBlockLookupMap.insert_or_assign("red_sandstone_wall", mBlockLookupMap.at("cobblestone_wall"));
+    mBlockLookupMap.insert_or_assign("mossy_stone_brick_wall", mBlockLookupMap.at("cobblestone_wall"));
+    mBlockLookupMap.insert_or_assign("granite_wall", mBlockLookupMap.at("cobblestone_wall"));
+    mBlockLookupMap.insert_or_assign("stone_brick_wall", mBlockLookupMap.at("cobblestone_wall"));
+    mBlockLookupMap.insert_or_assign("nether_brick_wall", mBlockLookupMap.at("cobblestone_wall"));
+    mBlockLookupMap.insert_or_assign("andesite_wall", mBlockLookupMap.at("cobblestone_wall"));
+    mBlockLookupMap.insert_or_assign("red_nether_brick_wall", mBlockLookupMap.at("cobblestone_wall"));
+    mBlockLookupMap.insert_or_assign("sandstone_wall", mBlockLookupMap.at("cobblestone_wall"));
+    mBlockLookupMap.insert_or_assign("end_stone_brick_wall", mBlockLookupMap.at("cobblestone_wall"));
+    mBlockLookupMap.insert_or_assign("diorite_wall", mBlockLookupMap.at("cobblestone_wall"));
+
+    mBlockLookupMap.insert_or_assign("chiseled_sandstone", mBlockLookupMap.at("sandstone"));
+    mBlockLookupMap.insert_or_assign("cut_sandstone", mBlockLookupMap.at("sandstone"));
+    mBlockLookupMap.insert_or_assign("chiseled_red_sandstone", mBlockLookupMap.at("red_sandstone"));
+    mBlockLookupMap.insert_or_assign("cut_red_sandstone", mBlockLookupMap.at("red_sandstone"));
+    mBlockLookupMap.insert_or_assign("smooth_sandstone", mBlockLookupMap.at("sandstone"));
+    mBlockLookupMap.insert_or_assign("smooth_red_sandstone", mBlockLookupMap.at("red_sandstone"));
+
+    mBlockLookupMap.insert_or_assign("zombie_head", mBlockLookupMap.at("skull"));
+    mBlockLookupMap.insert_or_assign("player_head", mBlockLookupMap.at("skull"));
+    mBlockLookupMap.insert_or_assign("creeper_head", mBlockLookupMap.at("skull"));
+    mBlockLookupMap.insert_or_assign("dragon_head", mBlockLookupMap.at("skull"));
+    mBlockLookupMap.insert_or_assign("zombie_wall_head", mBlockLookupMap.at("skull"));
+    mBlockLookupMap.insert_or_assign("player_wall_head", mBlockLookupMap.at("skull"));
+    mBlockLookupMap.insert_or_assign("creeper_wall_head", mBlockLookupMap.at("skull"));
+    mBlockLookupMap.insert_or_assign("dragon_wall_head", mBlockLookupMap.at("skull"));
+    mBlockLookupMap.insert_or_assign("skeleton_skull", mBlockLookupMap.at("skull"));
+    mBlockLookupMap.insert_or_assign("wither_skeleton_skull", mBlockLookupMap.at("skull"));
+    mBlockLookupMap.insert_or_assign("skeleton_wall_skull", mBlockLookupMap.at("skull"));
+    mBlockLookupMap.insert_or_assign("wither_skeleton_wall_skull", mBlockLookupMap.at("skull"));
+
+    mBlockLookupMap.insert_or_assign("stone_bricks", mBlockLookupMap.at("stonebrick"));
+    mBlockLookupMap.insert_or_assign("mossy_stone_bricks", mBlockLookupMap.at("stonebrick"));
+    mBlockLookupMap.insert_or_assign("cracked_stone_bricks", mBlockLookupMap.at("stonebrick"));
+    mBlockLookupMap.insert_or_assign("chiseled_stone_bricks", mBlockLookupMap.at("stonebrick"));
+    mBlockLookupMap.insert_or_assign("nether_bricks", mBlockLookupMap.at("nether_brick"));
+    mBlockLookupMap.insert_or_assign("prismarine_bricks", mBlockLookupMap.at("prismarine"));
+    mBlockLookupMap.insert_or_assign("end_stone_bricks", mBlockLookupMap.at("end_bricks"));
+    mBlockLookupMap.insert_or_assign("red_nether_bricks", mBlockLookupMap.at("red_nether_brick"));
+    mBlockLookupMap.insert_or_assign("dark_prismarine", mBlockLookupMap.at("prismarine"));
+
+    mBlockLookupMap.insert_or_assign("piston_head", mBlockLookupMap.at("pistonArmCollision"));
+    mBlockLookupMap.insert_or_assign("moving_piston", mBlockLookupMap.at("movingBlock"));
+    mBlockLookupMap.insert_or_assign("cobblestone_stairs", mBlockLookupMap.at("stone_stairs"));
+    mBlockLookupMap.insert_or_assign("snow_block", mBlockLookupMap.at("snow"));
+    mBlockLookupMap.insert_or_assign("nether_portal", mBlockLookupMap.at("portal"));
+    mBlockLookupMap.insert_or_assign("repeater", mBlockLookupMap.at("powered_repeater"));
+    mBlockLookupMap.insert_or_assign("mushroom_stem", mBlockLookupMap.at("brown_mushroom_block"));
+    mBlockLookupMap.insert_or_assign("attached_pumpkin_stem", mBlockLookupMap.at("pumpkin_stem"));
+    mBlockLookupMap.insert_or_assign("attached_melon_stem", mBlockLookupMap.at("melon_stem"));
+    mBlockLookupMap.insert_or_assign("oak_fence_gate", mBlockLookupMap.at("fence_gate"));
+    mBlockLookupMap.insert_or_assign("tripwire", mBlockLookupMap.at("tripWire"));
+    mBlockLookupMap.insert_or_assign("comparator", mBlockLookupMap.at("powered_comparator"));
+    mBlockLookupMap.insert_or_assign("nether_quartz_ore", mBlockLookupMap.at("quartz_ore"));
+    mBlockLookupMap.insert_or_assign("chiseled_quartz_block", mBlockLookupMap.at("quartz_block"));
+    mBlockLookupMap.insert_or_assign("quartz_pillar", mBlockLookupMap.at("quartz_block"));
+    mBlockLookupMap.insert_or_assign("slime_block", mBlockLookupMap.at("slime"));
+    mBlockLookupMap.insert_or_assign("prismarine_brick_stairs", mBlockLookupMap.at("prismarine_bricks_stairs"));
+    mBlockLookupMap.insert_or_assign("sea_lantern", mBlockLookupMap.at("seaLantern"));
+    mBlockLookupMap.insert_or_assign("smooth_quartz", mBlockLookupMap.at("quartz_block"));
+    mBlockLookupMap.insert_or_assign("purpur_pillar", mBlockLookupMap.at("purpur_block"));
+    mBlockLookupMap.insert_or_assign("beetroots", mBlockLookupMap.at("beetroot"));
+    mBlockLookupMap.insert_or_assign("magma_block", mBlockLookupMap.at("magma"));
+    mBlockLookupMap.insert_or_assign("light_gray_glazed_terracotta", mBlockLookupMap.at("silver_glazed_terracotta"));
+    mBlockLookupMap.insert_or_assign("kelp_plant", mBlockLookupMap.at("kelp"));
+    mBlockLookupMap.insert_or_assign("end_stone_brick_stairs", mBlockLookupMap.at("end_brick_stairs"));
+
 }
 
 void BlockGraphics::registerBlockGraphics(const Json& data, const std::string& name) {

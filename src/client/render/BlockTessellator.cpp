@@ -453,15 +453,17 @@ void renderBox(RenderLayerBuilder& builder, const glm::ivec3& pos, BlockGraphics
     builder.vertex(fx + max.x, fy + min.y, fz + max.z, tex5.getInterpolatedU(max.x), tex5.getInterpolatedV(max.z), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
 }
 
+void renderBox(RenderLayerBuilder& builder, const glm::ivec3& pos, BlockGraphics& graphics, float x0, float y0, float z0, float x1, float y1, float z1) {
+    renderBox(builder, pos, graphics, glm::vec3(x0, y0, z0), glm::vec3(x1, y1, z1));
+}
+
 void renderPane(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
     auto builder = rb.getForLayer(block->getRenderLayer());
-
-    auto val = blocks.getData(pos).dv;
-
     auto& graphics = block->getGraphics();
 
     renderBox(builder, pos, graphics, glm::vec3(0.45f, 0.0f, 0.45f), glm::vec3(0.55f, 1.0f, 0.55f));
 
+    const auto val = blocks.getData(pos).dv;
     if (val & 1) {
         renderBox(builder, pos, graphics, glm::vec3(0.00f, 0.0f, 0.45f), glm::vec3(0.45f, 1.0f, 0.55f));
     }
@@ -474,6 +476,45 @@ void renderPane(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRend
     if (val & 8) {
         renderBox(builder, pos, graphics, glm::vec3(0.45f, 0.0f, 0.0f), glm::vec3(0.55f, 1.0f, 0.45f));
     }
+}
+
+void renderFence(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
+    auto builder = rb.getForLayer(block->getRenderLayer());
+    auto& graphics = block->getGraphics();
+
+    renderBox(builder, pos, graphics, glm::vec3(0.3f, 0.0f, 0.3f), glm::vec3(0.7f, 1.0f, 0.7f));
+
+    const auto val = blocks.getData(pos).dv;
+    if (val & 1) {
+        renderBox(builder, pos, graphics, glm::vec3(0.4f, 0.3f, 0.0f), glm::vec3(0.6f, 0.5f, 0.3f));
+        renderBox(builder, pos, graphics, glm::vec3(0.4f, 0.7f, 0.0f), glm::vec3(0.6f, 0.9f, 0.3f));
+    }
+    if (val & 2) {
+        renderBox(builder, pos, graphics, glm::vec3(0.7f, 0.3f, 0.4f), glm::vec3(1.0f, 0.5f, 0.6f));
+        renderBox(builder, pos, graphics, glm::vec3(0.7f, 0.7f, 0.4f), glm::vec3(1.0f, 0.9f, 0.6f));
+    }
+    if (val & 4) {
+        renderBox(builder, pos, graphics, glm::vec3(0.4f, 0.3f, 0.7f), glm::vec3(0.6f, 0.5f, 1.0f));
+        renderBox(builder, pos, graphics, glm::vec3(0.4f, 0.7f, 0.7f), glm::vec3(0.6f, 0.9f, 1.0f));
+    }
+    if (val & 8) {
+        renderBox(builder, pos, graphics, glm::vec3(0.0f, 0.3f, 0.4f), glm::vec3(0.3f, 0.5f, 0.6f));
+        renderBox(builder, pos, graphics, glm::vec3(0.0f, 0.7f, 0.4f), glm::vec3(0.3f, 0.9f, 0.6f));
+    }
+}
+
+void renderFenceGate(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
+    auto builder = rb.getForLayer(block->getRenderLayer());
+    auto& graphics = block->getGraphics();
+
+    renderBox(builder, pos, graphics, 0, 0.3125f - 0.0625f, 0.5f, 0.125f, 1.0f - 0.0625f, 0.625f);
+    renderBox(builder, pos, graphics, 0, 0.375f - 0.0625f, 0.875f, 0.125f, 0.9375f - 0.0625f, 1.0f);
+    renderBox(builder, pos, graphics, 0, 0.375f - 0.0625f, 0.625f, 0.125f, 0.5625f - 0.0625f, 0.875f);
+    renderBox(builder, pos, graphics, 0, 0.75f - 0.0625f, 0.625f, 0.125f, 0.9375f - 0.0625f, 0.875f);
+    renderBox(builder, pos, graphics, 1.0f - 0.125f, 0.3125f - 0.0625f, 0.5f, 1.0f, 1.0f - 0.0625f, 0.625f);
+    renderBox(builder, pos, graphics, 1.0f - 0.125f, 0.375f - 0.0625f, 0.875f, 1.0f, 0.9375f - 0.0625f, 1.0f);
+    renderBox(builder, pos, graphics, 1.0f - 0.125f, 0.375f - 0.0625f, 0.625f, 1.0f, 0.5625f - 0.0625f, 0.875f);
+    renderBox(builder, pos, graphics, 1.0f - 0.125f, 0.75f - 0.0625f, 0.625f, 1.0f, 0.9375f - 0.0625f, 0.875f);
 }
 
 void renderTorch(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
@@ -657,16 +698,44 @@ void renderBambooStem(const glm::ivec3& pos, Block* block, RenderBuffer& rb, Chu
     builder.vertex(fx + max.x, fy + min.y, fz + max.z, tex5.getInterpolatedU(1.0f), tex5.getInterpolatedV(1.0f), 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
 }
 
+void renderButton(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
+    auto builder = rb.getForLayer(block->getRenderLayer());
+    auto& graphics = block->getGraphics();
+
+    renderBox(builder, pos, graphics, glm::vec3(0.3125f, 0.0f, 0.375f), glm::vec3(0.6875f, 0.125f, 0.625));
+}
+
+void renderAnvil(const glm::ivec3& pos, Block* block, RenderBuffer& rb, ChunkRenderCache& blocks) {
+    auto builder = rb.getForLayer(block->getRenderLayer());
+    auto& graphics = block->getGraphics();
+
+    static constexpr auto cube = [](RenderLayerBuilder& builder, const glm::ivec3& pos, BlockGraphics& graphics, float x0, float y0, float z0, float x1, float y1, float z1) {
+        renderBox(builder, pos, graphics, glm::vec3(x0, y0, z0) / 16.0f, glm::vec3(x1, y1, z1) / 16.0f);
+    };
+
+    cube(builder, pos, graphics, 0, 0, 4, 16, 1, 12);
+    cube(builder, pos, graphics, 1, 0, 3, 15, 1, 4);
+    cube(builder, pos, graphics, 1, 0, 12, 15, 1, 13);
+    cube(builder, pos, graphics, 1, 1, 4, 15, 4, 12);
+    cube(builder, pos, graphics, 4, 4, 5, 12, 5, 12);
+    cube(builder, pos, graphics, 6, 5, 5, 10, 10, 12);
+    cube(builder, pos, graphics, 2, 10, 4, 14, 16, 12);
+    cube(builder, pos, graphics, 14, 11, 4, 16, 15, 12);
+    cube(builder, pos, graphics, 0, 11, 4, 2, 15, 12);
+    cube(builder, pos, graphics, 3, 11, 3, 13, 15, 4);
+    cube(builder, pos, graphics, 3, 11, 12, 13, 15, 13);
+}
+
 void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
 	rb.clear();
 
-	const int32_t start_x = blocks.chunk_x << 4;
-    const int32_t start_z = blocks.chunk_z << 4;
+    const auto start_x = blocks.chunk_x << 4;
+    const auto start_z = blocks.chunk_z << 4;
 
-    for (int32_t x = start_x; x < start_x + 16; x++) {
-        for (int32_t z = start_z; z < start_z + 16; z++) {
-            for (int32_t y = 0; y < 256; y++) {
-                const glm::ivec3 pos{x, y, z};
+    for (int x = start_x; x < start_x + 16; x++) {
+        for (int z = start_z; z < start_z + 16; z++) {
+            for (int y = 0; y < 256; y++) {
+                const auto pos = glm::ivec3{x, y, z};
 
                 auto block = blocks.getBlock(x, y, z);
 
@@ -688,6 +757,12 @@ void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
                 case RenderType::Pane:
                     renderPane(pos, block, rb, blocks);
 					break;
+                case RenderType::Fence:
+                    renderFence(pos, block, rb, blocks);
+					break;
+                case RenderType::FenceGate:
+                    renderFenceGate(pos, block, rb, blocks);
+					break;
                 case RenderType::Torch:
                     renderTorch(pos, block, rb, blocks);
                     break;
@@ -703,25 +778,26 @@ void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
                 case RenderType::LilyPad:
                     renderLilyPad(pos, block, rb, blocks);
                     break;
+                case RenderType::Button:
+                    renderButton(pos, block, rb, blocks);
+                    break;
+                case RenderType::Anvil:
+                    renderAnvil(pos, block, rb, blocks);
+                    break;
 				}
             }
         }
     }
 
-    /* Anvil
-        cube({}, 0, 0, 4, 16, 1, 12);
-        cube({}, 1, 0, 3, 15, 1, 4);
-        cube({}, 1, 0, 12, 15, 1, 13);
-        cube({}, 1, 1, 4, 15, 4, 12);
-        cube({}, 4, 4, 5, 12, 5, 12);
-        cube({}, 6, 5, 5, 10, 10, 12);
-        cube({}, 2, 10, 4, 14, 16, 12);
-        cube({}, 14, 11, 4, 16, 15, 12);
-        cube({}, 0, 11, 4, 2, 15, 12);
-        cube({}, 3, 11, 3, 13, 15, 4);
-        cube({}, 3, 11, 12, 13, 15, 13);
-    */
-
-//    fmt::print("vertices: {}\n", rb.vertices.size());
-//    fmt::print("indices: {}, {}, {}\n", rb.indices[0].size(), rb.indices[1].size(), rb.indices[2].size());
+//    auto builder = rb.getForLayer(RenderLayer::Opaque);
+//    const auto [fx, fy, fz] = glm::vec3(start_x, 0, start_z);
+//
+//    const auto min = glm::vec3(0, 0, 0);
+//    const auto max = glm::vec3(16, 0, 16);
+//
+//    builder.quad();
+//    builder.vertex(fx + min.x, fy + max.y, fz + min.z, 0, 0, 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+//    builder.vertex(fx + min.x, fy + max.y, fz + max.z, 0, 1, 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+//    builder.vertex(fx + max.x, fy + max.y, fz + max.z, 1, 1, 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+//    builder.vertex(fx + max.x, fy + max.y, fz + min.z, 1, 0, 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
 }

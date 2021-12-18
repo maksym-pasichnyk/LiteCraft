@@ -349,8 +349,8 @@ struct Game : Blaze::Application {
         const auto position = glm::ivec3(glm::floor(ecs.get<Transform>(connection->player).position));
 
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_Always);
-        ImGui::Begin("Info");
+        ImGui::SetNextWindowSize(ImVec2(screenSize.x, 100), ImGuiCond_Always);
+        ImGui::Begin("Info", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground);
         ImGui::TextUnformatted(fmt::format("FPS: {:.3}s", 1.0f / Time::getDeltaTime()).c_str());
         ImGui::TextUnformatted(fmt::format("DeltaTime: {:.3}s", Time::getDeltaTime()).c_str());
         ImGui::TextUnformatted(fmt::format("Position: {}, {}, {}", position.x, position.y, position.z).c_str());
@@ -360,8 +360,8 @@ struct Game : Blaze::Application {
         }
         ImGui::End();
 
-        ImGui::SetNextWindowPos(ImVec2(0, glm::f32(screenSize.y - 200)), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(glm::f32(screenSize.x), 200), ImGuiCond_Always);
+        ImGui::SetNextWindowPos(ImVec2(0, glm::f32(screenSize.y - 100)), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(glm::f32(screenSize.x), 100), ImGuiCond_Always);
         logger->Draw("Console");
     }
 

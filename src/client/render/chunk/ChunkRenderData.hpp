@@ -16,12 +16,13 @@ struct ChunkRenderData {
             index_count += static_cast<glm::i32>(subindices.size());
         }
 
+        mesh.setSubmeshCount(glm::i32(rb.indices.size()));
         mesh.setIndexBufferParams(index_count, sizeof(glm::u32));
+        mesh.setVertexBufferParams(glm::i32(rb.vertices.size()), sizeof(BlockVertex));
 
-        mesh.setVertexBufferParams(rb.vertices.size(), sizeof(BlockVertex));
-        mesh.setVertexBufferData(std::as_bytes(std::span(rb.vertices)), 0);
-
-        mesh.setSubmeshCount(rb.indices.size());
+        if (!rb.vertices.empty()) {
+            mesh.setVertexBufferData(std::as_bytes(std::span(rb.vertices)), 0);
+        }
 
         glm::i32 index_offset = 0;
         for (glm::i32 i = 0; i < rb.indices.size(); ++i) {

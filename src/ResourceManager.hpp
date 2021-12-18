@@ -77,12 +77,12 @@ namespace physfs {
 
 struct NativeImage {
 	struct ImageDataFree {
-		void operator()(void* ptr) {
+		void operator()(std::byte ptr[]) {
 			stbi_image_free(ptr);
 		}
 	};
 
-	using ImageData = std::unique_ptr<void, ImageDataFree>;
+	using ImageData = std::unique_ptr<std::byte[], ImageDataFree>;
 
 	ImageData pixels;
 	int width = 0;
@@ -102,7 +102,7 @@ struct NativeImage {
 			stbi_vertical_flip(pixels, width, height, channels * sizeof(stbi_uc));
 		}
 		return NativeImage{
-			.pixels = ImageData{pixels},
+			.pixels = ImageData{static_cast<std::byte*>(static_cast<void*>(pixels))},
 			.width = width,
 			.height = height,
 			.channels = channels

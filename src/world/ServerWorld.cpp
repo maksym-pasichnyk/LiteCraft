@@ -1,6 +1,8 @@
 #include "ServerWorld.hpp"
 #include <CraftServer.hpp>
 
+#include <memory>
+#include <world/biome/Biomes.hpp>
 #include "biome/provider/SingleBiomeProvider.hpp"
 #include "biome/provider/OverworldBiomeProvider.hpp"
 #include "gen/NoiseChunkGenerator.hpp"
@@ -33,8 +35,67 @@
 //    .randomDensityOffset = false
 //};
 
+struct DebugChunkGenerator : public ChunkGenerator {
+    std::vector<BlockData> states;
+    std::unique_ptr<Biome> biome;
+    glm::ivec2 grid{};
+
+    DebugChunkGenerator() : ChunkGenerator(std::make_unique<SingleBiomeProvider>(createBiome())) {
+        for (auto&& [name, block] : Blocks::blocks.objects) {
+            states.emplace_back(block->getDefaultState());
+        }
+
+        grid.x = std::ceil(std::sqrt(states.size()));
+        grid.y = (states.size() - 1) / grid.x;
+    }
+
+    void generateTerrain(Chunk &chunk) override {
+    }
+
+    void generateSurface(WorldGenRegion &region, Chunk& chunk) override {
+        for (int x = 0; x < 16; ++x) {
+            for (int z = 0; z < 16; ++z) {
+                const auto pos = chunk.coords.getBlockPos(x, 0, z);
+
+                const auto state = getBlockStateFor(pos.x, pos.z);
+                if (state.has_value()) {
+                    region.setData(pos, *state);
+                }
+            }
+        }
+    }
+
+    auto createBiome() -> Biome* {
+        biome = std::make_unique<Biome>(Biome {
+            .climate = BiomeClimate{},
+            .biomeGenerationSettings = BiomeGenerationSettings{},
+            .mobSpawnInfo = MobSpawnInfo{},
+            .depth = 0.0f,
+            .scale = 0.0f,
+            .category = BiomeCategory::NONE,
+            .effects = BiomeAmbience{}
+        });
+        return biome.get();
+    }
+
+    auto getBlockStateFor(int x, int z) -> std::optional<BlockData> {
+        if (x > 0 && z > 0 && x % 2 != 0 && z % 2 != 0) {
+            x = x / 2;
+            z = z / 2;
+            if (x <= grid.x && z <= grid.y) {
+                const auto i = std::abs(x * grid.x + z);
+                if (i < states.size()) {
+                    return states[i];
+                }
+            }
+        }
+
+        return std::nullopt;
+    }
+};
+
 ServerWorld::ServerWorld(CraftServer *server, int viewDistance) : server(server), viewDistance(viewDistance) {
-    DimensionSettings dimensionSettings {
+    auto dimensionSettings = DimensionSettings{
         .noise{
             .sampling{
                 .xz_scale = 0.9999999814507745,
@@ -70,7 +131,8 @@ ServerWorld::ServerWorld(CraftServer *server, int viewDistance) : server(server)
     };
 
     templates = std::make_unique<TemplateManager>(server->resources);
-    generator = std::make_unique<NoiseChunkGenerator>(seed, dimensionSettings, std::make_unique<OverworldBiomeProvider>(seed, false, false));
+//    generator = std::make_unique<NoiseChunkGenerator>(seed, dimensionSettings, std::make_unique<OverworldBiomeProvider>(seed, false, false));
+    generator = std::make_unique<DebugChunkGenerator>();
 //        generator = std::make_unique<NoiseChunkGenerator>(seed, std::make_unique<SingleBiomeProvider>(Biomes::SWAMP));
     manager = std::make_unique<ChunkManager>(this, generator.get(), templates.get());
 }

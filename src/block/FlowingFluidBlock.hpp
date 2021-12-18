@@ -32,8 +32,4 @@ struct FlowingFluidBlock : Block {
         state.dv = std::bit_cast<uint16_t>(payload);
         return state;
     }
-    
-//    RenderType getRenderType() const override {
-//        return RenderType::Liquid;
-//    }
 };

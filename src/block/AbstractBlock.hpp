@@ -24,11 +24,15 @@ enum class RenderType {
     Leaves,
     Cross,
     Pane,
+    Fence,
+    FenceGate,
     Torch,
     SnowLayer,
     Cactus,
     BambooStem,
-    LilyPad
+    LilyPad,
+    Button,
+    Anvil
 };
 
 enum class RenderLayer {

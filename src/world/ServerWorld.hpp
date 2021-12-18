@@ -14,7 +14,7 @@ struct ServerWorld {
     CraftServer* server;
     std::unique_ptr<ChunkManager> manager;
     std::unique_ptr<TemplateManager> templates;
-    std::unique_ptr<NoiseChunkGenerator> generator;
+    std::unique_ptr<ChunkGenerator> generator;
     int64_t seed = 1;
 
     int viewDistance = -1;
