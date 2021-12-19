@@ -42,8 +42,12 @@ struct DebugChunkGenerator : public ChunkGenerator {
 
     DebugChunkGenerator() : ChunkGenerator(std::make_unique<SingleBiomeProvider>(createBiome())) {
         for (auto&& [name, block] : Blocks::blocks.objects) {
-            states.emplace_back(block->getDefaultState());
+            for (auto state : block->validStates) {
+                states.emplace_back(state);
+            }
         }
+
+        spdlog::info("States: {}", states.size());
 
         grid.x = std::ceil(std::sqrt(states.size()));
         grid.y = (states.size() - 1) / grid.x;

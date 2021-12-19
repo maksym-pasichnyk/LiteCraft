@@ -200,7 +200,7 @@ static auto getRotationDelta(const Transform& transform, glm::ivec2 delta, float
 }
 
 struct Game : Blaze::Application {
-    const int renderDistance = 3;
+    const int renderDistance = 20;
 
     Camera camera{};
     entt::registry ecs{};
@@ -349,14 +349,20 @@ struct Game : Blaze::Application {
         const auto position = glm::ivec3(glm::floor(ecs.get<Transform>(connection->player).position));
 
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(screenSize.x, 100), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(screenSize.x, 200), ImGuiCond_Always);
         ImGui::Begin("Info", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground);
         ImGui::TextUnformatted(fmt::format("FPS: {:.3}s", 1.0f / Time::getDeltaTime()).c_str());
         ImGui::TextUnformatted(fmt::format("DeltaTime: {:.3}s", Time::getDeltaTime()).c_str());
         ImGui::TextUnformatted(fmt::format("Position: {}, {}, {}", position.x, position.y, position.z).c_str());
+        ImGui::TextUnformatted(fmt::format("Client: {}", world->provider->chunkArray.getLoaded()).c_str());
         if (rayTraceResult.has_value()) {
-            const auto name = Blocks::blocks.name(rayTraceResult->state.getBlock()).value();
-            ImGui::TextUnformatted(fmt::format("Target Block: {}", name).c_str());
+            const auto block = rayTraceResult->state.getBlock();
+
+            ImGui::TextUnformatted(fmt::format("Target Block: {}", Blocks::blocks.name(block).value()).c_str());
+            for (auto&& [name, prop] : block->properties) {
+                const auto value = rayTraceResult->state.get(prop);
+                ImGui::TextUnformatted(fmt::format("#{}: {}", name, PropertyUtil::string(value).value()).c_str());
+            }
         }
         ImGui::End();
 
@@ -508,9 +514,9 @@ private:
                 const auto from = glm::vec3{x << 4, 0, z << 4};
                 const auto to = from + glm::vec3{16, 256, 16};
 
-                if (!frustum->TestAABB(from, to)) {
-                    continue;
-                }
+//                if (!frustum->TestAABB(from, to)) {
+//                    continue;
+//                }
 
                 auto& chunk = frustum->getChunk(x, z);
 

@@ -27,12 +27,66 @@ enum class RenderType {
     Fence,
     FenceGate,
     Torch,
+    WallTorch,
     SnowLayer,
     Cactus,
     BambooStem,
     LilyPad,
     Button,
-    Anvil
+    Anvil,
+    Trapdoor,
+    Carpet,
+
+    CoralFan,
+    WallCoralFan,
+    Door,
+    PreassurePlate,
+    Sign,
+    WallSign,
+    Slab,
+    Stairs,
+    Rail,
+    Wall,
+    Bed,
+    Banner,
+    Bell,
+    Beetrots,
+    Beacon,
+    Shulker,
+    BrewingStand,
+    Cake,
+    Campfire,
+    Carrot,
+    Cauldron,
+    Chain,
+    ChorusFlower,
+    ChorusPlant,
+    WallHead,
+    Conduit,
+    Comparator,
+    Cocoa,
+    EndRod,
+    EchantingTable,
+    EndGateway,
+    EndPortal,
+    EndPortalFrame,
+    GrassPath,
+    Grindstone,
+    NetherSprouts,
+    NetherWart,
+    Potted,
+    RedstoneTorch,
+    RedstoneWire,
+    Repeater,
+    Scaffolding,
+    Lantern,
+    SeaPickle,
+    Seagrass,
+    BerryBush,
+    Tripwire,
+    WarpedRoots,
+    TurtleEgg,
+    Wheat
 };
 
 enum class RenderLayer {
@@ -280,8 +334,8 @@ struct AbstractBlock {
     using PropertyGet = auto(*)(BlockData) -> PropertyValue;
     using PropertySet = auto(*)(BlockData, const PropertyValue &) -> BlockData;
 
-    std::map<Property, std::pair<PropertyGet, PropertySet>> state_properties_binds{};
-    std::map<std::string, Property> state_properties_names{};
+    std::map<std::string, Property> properties{};
+    std::map<Property, std::pair<PropertyGet, PropertySet>> binds{};
 
     explicit AbstractBlock(int id, BlockBehaviour behaviour) : id(id), behaviour(std::move(behaviour)) {}
 
@@ -325,7 +379,7 @@ struct AbstractBlock {
     void bind() {
         using T = typename TypeFrom<property>::type;
 
-        state_properties_binds.insert_or_assign(property, std::pair<PropertyGet, PropertySet>{
+        binds.insert_or_assign(property, std::pair<PropertyGet, PropertySet>{
             [](BlockData state) -> PropertyValue {
                 return get(state);
             },
@@ -333,7 +387,7 @@ struct AbstractBlock {
                 return set(state, std::get<T>(value));
             }
         });
-        state_properties_names.insert_or_assign(PropertyUtil::name(property).value(), property);
+        properties.insert_or_assign(PropertyUtil::name(property).value(), property);
     }
 };
 

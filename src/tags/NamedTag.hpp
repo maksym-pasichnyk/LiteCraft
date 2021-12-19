@@ -9,22 +9,22 @@ struct NamedTag {
     std::set<T> items;
 
     template <typename... Args>
-    NamedTag& add(Args&&... args) {
+    auto add(Args&&... args) -> NamedTag& {
         (items.emplace(std::forward<Args>(args)), ...);
         return *this;
     }
 
-    NamedTag& addItemEntry(T item) {
+    auto addItemEntry(T item) -> NamedTag& {
         items.emplace(std::move(item));
         return *this;
     }
 
-    NamedTag& addTag(const NamedTag& tag) {
+    auto addTag(const NamedTag& tag) -> NamedTag& {
         items.insert(tag.items.begin(), tag.items.end());
         return *this;
     }
 
-    bool contains(const T& item) const {
+    auto contains(const T& item) const -> bool {
         return items.contains(item);
     }
 };

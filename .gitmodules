@@ -31,3 +31,6 @@
 [submodule "ThirdParty/co_lib"]
 	path = ThirdParty/co_lib
 	url = https://github.com/dmitryikh/co_lib.git
+[submodule "ThirdParty/magic_enum"]
+	path = ThirdParty/magic_enum
+	url = https://github.com/Neargye/magic_enum.git

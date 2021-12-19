@@ -28,6 +28,7 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/entt")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/physfs")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/zlib-ng")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/asyncplusplus")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/magic_enum")
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Blaze")
 
@@ -51,6 +52,7 @@ set(craft_compile_definitions
     -DNOMINMAX
 )
 set(craft_link_libraries
+    magic_enum
     EnTT
 #    libcurl
     zlibstatic
