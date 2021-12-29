@@ -3,7 +3,7 @@
 #include <block/Blocks.hpp>
 #include <world/WorldGenRegion.hpp>
 
-std::optional<BoundingBox> MineshaftPieces::Cross::findCrossing(std::span<StructurePiece *> pieces, Random &random, int x, int y, int z, Direction facing) {
+tl::optional<BoundingBox> MineshaftPieces::Cross::findCrossing(std::span<StructurePiece *> pieces, Random &random, int x, int y, int z, Direction facing) {
     BoundingBox bounds{x, y, z, x, y + 3 - 1, z};
     if (random.nextInt(4) == 0) {
         bounds.maxY += 4;
@@ -34,7 +34,7 @@ std::optional<BoundingBox> MineshaftPieces::Cross::findCrossing(std::span<Struct
     }
 
     if (hasIntersecting(pieces, bounds)) {
-        return std::nullopt;
+        return tl::nullopt;
     }
     return bounds;
 }

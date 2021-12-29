@@ -11,7 +11,7 @@
 
 #include <vector>
 #include <memory>
-#include <optional>
+#include <tl/optional.hpp>
 #include <range/v3/algorithm.hpp>
 
 struct BlockData;
@@ -50,7 +50,7 @@ struct StructurePiece {
         });
     }
 
-    std::optional<Direction> coordBaseMode = std::nullopt;
+    tl::optional<Direction> coordBaseMode = tl::nullopt;
     Mirror mirror = Mirror::NONE;
     Rotation rotation = Rotation::NONE;
     int componentIndex;
@@ -63,7 +63,7 @@ struct StructurePiece {
         return componentIndex;
     }
 
-    void setCoordBaseMode(std::optional<Direction> facing) {
+    void setCoordBaseMode(tl::optional<Direction> facing) {
         coordBaseMode = facing;
         if (facing.has_value()) {
             mirror = MirrorUtil::from(*facing);

@@ -26,7 +26,7 @@ struct ChestBlock : AbstractChestBlock {
 
     static auto get_TYPE(BlockData state) -> ChestType {
         auto payload = std::bit_cast<Payload>(state.dv);
-        return static_cast<ChestType>(payload.facing);
+        return static_cast<ChestType>(payload.type);
     }
 
     static auto set_FACING(BlockData state, Direction facing) -> BlockData {

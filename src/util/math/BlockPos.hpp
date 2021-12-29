@@ -96,7 +96,7 @@ struct BlockPos : glm::ivec3 {
         return *this + DirectionUtil::OFFSET[static_cast<int>(direction)];
     }
 
-    constexpr auto clampAxisCoordinate(DirectionAxis axis, int min, int max) const -> std::optional<BlockPos> {
+    constexpr auto clampAxisCoordinate(DirectionAxis axis, int min, int max) const -> tl::optional<BlockPos> {
         switch (axis) {
             case DirectionAxis::X:
                 return from(std::clamp(x, min, max), y, z);
@@ -105,7 +105,7 @@ struct BlockPos : glm::ivec3 {
             case DirectionAxis::Z:
                 return from(x, y, std::clamp(z, min, max));
             default:
-                return std::nullopt;
+                return tl::nullopt;
         }
     }
 };

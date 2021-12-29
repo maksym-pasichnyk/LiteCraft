@@ -34,3 +34,6 @@
 [submodule "ThirdParty/magic_enum"]
 	path = ThirdParty/magic_enum
 	url = https://github.com/Neargye/magic_enum.git
+[submodule "ThirdParty/optional"]
+	path = ThirdParty/optional
+	url = https://github.com/TartanLlama/optional.git

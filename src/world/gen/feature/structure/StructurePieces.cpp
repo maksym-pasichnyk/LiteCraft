@@ -1,9 +1,9 @@
 #include "StructurePieces.hpp"
 #include "StructurePiece.hpp"
 
-auto StructurePieces::getBoundingBox() const -> std::optional<BoundingBox> {
+auto StructurePieces::getBoundingBox() const -> tl::optional<BoundingBox> {
     if (components.empty()) {
-        return std::nullopt;
+        return tl::nullopt;
     }
 
     auto bounds = BoundingBox::getNewBoundingBox();

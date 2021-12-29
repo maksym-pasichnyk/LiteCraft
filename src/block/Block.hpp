@@ -25,6 +25,7 @@ struct Block : AbstractBlock {
     }
 
     virtual void fillStateContainer() {}
+    virtual void setDefaultState() {}
 
     virtual auto rotate(BlockData state, Rotation rotation) -> BlockData {
         return state;

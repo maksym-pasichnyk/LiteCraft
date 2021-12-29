@@ -1,9 +1,9 @@
 #pragma once
 
-#include <util/Registry.hpp>
+#include <map>
 #include <vector>
 #include <string>
-#include <map>
+#include <util/Registry.hpp>
 
 struct Block;
 struct BlockTable;

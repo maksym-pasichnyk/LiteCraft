@@ -284,10 +284,10 @@ template <> struct TypeFrom<Property::ROTATION_0_15> {
 };
 
 struct PropertyUtil {
-    static auto name(Property property) -> std::optional<std::string>;
+    static auto name(Property property) -> std::string;
     static auto values(Property property) -> std::span<const PropertyValue>;
-    static auto parse(Property property, const Nbt::Tag& tag) -> std::optional<PropertyValue>;
-    static auto write(Property property, const PropertyValue & value) -> std::optional<Nbt::Tag>;
-    static auto string(const PropertyValue& value) -> std::optional<std::string>;
+    static auto parse(Property property, const Nbt::Tag& tag) -> tl::optional<PropertyValue>;
+    static auto write(Property property, const PropertyValue& value) -> tl::optional<Nbt::Tag>;
+    static auto string(const PropertyValue& value) -> tl::optional<std::string>;
 };
 

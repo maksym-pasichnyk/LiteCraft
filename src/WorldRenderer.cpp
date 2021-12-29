@@ -5,7 +5,6 @@
 
 #include <TextureAtlas.hpp>
 #include <block/AbstractBlock.hpp>
-#include <block/BlockGraphics.hpp>
 
 WorldRenderer::WorldRenderer() {
     _createUniforms();
@@ -15,15 +14,16 @@ WorldRenderer::WorldRenderer() {
     cutoutMaterial = Material::LoadFromResources("craft:materials/cutout.material");
     transparentMaterial = Material::LoadFromResources("craft:materials/transparent.material");
 
-    opaqueMaterial.SetTexture(1, BlockGraphics::mTerrainTextureAtlas->texture);
+    opaqueMaterial.SetTexture(1, TextureManager::instance().atlas);
     opaqueMaterial.SetConstantBuffer(0, uniforms[0]);
 
-    cutoutMaterial.SetTexture(1, BlockGraphics::mTerrainTextureAtlas->texture);
+    cutoutMaterial.SetTexture(1, TextureManager::instance().atlas);
     cutoutMaterial.SetConstantBuffer(0, uniforms[0]);
 
-    transparentMaterial.SetTexture(1, BlockGraphics::mTerrainTextureAtlas->texture);
+    transparentMaterial.SetTexture(1, TextureManager::instance().atlas);
     transparentMaterial.SetConstantBuffer(0, uniforms[0]);
 }
+
 void WorldRenderer::drawTerrain(CommandBuffer cmd) {
     dispatcher.runChunkUploads();
 

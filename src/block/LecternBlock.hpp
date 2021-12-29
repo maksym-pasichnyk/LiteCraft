@@ -10,8 +10,8 @@ struct LecternBlock : ContainerBlock {
         uint16_t : 11;
     };
 
-    static constexpr auto FACING = Property::FACING;
-    static constexpr auto BOOK = Property::HAS_BOOK;
+    static constexpr auto FACING = Property::HORIZONTAL_FACING;
+    static constexpr auto HAS_BOOK = Property::HAS_BOOK;
     static constexpr auto POWERED = Property::POWERED;
 
     using ContainerBlock::ContainerBlock;
@@ -19,7 +19,7 @@ struct LecternBlock : ContainerBlock {
     void fillStateContainer() override {
         bind<FACING, get_FACING, set_FACING>();
         bind<POWERED, get_POWERED, set_POWERED>();
-        bind<BOOK, get_BOOK, set_BOOK>();
+        bind<HAS_BOOK, get_HAS_BOOK, set_HAS_BOOK>();
     }
 
     static auto set_FACING(BlockData state, Direction facing) -> BlockData {
@@ -36,7 +36,7 @@ struct LecternBlock : ContainerBlock {
         return state;
     }
 
-    static auto set_BOOK(BlockData state, bool flag) -> BlockData {
+    static auto set_HAS_BOOK(BlockData state, bool flag) -> BlockData {
         auto payload = std::bit_cast<Payload>(state.dv);
         payload.book = flag ? 1 : 0;
         state.dv = std::bit_cast<uint16_t>(payload);
@@ -53,7 +53,7 @@ struct LecternBlock : ContainerBlock {
         return payload.powered == 1;
     }
 
-    static auto get_BOOK(BlockData state) -> bool {
+    static auto get_HAS_BOOK(BlockData state) -> bool {
         auto payload = std::bit_cast<Payload>(state.dv);
         return payload.book == 1;
     }

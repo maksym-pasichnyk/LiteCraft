@@ -24,10 +24,10 @@ struct generate_queue {
         queue.emplace(std::forward<Args>(args)...);
     }
 
-    std::optional<T> try_pop() {
+    tl::optional<T> try_pop() {
         std::lock_guard _{mutex};
         if (queue.empty()) {
-            return std::nullopt;
+            return tl::nullopt;
         }
         T res = std::move(queue.front());
         queue.pop();

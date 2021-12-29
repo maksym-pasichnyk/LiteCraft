@@ -45,13 +45,13 @@ void TwistingVineFeature::generateVines(WorldGenRegion &reader, Random &random, 
     }
 }
 
-auto TwistingVineFeature::getLowestPosition(WorldGenRegion &reader, const BlockPos& pos) -> std::optional<BlockPos> {
+auto TwistingVineFeature::getLowestPosition(WorldGenRegion &reader, const BlockPos& pos) -> tl::optional<BlockPos> {
     for (auto ret = pos.down(); ret.y >= 0; ret = ret.down()) {
         if (!reader.isAirBlock(ret)) {
             return ret.up();
         }
     }
-    return std::nullopt;
+    return tl::nullopt;
 }
 
 void TwistingVineFeature::placeVines(WorldGenRegion &reader, Random& random, const BlockPos &start, int height, int min_age, int max_age) {

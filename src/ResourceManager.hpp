@@ -5,14 +5,47 @@
 #include <vector>
 #include <cstring>
 #include <fstream>
-#include <optional>
+#include <tl/optional.hpp>
 #include <physfs.h>
 #include <filesystem>
 #include <spdlog/spdlog.h>
 
 #include "stb_image.hpp"
 
-//#include <range/v3/all.hpp>
+struct ResourceLocation {
+    static auto from(const std::string& name) {
+        using namespace std::string_literals;
+        const auto pos = name.find(':');
+        if (pos != std::string::npos) {
+            return ResourceLocation(std::array{
+                name.substr(0, pos),
+                name.substr(pos + 1)
+            });
+        }
+        return ResourceLocation(std::array{"minecraft"s, name});
+    }
+
+    [[nodiscard]] auto get_namespace() && -> std::string {
+        return std::move(_parts[0]);
+    }
+
+    [[nodiscard]] auto get_location() && -> std::string {
+        return std::move(_parts[1]);
+    }
+
+    [[nodiscard]] auto get_namespace() const& -> const std::string& {
+        return _parts[0];
+    }
+
+    [[nodiscard]] auto get_location() const& -> const std::string& {
+        return _parts[1];
+    }
+
+private:
+    explicit ResourceLocation(std::array<std::string, 2> parts) : _parts(std::move(parts)) {}
+
+    std::array<std::string, 2> _parts;
+};
 
 namespace physfs {
     struct filebuf : std::streambuf {
@@ -89,14 +122,14 @@ struct NativeImage {
 	int height = 0;
 	int channels = 0;
 
-	static auto read(std::span<const char> bytes, bool flip) -> std::optional<NativeImage> {
+	static auto read(std::span<const char> bytes, bool flip) -> tl::optional<NativeImage> {
 		auto data = reinterpret_cast<const unsigned char *>(bytes.data());
 
 		int width = 0, height = 0, channels = 0;
 		auto pixels = stbi_load_from_memory(data, bytes.size(), &width, &height, &channels, 0);
         if (pixels == nullptr) {
             stbi_load_from_memory(data, bytes.size(), &width, &height, &channels, 0);
-            return std::nullopt;
+            return tl::nullopt;
         }
 		if (flip) {
 			stbi_vertical_flip(pixels, width, height, channels * sizeof(stbi_uc));
@@ -141,11 +174,11 @@ struct ResourcePack {
 	ResourcePack() = default;
 	virtual ~ResourcePack() = default;
 
-	virtual auto load(const std::string& path) -> std::optional<std::vector<char>> = 0;
+	virtual auto load(const std::string& path) -> tl::optional<std::vector<char>> = 0;
 	virtual auto contains(const std::string& path) -> bool = 0;
     virtual void enumerate(const std::string& path, void(*fn)(std::istream&)) = 0;
 
-    virtual auto open(const std::string& path) -> std::optional<ResourceIO> = 0;
+    virtual auto open(const std::string& path) -> tl::optional<ResourceIO> = 0;
 };
 
 struct PhysFsResourcePack : ResourcePack {
@@ -155,21 +188,21 @@ struct PhysFsResourcePack : ResourcePack {
 		return physfs::exists(get_full_path(path));
 	}
 
-    auto open(const std::string& path) -> std::optional<ResourceIO> override {
+    auto open(const std::string& path) -> tl::optional<ResourceIO> override {
         auto file = std::make_shared<physfs::ifstream>(get_full_path(path));
         if (*file) {
             return ResourceIO{.io = std::move(file)};
         }
-        return std::nullopt;
+        return tl::nullopt;
     }
 
-	auto load(const std::string& path) -> std::optional<std::vector<char>> override {
+	auto load(const std::string& path) -> tl::optional<std::vector<char>> override {
         if (physfs::ifstream file{get_full_path(path)}) {
             std::vector<char> bytes(file.length());
             file.read(bytes.data(), bytes.size());
             return bytes;
         }
-		return std::nullopt;
+		return tl::nullopt;
 	}
 
     void enumerate(const std::string& directory, void(*fn)(std::istream&)) override {
@@ -209,22 +242,22 @@ struct FolderResourcePack : ResourcePack {
 		return std::filesystem::exists(get_full_path(path));
 	}
 
-    auto open(const std::string& path) -> std::optional<ResourceIO> override {
+    auto open(const std::string& path) -> tl::optional<ResourceIO> override {
         auto file = std::make_shared<std::ifstream>(get_full_path(path));
         if (*file) {
             return ResourceIO{.io = std::move(file)};
         }
-        return std::nullopt;
+        return tl::nullopt;
     }
 
-	auto load(const std::string& path) -> std::optional<std::vector<char>> override {
+	auto load(const std::string& path) -> tl::optional<std::vector<char>> override {
 		const auto full_path = get_full_path(path);
 		if (std::ifstream stream{full_path, std::ios::binary}) {
 			std::vector<char> bytes(std::filesystem::file_size(full_path));
 			stream.read(bytes.data(), static_cast<std::streamsize>(bytes.size()));
 			return bytes;
 		}
-		return std::nullopt;
+		return tl::nullopt;
 	}
 
     void enumerate(const std::string& path, void(*fn)(std::istream&)) override {
@@ -248,26 +281,28 @@ private:
 };
 
 struct ResourceManager {
+    static ResourceManager* mGlobalResourcePack;
+
 	void emplace(std::unique_ptr<ResourcePack>&& pack) {
 		packs.emplace_back(std::move(pack));
 	}
 
-	auto load(const std::string& path) -> std::optional<std::vector<char>> {
+	auto load(const std::string& path) -> tl::optional<std::vector<char>> {
 		for (auto& pack : packs) {
 			if (auto bytes = pack->load(path)) {
 				return bytes;
 			}
 		}
-		return std::nullopt;
+		return tl::nullopt;
 	}
 
-    auto open(const std::string& path) -> std::optional<ResourceIO> {
+    auto open(const std::string& path) -> tl::optional<ResourceIO> {
         for (auto& pack : packs) {
             if (auto resource = pack->open(path)) {
                 return resource;
             }
         }
-        return std::nullopt;
+        return tl::nullopt;
     }
 
 	template <typename Fn>

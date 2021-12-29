@@ -14,7 +14,7 @@
 #include <future>
 #include <thread>
 #include <memory>
-#include <optional>
+#include <tl/optional.hpp>
 #include <async++.h>
 #include <algorithm>
 #include <range/v3/algorithm.hpp>
@@ -35,7 +35,7 @@ using ChunkResult = async::shared_task<std::shared_ptr<Chunk>>;
 struct ChunkHolder {
     ChunkPos pos;
     ChunkResult chunkToSave = async::make_task<std::shared_ptr<Chunk>>(nullptr).share();
-    std::array<std::optional<ChunkResult>, 10> chunks{};
+    std::array<tl::optional<ChunkResult>, 10> chunks{};
 
     explicit ChunkHolder(const ChunkPos& pos) : pos(pos) {}
 
@@ -70,13 +70,13 @@ struct ThreadPool {
         }
     }
 
-    auto get_task(/*std::stop_token& token*/) -> std::optional<async::task_run_handle> {
+    auto get_task(/*std::stop_token& token*/) -> tl::optional<async::task_run_handle> {
         std::unique_lock lock{mutex};
         signal.wait(lock, [this/*, &token*/] {
             return !tasks.empty()/* || token.stop_requested()*/ || request_stop;
         });
         if (/*token.stop_requested()*/request_stop) {
-            return std::nullopt;
+            return tl::nullopt;
         }
         auto task = std::move(tasks.front());
         tasks.pop();

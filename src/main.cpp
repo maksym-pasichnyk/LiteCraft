@@ -20,7 +20,6 @@
 
 #include <block/Blocks.hpp>
 #include <block/States.hpp>
-#include <block/BlockGraphics.hpp>
 
 #include <world/biome/Biome.hpp>
 #include <world/biome/Biomes.hpp>
@@ -35,8 +34,6 @@
 #include <client/render/model/Models.hpp>
 #include <client/world/ClientWorld.hpp>
 
-#include <configs.hpp>
-
 #include <Blaze.hpp>
 #include <Display.hpp>
 #include <ImLogger.hpp>
@@ -45,6 +42,16 @@
 #include <Screen.hpp>
 #include <Time.hpp>
 #include <WorldRenderer.hpp>
+#include <block/BlockStates.hpp>
+
+#include <world/gen/carver/Carvers.hpp>
+#include <world/gen/feature/Features.hpp>
+#include <world/gen/placement/Placements.hpp>
+#include <world/gen/carver/ConfiguredCarvers.hpp>
+#include <world/gen/feature/ConfiguredFeatures.hpp>
+#include <world/gen/feature/structure/Structures.hpp>
+#include <world/gen/surface/ConfiguredSurfaceBuilders.hpp>
+#include <world/gen/feature/structure/StructureFeatures.hpp>
 
 struct AABB {
     glm::vec3 min;
@@ -199,41 +206,48 @@ static auto getRotationDelta(const Transform& transform, glm::ivec2 delta, float
     return {};
 }
 
+ResourceManager* ResourceManager::mGlobalResourcePack;
+
+using ServerNetHandler = PacketHandler<
+    SEncryptionRequestPacket,
+    SEnableCompressionPacket,
+    SLoginSuccessPacket,
+    SLoadChunkPacket,
+    SUnloadChunkPacket,
+    SChangeBlockPacket,
+    SSpawnPlayerPacket,
+    SPlayerPositionLookPacket,
+    SJoinGamePacket
+>;
+
 struct Game : Blaze::Application {
-    const int renderDistance = 20;
+    const int renderDistance = 10;
 
     Camera camera{};
     entt::registry ecs{};
-    PacketManager<Game> handler{};
+    ServerNetHandler handler{};
     std::unique_ptr<ClientWorld> world{};
     std::unique_ptr<CraftServer> server{};
     std::unique_ptr<ViewFrustum> frustum{};
     std::unique_ptr<Connection> connection{};
     std::unique_ptr<WorldRenderer> renderer{};
     std::unique_ptr<ResourceManager> resources{};
-    std::optional<RayTraceResult> rayTraceResult{};
+    tl::optional<RayTraceResult> rayTraceResult{};
     std::shared_ptr<ImLogger> logger = std::make_shared<ImLogger>();
 
     Game() {
         spdlog::default_logger()->sinks().push_back(logger);
-
-        handler.bind<SEncryptionRequestPacket, &Game::processEncryptionRequest>();
-        handler.bind<SEnableCompressionPacket, &Game::processEnableCompression>();
-        handler.bind<SLoginSuccessPacket, &Game::processLoginSuccess>();
-        handler.bind<SLoadChunkPacket, &Game::processLoadChunk>();
-        handler.bind<SUnloadChunkPacket, &Game::processUnloadChunk>();
-        handler.bind<SChangeBlockPacket, &Game::processChangeBlock>();
-        handler.bind<SSpawnPlayerPacket, &Game::processSpawnPlayer>();
-        handler.bind<SPlayerPositionLookPacket, &Game::processPlayerPositionLook>();
-        handler.bind<SJoinGamePacket, &Game::processJoinGame>();
     }
 
     void Init() override {
         camera.setSize(Screen::getSize());
 
         resources = std::make_unique<ResourceManager>();
+        resources->emplace(std::make_unique<PhysFsResourcePack>("/client-extra"));
         resources->emplace(std::make_unique<PhysFsResourcePack>("/resource_packs/vanilla"));
         resources->emplace(std::make_unique<FolderResourcePack>(std::filesystem::current_path()));
+
+        ResourceManager::mGlobalResourcePack = resources.get();
 
         loadResources();
         startLocalServer();
@@ -243,6 +257,8 @@ struct Game : Blaze::Application {
     }
     void Update() override {
         handler.handlePackets(*this, *connection);
+
+        TextureManager::instance().tick(Time::getDeltaTime());
 
         /**************************************************************************************************************/
         const auto dt = Time::getDeltaTime();
@@ -373,10 +389,10 @@ struct Game : Blaze::Application {
 
 private:
     void loadResources() {
-        BlockGraphics::init(*resources);
         ChunkStatus::init();
         Materials::init();
         Blocks::init();
+        BlockStates::init();
         States::init();
         BlockTags::init();
         Carvers::init();
@@ -414,50 +430,41 @@ private:
         renderer = std::make_unique<WorldRenderer>();
     }
 
-private:
+public:
     /**************************************************************************************************************/
 
-    void processEncryptionRequest(Connection& connection, const SEncryptionRequestPacket& packet) {
+    void onPacket(Connection& connection, const SEncryptionRequestPacket& packet) {
         connection.send(CEncryptionResponsePacket{});
     }
 
-    void processEnableCompression(Connection& _, const SEnableCompressionPacket& packet) {}
+    void onPacket(Connection& _, const SEnableCompressionPacket& packet) {}
 
-    void processLoginSuccess(Connection& _, const SLoginSuccessPacket& packet) {}
+    void onPacket(Connection& _, const SLoginSuccessPacket& packet) {}
 
-    void processLoadChunk(Connection& _, const SLoadChunkPacket& packet) {
+    void onPacket(Connection& _, const SLoadChunkPacket& packet) {
         world->loadChunk(packet.x, packet.z, packet.chunk);
 
         for (int x = packet.x - 1; x <= packet.x + 1; ++x) {
             for (int z = packet.z - 1; z <= packet.z + 1; ++z) {
-                const auto ix = ChunkArray::floorMod(x, frustum->stride);
-                const auto iz = ChunkArray::floorMod(z, frustum->stride);
-                const auto i = static_cast<size_t>(ix + iz * frustum->stride);
-
-                frustum->chunks[i].needRender = true;
+                frustum->markForRender(x, z);
             }
         }
     }
 
-    void processUnloadChunk(Connection& _, const SUnloadChunkPacket& packet) {
+    void onPacket(Connection& _, const SUnloadChunkPacket& packet) {
         world->unloadChunk(packet.x, packet.z);
     }
 
-    void processChangeBlock(Connection& _, const SChangeBlockPacket& packet) {
+    void onPacket(Connection& _, const SChangeBlockPacket& packet) {
         const auto pos = packet.pos;
-
         for (int x = (pos.x - 1) >> 4; x <= (pos.x + 1) >> 4; x++) {
             for (int z = (pos.z - 1) >> 4; z <= (pos.z + 1) >> 4; z++) {
-                const auto ix = ChunkArray::floorMod(x, frustum->stride);
-                const auto iz = ChunkArray::floorMod(z, frustum->stride);
-                const auto i = static_cast<size_t>(ix + iz * frustum->stride);
-
-                frustum->chunks[i].needRender = true;
+                frustum->markForRender(x, z);
             }
         }
     }
 
-    void processJoinGame(Connection& _, const SJoinGamePacket& packet) {
+    void onPacket(Connection& _, const SJoinGamePacket& packet) {
         if (connection->player == entt::null) {
             connection->player = ecs.create();
 
@@ -470,11 +477,11 @@ private:
         }
     }
 
-    void processPlayerPositionLook(Connection& _, const SPlayerPositionLookPacket& packet) {
+    void onPacket(Connection& _, const SPlayerPositionLookPacket& packet) {
         ecs.replace<Transform>(connection->player, packet.pos, packet.rot);
     }
 
-    void processSpawnPlayer(Connection& _, const SSpawnPlayerPacket& packet) {
+    void onPacket(Connection& _, const SSpawnPlayerPacket& packet) {
         auto player = ecs.create();
         ecs.emplace<Transform>(player, packet.pos, glm::vec2{});
         ecs.emplace<ModelComponent>(player, *Models::models.get("geometry.humanoid").value());
@@ -514,9 +521,9 @@ private:
                 const auto from = glm::vec3{x << 4, 0, z << 4};
                 const auto to = from + glm::vec3{16, 256, 16};
 
-//                if (!frustum->TestAABB(from, to)) {
-//                    continue;
-//                }
+                if (!frustum->TestAABB(from, to)) {
+                    continue;
+                }
 
                 auto& chunk = frustum->getChunk(x, z);
 
@@ -538,9 +545,9 @@ auto Blaze::CreateApplication() -> std::unique_ptr<Application> {
     return std::make_unique<Game>();
 }
 
-//auto parse_command(std::string_view cmd, size_t& offset) -> std::optional<std::string> {
+//auto parse_command(std::string_view cmd, size_t& offset) -> tl::optional<std::string> {
 //    if (offset == std::string_view::npos) {
-//        return std::nullopt;
+//        return tl::nullopt;
 //    }
 //    const auto off = std::exchange(offset, cmd.find(' ', offset));
 //    return offset != std::string_view::npos

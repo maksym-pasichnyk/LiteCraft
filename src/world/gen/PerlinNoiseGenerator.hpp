@@ -3,13 +3,13 @@
 #include "SimplexNoiseGenerator.hpp"
 
 #include <vector>
-#include <optional>
+#include <tl/optional.hpp>
 #include <algorithm>
 #include <spdlog/spdlog.h>
 #include <range/v3/algorithm.hpp>
 
 struct PerlinNoiseGenerator : public INoiseGenerator {
-    std::vector<std::optional<SimplexNoiseGenerator>> noiseLevels;
+    std::vector<tl::optional<SimplexNoiseGenerator>> noiseLevels;
     double field_227460_b_;
     double field_227461_c_;
 

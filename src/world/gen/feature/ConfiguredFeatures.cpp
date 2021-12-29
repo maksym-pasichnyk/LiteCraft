@@ -34,6 +34,7 @@
 #include "../treedecorator/TrunkVineTreeDecorator.hpp"
 #include "../treedecorator/AlterGroundTreeDecorator.hpp"
 
+#include <Json.hpp>
 #include <block/States.hpp>
 #include <block/Blocks.hpp>
 #include <block/HugeMushroomBlock.hpp>
@@ -233,6 +234,16 @@ ConfiguredFeature* ConfiguredFeatures::MUSHROOM_FIELD_VEGETATION;
 
 static auto registerFeature(std::string name, ConfiguredFeature* feature) -> ConfiguredFeature* {
 	return ConfiguredFeatures::features.add(std::move(name), std::unique_ptr<ConfiguredFeature>(feature));
+}
+
+template<>
+auto Json::From<ConfiguredFeature*>::from(ConfiguredFeature* const& feature) -> Self {
+    return ConfiguredFeatures::features.name(feature).value();
+}
+
+template<>
+auto Json::Into<ConfiguredFeature*>::into(const Self& obj) -> Result {
+    return ConfiguredFeatures::features.get(obj.as_string().value());
 }
 
 void ConfiguredFeatures::init(ResourceManager& resources) {
@@ -436,7 +447,7 @@ void ConfiguredFeatures::init(ResourceManager& resources) {
         .leavesProvider = new SimpleBlockStateProvider(States::OAK_LEAVES),
         .foliagePlacer = new BlobFoliagePlacer(FeatureSpread{2, 0}, FeatureSpread{0, 0}, 3),
         .trunkPlacer = new StraightTrunkPlacer(4, 2, 0),
-        .minimumSize = TwoLayerFeature{1, 0, 1, std::nullopt},
+        .minimumSize = TwoLayerFeature{1, 0, 1, tl::nullopt},
         .ignoreVines = true
     };
     static BaseTreeFeatureConfig DARK_OAK_CONFIG {
@@ -444,7 +455,7 @@ void ConfiguredFeatures::init(ResourceManager& resources) {
         .leavesProvider = new SimpleBlockStateProvider(States::DARK_OAK_LEAVES),
         .foliagePlacer = new DarkOakFoliagePlacer(FeatureSpread{0, 0}, FeatureSpread{0, 0}),
         .trunkPlacer = new DarkOakTrunkPlacer(6, 2, 1),
-        .minimumSize = ThreeLayerFeature{1, 1, 0, 1, 2, std::nullopt},
+        .minimumSize = ThreeLayerFeature{1, 1, 0, 1, 2, tl::nullopt},
         .maxWaterDepth = std::numeric_limits<int>::max(),
         .ignoreVines = true,
         .heightmap = HeightmapType::MOTION_BLOCKING
@@ -454,7 +465,7 @@ void ConfiguredFeatures::init(ResourceManager& resources) {
         .leavesProvider = new SimpleBlockStateProvider(States::BIRCH_LEAVES),
         .foliagePlacer = new BlobFoliagePlacer(FeatureSpread{2, 0}, FeatureSpread{0, 0}, 3),
         .trunkPlacer = new StraightTrunkPlacer(5, 2, 0),
-        .minimumSize = TwoLayerFeature{1, 0, 1, std::nullopt},
+        .minimumSize = TwoLayerFeature{1, 0, 1, tl::nullopt},
         .ignoreVines = true
     };
     static BaseTreeFeatureConfig ACACIA_CONFIG {
@@ -462,7 +473,7 @@ void ConfiguredFeatures::init(ResourceManager& resources) {
         .leavesProvider = new SimpleBlockStateProvider(States::ACACIA_LEAVES),
         .foliagePlacer = new AcaciaFoliagePlacer(FeatureSpread{2, 0}, FeatureSpread{0, 0}),
         .trunkPlacer = new ForkyTrunkPlacer(5, 2, 2),
-        .minimumSize = TwoLayerFeature{1, 0, 2, std::nullopt},
+        .minimumSize = TwoLayerFeature{1, 0, 2, tl::nullopt},
         .ignoreVines = true,
     };
     static BaseTreeFeatureConfig SPRUCE_CONFIG {
@@ -470,7 +481,7 @@ void ConfiguredFeatures::init(ResourceManager& resources) {
         .leavesProvider = new SimpleBlockStateProvider(States::SPRUCE_LEAVES),
         .foliagePlacer = new SpruceFoliagePlacer(FeatureSpread{2, 1}, FeatureSpread{0, 2}, FeatureSpread{1, 1}),
         .trunkPlacer = new StraightTrunkPlacer(5, 2, 1),
-        .minimumSize = TwoLayerFeature{2, 0, 2, std::nullopt},
+        .minimumSize = TwoLayerFeature{2, 0, 2, tl::nullopt},
         .ignoreVines = true,
     };
     static BaseTreeFeatureConfig PINE_CONFIG {
@@ -478,7 +489,7 @@ void ConfiguredFeatures::init(ResourceManager& resources) {
         .leavesProvider = new SimpleBlockStateProvider(States::SPRUCE_LEAVES),
         .foliagePlacer = new PineFoliagePlacer(FeatureSpread{1, 0}, FeatureSpread{1, 0}, FeatureSpread{3, 1}),
         .trunkPlacer = new StraightTrunkPlacer(6, 4, 0),
-        .minimumSize = TwoLayerFeature{2, 0, 2, std::nullopt},
+        .minimumSize = TwoLayerFeature{2, 0, 2, tl::nullopt},
         .ignoreVines = true,
     };
     static BaseTreeFeatureConfig JUNGLE_TREE_CONFIG {
@@ -491,7 +502,7 @@ void ConfiguredFeatures::init(ResourceManager& resources) {
         },
         .foliagePlacer = new BlobFoliagePlacer(FeatureSpread{2, 0}, FeatureSpread{0, 0}, 3),
         .trunkPlacer = new StraightTrunkPlacer(4, 8, 0),
-        .minimumSize = TwoLayerFeature{1, 0, 1, std::nullopt},
+        .minimumSize = TwoLayerFeature{1, 0, 1, tl::nullopt},
         .ignoreVines = true,
     };
 
@@ -510,7 +521,7 @@ void ConfiguredFeatures::init(ResourceManager& resources) {
         .leavesProvider = new SimpleBlockStateProvider(States::JUNGLE_LEAVES),
         .foliagePlacer = new BlobFoliagePlacer(FeatureSpread{2, 0}, FeatureSpread{0, 0}, 3),
         .trunkPlacer = new StraightTrunkPlacer(4, 8, 0),
-        .minimumSize = TwoLayerFeature{1, 0, 1, std::nullopt},
+        .minimumSize = TwoLayerFeature{1, 0, 1, tl::nullopt},
         .ignoreVines = true,
     };
 
@@ -523,7 +534,7 @@ void ConfiguredFeatures::init(ResourceManager& resources) {
         },
         .foliagePlacer = new JungleFoliagePlacer(FeatureSpread{2, 0}, FeatureSpread{0, 0}, 2),
         .trunkPlacer = new MegaJungleTrunkPlacer(10, 2, 19),
-        .minimumSize = TwoLayerFeature{1, 1, 2, std::nullopt}
+        .minimumSize = TwoLayerFeature{1, 1, 2, tl::nullopt}
     };
 
     static BaseTreeFeatureConfig MEGA_SPRUCE_CONFIG {
@@ -534,7 +545,7 @@ void ConfiguredFeatures::init(ResourceManager& resources) {
         },
         .foliagePlacer = new MegaPineFoliagePlacer(FeatureSpread{0, 0}, FeatureSpread{0, 0}, FeatureSpread{13, 4}),
         .trunkPlacer = new GiantTrunkPlacer(13, 2, 14),
-        .minimumSize = TwoLayerFeature{1, 1, 2, std::nullopt}
+        .minimumSize = TwoLayerFeature{1, 1, 2, tl::nullopt}
     };
 
     static BaseTreeFeatureConfig MEGA_PINE_CONFIG {
@@ -545,7 +556,7 @@ void ConfiguredFeatures::init(ResourceManager& resources) {
         },
         .foliagePlacer = new MegaPineFoliagePlacer(FeatureSpread{0, 0}, FeatureSpread{0, 0}, FeatureSpread{3, 4}),
         .trunkPlacer = new GiantTrunkPlacer(13, 2, 14),
-        .minimumSize = TwoLayerFeature{1, 1, 2, std::nullopt}
+        .minimumSize = TwoLayerFeature{1, 1, 2, tl::nullopt}
     };
 
     static BaseTreeFeatureConfig SUPER_BIRCH_BEES_0002_CONFIG {
@@ -556,7 +567,7 @@ void ConfiguredFeatures::init(ResourceManager& resources) {
         },
         .foliagePlacer = new BlobFoliagePlacer(FeatureSpread{2, 0}, FeatureSpread{0, 0}, 3),
         .trunkPlacer = new StraightTrunkPlacer(5, 2, 6),
-        .minimumSize = TwoLayerFeature{1, 0, 1, std::nullopt},
+        .minimumSize = TwoLayerFeature{1, 0, 1, tl::nullopt},
         .ignoreVines = true
     };
 
@@ -568,7 +579,7 @@ void ConfiguredFeatures::init(ResourceManager& resources) {
         },
         .foliagePlacer = new BlobFoliagePlacer(FeatureSpread{3, 0}, FeatureSpread{0, 0}, 3),
         .trunkPlacer = new StraightTrunkPlacer(5, 3, 0),
-        .minimumSize = TwoLayerFeature{1, 0, 1, std::nullopt},
+        .minimumSize = TwoLayerFeature{1, 0, 1, tl::nullopt},
         .maxWaterDepth = 1,
         .heightmap = HeightmapType::MOTION_BLOCKING_NO_LEAVES,
     };
@@ -578,7 +589,7 @@ void ConfiguredFeatures::init(ResourceManager& resources) {
         .leavesProvider = new SimpleBlockStateProvider(States::JUNGLE_LEAVES),
         .foliagePlacer = new BushFoliagePlacer(FeatureSpread{2, 0}, FeatureSpread{1, 0}, 2),
         .trunkPlacer = new StraightTrunkPlacer(1, 0, 0),
-        .minimumSize = TwoLayerFeature{0, 0, 0, std::nullopt},
+        .minimumSize = TwoLayerFeature{0, 0, 0, tl::nullopt},
         .heightmap = HeightmapType::MOTION_BLOCKING_NO_LEAVES
     };
 
@@ -654,9 +665,9 @@ void ConfiguredFeatures::init(ResourceManager& resources) {
     RuleTest NETHERRACK = BlockMatchRuleTest{Blocks::NETHERRACK};
     RuleTest BASE_STONE_NETHER = TagMatchRuleTest{BlockTags::BASE_STONE_NETHER};
     
-    END_SPIKE = registerFeature("end_spike", Features::END_SPIKE->withConfiguration(EndSpikeFeatureConfig{false, {}, std::nullopt}));
+    END_SPIKE = registerFeature("end_spike", Features::END_SPIKE->withConfiguration(EndSpikeFeatureConfig{false, {}, tl::nullopt}));
     END_GATEWAY = registerFeature("end_gateway", Features::END_GATEWAY->withConfiguration(EndGatewayConfig{BlockPos::from(100, 50, 0), true})->withPlacement(Placements::END_GATEWAY->withConfiguration(NoPlacementConfig{})));
-    END_GATEWAY_DELAYED = registerFeature("end_gateway_delayed", Features::END_GATEWAY->withConfiguration(EndGatewayConfig{std::nullopt, false}));
+    END_GATEWAY_DELAYED = registerFeature("end_gateway_delayed", Features::END_GATEWAY->withConfiguration(EndGatewayConfig{tl::nullopt, false}));
     CHORUS_PLANT = registerFeature("chorus_plant", Features::CHORUS_PLANT->withConfiguration(NoFeatureConfig{})->withPlacement(HEIGHTMAP_PLACEMENT)->func_242732_c(4));
     END_ISLAND = registerFeature("end_island", Features::END_ISLAND->withConfiguration(NoFeatureConfig{}));
     END_ISLAND_DECORATED = registerFeature("end_island_decorated", END_ISLAND->withPlacement(Placements::END_ISLAND->withConfiguration(NoPlacementConfig{})));

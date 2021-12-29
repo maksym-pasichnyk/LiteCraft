@@ -1,8 +1,8 @@
 #include "Biomes.hpp"
 #include "Biome.hpp"
 
+#include <Json.hpp>
 #include <ResourceManager.hpp>
-#include <configs.hpp>
 
 Registry<Biome> Biomes::biomes;
 
@@ -91,7 +91,7 @@ void Biomes::init(ResourceManager& resources) {
 
     resources.enumerate("definitions/biomes/", [](std::istream& stream) {
         auto o = Json::Read::read(stream).value();
-        auto&& name = o.at("name").to_string();
+        auto&& name = o.at("name").as_string().value();
 
         biomes.add(ids.at(name), name, std::make_unique<Biome>(Biome{
             .climate {

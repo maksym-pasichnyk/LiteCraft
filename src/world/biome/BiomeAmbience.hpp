@@ -1,6 +1,6 @@
 #pragma once
 
-#include <optional>
+#include <tl/optional.hpp>
 #include <sounds/BackgroundMusicTracks.hpp>
 #include <world/biome/GrassColorModifier.hpp>
 #include <world/biome/MoodSoundAmbiences.hpp>
@@ -12,12 +12,12 @@ struct BiomeAmbience {
     int waterColor;
     int waterFogColor;
     int skyColor;
-    std::optional<int> foliageColor;
-    std::optional<int> grassColor;
+    tl::optional<int> foliageColor;
+    tl::optional<int> grassColor;
     GrassColorModifier grassColorModifier;
-    std::optional<ParticleEffectAmbience> particle;
-    std::optional<SoundEvent> ambientSound;
-    std::optional<MoodSoundAmbience> moodSound;
-    std::optional<SoundAdditionsAmbience> additionsSound;
-    std::optional<BackgroundMusicTrack> music;
+    tl::optional<ParticleEffectAmbience> particle;
+    tl::optional<SoundEvent> ambientSound;
+    tl::optional<MoodSoundAmbience> moodSound;
+    tl::optional<SoundAdditionsAmbience> additionsSound;
+    tl::optional<BackgroundMusicTrack> music;
 };

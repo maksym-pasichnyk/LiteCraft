@@ -20,6 +20,7 @@ struct TrapDoorBlock : HorizontalBlock {
     void fillStateContainer() override {
         bind<FACING, get_FACING, set_FACING>();
         bind<POWERED, get_POWERED, set_POWERED>();
+        bind<OPEN, get_OPEN, set_OPEN>();
         bind<HALF, get_HALF, set_HALF>();
     }
 
@@ -44,6 +45,13 @@ struct TrapDoorBlock : HorizontalBlock {
         return state;
     }
 
+    static auto set_OPEN(BlockData state, bool flag) -> BlockData {
+        auto payload = std::bit_cast<Payload>(state.dv);
+        payload.open = flag ? 1 : 0;
+        state.dv = std::bit_cast<uint16_t>(payload);
+        return state;
+    }
+
     static auto get_FACING(BlockData state) -> Direction {
         auto payload = std::bit_cast<Payload>(state.dv);
         return static_cast<Direction>(payload.facing);
@@ -57,5 +65,10 @@ struct TrapDoorBlock : HorizontalBlock {
     static auto get_POWERED(BlockData state) -> bool {
         auto payload = std::bit_cast<Payload>(state.dv);
         return payload.powered == 1;
+    }
+
+    static auto get_OPEN(BlockData state) -> bool {
+        auto payload = std::bit_cast<Payload>(state.dv);
+        return payload.open == 1;
     }
 };

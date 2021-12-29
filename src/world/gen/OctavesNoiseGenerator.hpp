@@ -7,11 +7,11 @@
 
 #include <memory>
 #include <vector>
-#include <optional>
+#include <tl/optional.hpp>
 #include <spdlog/spdlog.h>
 
 struct OctavesNoiseGenerator : public INoiseGenerator {
-    std::vector<std::optional<ImprovedNoiseGenerator>> octaves;
+    std::vector<tl::optional<ImprovedNoiseGenerator>> octaves;
     std::vector<double> amplitudes;
 
     double field_227460_b_;

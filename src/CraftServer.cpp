@@ -8,13 +8,6 @@
 // todo: fix cleanup crash (wait for chunk tasks finished? check around chunks?)
 
 CraftServer::CraftServer(int viewDistance, ResourceManager& resources) : resources(resources), viewDistance(viewDistance) {
-    packets.bind<CHandshakePacket, &CraftServer::processHandshake>();
-    packets.bind<CLoginStartPacket, &CraftServer::processLoginStart>();
-    packets.bind<CEncryptionResponsePacket, &CraftServer::processEncryptionResponse>();
-    packets.bind<PositionPacket, &CraftServer::processPlayerPosition>();
-    packets.bind<CPlayerDiggingPacket, &CraftServer::processPlayerDigging>();
-//    packets.bind<SChangeBlockPacket, &CraftServer::processChangeBlock>();
-
     listener = TcpListener::bind(SocketAddr::from(Ipv4Addr::localhost(), 0)).value();
     listener.set_blocking(false);
 
@@ -32,7 +25,7 @@ void CraftServer::runLoop(/*std::stop_token &&token*/) {
         }
 
         ecs.view<Connection>().each([this](auto& connection) {
-            packets.handlePackets(*this, connection);
+            handler.handlePackets(*this, connection);
         });
 
         ecs.view<Connection>().each([this](auto& connection) {
@@ -65,14 +58,14 @@ void CraftServer::runLoop(/*std::stop_token &&token*/) {
     }
 }
 
-void CraftServer::processHandshake(Connection& connection, const CHandshakePacket& packet) {
+void CraftServer::onPacket(Connection& connection, const CHandshakePacket& packet) {
 }
 
-void CraftServer::processLoginStart(Connection& connection, const CLoginStartPacket& packet) {
+void CraftServer::onPacket(Connection& connection, const CLoginStartPacket& packet) {
     connection.send(SEncryptionRequestPacket{});
 }
 
-void CraftServer::processEncryptionResponse(Connection& connection, const CEncryptionResponsePacket& packet) {
+void CraftServer::onPacket(Connection& connection, const CEncryptionResponsePacket& packet) {
     connection.send(SEnableCompressionPacket{});
     connection.send(SLoginSuccessPacket{});
 
@@ -89,7 +82,7 @@ void CraftServer::processEncryptionResponse(Connection& connection, const CEncry
     world->manager->setPlayerTracking(connection, ChunkPos::from(glm::ivec3(position)), true);
 }
 
-void CraftServer::processPlayerPosition(Connection& connection, const PositionPacket &packet) {
+void CraftServer::onPacket(Connection& connection, const PositionPacket &packet) {
     const auto pos = ChunkPos::from(glm::ivec3(packet.pos));
     const auto last_pos = ChunkPos::from(glm::ivec3(ecs.get<Transform>(connection.player).position));
 
@@ -105,7 +98,7 @@ void CraftServer::processPlayerPosition(Connection& connection, const PositionPa
 //    });
 }
 
-void CraftServer::processPlayerDigging(Connection& _, const CPlayerDiggingPacket& packet) {
+void CraftServer::onPacket(Connection& _, const CPlayerDiggingPacket& packet) {
     const auto pos = packet.pos;
     const auto [x, z] = ChunkPos::from(pos);
 

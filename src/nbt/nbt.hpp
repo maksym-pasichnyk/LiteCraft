@@ -3,7 +3,7 @@
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view.hpp>
 #include <util/match.hpp>
-#include <optional>
+#include <tl/optional.hpp>
 #include <istream>
 #include <variant>
 #include <vector>
@@ -337,8 +337,8 @@ struct Nbt {
 
 	template<typename T>
 	struct Deserialize {
-		static auto from_tag(const Tag& obj) -> std::optional<T> {
-			return std::nullopt;
+		static auto from_tag(const Tag& obj) -> tl::optional<T> {
+			return tl::nullopt;
 		}
 	};
 };
@@ -423,7 +423,7 @@ template <typename T> requires (
 	std::is_same_v<T, double>
 )
 struct Nbt::Deserialize<T> {
-	using Result = std::optional<T>;
+	using Result = tl::optional<T>;
 
 	static auto from_tag(const Tag& tag) -> Result {
 		return match(tag.m_storage,
@@ -446,7 +446,7 @@ struct Nbt::Deserialize<T> {
 				return static_cast<T>(tag);
 			},
 			[](const auto&) -> Result {
-				return std::nullopt;
+				return tl::nullopt;
 			}
 		);
 	}
@@ -463,7 +463,7 @@ template <typename T> requires (
 	std::is_same_v<T, uint64_t>
 )
 struct Nbt::Deserialize<T> {
-	using Result = std::optional<T>;
+	using Result = tl::optional<T>;
 
 	static auto from_tag(const Tag& tag) -> Result {
 		return match(tag.m_storage,
@@ -486,7 +486,7 @@ struct Nbt::Deserialize<T> {
 				return static_cast<T>(tag);
 			},
 			[](const auto&) -> Result {
-				return std::nullopt;
+				return tl::nullopt;
 			}
 		);
 	}
@@ -499,34 +499,34 @@ struct Nbt::Deserialize<std::array<T, N>> {
 		return { elements.at(I)... };
 	}
 
-	static auto from_tag(const Tag& tag) -> std::optional<std::array<T, N>> {
+	static auto from_tag(const Tag& tag) -> tl::optional<std::array<T, N>> {
 		return to_array(std::get<List>(tag.m_storage), std::make_index_sequence<N>{});
 	}
 };
 
 template<typename T>
 struct Nbt::Deserialize<std::vector<T>> {
-	static auto from_tag(const Tag& tag) -> std::optional<std::vector<T>> {
+	static auto from_tag(const Tag& tag) -> tl::optional<std::vector<T>> {
 		return std::get<List>(tag.m_storage) | ranges::views::transform([](const auto& element) -> T { return element; }) | ranges::to<std::vector<T>>();
 	}
 };
 
 struct Nbt::Read {
-	static auto read(std::istream &&io) -> std::optional<TreeRoot> {
+	static auto read(std::istream &&io) -> tl::optional<TreeRoot> {
 		return read(io);
 	}
 
-	static auto read(std::istream &io) -> std::optional<TreeRoot> {
+	static auto read(std::istream &io) -> tl::optional<TreeRoot> {
 		if (readID(io).value_or(ID::END) != ID::COMPOUND) {
-			return std::nullopt;
+			return tl::nullopt;
 		}
 		auto name = readString(io);
 		if (!name.has_value()) {
-			return std::nullopt;
+			return tl::nullopt;
 		}
 		auto tag = readCompound(io);
 		if (!tag.has_value()) {
-			return std::nullopt;
+			return tl::nullopt;
 		}
 		return TreeRoot{
             .name = std::move(*name),
@@ -551,45 +551,45 @@ private:
 		LONG_ARRAY = 12,
 	};
 
-	static auto readID(std::istream &io) -> std::optional<ID> {
+	static auto readID(std::istream &io) -> tl::optional<ID> {
 		if (auto i8 = readI8(io)) {
 			return static_cast<ID>(*i8);
 		}
-		return std::nullopt;
+		return tl::nullopt;
 	}
 
-	static auto readI8(std::istream &io) -> std::optional<int8_t> {
+	static auto readI8(std::istream &io) -> tl::optional<int8_t> {
 		std::array<char, 1> bytes{};
 		io.read(&bytes[0], 1);
 		if (io.fail()) {
-			return std::nullopt;
+			return tl::nullopt;
 		}
 		return std::bit_cast<int8_t>(bytes);
 	}
 
-	static auto readI16(std::istream &io) -> std::optional<int16_t> {
+	static auto readI16(std::istream &io) -> tl::optional<int16_t> {
 		std::array<char, 2> bytes{};
 		io.read(&bytes[1], 1);
 		io.read(&bytes[0], 1);
 		if (io.fail()) {
-			return std::nullopt;
+			return tl::nullopt;
 		}
 		return std::bit_cast<int16_t>(bytes);
 	}
 
-	static auto readI32(std::istream &io) -> std::optional<int32_t> {
+	static auto readI32(std::istream &io) -> tl::optional<int32_t> {
 		std::array<char, 4> bytes{};
 		io.read(&bytes[3], 1);
 		io.read(&bytes[2], 1);
 		io.read(&bytes[1], 1);
 		io.read(&bytes[0], 1);
 		if (io.fail()) {
-			return std::nullopt;
+			return tl::nullopt;
 		}
 		return std::bit_cast<int32_t>(bytes);
 	}
 
-	static auto readI64(std::istream &io) -> std::optional<int64_t> {
+	static auto readI64(std::istream &io) -> tl::optional<int64_t> {
 		std::array<char, 8> bytes{};
 		io.read(&bytes[7], 1);
 		io.read(&bytes[6], 1);
@@ -600,45 +600,45 @@ private:
 		io.read(&bytes[1], 1);
 		io.read(&bytes[0], 1);
 		if (io.fail()) {
-			return std::nullopt;
+			return tl::nullopt;
 		}
 		return std::bit_cast<int64_t>(bytes);
 	}
 
-	static auto readF32(std::istream &io) -> std::optional<float> {
+	static auto readF32(std::istream &io) -> tl::optional<float> {
 		if (auto i32 = readI32(io)) {
 			return std::bit_cast<float>(*i32);
 		}
-		return std::nullopt;
+		return tl::nullopt;
 	}
 
-	static auto readF64(std::istream &io) -> std::optional<double> {
+	static auto readF64(std::istream &io) -> tl::optional<double> {
 		if (auto i64 = readI64(io)) {
 			return std::bit_cast<double>(*i64);
 		}
-		return std::nullopt;
+		return tl::nullopt;
 	}
 
-	static auto readString(std::istream &io) -> std::optional<std::string> {
+	static auto readString(std::istream &io) -> tl::optional<std::string> {
 		if (auto size = readI16(io)) {
 			std::string str(static_cast<size_t>(*size), '\0');
 			io.read(str.data(), static_cast<std::streamsize>(str.size()));
 			if (io.fail()) {
-				return std::nullopt;
+				return tl::nullopt;
 			}
 			return str;
 		}
-		return std::nullopt;
+		return tl::nullopt;
 	}
 
-	static auto readList(std::istream &io) -> std::optional<List> {
+	static auto readList(std::istream &io) -> tl::optional<List> {
 		const auto id = readID(io);
 		if (!id.has_value()) {
-			return std::nullopt;
+			return tl::nullopt;
 		}
 		const auto len = readI32(io);
 		if (!len.has_value()) {
-			return std::nullopt;
+			return tl::nullopt;
 		}
 
 		List list{};
@@ -646,13 +646,13 @@ private:
 			if (auto v = read(io, *id)) {
 				list.emplace_back(std::move(*v));
 			} else {
-				return std::nullopt;
+				return tl::nullopt;
 			}
 		}
 		return list;
 	}
 
-	static auto readCompound(std::istream &io) -> std::optional<Compound> {
+	static auto readCompound(std::istream &io) -> tl::optional<Compound> {
 		Compound ct{};
 
 		while (const auto id = readID(io)) {
@@ -662,20 +662,20 @@ private:
 
 			auto name = readString(io);
 			if (!name.has_value()) {
-				return std::nullopt;
+				return tl::nullopt;
 			}
 
 			auto value = read(io, *id);
 			if (!value.has_value()) {
-				return std::nullopt;
+				return tl::nullopt;
 			}
 
 			ct.emplace(std::move(*name), std::move(*value));
 		}
-		return std::nullopt;
+		return tl::nullopt;
 	}
 
-	static auto readByteArray(std::istream &io) -> std::optional<ByteArray> {
+	static auto readByteArray(std::istream &io) -> tl::optional<ByteArray> {
 		if (auto len = readI32(io)) {
 			const auto size = static_cast<size_t>(*len);
 
@@ -685,15 +685,15 @@ private:
 				if (auto v = readI8(io)) {
 					array.emplace_back(*v);
 				} else {
-					return std::nullopt;
+					return tl::nullopt;
 				}
 			}
 			return array;
 		}
-		return std::nullopt;
+		return tl::nullopt;
 	}
 
-	static auto readIntArray(std::istream &io) -> std::optional<IntArray> {
+	static auto readIntArray(std::istream &io) -> tl::optional<IntArray> {
 		if (auto len = readI32(io)) {
 			const auto size = static_cast<size_t>(*len);
 
@@ -703,15 +703,15 @@ private:
 				if (auto v = readI32(io)) {
 					array.emplace_back(*v);
 				} else {
-					return std::nullopt;
+					return tl::nullopt;
 				}
 			}
 			return array;
 		}
-		return std::nullopt;
+		return tl::nullopt;
 	}
 
-	static auto readLongArray(std::istream &io) -> std::optional<LongArray> {
+	static auto readLongArray(std::istream &io) -> tl::optional<LongArray> {
 		if (auto len = readI32(io)) {
 			const auto size = static_cast<size_t>(*len);
 
@@ -721,15 +721,15 @@ private:
 				if (auto v = readI64(io)) {
 					array.emplace_back(*v);
 				} else {
-					return std::nullopt;
+					return tl::nullopt;
 				}
 			}
 			return array;
 		}
-		return std::nullopt;
+		return tl::nullopt;
 	}
 
-	static auto read(std::istream &io, ID id) -> std::optional<Tag> {
+	static auto read(std::istream &io, ID id) -> tl::optional<Tag> {
 		switch (id) {
 			case ID::END: return End{};
 			case ID::BYTE: return readI8(io);
@@ -744,7 +744,7 @@ private:
 			case ID::BYTE_ARRAY: return readByteArray(io);
 			case ID::INT_ARRAY: return readIntArray(io);
 			case ID::LONG_ARRAY: return readLongArray(io);
-			default: return std::nullopt;
+			default: return tl::nullopt;
 		}
 	}
 };

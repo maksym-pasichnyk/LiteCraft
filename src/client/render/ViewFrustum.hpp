@@ -51,14 +51,21 @@ struct ViewFrustum {
         return true;
     }
 
-    [[nodiscard]] auto getChunk(int32_t x, int32_t z) -> ChunkRenderData& {
+    [[nodiscard]] auto getChunk(int x, int z) -> ChunkRenderData& {
         const auto ix = floorMod(x, stride);
         const auto iz = floorMod(z, stride);
         return chunks[ix + iz * static_cast<size_t>(stride)];
     }
+    
+    void markForRender(int x, int z) {
+        const auto ix = floorMod(x, stride);
+        const auto iz = floorMod(z, stride);
+        const auto i = static_cast<size_t>(ix + iz * stride);
+        chunks[i].needRender = true;
+    }
 
 private:
-    static auto floorMod(int32_t x, int32_t y) -> int32_t {
+    static auto floorMod(int x, int y) -> int {
         return ((x % y) + y) % y;
     }
 };

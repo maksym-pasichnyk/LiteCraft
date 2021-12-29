@@ -9,7 +9,7 @@ struct MineshaftPieces::Cross : Piece {
     Cross(int componentIndex, const BoundingBox& bounds, Direction direction, MineshaftType type)
         : Piece(componentIndex, type, bounds), corridorDirection(direction), isMultipleFloors(bounds.getYSize() > 3) {}
 
-    static std::optional<BoundingBox> findCrossing(std::span<StructurePiece *> pieces, Random& random, int x, int y, int z, Direction facing);
+    static tl::optional<BoundingBox> findCrossing(std::span<StructurePiece *> pieces, Random& random, int x, int y, int z, Direction facing);
 
     void buildComponent(StructurePiece *start, std::vector<StructurePiece *> &pieces, Random &random) override;
     bool addComponentParts(WorldGenRegion &region, TemplateManager& templates, ChunkGenerator &generator, Random &random, const BoundingBox &bb, const ChunkPos &chunkPos, const BlockPos &blockPos) override;

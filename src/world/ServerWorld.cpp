@@ -82,7 +82,7 @@ struct DebugChunkGenerator : public ChunkGenerator {
         return biome.get();
     }
 
-    auto getBlockStateFor(int x, int z) -> std::optional<BlockData> {
+    auto getBlockStateFor(int x, int z) -> tl::optional<BlockData> {
         if (x > 0 && z > 0 && x % 2 != 0 && z % 2 != 0) {
             x = x / 2;
             z = z / 2;
@@ -94,7 +94,7 @@ struct DebugChunkGenerator : public ChunkGenerator {
             }
         }
 
-        return std::nullopt;
+        return tl::nullopt;
     }
 };
 

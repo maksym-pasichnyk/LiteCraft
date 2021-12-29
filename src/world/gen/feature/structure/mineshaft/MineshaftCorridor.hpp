@@ -15,7 +15,7 @@ struct MineshaftPieces::Corridor : Piece {
         sectionCount = (DirectionUtil::getAxis(facing) == DirectionUtil::Axis::Z ? bounds.getZSize() : bounds.getXSize()) / 5;
     }
 
-    static std::optional<BoundingBox> findCorridor(std::span<StructurePiece*> pieces, Random& random, int x, int y, int z, Direction facing);
+    static tl::optional<BoundingBox> findCorridor(std::span<StructurePiece*> pieces, Random& random, int x, int y, int z, Direction facing);
 
     void buildComponent(StructurePiece* start, std::vector<StructurePiece *> &pieces, Random& random) override;
     bool addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override;

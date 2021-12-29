@@ -9,7 +9,7 @@
 
 struct Connection {
     entt::entity player;
-    std::optional<TcpStream> socket;
+    tl::optional<TcpStream> socket;
 
     explicit Connection(entt::entity player, TcpStream socket) : player(player), socket(socket) {
         socket.set_blocking(false);
@@ -43,15 +43,15 @@ struct Connection {
         return socket->send(buf.data).has_value();
     }
 
-    auto recv() -> std::optional<std::pair<int, PacketData>> {
+    auto recv() -> tl::optional<std::pair<int, PacketData>> {
         if (!socket.has_value()) {
-            return std::nullopt;
+            return tl::nullopt;
         }
 
         std::array<std::byte, sizeof(PacketHeader)> data{};
         auto len = socket->recv(data);
         if (!len.has_value() || len->first == 0) {
-            return std::nullopt;
+            return tl::nullopt;
         }
         const auto header = std::bit_cast<PacketHeader>(data);
         std::vector<std::byte> bytes{static_cast<size_t>(header.size)};

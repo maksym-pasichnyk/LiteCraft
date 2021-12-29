@@ -3,10 +3,10 @@
 #include "ContainerBlock.hpp"
 #include "material/DyeColors.hpp"
 
-#include <optional>
+#include <tl/optional.hpp>
 
 struct ShulkerBoxBlock : ContainerBlock {
-    ShulkerBoxBlock(int id, std::optional<DyeColors> color, BlockBehaviour behaviour) : ContainerBlock(id, std::move(behaviour)) {}
+    ShulkerBoxBlock(int id, tl::optional<DyeColors> color, BlockBehaviour behaviour) : ContainerBlock(id, std::move(behaviour)) {}
 
     struct Payload {
         uint16_t facing : 3;

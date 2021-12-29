@@ -19,6 +19,7 @@ PerlinNoiseGenerator Biome::TEMPERATURE_NOISE = PerlinNoiseGenerator(Random::fro
 PerlinNoiseGenerator Biome::FROZEN_TEMPERATURE_NOISE = PerlinNoiseGenerator(Random::from(3456), ranges::views::iota(-2, 0 + 1));
 PerlinNoiseGenerator Biome::INFO_NOISE = PerlinNoiseGenerator(Random::from(2345), ranges::views::single(0));
 
+
 void Biome::decorate(ChunkGenerator &generator, WorldGenRegion &region, TemplateManager& templates, int64_t seed, const BlockPos& pos) {
     const auto chunk_pos = ChunkPos::from(pos);
 
@@ -60,6 +61,7 @@ bool Biome::doesSnowGenerate(WorldReader &world, const BlockPos &pos) {
 
     return false;
 }
+
 bool Biome::doesWaterFreeze(WorldReader &world, const BlockPos &pos, bool mustBeAtEdge) {
     if (getTemperature(pos) >= 0.15F) {
         return false;

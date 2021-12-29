@@ -39,5 +39,5 @@ struct EndSpike {
 struct EndSpikeFeatureConfig {
     bool crystalInvulnerable;
     std::vector<EndSpike> spikes;
-    std::optional<BlockPos> crystalBeamTarget;
+    tl::optional<BlockPos> crystalBeamTarget;
 };

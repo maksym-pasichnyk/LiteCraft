@@ -4,7 +4,7 @@
 
 #include <bit>
 #include <span>
-#include <optional>
+#include <tl/optional.hpp>
 
 #ifdef _WIN32
 #include <WinSock2.h>
@@ -23,10 +23,10 @@ struct Socket {
     int fd;
     #endif
 
-    static auto create(int af, int type, int protocol) -> std::optional<Socket> {
+    static auto create(int af, int type, int protocol) -> tl::optional<Socket> {
         const auto fd = socket(af, type, protocol);
         if (fd == -1) {
-            return std::nullopt;
+            return tl::nullopt;
         }
         return std::bit_cast<Socket>(fd);
     }
@@ -39,7 +39,7 @@ struct Socket {
 #endif
     }
 
-    auto send(std::span<const std::byte> bytes) -> std::optional<size_t> {
+    auto send(std::span<const std::byte> bytes) -> tl::optional<size_t> {
         size_t sent = 0;
 
         while (sent < bytes.size()) {
@@ -47,7 +47,7 @@ struct Socket {
 
             const int len = sendto(fd, reinterpret_cast<const char*>(buf.data()), static_cast<int>(buf.size()), 0, nullptr, sizeof(sockaddr_in));
             if (len <= 0) {
-                return std::nullopt;
+                return tl::nullopt;
             }
             sent += len;
         }
@@ -55,7 +55,7 @@ struct Socket {
         return sent;
     }
 
-    auto send_to(std::span<const std::byte> bytes, const SocketAddr& addr) -> std::optional<size_t> {
+    auto send_to(std::span<const std::byte> bytes, const SocketAddr& addr) -> tl::optional<size_t> {
         size_t sent = 0;
 
         while (sent < bytes.size()) {
@@ -64,14 +64,14 @@ struct Socket {
             const auto name = std::bit_cast<sockaddr>(addr.inner);
             const auto len = sendto(fd, reinterpret_cast<const char*>(buf.data()), static_cast<int>(buf.size()), 0, &name, sizeof(sockaddr));
             if (len <= 0) {
-                return std::nullopt;
+                return tl::nullopt;
             }
             sent += len;
         }
         return sent;
     }
 
-    auto recv(std::span<std::byte> bytes) -> std::optional<std::pair<size_t, SocketAddr>> {
+    auto recv(std::span<std::byte> bytes) -> tl::optional<std::pair<size_t, SocketAddr>> {
 #ifdef _WIN32
         int size = sizeof(sockaddr);
 #else
@@ -88,7 +88,7 @@ struct Socket {
 #endif
                 return std::pair{0, std::bit_cast<SocketAddr>(name)};
             }
-            return std::nullopt;
+            return tl::nullopt;
         }
         return std::pair{n, std::bit_cast<SocketAddr>(name)};
     }

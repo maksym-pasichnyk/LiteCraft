@@ -20,7 +20,7 @@ struct ChunkGenerator;
 struct TemplateManager;
 
 struct Structure {
-    auto(*deserialize)(const Json& obj) -> std::optional<StructureConfig>;
+    auto(*deserialize)(const Json& obj) -> tl::optional<StructureConfig>;
     PieceGenerator generatePieces;
 
     Structure(decltype(deserialize) deserialize, PieceGenerator generatePieces) : deserialize(deserialize), generatePieces(generatePieces) {}
@@ -42,7 +42,7 @@ template<typename Config = NoFeatureConfig>
 struct CfgStructure : Structure {
     CfgStructure(PieceGenerator piece_generator) : Structure(deserialize, piece_generator) {}
 
-    static auto deserialize(const Json& obj) -> std::optional<StructureConfig> {
+    static auto deserialize(const Json& obj) -> tl::optional<StructureConfig> {
         return Json::Into<std::decay_t<Config>>::into(obj);
     }
 };

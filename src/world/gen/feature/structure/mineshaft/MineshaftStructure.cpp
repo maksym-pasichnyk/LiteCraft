@@ -1,6 +1,5 @@
 #include "MineshaftStructure.hpp"
 #include "MineshaftRoom.hpp"
-#include <configs.hpp>
 
 bool MineshaftStructure::canGenerate(ChunkGenerator &generator, BiomeProvider &biomes, int64_t seed, Random &random, int x, int z, Biome &biome, const ChunkPos &pos, const StructureConfig &config) {
     random.setLargeFeatureSeed(seed, x, z);

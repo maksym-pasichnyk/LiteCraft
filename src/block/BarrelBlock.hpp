@@ -5,18 +5,18 @@
 struct BarrelBlock : ContainerBlock {
     struct Payload {
         uint16_t facing : 3;
-        uint16_t powered : 1;
+        uint16_t open : 1;
         uint16_t : 12;
     };
 
     static constexpr auto FACING = Property::HORIZONTAL_FACING;
-    static constexpr auto POWERED = Property::POWERED;
+    static constexpr auto OPEN = Property::OPEN;
 
     using ContainerBlock::ContainerBlock;
 
     void fillStateContainer() override {
         bind<FACING, get_FACING, set_FACING>();
-        bind<POWERED, get_POWERED, set_POWERED>();
+        bind<OPEN, get_OPEN, set_OPEN>();
     }
 
     static auto set_FACING(BlockData state, Direction facing) -> BlockData {
@@ -26,9 +26,9 @@ struct BarrelBlock : ContainerBlock {
         return state;
     }
 
-    static auto set_POWERED(BlockData state, bool flag) -> BlockData {
+    static auto set_OPEN(BlockData state, bool flag) -> BlockData {
         auto payload = std::bit_cast<Payload>(state.dv);
-        payload.powered = flag ? 1 : 0;
+        payload.open = flag ? 1 : 0;
         state.dv = std::bit_cast<uint16_t>(payload);
         return state;
     }
@@ -38,8 +38,8 @@ struct BarrelBlock : ContainerBlock {
         return static_cast<Direction>(payload.facing);
     }
 
-    static auto get_POWERED(BlockData state) -> bool {
+    static auto get_OPEN(BlockData state) -> bool {
         auto payload = std::bit_cast<Payload>(state.dv);
-        return payload.powered == 1;
+        return payload.open == 1;
     }
 };

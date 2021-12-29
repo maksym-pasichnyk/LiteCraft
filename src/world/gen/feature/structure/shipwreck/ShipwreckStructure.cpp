@@ -1,6 +1,5 @@
 #include "ShipwreckStructure.hpp"
 #include "ShipwreckPiece.hpp"
-#include <configs.hpp>
 
 static auto STRUCTURE_LOCATION_BEACHED = std::vector<std::string>{
     "shipwreck/with_mast",

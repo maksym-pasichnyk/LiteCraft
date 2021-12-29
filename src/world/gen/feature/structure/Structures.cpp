@@ -1,5 +1,6 @@
 #include "Structures.hpp"
-#include <configs.hpp>
+
+#include <Json.hpp>
 #include <world/gen/feature/structure/igloo/IglooStructure.hpp>
 #include <world/gen/feature/structure/village/VillageStructure.hpp>
 #include <world/gen/feature/structure/end_city/EndCityStructure.hpp>
@@ -21,6 +22,16 @@
 
 Registry<Structure> Structures::registry{};
 std::array<std::vector<Structure*>, 10> Structures::stages{};
+
+template<>
+auto Json::From<Structure*>::from(Structure* const& structure) -> Self {
+    return Structures::registry.name(structure).value();
+}
+
+template<>
+auto Json::Into<Structure*>::into(const Self& obj) -> Result {
+    return Structures::registry.get(obj.as_string().value());
+}
 
 void Structures::init() {
     create<PillagerOutpostStructure>("pillager_outpost", GenerationStage::Decoration::SURFACE_STRUCTURES);

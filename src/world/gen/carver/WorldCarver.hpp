@@ -17,8 +17,9 @@ struct WorldCarver {
     std::set<Block*> carvableFluids;
 
     explicit WorldCarver(int32_t maxHeight);
+    virtual ~WorldCarver() = default;
 
-    int32_t getRange() const {
+    auto getRange() const -> int32_t {
         return 4;
     }
     bool canCarveBlock(const BlockData& data, const BlockData& above);

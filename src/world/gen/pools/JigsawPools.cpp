@@ -1,19 +1,18 @@
 #include "JigsawPools.hpp"
 
 #include <map>
-#include <configs.hpp>
 #include <Json.hpp>
 #include <spdlog/spdlog.h>
 #include <range/v3/all.hpp>
 #include <ResourceManager.hpp>
 #include <world/gen/feature/ConfiguredFeatures.hpp>
-#include <world/gen/feature/jigsaw/JigsawPattern.hpp>
-#include <world/gen/feature/jigsaw/ListJigsawPiece.hpp>
 #include <world/gen/feature/jigsaw/EmptyJigsawPiece.hpp>
+#include <world/gen/feature/jigsaw/FeatureJigsawPiece.hpp>
+#include <world/gen/feature/jigsaw/JigsawPattern.hpp>
+#include <world/gen/feature/jigsaw/LegacySingleJigsawPiece.hpp>
+#include <world/gen/feature/jigsaw/ListJigsawPiece.hpp>
 #include <world/gen/feature/jigsaw/SingleJigsawPiece.hpp>
 #include <world/gen/feature/processor/ProcessorLists.hpp>
-#include <world/gen/feature/jigsaw/FeatureJigsawPiece.hpp>
-#include <world/gen/feature/jigsaw/LegacySingleJigsawPiece.hpp>
 
 Registry<JigsawPattern> JigsawPools::pools{};
 
@@ -49,7 +48,7 @@ void JigsawPools::init(ResourceManager& resources) {
     resources.enumerate("definitions/pools", [](std::istream& stream) {
         auto o = Json::Read::read(stream).value();
 
-        auto elements = o.at("elements").to_array() | ranges::views::transform([](const auto& element) {
+        auto elements = o.at("elements").as_array().value() | ranges::views::transform([](const auto& element) {
             return std::pair{
                 JigsawPiece::from_json(element.at("element")),
                 static_cast<int>(element.at("weight"))
@@ -63,9 +62,9 @@ void JigsawPools::init(ResourceManager& resources) {
             }
         }
 
-        pools.add(o.at("name").to_string(), std::make_unique<JigsawPattern>(JigsawPattern{
-            .location = o.at("name").to_string(),
-            .fallback = o.at("fallback").to_string(),
+        pools.add(o.at("name").as_string().value(), std::make_unique<JigsawPattern>(JigsawPattern{
+            .location = o.at("name").as_string().value(),
+            .fallback = o.at("fallback").as_string().value(),
             .pool = std::move(pool),
             .elements = std::move(elements)
         }));

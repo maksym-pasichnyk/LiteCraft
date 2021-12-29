@@ -1,6 +1,6 @@
 #pragma once
 
-#include <optional>
+#include <tl/optional.hpp>
 
 struct ThreeLayerFeature {
     int limit;
@@ -8,7 +8,7 @@ struct ThreeLayerFeature {
     int lower_size;
     int middle_size;
     int upper_size;
-    std::optional<int> min_clipped_height;
+    tl::optional<int> min_clipped_height;
 
     int func_230369_a_(int min, int max) const {
         return max < limit ? lower_size : (max >= min - upper_limit) ? upper_size : middle_size;

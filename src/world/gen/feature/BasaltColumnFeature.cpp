@@ -70,23 +70,23 @@ bool BasaltColumnFeature::func_236248_a_(WorldGenRegion &reader, int max_y, cons
     return flag;
 }
 
-auto BasaltColumnFeature::func_236246_a_(WorldGenRegion &reader, int max_y, const BlockPos &start, int count) -> std::optional<BlockPos> {
+auto BasaltColumnFeature::func_236246_a_(WorldGenRegion &reader, int max_y, const BlockPos &start, int count) -> tl::optional<BlockPos> {
     auto pos = start;
     for (int i = count; pos.y > 1 && i > 0; --i, pos = pos.down()) {
         if (func_242762_a(reader, max_y, pos)) {
             return pos;
         }
     }
-    return std::nullopt;
+    return tl::nullopt;
 }
 
-auto BasaltColumnFeature::func_236249_a_(WorldGenRegion &reader, const BlockPos &start, int count) -> std::optional<BlockPos> {
+auto BasaltColumnFeature::func_236249_a_(WorldGenRegion &reader, const BlockPos &start, int count) -> tl::optional<BlockPos> {
     auto pos = start;
     
     for (int i = count; pos.y < /*reader.getHeight()*/256 && i > 0; --i, pos = pos.up()) {
         const auto state = reader.getData(pos);
         if (blacklist.contains(state.getBlock())) {
-            return std::nullopt;
+            return tl::nullopt;
         }
 
         if (state.isAir()) {
@@ -94,7 +94,7 @@ auto BasaltColumnFeature::func_236249_a_(WorldGenRegion &reader, const BlockPos 
         }
     }
 
-    return std::nullopt;
+    return tl::nullopt;
 }
 
 bool BasaltColumnFeature::func_242762_a(WorldGenRegion &reader, int max_y, const BlockPos &pos) {

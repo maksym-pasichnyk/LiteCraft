@@ -19,74 +19,7 @@ enum class TintType {
 
 enum class RenderType {
     Air,
-    Liquid,
-    Block,
-    Leaves,
-    Cross,
-    Pane,
-    Fence,
-    FenceGate,
-    Torch,
-    WallTorch,
-    SnowLayer,
-    Cactus,
-    BambooStem,
-    LilyPad,
-    Button,
-    Anvil,
-    Trapdoor,
-    Carpet,
-
-    CoralFan,
-    WallCoralFan,
-    Door,
-    PreassurePlate,
-    Sign,
-    WallSign,
-    Slab,
-    Stairs,
-    Rail,
-    Wall,
-    Bed,
-    Banner,
-    Bell,
-    Beetrots,
-    Beacon,
-    Shulker,
-    BrewingStand,
-    Cake,
-    Campfire,
-    Carrot,
-    Cauldron,
-    Chain,
-    ChorusFlower,
-    ChorusPlant,
-    WallHead,
-    Conduit,
-    Comparator,
-    Cocoa,
-    EndRod,
-    EchantingTable,
-    EndGateway,
-    EndPortal,
-    EndPortalFrame,
-    GrassPath,
-    Grindstone,
-    NetherSprouts,
-    NetherWart,
-    Potted,
-    RedstoneTorch,
-    RedstoneWire,
-    Repeater,
-    Scaffolding,
-    Lantern,
-    SeaPickle,
-    Seagrass,
-    BerryBush,
-    Tripwire,
-    WarpedRoots,
-    TurtleEgg,
-    Wheat
+    Block
 };
 
 enum class RenderLayer {
@@ -329,7 +262,7 @@ struct BlockBehaviour {
 struct AbstractBlock {
     int id;
     BlockBehaviour behaviour;
-    BlockGraphics* graphics{nullptr};
+//    BlockGraphics* graphics{nullptr};
 
     using PropertyGet = auto(*)(BlockData) -> PropertyValue;
     using PropertySet = auto(*)(BlockData, const PropertyValue &) -> BlockData;
@@ -343,9 +276,9 @@ struct AbstractBlock {
         return behaviour.material;
     }
 
-    auto getGraphics() -> BlockGraphics& {
-        return *graphics;
-    }
+//    auto getGraphics() -> BlockGraphics& {
+//        return *graphics;
+//    }
 
     auto getMaterialColor() -> MaterialColor {
         return behaviour.material->color;
@@ -380,14 +313,12 @@ struct AbstractBlock {
         using T = typename TypeFrom<property>::type;
 
         binds.insert_or_assign(property, std::pair<PropertyGet, PropertySet>{
-            [](BlockData state) -> PropertyValue {
-                return get(state);
-            },
+            [](BlockData state) -> PropertyValue { return get(state); },
             [](BlockData state, const PropertyValue & value) -> BlockData {
                 return set(state, std::get<T>(value));
             }
         });
-        properties.insert_or_assign(PropertyUtil::name(property).value(), property);
+        properties.insert_or_assign(PropertyUtil::name(property), property);
     }
 };
 

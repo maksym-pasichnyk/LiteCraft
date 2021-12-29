@@ -2,7 +2,7 @@
 
 #include <array>
 #include <istream>
-#include <optional>
+#include <tl/optional.hpp>
 #include <zlib-ng.h>
 
 struct zlib_streambuf : std::streambuf {

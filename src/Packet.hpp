@@ -85,39 +85,39 @@ struct PacketData {
         return true;
     }
 
-    auto read_pointer() -> std::optional<void*> {
+    auto read_pointer() -> tl::optional<void*> {
         return read<void*>();
     }
 
-    auto read_i8() -> std::optional<int8_t> {
+    auto read_i8() -> tl::optional<int8_t> {
         return read<int8_t>();
     }
 
-    auto read_i16() -> std::optional<int16_t> {
+    auto read_i16() -> tl::optional<int16_t> {
         return read<int16_t>();
     }
 
-    auto read_i32() -> std::optional<int32_t> {
+    auto read_i32() -> tl::optional<int32_t> {
         return read<int32_t>();
     }
 
-    auto read_i64() -> std::optional<int64_t> {
+    auto read_i64() -> tl::optional<int64_t> {
         return read<int64_t>();
     }
 
-    auto read_u8() -> std::optional<uint8_t> {
+    auto read_u8() -> tl::optional<uint8_t> {
         return read<uint8_t>();
     }
 
-    auto read_u16() -> std::optional<uint16_t> {
+    auto read_u16() -> tl::optional<uint16_t> {
         return read<uint16_t>();
     }
 
-    auto read_u32() -> std::optional<uint32_t> {
+    auto read_u32() -> tl::optional<uint32_t> {
         return read<int32_t>();
     }
 
-    auto read_u64() -> std::optional<uint64_t> {
+    auto read_u64() -> tl::optional<uint64_t> {
         return read<uint64_t>();
     }
 
@@ -129,12 +129,12 @@ private:
     }
 
     template <typename T>
-    auto read() -> std::optional<T> {
+    auto read() -> tl::optional<T> {
         std::array<std::byte, sizeof(T)> bytes{};
         if (read_bytes_to(bytes)) {
             return std::bit_cast<T>(bytes);
         }
-        return std::nullopt;
+        return tl::nullopt;
     }
 };
 

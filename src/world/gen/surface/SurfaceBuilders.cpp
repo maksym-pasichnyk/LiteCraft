@@ -11,6 +11,7 @@
 #include <block/States.hpp>
 
 #include <cmath>
+#include <Json.hpp>
 
 Registry<SurfaceBuilder> SurfaceBuilders::builders;
 
@@ -133,10 +134,10 @@ struct SwampSurfaceBuilder : public SurfaceBuilder {
 
 struct BadlandsSurfaceBuilder : public SurfaceBuilder {
     struct Cache {
-        std::optional<int64_t> seed = std::nullopt;
-        std::optional<PerlinNoiseGenerator> noise1 = std::nullopt;
-        std::optional<PerlinNoiseGenerator> noise2 = std::nullopt;
-        std::optional<PerlinNoiseGenerator> noise3 = std::nullopt;
+        tl::optional<int64_t> seed = tl::nullopt;
+        tl::optional<PerlinNoiseGenerator> noise1 = tl::nullopt;
+        tl::optional<PerlinNoiseGenerator> noise2 = tl::nullopt;
+        tl::optional<PerlinNoiseGenerator> noise3 = tl::nullopt;
         std::array<BlockData, 64> clayBands;
 
         void setSeed(int64_t _seed) {
@@ -476,9 +477,9 @@ struct ErodedBadlandsSurfaceBuilder : public BadlandsSurfaceBuilder {
 
 struct FrozenOceanSurfaceBuilder : public SurfaceBuilder {
     struct Cache {
-        std::optional<int64_t> seed = std::nullopt;
-        std::optional<PerlinNoiseGenerator> noise1 = std::nullopt;
-        std::optional<PerlinNoiseGenerator> noise2 = std::nullopt;
+        tl::optional<int64_t> seed = tl::nullopt;
+        tl::optional<PerlinNoiseGenerator> noise1 = tl::nullopt;
+        tl::optional<PerlinNoiseGenerator> noise2 = tl::nullopt;
 
         void setSeed(int64_t _seed) {
             if (seed != _seed) {
@@ -626,6 +627,36 @@ struct BasaltDeltasSurfaceBuilder : public SurfaceBuilder {
     void buildSurface(SurfaceBuilderContext& ctx, const SurfaceBuilderConfig& config) override {
     }
 };
+
+template<>
+auto Json::From<SurfaceBuilder*>::from(SurfaceBuilder* const& builder) -> Self {
+    return SurfaceBuilders::builders.name(builder).value();
+}
+
+template<>
+auto Json::Into<SurfaceBuilder*>::into(const Self& obj) -> Result {
+    return SurfaceBuilders::builders.get(obj.as_string().value());
+}
+
+template<>
+auto Json::From<SurfaceBuilderConfig>::from(const SurfaceBuilderConfig &config) -> Json {
+    return {
+        {"top_material", config.top},
+        {"under_material", config.mid},
+        {"underwater_material", config.underWater}
+    };
+}
+
+template<>
+auto Json::Into<SurfaceBuilderConfig>::into(const Json& obj) -> Result {
+    return obj.as_object().map([](auto&& o) {
+        return SurfaceBuilderConfig{
+            .top = o.at("top_material"),
+            .mid = o.at("under_material"),
+            .underWater = o.at("underwater_material")
+        };
+    });
+}
 
 void SurfaceBuilders::init() {
     Noop             = create<NoopSurfaceBuilder>("noop");

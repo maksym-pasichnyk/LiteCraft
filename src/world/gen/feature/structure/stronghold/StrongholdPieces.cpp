@@ -25,7 +25,7 @@
 //
 //int StrongholdPieces::totalWeight = 0;
 //std::vector<StrongholdPieces::PieceWeight> StrongholdPieces::structurePieceList{};
-//std::optional<StrongholdPieces::Factory> StrongholdPieces::strongComponentType = std::nullopt;
+//tl::optional<StrongholdPieces::Factory> StrongholdPieces::strongComponentType = tl::nullopt;
 //
 //static constexpr std::array PIECE_WEIGHTS {
 //    StrongholdPieces::PieceWeight{0, StrongholdPieces::Factory::from<StrongholdPieces::Straight>(), 40, 0, 0},
@@ -49,7 +49,7 @@
 //        structurePieceList.emplace_back(pieceweight);
 //    }
 //
-//    strongComponentType = std::nullopt;
+//    strongComponentType = tl::nullopt;
 //}
 //
 //auto StrongholdPieces::canAddStructurePieces() -> bool {
@@ -78,7 +78,7 @@
 //
 //    if (strongComponentType.has_value()) {
 //        auto piece = findAndCreatePieceFactory(*strongComponentType, pieces, random, x, y, z, facing, componentIndex);
-//        strongComponentType = std::nullopt;
+//        strongComponentType = tl::nullopt;
 //        if (piece != nullptr) {
 //            return piece;
 //        }

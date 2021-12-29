@@ -1,6 +1,5 @@
 #include "ListJigsawPiece.hpp"
 #include <range/v3/all.hpp>
-#include <configs.hpp>
 
 auto ListJigsawPiece::to_json() -> Json {
 	return {
@@ -11,7 +10,7 @@ auto ListJigsawPiece::to_json() -> Json {
 }
 auto ListJigsawPiece::from_json(const Json &o) -> std::unique_ptr<JigsawPiece> {
     return std::make_unique<ListJigsawPiece>(
-        o.at("elements").to_array() | ranges::views::transform(&JigsawPiece::from_json) | ranges::to_vector,
+        o.at("elements").as_array().value() | ranges::views::transform(&JigsawPiece::from_json) | ranges::to_vector,
         o.at("projection")
     );
 }

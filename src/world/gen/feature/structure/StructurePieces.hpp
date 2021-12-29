@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <optional>
+#include <tl/optional.hpp>
 #include <util/Random.hpp>
 #include <util/math/BoundingBox.hpp>
 
@@ -17,7 +17,7 @@ struct StructurePieces {
         components.emplace_back(piece);
     }
 
-    auto getBoundingBox() const -> std::optional<BoundingBox>;
+    auto getBoundingBox() const -> tl::optional<BoundingBox>;
     void markAvailableHeight(int seaLevel, int minY, Random& random, int offset);
     void moveVertically(int y);
 };

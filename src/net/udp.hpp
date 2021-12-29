@@ -11,15 +11,15 @@
 struct UdpSocket {
     Socket s;
 
-    static auto bind(const SocketAddr& addr) -> std::optional<UdpSocket> {
+    static auto bind(const SocketAddr& addr) -> tl::optional<UdpSocket> {
         auto s = Socket::create(addr.inner.sin_family, SOCK_DGRAM, IPPROTO_UDP);
         if (!s.has_value()) {
-            return std::nullopt;
+            return tl::nullopt;
         }
         auto name = std::bit_cast<sockaddr>(addr.inner);
         if (::bind(s->fd, &name, sizeof(sockaddr)) == -1) {
             s->close();
-            return std::nullopt;
+            return tl::nullopt;
         }
         return UdpSocket{*s};
     }
@@ -80,15 +80,15 @@ struct UdpSocket {
 #endif
     }
 
-    auto send(std::span<const std::byte> bytes) -> std::optional<size_t> {
+    auto send(std::span<const std::byte> bytes) -> tl::optional<size_t> {
         return s.send(bytes);
     }
 
-    auto send_to(std::span<const std::byte> bytes, const SocketAddr& addr) -> std::optional<size_t> {
+    auto send_to(std::span<const std::byte> bytes, const SocketAddr& addr) -> tl::optional<size_t> {
         return s.send_to(bytes, addr);
     }
 
-    auto recv(std::span<std::byte> bytes) -> std::optional<std::pair<size_t, SocketAddr>> {
+    auto recv(std::span<std::byte> bytes) -> tl::optional<std::pair<size_t, SocketAddr>> {
         return s.recv(bytes);
     }
 };

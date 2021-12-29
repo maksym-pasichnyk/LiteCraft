@@ -3,7 +3,7 @@
 #include <ResourceManager.hpp>
 #include <map>
 #include <memory>
-#include <optional>
+#include <tl/optional.hpp>
 #include <string>
 
 struct Template final {
@@ -18,7 +18,9 @@ struct TemplateManager {
     auto get(const std::string& name) -> Template* {
         auto& structure = templates[name];
         if (structure == nullptr) {
-            structure = load(name).value_or(std::make_unique<Template>());
+            structure = load(name).or_else([] {
+                return std::make_unique<Template>();
+            }).value();
         }
         return structure.get();
     }
@@ -26,15 +28,15 @@ struct TemplateManager {
 private:
     ResourceManager& resources;
 
-    auto load(const std::string& name) -> std::optional<std::unique_ptr<Template>> {
-        if (auto resource = resources.open(fmt::format("structures/{}.nbt", name))) {
+    auto load(const std::string& name) -> tl::optional<std::unique_ptr<Template>> {
+        if (auto resource = resources.open(fmt::format("data/minecraft/structures/{}.nbt", name))) {
             return readStructure(*resource->io);
         }
-        return std::nullopt;
+        return tl::nullopt;
     }
 
-    auto readStructure(std::istream& io) -> std::optional<std::unique_ptr<Template>> {
-        return std::nullopt;
+    auto readStructure(std::istream& io) -> tl::optional<std::unique_ptr<Template>> {
+        return tl::nullopt;
     }
 
     std::map<std::string, std::unique_ptr<Template>> templates;

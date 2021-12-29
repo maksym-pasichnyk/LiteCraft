@@ -11,11 +11,19 @@
 #include <ResourceManager.hpp>
 #include <range/v3/algorithm.hpp>
 
+using ClientNetHandler = PacketHandler<
+    CHandshakePacket,
+    CLoginStartPacket,
+    CEncryptionResponsePacket,
+    PositionPacket,
+    CPlayerDiggingPacket
+>;
+
 struct CraftServer {
     entt::registry ecs;
 
     ResourceManager& resources;
-    PacketManager<CraftServer> packets;
+    ClientNetHandler handler;
 
     std::unique_ptr<ServerWorld> world = nullptr;
     std::vector<std::thread> workers{};
@@ -43,10 +51,10 @@ struct CraftServer {
         return listener.local_addr().value();
     }
 
-    void processHandshake(Connection& _, const CHandshakePacket& packet);
-    void processLoginStart(Connection& _, const CLoginStartPacket& packet);
-    void processEncryptionResponse(Connection& _, const CEncryptionResponsePacket& packet);
-    void processPlayerPosition(Connection& _, const PositionPacket& packet);
-    void processPlayerDigging(Connection& _, const CPlayerDiggingPacket& packet);
+    void onPacket(Connection& _, const CHandshakePacket& packet);
+    void onPacket(Connection& _, const CLoginStartPacket& packet);
+    void onPacket(Connection& _, const CEncryptionResponsePacket& packet);
+    void onPacket(Connection& _, const PositionPacket& packet);
+    void onPacket(Connection& _, const CPlayerDiggingPacket& packet);
 //    void processChangeBlock(Connection& _, const SChangeBlockPacket& packet);
 };

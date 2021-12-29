@@ -5,7 +5,7 @@
 #include <block/WallTorchBlock.hpp>
 #include <world/WorldGenRegion.hpp>
 
-std::optional<BoundingBox> MineshaftPieces::Corridor::findCorridor(std::span<StructurePiece *> pieces, Random &random, int x, int y, int z, Direction facing) {
+tl::optional<BoundingBox> MineshaftPieces::Corridor::findCorridor(std::span<StructurePiece *> pieces, Random &random, int x, int y, int z, Direction facing) {
     BoundingBox bounds{x, y, z, x, y + 3 - 1, z};
 
     int i = random.nextInt(3) + 2;
@@ -36,7 +36,7 @@ std::optional<BoundingBox> MineshaftPieces::Corridor::findCorridor(std::span<Str
         }
     }
 
-    return std::nullopt;
+    return tl::nullopt;
 }
 
 void MineshaftPieces::Corridor::buildComponent(StructurePiece *start, std::vector<StructurePiece *> &pieces, Random &random) {

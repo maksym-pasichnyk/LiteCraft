@@ -3,7 +3,7 @@
 #include <block/Blocks.hpp>
 #include <world/WorldGenRegion.hpp>
 
-std::optional<BoundingBox> MineshaftPieces::Stairs::findStairs(std::span<StructurePiece *> pieces, Random &random, int x, int y, int z, Direction facing) {
+tl::optional<BoundingBox> MineshaftPieces::Stairs::findStairs(std::span<StructurePiece *> pieces, Random &random, int x, int y, int z, Direction facing) {
     BoundingBox bounds{x, y - 5, z, x, y + 3 - 1, z};
     switch (facing) {
         case Direction::NORTH:
@@ -26,7 +26,7 @@ std::optional<BoundingBox> MineshaftPieces::Stairs::findStairs(std::span<Structu
     }
 
     if (hasIntersecting(pieces, bounds)) {
-        return std::nullopt;
+        return tl::nullopt;
     }
     return bounds;
 }

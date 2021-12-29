@@ -6,8 +6,6 @@
 #include "LegacySingleJigsawPiece.hpp"
 #include <world/gen/feature/processor/ProcessorLists.hpp>
 
-#include <configs.hpp>
-
 auto JigsawPiece::list(std::vector<Factory> factories) -> Factory {
     return [factories = std::move(factories)](JigsawProjection placement) -> std::unique_ptr<JigsawPiece> {
         auto pieces = factories | ranges::views::transform([placement](auto&& factory) { return factory(placement); });
@@ -60,5 +58,5 @@ auto JigsawPiece::from_json(const Json& o) -> std::unique_ptr<JigsawPiece> {
         {"list"s, &ListJigsawPiece::from_json},
         {"single"s, &SingleJigsawPiece::from_json}
     };
-    return table.at(o.at("type").to_string())(o);
+    return table.at(o.at("type").as_string().value())(o);
 }

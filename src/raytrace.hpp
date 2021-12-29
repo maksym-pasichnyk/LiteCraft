@@ -6,7 +6,7 @@
 #include "block/material/Materials.hpp"
 
 #include <glm/glm.hpp>
-#include <optional>
+#include <tl/optional.hpp>
 
 //export module raytrace;
 
@@ -23,7 +23,7 @@ struct RayTraceResult {
 };
 
 template <typename IBlockReader>
-auto rayTraceBlocks(IBlockReader /*auto*/& blocks, const RayTraceContext& context) -> std::optional<RayTraceResult> {
+auto rayTraceBlocks(IBlockReader /*auto*/& blocks, const RayTraceContext& context) -> tl::optional<RayTraceResult> {
     const auto rayPos = context.position;
 	const auto rayDir = context.direction;
 
@@ -53,5 +53,5 @@ auto rayTraceBlocks(IBlockReader /*auto*/& blocks, const RayTraceContext& contex
 		}
 	}
 
-	return std::nullopt;
+	return tl::nullopt;
 }

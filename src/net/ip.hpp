@@ -2,7 +2,7 @@
 
 #include <bit>
 #include <array>
-#include <optional>
+#include <tl/optional.hpp>
 #include <string_view>
 #include <spdlog/spdlog.h>
 
@@ -28,7 +28,7 @@ struct Ipv4Addr {
         return {.inner = inner};
     }
 
-    static constexpr auto from(std::string_view ip) -> std::optional<Ipv4Addr> {
+    static constexpr auto from(std::string_view ip) -> tl::optional<Ipv4Addr> {
         std::array<uint32_t, 4> parts{};
 
         size_t components = 0;
@@ -38,17 +38,17 @@ struct Ipv4Addr {
                 val = val * 10 + (ip[i] - '0');
             }
             if (val > 0xFF) {
-                return std::nullopt;
+                return tl::nullopt;
             }
             parts[components++] = val;
 
             if (i < ip.size() && (components == 4 || ip[i] != '.')) {
-                return std::nullopt;
+                return tl::nullopt;
             }
         }
 
         if (components != 4) {
-            return std::nullopt;
+            return tl::nullopt;
         }
 
         return from(parts[0], parts[1], parts[2], parts[3]);

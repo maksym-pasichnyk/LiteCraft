@@ -175,7 +175,6 @@
 #include "WitherSkeletonWallSkullBlock.hpp"
 #include "WoodButtonBlock.hpp"
 
-#include "BlockGraphics.hpp"
 #include "BlockTable.hpp"
 #include "ShulkerBoxBlock.hpp"
 #include "material/Materials.hpp"
@@ -1017,14 +1016,8 @@ static auto create(const std::string& name, Args &&...args) -> T* {
     const auto id = Blocks::pallete.getId(name);
     auto block = Blocks::blocks.add(static_cast<size_t>(id), name, std::make_unique<T>(id, std::forward<Args>(args)...));
 
-    if (auto it = BlockGraphics::mBlockLookupMap.find(name); it != BlockGraphics::mBlockLookupMap.end()) {
-        block->graphics = it->second;
-    } else {
-        spdlog::info("missing block graphics: {}", name);
-        block->graphics = BlockGraphics::mMissingTexture;
-    }
-
     block->fillStateContainer();
+    block->setDefaultState();
     block->fillValidStates();
     return dynamic_cast<T*>(block);
 }
@@ -1049,7 +1042,6 @@ static auto createPiston(const std::string& name, bool sticky) -> Block* {
 static auto createLeavesBlock(const std::string& name) -> Block* {
     return create<LeavesBlock>(name, BlockBehaviourUtil::create(Materials::LEAVES)
         .setTintType(TintType::Foliage)
-        .setRenderType(RenderType::Leaves)
         .setRenderLayer(RenderLayer::Cutout)
         .setHardnessAndResistance(0.2F)
         .setTickRandomly()
@@ -1080,7 +1072,7 @@ static auto createStainedGlass(const std::string& name, DyeColors color) -> Bloc
         .setBlocksVision(isntSolid));
 }
 
-static auto createShulkerBox(const std::string& name, std::optional<DyeColors> color, BlockBehaviour behaviour) -> Block* {
+static auto createShulkerBox(const std::string& name, tl::optional<DyeColors> color, BlockBehaviour behaviour) -> Block* {
     static constexpr auto isBlocksVision = [](BlockReader &reader, const BlockData &data, const BlockPos &pos) -> bool {
 //        TileEntity tileentity = p_235444_1_.getTileEntity(p_235444_2_);
 //        if (!(tileentity instanceof ShulkerBoxTileEntity)) {
@@ -1178,7 +1170,6 @@ void Blocks::init() {
         .setSound(SoundType::WOOD));
     OAK_SAPLING = create<SaplingBlock>("oak_sapling", new OakTree(), BlockBehaviourUtil::create(Materials::PLANTS)
         .setTintType(TintType::Grass)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .setTickRandomly()
@@ -1186,7 +1177,6 @@ void Blocks::init() {
         .setSound(SoundType::PLANT));
     SPRUCE_SAPLING = create<SaplingBlock>("spruce_sapling", new SpruceTree(), BlockBehaviourUtil::create(Materials::PLANTS)
         .setTintType(TintType::Grass)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .setTickRandomly()
@@ -1194,7 +1184,6 @@ void Blocks::init() {
         .setSound(SoundType::PLANT));
     BIRCH_SAPLING = create<SaplingBlock>("birch_sapling", new BirchTree(), BlockBehaviourUtil::create(Materials::PLANTS)
         .setTintType(TintType::Grass)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .setTickRandomly()
@@ -1202,7 +1191,6 @@ void Blocks::init() {
         .setSound(SoundType::PLANT));
     JUNGLE_SAPLING = create<SaplingBlock>("jungle_sapling", new JungleTree(), BlockBehaviourUtil::create(Materials::PLANTS)
         .setTintType(TintType::Grass)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .setTickRandomly()
@@ -1210,7 +1198,6 @@ void Blocks::init() {
         .setSound(SoundType::PLANT));
     ACACIA_SAPLING = create<SaplingBlock>("acacia_sapling", new AcaciaTree(), BlockBehaviourUtil::create(Materials::PLANTS)
         .setTintType(TintType::Grass)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .setTickRandomly()
@@ -1218,7 +1205,6 @@ void Blocks::init() {
         .setSound(SoundType::PLANT));
     DARK_OAK_SAPLING = create<SaplingBlock>("dark_oak_sapling", new DarkOakTree(), BlockBehaviourUtil::create(Materials::PLANTS)
         .setTintType(TintType::Grass)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .setTickRandomly()
@@ -1229,15 +1215,11 @@ void Blocks::init() {
         .noDrops()
         .setAllowsSpawn(neverAllowSpawn));
     WATER = create<FlowingFluidBlock>("water", Fluids::WATER, BlockBehaviourUtil::create(Materials::WATER)
-        // .setTintType(TintType::Grass)
-        .setRenderType(RenderType::Liquid)
         .setRenderLayer(RenderLayer::Transparent)
         .doesNotBlockMovement()
         .setHardnessAndResistance(100.0F)
         .noDrops());
     LAVA = create<FlowingFluidBlock>("lava", Fluids::LAVA, BlockBehaviourUtil::create(Materials::LAVA)
-        // .setTintType(TintType::Grass)
-        .setRenderType(RenderType::Liquid)
         .setRenderLayer(RenderLayer::Transparent)
         .doesNotBlockMovement()
         .setTickRandomly()
@@ -1381,27 +1363,23 @@ void Blocks::init() {
         .setSound(SoundType::METAL));
     STICKY_PISTON = createPiston("sticky_piston", true);
     COBWEB = create<WebBlock>("cobweb", BlockBehaviourUtil::create(Materials::WEB)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .setRequiresTool()
         .setHardnessAndResistance(4.0F));
     GRASS = create<TallGrassBlock>("grass", BlockBehaviourUtil::create(Materials::TALL_PLANTS)
         .setTintType(TintType::Grass)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     FERN = create<TallGrassBlock>("fern", BlockBehaviourUtil::create(Materials::TALL_PLANTS)
         .setTintType(TintType::Grass)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     DEAD_BUSH = create<DeadBushBlock>("dead_bush", BlockBehaviourUtil::create(Materials::TALL_PLANTS, MaterialColors::WOOD)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
@@ -1475,85 +1453,71 @@ void Blocks::init() {
         .setSuffocates(isntSolid)
         .setBlocksVision(isntSolid));
     DANDELION = create<FlowerBlock>("dandelion", Effects::SATURATION, 7, BlockBehaviourUtil::create(Materials::PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     POPPY = create<FlowerBlock>("poppy", Effects::NIGHT_VISION, 5, BlockBehaviourUtil::create(Materials::PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     BLUE_ORCHID = create<FlowerBlock>("blue_orchid", Effects::SATURATION, 7, BlockBehaviourUtil::create(Materials::PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     ALLIUM = create<FlowerBlock>("allium", Effects::FIRE_RESISTANCE, 4, BlockBehaviourUtil::create(Materials::PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     AZURE_BLUET = create<FlowerBlock>("azure_bluet", Effects::BLINDNESS, 8, BlockBehaviourUtil::create(Materials::PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     RED_TULIP = create<FlowerBlock>("red_tulip", Effects::WEAKNESS, 9, BlockBehaviourUtil::create(Materials::PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     ORANGE_TULIP = create<FlowerBlock>("orange_tulip", Effects::WEAKNESS, 9, BlockBehaviourUtil::create(Materials::PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     WHITE_TULIP = create<FlowerBlock>("white_tulip", Effects::WEAKNESS, 9, BlockBehaviourUtil::create(Materials::PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     PINK_TULIP = create<FlowerBlock>("pink_tulip", Effects::WEAKNESS, 9, BlockBehaviourUtil::create(Materials::PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     OXEYE_DAISY = create<FlowerBlock>("oxeye_daisy", Effects::REGENERATION, 8, BlockBehaviourUtil::create(Materials::PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     CORNFLOWER = create<FlowerBlock>("cornflower", Effects::JUMP_BOOST, 6, BlockBehaviourUtil::create(Materials::PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     WITHER_ROSE = create<WitherRoseBlock>("wither_rose", Effects::WITHER, BlockBehaviourUtil::create(Materials::PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     LILY_OF_THE_VALLEY = create<FlowerBlock>("lily_of_the_valley", Effects::POISON, 12, BlockBehaviourUtil::create(Materials::PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     BROWN_MUSHROOM = create<MushroomBlock>("brown_mushroom", BlockBehaviourUtil::create(Materials::PLANTS, MaterialColors::BROWN)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .setTickRandomly()
@@ -1562,7 +1526,6 @@ void Blocks::init() {
         .setLightLevel([](auto) -> int32_t { return 1; })
         .setNeedsPostProcessing(needsPostProcessing));
     RED_MUSHROOM = create<MushroomBlock>("red_mushroom", BlockBehaviourUtil::create(Materials::PLANTS, MaterialColors::RED)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .setTickRandomly()
@@ -1776,7 +1739,6 @@ void Blocks::init() {
         .setSound(SoundType::WOOD)
         .setLootFrom(REDSTONE_TORCH));
     STONE_BUTTON = create<StoneButtonBlock>("stone_button", BlockBehaviourUtil::create(Materials::MISCELLANEOUS)
-        .setRenderType(RenderType::Button)
         .doesNotBlockMovement()
         .setHardnessAndResistance(0.5F));
     SNOW = create<SnowBlock>("snow", BlockBehaviourUtil::create(Materials::SNOW)
@@ -1798,7 +1760,6 @@ void Blocks::init() {
         .setHardnessAndResistance(0.2F)
         .setSound(SoundType::SNOW));
     CACTUS = create<CactusBlock>("cactus", BlockBehaviourUtil::create(Materials::CACTUS)
-        .setRenderType(RenderType::Cactus)
         .setRenderLayer(RenderLayer::Cutout)
         .setTickRandomly()
         .setHardnessAndResistance(0.4F)
@@ -1807,7 +1768,6 @@ void Blocks::init() {
         .setHardnessAndResistance(0.6F)
         .setSound(SoundType::GROUND));
     SUGAR_CANE = create<SugarCaneBlock>("sugar_cane", BlockBehaviourUtil::create(Materials::PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .setTickRandomly()
@@ -1897,42 +1857,36 @@ void Blocks::init() {
     RED_STAINED_GLASS = createStainedGlass("red_stained_glass", DyeColors::RED);
     BLACK_STAINED_GLASS = createStainedGlass("black_stained_glass", DyeColors::BLACK);
     OAK_TRAPDOOR = create<TrapDoorBlock>("oak_trapdoor", BlockBehaviourUtil::create(Materials::WOOD, MaterialColors::WOOD)
-        .setRenderType(RenderType::Trapdoor)
         .setRenderLayer(RenderLayer::Cutout)
         .setHardnessAndResistance(3.0F)
         .setSound(SoundType::WOOD)
         .notSolid()
         .setAllowsSpawn(neverAllowSpawn));
     SPRUCE_TRAPDOOR = create<TrapDoorBlock>("spruce_trapdoor", BlockBehaviourUtil::create(Materials::WOOD, MaterialColors::OBSIDIAN)
-        .setRenderType(RenderType::Trapdoor)
         .setRenderLayer(RenderLayer::Cutout)
         .setHardnessAndResistance(3.0F)
         .setSound(SoundType::WOOD)
         .notSolid()
         .setAllowsSpawn(neverAllowSpawn));
     BIRCH_TRAPDOOR = create<TrapDoorBlock>("birch_trapdoor", BlockBehaviourUtil::create(Materials::WOOD, MaterialColors::SAND)
-        .setRenderType(RenderType::Trapdoor)
         .setRenderLayer(RenderLayer::Cutout)
         .setHardnessAndResistance(3.0F)
         .setSound(SoundType::WOOD)
         .notSolid()
         .setAllowsSpawn(neverAllowSpawn));
     JUNGLE_TRAPDOOR = create<TrapDoorBlock>("jungle_trapdoor", BlockBehaviourUtil::create(Materials::WOOD, MaterialColors::DIRT)
-        .setRenderType(RenderType::Trapdoor)
         .setRenderLayer(RenderLayer::Cutout)
         .setHardnessAndResistance(3.0F)
         .setSound(SoundType::WOOD)
         .notSolid()
         .setAllowsSpawn(neverAllowSpawn));
     ACACIA_TRAPDOOR = create<TrapDoorBlock>("acacia_trapdoor", BlockBehaviourUtil::create(Materials::WOOD, MaterialColors::ADOBE)
-        .setRenderType(RenderType::Trapdoor)
         .setRenderLayer(RenderLayer::Cutout)
         .setHardnessAndResistance(3.0F)
         .setSound(SoundType::WOOD)
         .notSolid()
         .setAllowsSpawn(neverAllowSpawn));
     DARK_OAK_TRAPDOOR = create<TrapDoorBlock>("dark_oak_trapdoor", BlockBehaviourUtil::create(Materials::WOOD, MaterialColors::BROWN)
-        .setRenderType(RenderType::Trapdoor)
         .setRenderLayer(RenderLayer::Cutout)
         .setHardnessAndResistance(3.0F)
         .setSound(SoundType::WOOD)
@@ -1983,7 +1937,6 @@ void Blocks::init() {
         .setSound(SoundType::CHAIN)
         .notSolid());
     GLASS_PANE = create<PaneBlock>("glass_pane", BlockBehaviourUtil::create(Materials::GLASS)
-        .setRenderType(RenderType::Pane)
         .setRenderLayer(RenderLayer::Transparent)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
@@ -1992,38 +1945,32 @@ void Blocks::init() {
         .setHardnessAndResistance(1.0F)
         .setSound(SoundType::WOOD));
     ATTACHED_PUMPKIN_STEM = create<AttachedStemBlock>("attached_pumpkin_stem", (StemGrownBlock*)PUMPKIN, BlockBehaviourUtil::create(Materials::PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout).doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::WOOD));
     ATTACHED_MELON_STEM = create<AttachedStemBlock>("attached_melon_stem", (StemGrownBlock*)MELON, BlockBehaviourUtil::create(Materials::PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout).doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::WOOD));
     PUMPKIN_STEM = create<StemBlock>("pumpkin_stem", (StemGrownBlock*)PUMPKIN, BlockBehaviourUtil::create(Materials::PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout).doesNotBlockMovement()
         .doesNotBlockMovement()
         .setTickRandomly()
         .zeroHardnessAndResistance()
         .setSound(SoundType::STEM));
     MELON_STEM = create<StemBlock>("melon_stem", (StemGrownBlock*)MELON, BlockBehaviourUtil::create(Materials::PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout).doesNotBlockMovement()
         .doesNotBlockMovement()
         .setTickRandomly()
         .zeroHardnessAndResistance()
         .setSound(SoundType::STEM));
     VINE = create<VineBlock>("vine", BlockBehaviourUtil::create(Materials::TALL_PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout).doesNotBlockMovement()
         .doesNotBlockMovement()
         .setTickRandomly()
         .setHardnessAndResistance(0.2F)
         .setSound(SoundType::VINE));
     OAK_FENCE_GATE = create<FenceGateBlock>("oak_fence_gate", BlockBehaviourUtil::create(Materials::WOOD, OAK_PLANKS->getMaterialColor())
-        .setRenderType(RenderType::FenceGate)
         .setHardnessAndResistance(2.0F, 3.0F)
         .setSound(SoundType::WOOD));
     BRICK_STAIRS = create<StairsBlock>("brick_stairs", BRICKS->getDefaultState(), BlockBehaviourUtil::from(BRICKS));
@@ -2034,7 +1981,6 @@ void Blocks::init() {
         .setSound(SoundType::PLANT));
     LILY_PAD = create<LilyPadBlock>("lily_pad", BlockBehaviourUtil::create(Materials::PLANTS)
         .setTintType(TintType::Grass)
-        .setRenderType(RenderType::LilyPad)
         .setRenderLayer(RenderLayer::Cutout)
         .zeroHardnessAndResistance()
         .setSound(SoundType::LILY_PADS)
@@ -2205,32 +2151,26 @@ void Blocks::init() {
         .zeroHardnessAndResistance()
         .setSound(SoundType::CROP));
     OAK_BUTTON = create<WoodButtonBlock>("oak_button", BlockBehaviourUtil::create(Materials::MISCELLANEOUS)
-        .setRenderType(RenderType::Button)
         .doesNotBlockMovement()
         .setHardnessAndResistance(0.5F)
         .setSound(SoundType::WOOD));
     SPRUCE_BUTTON = create<WoodButtonBlock>("spruce_button", BlockBehaviourUtil::create(Materials::MISCELLANEOUS)
-        .setRenderType(RenderType::Button)
         .doesNotBlockMovement()
         .setHardnessAndResistance(0.5F)
         .setSound(SoundType::WOOD));
     BIRCH_BUTTON = create<WoodButtonBlock>("birch_button", BlockBehaviourUtil::create(Materials::MISCELLANEOUS)
-        .setRenderType(RenderType::Button)
         .doesNotBlockMovement()
         .setHardnessAndResistance(0.5F)
         .setSound(SoundType::WOOD));
     JUNGLE_BUTTON = create<WoodButtonBlock>("jungle_button", BlockBehaviourUtil::create(Materials::MISCELLANEOUS)
-        .setRenderType(RenderType::Button)
         .doesNotBlockMovement()
         .setHardnessAndResistance(0.5F)
         .setSound(SoundType::WOOD));
     ACACIA_BUTTON = create<WoodButtonBlock>("acacia_button", BlockBehaviourUtil::create(Materials::MISCELLANEOUS)
-        .setRenderType(RenderType::Button)
         .doesNotBlockMovement()
         .setHardnessAndResistance(0.5F)
         .setSound(SoundType::WOOD));
     DARK_OAK_BUTTON = create<WoodButtonBlock>("dark_oak_button", BlockBehaviourUtil::create(Materials::MISCELLANEOUS)
-        .setRenderType(RenderType::Button)
         .doesNotBlockMovement()
         .setHardnessAndResistance(0.5F)
         .setSound(SoundType::WOOD));
@@ -2265,17 +2205,14 @@ void Blocks::init() {
         .setHardnessAndResistance(1.0F)
         .setLootFrom(DRAGON_HEAD));
     ANVIL = create<AnvilBlock>("anvil", BlockBehaviourUtil::create(Materials::ANVIL, MaterialColors::IRON)
-        .setRenderType(RenderType::Anvil)
         .setRequiresTool()
         .setHardnessAndResistance(5.0F, 1200.0F)
         .setSound(SoundType::ANVIL));
     CHIPPED_ANVIL = create<AnvilBlock>("chipped_anvil", BlockBehaviourUtil::create(Materials::ANVIL, MaterialColors::IRON)
-        .setRenderType(RenderType::Anvil)
         .setRequiresTool()
         .setHardnessAndResistance(5.0F, 1200.0F)
         .setSound(SoundType::ANVIL));
     DAMAGED_ANVIL = create<AnvilBlock>("damaged_anvil", BlockBehaviourUtil::create(Materials::ANVIL, MaterialColors::IRON)
-        .setRenderType(RenderType::Anvil)
         .setRequiresTool()
         .setHardnessAndResistance(5.0F, 1200.0F)
         .setSound(SoundType::ANVIL));
@@ -2378,97 +2315,81 @@ void Blocks::init() {
         .setRequiresTool()
         .setHardnessAndResistance(1.25F, 4.2F));
     WHITE_STAINED_GLASS_PANE = create<StainedGlassPaneBlock>("white_stained_glass_pane", DyeColors::WHITE, BlockBehaviourUtil::create(Materials::GLASS)
-        .setRenderType(RenderType::Pane)
         .setRenderLayer(RenderLayer::Transparent)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
         .notSolid());
     ORANGE_STAINED_GLASS_PANE = create<StainedGlassPaneBlock>("orange_stained_glass_pane", DyeColors::ORANGE, BlockBehaviourUtil::create(Materials::GLASS)
-        .setRenderType(RenderType::Pane)
         .setRenderLayer(RenderLayer::Transparent)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
         .notSolid());
     MAGENTA_STAINED_GLASS_PANE = create<StainedGlassPaneBlock>("magenta_stained_glass_pane", DyeColors::MAGENTA, BlockBehaviourUtil::create(Materials::GLASS)
-        .setRenderType(RenderType::Pane)
         .setRenderLayer(RenderLayer::Transparent)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
         .notSolid());
     LIGHT_BLUE_STAINED_GLASS_PANE = create<StainedGlassPaneBlock>("light_blue_stained_glass_pane", DyeColors::LIGHT_BLUE, BlockBehaviourUtil::create(Materials::GLASS)
-        .setRenderType(RenderType::Pane)
         .setRenderLayer(RenderLayer::Transparent)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
         .notSolid());
     YELLOW_STAINED_GLASS_PANE = create<StainedGlassPaneBlock>("yellow_stained_glass_pane", DyeColors::YELLOW, BlockBehaviourUtil::create(Materials::GLASS)
-        .setRenderType(RenderType::Pane)
         .setRenderLayer(RenderLayer::Transparent)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
         .notSolid());
     LIME_STAINED_GLASS_PANE = create<StainedGlassPaneBlock>("lime_stained_glass_pane", DyeColors::LIME, BlockBehaviourUtil::create(Materials::GLASS)
-        .setRenderType(RenderType::Pane)
         .setRenderLayer(RenderLayer::Transparent)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
         .notSolid());
     PINK_STAINED_GLASS_PANE = create<StainedGlassPaneBlock>("pink_stained_glass_pane", DyeColors::PINK, BlockBehaviourUtil::create(Materials::GLASS)
-        .setRenderType(RenderType::Pane)
         .setRenderLayer(RenderLayer::Transparent)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
         .notSolid());
     GRAY_STAINED_GLASS_PANE = create<StainedGlassPaneBlock>("gray_stained_glass_pane", DyeColors::GRAY, BlockBehaviourUtil::create(Materials::GLASS)
-        .setRenderType(RenderType::Pane)
         .setRenderLayer(RenderLayer::Transparent)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
         .notSolid());
     LIGHT_GRAY_STAINED_GLASS_PANE = create<StainedGlassPaneBlock>("light_gray_stained_glass_pane", DyeColors::LIGHT_GRAY, BlockBehaviourUtil::create(Materials::GLASS)
-        .setRenderType(RenderType::Pane)
         .setRenderLayer(RenderLayer::Transparent)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
         .notSolid());
     CYAN_STAINED_GLASS_PANE = create<StainedGlassPaneBlock>("cyan_stained_glass_pane", DyeColors::CYAN, BlockBehaviourUtil::create(Materials::GLASS)
-        .setRenderType(RenderType::Pane)
         .setRenderLayer(RenderLayer::Transparent)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
         .notSolid());
     PURPLE_STAINED_GLASS_PANE = create<StainedGlassPaneBlock>("purple_stained_glass_pane", DyeColors::PURPLE, BlockBehaviourUtil::create(Materials::GLASS)
-        .setRenderType(RenderType::Pane)
         .setRenderLayer(RenderLayer::Transparent)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
         .notSolid());
     BLUE_STAINED_GLASS_PANE = create<StainedGlassPaneBlock>("blue_stained_glass_pane", DyeColors::BLUE, BlockBehaviourUtil::create(Materials::GLASS)
-        .setRenderType(RenderType::Pane)
         .setRenderLayer(RenderLayer::Transparent)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
         .notSolid());
     BROWN_STAINED_GLASS_PANE = create<StainedGlassPaneBlock>("brown_stained_glass_pane", DyeColors::BROWN, BlockBehaviourUtil::create(Materials::GLASS)
-        .setRenderType(RenderType::Pane)
         .setRenderLayer(RenderLayer::Transparent)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
         .notSolid());
     GREEN_STAINED_GLASS_PANE = create<StainedGlassPaneBlock>("green_stained_glass_pane", DyeColors::GREEN, BlockBehaviourUtil::create(Materials::GLASS)
-        .setRenderType(RenderType::Pane)
         .setRenderLayer(RenderLayer::Transparent)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
         .notSolid());
     RED_STAINED_GLASS_PANE = create<StainedGlassPaneBlock>("red_stained_glass_pane", DyeColors::RED, BlockBehaviourUtil::create(Materials::GLASS)
-        .setRenderType(RenderType::Pane)
         .setRenderLayer(RenderLayer::Transparent)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
         .notSolid());
     BLACK_STAINED_GLASS_PANE = create<StainedGlassPaneBlock>("black_stained_glass_pane", DyeColors::BLACK, BlockBehaviourUtil::create(Materials::GLASS)
-        .setRenderType(RenderType::Pane)
         .setRenderLayer(RenderLayer::Transparent)
         .setHardnessAndResistance(0.3F)
         .setSound(SoundType::GLASS)
@@ -2486,7 +2407,6 @@ void Blocks::init() {
         .notSolid()
         .setAllowsSpawn(neverAllowSpawn));
     IRON_TRAPDOOR = create<TrapDoorBlock>("iron_trapdoor", BlockBehaviourUtil::create(Materials::IRON)
-        .setRenderType(RenderType::Trapdoor)
         .setRenderLayer(RenderLayer::Cutout)
         .setRequiresTool()
         .setHardnessAndResistance(5.0F)
@@ -2522,67 +2442,51 @@ void Blocks::init() {
         .setHardnessAndResistance(0.5F)
         .setSound(SoundType::PLANT));
     WHITE_CARPET = create<CarpetBlock>("white_carpet", DyeColors::WHITE, BlockBehaviourUtil::create(Materials::CARPET, MaterialColors::SNOW)
-        .setRenderType(RenderType::Carpet)
         .setHardnessAndResistance(0.1F)
         .setSound(SoundType::CLOTH));
     ORANGE_CARPET = create<CarpetBlock>("orange_carpet", DyeColors::ORANGE, BlockBehaviourUtil::create(Materials::CARPET, MaterialColors::ADOBE)
-        .setRenderType(RenderType::Carpet)
         .setHardnessAndResistance(0.1F)
         .setSound(SoundType::CLOTH));
     MAGENTA_CARPET = create<CarpetBlock>("magenta_carpet", DyeColors::MAGENTA, BlockBehaviourUtil::create(Materials::CARPET, MaterialColors::MAGENTA)
-        .setRenderType(RenderType::Carpet)
         .setHardnessAndResistance(0.1F)
         .setSound(SoundType::CLOTH));
     LIGHT_BLUE_CARPET = create<CarpetBlock>("light_blue_carpet", DyeColors::LIGHT_BLUE, BlockBehaviourUtil::create(Materials::CARPET, MaterialColors::LIGHT_BLUE)
-        .setRenderType(RenderType::Carpet)
         .setHardnessAndResistance(0.1F)
         .setSound(SoundType::CLOTH));
     YELLOW_CARPET = create<CarpetBlock>("yellow_carpet", DyeColors::YELLOW, BlockBehaviourUtil::create(Materials::CARPET, MaterialColors::YELLOW)
-        .setRenderType(RenderType::Carpet)
         .setHardnessAndResistance(0.1F)
         .setSound(SoundType::CLOTH));
     LIME_CARPET = create<CarpetBlock>("lime_carpet", DyeColors::LIME, BlockBehaviourUtil::create(Materials::CARPET, MaterialColors::LIME)
-        .setRenderType(RenderType::Carpet)
         .setHardnessAndResistance(0.1F)
         .setSound(SoundType::CLOTH));
     PINK_CARPET = create<CarpetBlock>("pink_carpet", DyeColors::PINK, BlockBehaviourUtil::create(Materials::CARPET, MaterialColors::PINK)
-        .setRenderType(RenderType::Carpet)
         .setHardnessAndResistance(0.1F)
         .setSound(SoundType::CLOTH));
     GRAY_CARPET = create<CarpetBlock>("gray_carpet", DyeColors::GRAY, BlockBehaviourUtil::create(Materials::CARPET, MaterialColors::GRAY)
-        .setRenderType(RenderType::Carpet)
         .setHardnessAndResistance(0.1F)
         .setSound(SoundType::CLOTH));
     LIGHT_GRAY_CARPET = create<CarpetBlock>("light_gray_carpet", DyeColors::LIGHT_GRAY, BlockBehaviourUtil::create(Materials::CARPET, MaterialColors::LIGHT_GRAY)
-        .setRenderType(RenderType::Carpet)
         .setHardnessAndResistance(0.1F)
         .setSound(SoundType::CLOTH));
     CYAN_CARPET = create<CarpetBlock>("cyan_carpet", DyeColors::CYAN, BlockBehaviourUtil::create(Materials::CARPET, MaterialColors::CYAN)
-        .setRenderType(RenderType::Carpet)
         .setHardnessAndResistance(0.1F)
         .setSound(SoundType::CLOTH));
     PURPLE_CARPET = create<CarpetBlock>("purple_carpet", DyeColors::PURPLE, BlockBehaviourUtil::create(Materials::CARPET, MaterialColors::PURPLE)
-        .setRenderType(RenderType::Carpet)
         .setHardnessAndResistance(0.1F)
         .setSound(SoundType::CLOTH));
     BLUE_CARPET = create<CarpetBlock>("blue_carpet", DyeColors::BLUE, BlockBehaviourUtil::create(Materials::CARPET, MaterialColors::BLUE)
-        .setRenderType(RenderType::Carpet)
         .setHardnessAndResistance(0.1F)
         .setSound(SoundType::CLOTH));
     BROWN_CARPET = create<CarpetBlock>("brown_carpet", DyeColors::BROWN, BlockBehaviourUtil::create(Materials::CARPET, MaterialColors::BROWN)
-        .setRenderType(RenderType::Carpet)
         .setHardnessAndResistance(0.1F)
         .setSound(SoundType::CLOTH));
     GREEN_CARPET = create<CarpetBlock>("green_carpet", DyeColors::GREEN, BlockBehaviourUtil::create(Materials::CARPET, MaterialColors::GREEN)
-        .setRenderType(RenderType::Carpet)
         .setHardnessAndResistance(0.1F)
         .setSound(SoundType::CLOTH));
     RED_CARPET = create<CarpetBlock>("red_carpet", DyeColors::RED, BlockBehaviourUtil::create(Materials::CARPET, MaterialColors::RED)
-        .setRenderType(RenderType::Carpet)
         .setHardnessAndResistance(0.1F)
         .setSound(SoundType::CLOTH));
     BLACK_CARPET = create<CarpetBlock>("black_carpet", DyeColors::BLACK, BlockBehaviourUtil::create(Materials::CARPET, MaterialColors::BLACK)
-        .setRenderType(RenderType::Carpet)
         .setHardnessAndResistance(0.1F)
         .setSound(SoundType::CLOTH));
     TERRACOTTA = create<Block>("terracotta", BlockBehaviourUtil::create(Materials::ROCK, MaterialColors::ADOBE)
@@ -2596,37 +2500,31 @@ void Blocks::init() {
         .setHardnessAndResistance(0.5F)
         .setSound(SoundType::GLASS));
     SUNFLOWER = create<TallFlowerBlock>("sunflower", BlockBehaviourUtil::create(Materials::TALL_PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     LILAC = create<TallFlowerBlock>("lilac", BlockBehaviourUtil::create(Materials::TALL_PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     ROSE_BUSH = create<TallFlowerBlock>("rose_bush", BlockBehaviourUtil::create(Materials::TALL_PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     PEONY = create<TallFlowerBlock>("peony", BlockBehaviourUtil::create(Materials::TALL_PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     TALL_GRASS = create<DoublePlantBlock>("tall_grass", BlockBehaviourUtil::create(Materials::TALL_PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::PLANT));
     LARGE_FERN = create<DoublePlantBlock>("large_fern", BlockBehaviourUtil::create(Materials::TALL_PLANTS)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
@@ -2808,43 +2706,33 @@ void Blocks::init() {
         .setRequiresTool()
         .setHardnessAndResistance(2.0F, 6.0F));
     SPRUCE_FENCE_GATE = create<FenceGateBlock>("spruce_fence_gate", BlockBehaviourUtil::create(Materials::WOOD, SPRUCE_PLANKS->getMaterialColor())
-        .setRenderType(RenderType::FenceGate)
         .setHardnessAndResistance(2.0F, 3.0F)
         .setSound(SoundType::WOOD));
     BIRCH_FENCE_GATE = create<FenceGateBlock>("birch_fence_gate", BlockBehaviourUtil::create(Materials::WOOD, BIRCH_PLANKS->getMaterialColor())
-        .setRenderType(RenderType::FenceGate)
         .setHardnessAndResistance(2.0F, 3.0F)
         .setSound(SoundType::WOOD));
     JUNGLE_FENCE_GATE = create<FenceGateBlock>("jungle_fence_gate", BlockBehaviourUtil::create(Materials::WOOD, JUNGLE_PLANKS->getMaterialColor())
-        .setRenderType(RenderType::FenceGate)
         .setHardnessAndResistance(2.0F, 3.0F)
         .setSound(SoundType::WOOD));
     ACACIA_FENCE_GATE = create<FenceGateBlock>("acacia_fence_gate", BlockBehaviourUtil::create(Materials::WOOD, ACACIA_PLANKS->getMaterialColor())
-        .setRenderType(RenderType::FenceGate)
         .setHardnessAndResistance(2.0F, 3.0F)
         .setSound(SoundType::WOOD));
     DARK_OAK_FENCE_GATE = create<FenceGateBlock>("dark_oak_fence_gate", BlockBehaviourUtil::create(Materials::WOOD, DARK_OAK_PLANKS->getMaterialColor())
-        .setRenderType(RenderType::FenceGate)
         .setHardnessAndResistance(2.0F, 3.0F)
         .setSound(SoundType::WOOD));
     SPRUCE_FENCE = create<FenceBlock>("spruce_fence", BlockBehaviourUtil::create(Materials::WOOD, SPRUCE_PLANKS->getMaterialColor())
-        .setRenderType(RenderType::Fence)
         .setHardnessAndResistance(2.0F, 3.0F)
         .setSound(SoundType::WOOD));
     BIRCH_FENCE = create<FenceBlock>("birch_fence", BlockBehaviourUtil::create(Materials::WOOD, BIRCH_PLANKS->getMaterialColor())
-        .setRenderType(RenderType::Fence)
         .setHardnessAndResistance(2.0F, 3.0F)
         .setSound(SoundType::WOOD));
     JUNGLE_FENCE = create<FenceBlock>("jungle_fence", BlockBehaviourUtil::create(Materials::WOOD, JUNGLE_PLANKS->getMaterialColor())
-        .setRenderType(RenderType::Fence)
         .setHardnessAndResistance(2.0F, 3.0F)
         .setSound(SoundType::WOOD));
     ACACIA_FENCE = create<FenceBlock>("acacia_fence", BlockBehaviourUtil::create(Materials::WOOD, ACACIA_PLANKS->getMaterialColor())
-        .setRenderType(RenderType::Fence)
         .setHardnessAndResistance(2.0F, 3.0F)
         .setSound(SoundType::WOOD));
     DARK_OAK_FENCE = create<FenceBlock>("dark_oak_fence", BlockBehaviourUtil::create(Materials::WOOD, DARK_OAK_PLANKS->getMaterialColor())
-        .setRenderType(RenderType::Fence)
         .setHardnessAndResistance(2.0F, 3.0F)
         .setSound(SoundType::WOOD));
     SPRUCE_DOOR = create<DoorBlock>("spruce_door", BlockBehaviourUtil::create(Materials::WOOD, SPRUCE_PLANKS->getMaterialColor())
@@ -2949,7 +2837,7 @@ void Blocks::init() {
         .setHardnessAndResistance(3.0F)
         .setRequiresTool()
         .setOpaque(isntSolid));
-    SHULKER_BOX = createShulkerBox("shulker_box", std::nullopt, BlockBehaviourUtil::create(Materials::SHULKER));
+    SHULKER_BOX = createShulkerBox("shulker_box", tl::nullopt, BlockBehaviourUtil::create(Materials::SHULKER));
     WHITE_SHULKER_BOX = createShulkerBox("white_shulker_box", DyeColors::WHITE, BlockBehaviourUtil::create(Materials::SHULKER, MaterialColors::SNOW));
     ORANGE_SHULKER_BOX = createShulkerBox("orange_shulker_box", DyeColors::ORANGE, BlockBehaviourUtil::create(Materials::SHULKER, MaterialColors::ADOBE));
     MAGENTA_SHULKER_BOX = createShulkerBox("magenta_shulker_box", DyeColors::MAGENTA, BlockBehaviourUtil::create(Materials::SHULKER, MaterialColors::MAGENTA));
@@ -3163,190 +3051,160 @@ void Blocks::init() {
         .setHardnessAndResistance(1.5F, 6.0F)
         .setSound(SoundType::CORAL));
     DEAD_TUBE_CORAL = create<DeadCoralPlantBlock>("dead_tube_coral", BlockBehaviourUtil::create(Materials::ROCK, MaterialColors::GRAY)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .setRequiresTool()
         .doesNotBlockMovement()
         .zeroHardnessAndResistance());
     DEAD_BRAIN_CORAL = create<DeadCoralPlantBlock>("dead_brain_coral", BlockBehaviourUtil::create(Materials::ROCK, MaterialColors::GRAY)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .setRequiresTool()
         .doesNotBlockMovement()
         .zeroHardnessAndResistance());
     DEAD_BUBBLE_CORAL = create<DeadCoralPlantBlock>("dead_bubble_coral", BlockBehaviourUtil::create(Materials::ROCK, MaterialColors::GRAY)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .setRequiresTool()
         .doesNotBlockMovement()
         .zeroHardnessAndResistance());
     DEAD_FIRE_CORAL = create<DeadCoralPlantBlock>("dead_fire_coral", BlockBehaviourUtil::create(Materials::ROCK, MaterialColors::GRAY)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .setRequiresTool()
         .doesNotBlockMovement()
         .zeroHardnessAndResistance());
     DEAD_HORN_CORAL = create<DeadCoralPlantBlock>("dead_horn_coral", BlockBehaviourUtil::create(Materials::ROCK, MaterialColors::GRAY)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .setRequiresTool()
         .doesNotBlockMovement()
         .zeroHardnessAndResistance());
     TUBE_CORAL = create<CoralPlantBlock>("tube_coral", DEAD_TUBE_CORAL, BlockBehaviourUtil::create(Materials::OCEAN_PLANT, MaterialColors::BLUE)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::WET_GRASS));
     BRAIN_CORAL = create<CoralPlantBlock>("brain_coral", DEAD_BRAIN_CORAL, BlockBehaviourUtil::create(Materials::OCEAN_PLANT, MaterialColors::PINK)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::WET_GRASS));
     BUBBLE_CORAL = create<CoralPlantBlock>("bubble_coral", DEAD_BUBBLE_CORAL, BlockBehaviourUtil::create(Materials::OCEAN_PLANT, MaterialColors::PURPLE)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::WET_GRASS));
     FIRE_CORAL = create<CoralPlantBlock>("fire_coral", DEAD_FIRE_CORAL, BlockBehaviourUtil::create(Materials::OCEAN_PLANT, MaterialColors::RED)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::WET_GRASS));
     HORN_CORAL = create<CoralPlantBlock>("horn_coral", DEAD_HORN_CORAL, BlockBehaviourUtil::create(Materials::OCEAN_PLANT, MaterialColors::YELLOW)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::WET_GRASS));
     DEAD_TUBE_CORAL_FAN = create<CoralFanBlock>("dead_tube_coral_fan", BlockBehaviourUtil::create(Materials::ROCK, MaterialColors::GRAY)
-        .setRenderType(RenderType::CoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .setRequiresTool()
         .doesNotBlockMovement()
         .zeroHardnessAndResistance());
     DEAD_BRAIN_CORAL_FAN = create<CoralFanBlock>("dead_brain_coral_fan", BlockBehaviourUtil::create(Materials::ROCK, MaterialColors::GRAY)
-        .setRenderType(RenderType::CoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .setRequiresTool()
         .doesNotBlockMovement()
         .zeroHardnessAndResistance());
     DEAD_BUBBLE_CORAL_FAN = create<CoralFanBlock>("dead_bubble_coral_fan", BlockBehaviourUtil::create(Materials::ROCK, MaterialColors::GRAY)
-        .setRenderType(RenderType::CoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .setRequiresTool()
         .doesNotBlockMovement()
         .zeroHardnessAndResistance());
     DEAD_FIRE_CORAL_FAN = create<CoralFanBlock>("dead_fire_coral_fan", BlockBehaviourUtil::create(Materials::ROCK, MaterialColors::GRAY)
-        .setRenderType(RenderType::CoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .setRequiresTool()
         .doesNotBlockMovement()
         .zeroHardnessAndResistance());
     DEAD_HORN_CORAL_FAN = create<CoralFanBlock>("dead_horn_coral_fan", BlockBehaviourUtil::create(Materials::ROCK, MaterialColors::GRAY)
-        .setRenderType(RenderType::CoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .setRequiresTool()
         .doesNotBlockMovement()
         .zeroHardnessAndResistance());
     TUBE_CORAL_FAN = create<CoralFinBlock>("tube_coral_fan", DEAD_TUBE_CORAL_FAN, BlockBehaviourUtil::create(Materials::OCEAN_PLANT, MaterialColors::BLUE)
-        .setRenderType(RenderType::CoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::WET_GRASS));
     BRAIN_CORAL_FAN = create<CoralFinBlock>("brain_coral_fan", DEAD_BRAIN_CORAL_FAN, BlockBehaviourUtil::create(Materials::OCEAN_PLANT, MaterialColors::PINK)
-        .setRenderType(RenderType::CoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::WET_GRASS));
     BUBBLE_CORAL_FAN = create<CoralFinBlock>("bubble_coral_fan", DEAD_BUBBLE_CORAL_FAN, BlockBehaviourUtil::create(Materials::OCEAN_PLANT, MaterialColors::PURPLE)
-        .setRenderType(RenderType::CoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::WET_GRASS));
     FIRE_CORAL_FAN = create<CoralFinBlock>("fire_coral_fan", DEAD_FIRE_CORAL_FAN, BlockBehaviourUtil::create(Materials::OCEAN_PLANT, MaterialColors::RED)
-        .setRenderType(RenderType::CoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::WET_GRASS));
     HORN_CORAL_FAN = create<CoralFinBlock>("horn_coral_fan", DEAD_HORN_CORAL_FAN, BlockBehaviourUtil::create(Materials::OCEAN_PLANT, MaterialColors::YELLOW)
-        .setRenderType(RenderType::CoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::WET_GRASS));
     DEAD_TUBE_CORAL_WALL_FAN = create<DeadCoralWallFanBlock>("dead_tube_coral_wall_fan", BlockBehaviourUtil::create(Materials::ROCK, MaterialColors::GRAY)
-        .setRenderType(RenderType::WallCoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .setRequiresTool()
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setLootFrom(DEAD_TUBE_CORAL_FAN));
     DEAD_BRAIN_CORAL_WALL_FAN = create<DeadCoralWallFanBlock>("dead_brain_coral_wall_fan", BlockBehaviourUtil::create(Materials::ROCK, MaterialColors::GRAY)
-        .setRenderType(RenderType::WallCoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .setRequiresTool()
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setLootFrom(DEAD_BRAIN_CORAL_FAN));
     DEAD_BUBBLE_CORAL_WALL_FAN = create<DeadCoralWallFanBlock>("dead_bubble_coral_wall_fan", BlockBehaviourUtil::create(Materials::ROCK, MaterialColors::GRAY)
-        .setRenderType(RenderType::WallCoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .setRequiresTool()
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setLootFrom(DEAD_BUBBLE_CORAL_FAN));
     DEAD_FIRE_CORAL_WALL_FAN = create<DeadCoralWallFanBlock>("dead_fire_coral_wall_fan", BlockBehaviourUtil::create(Materials::ROCK, MaterialColors::GRAY)
-        .setRenderType(RenderType::WallCoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .setRequiresTool()
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setLootFrom(DEAD_FIRE_CORAL_FAN));
     DEAD_HORN_CORAL_WALL_FAN = create<DeadCoralWallFanBlock>("dead_horn_coral_wall_fan", BlockBehaviourUtil::create(Materials::ROCK, MaterialColors::GRAY)
-        .setRenderType(RenderType::WallCoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .setRequiresTool()
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setLootFrom(DEAD_HORN_CORAL_FAN));
     TUBE_CORAL_WALL_FAN = create<CoralWallFanBlock>("tube_coral_wall_fan", DEAD_TUBE_CORAL_WALL_FAN, BlockBehaviourUtil::create(Materials::OCEAN_PLANT, MaterialColors::BLUE)
-        .setRenderType(RenderType::WallCoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::WET_GRASS)
         .setLootFrom(TUBE_CORAL_FAN));
     BRAIN_CORAL_WALL_FAN = create<CoralWallFanBlock>("brain_coral_wall_fan", DEAD_BRAIN_CORAL_WALL_FAN, BlockBehaviourUtil::create(Materials::OCEAN_PLANT, MaterialColors::PINK)
-        .setRenderType(RenderType::WallCoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::WET_GRASS)
         .setLootFrom(BRAIN_CORAL_FAN));
     BUBBLE_CORAL_WALL_FAN = create<CoralWallFanBlock>("bubble_coral_wall_fan", DEAD_BUBBLE_CORAL_WALL_FAN, BlockBehaviourUtil::create(Materials::OCEAN_PLANT, MaterialColors::PURPLE)
-        .setRenderType(RenderType::WallCoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::WET_GRASS)
         .setLootFrom(BUBBLE_CORAL_FAN));
     FIRE_CORAL_WALL_FAN = create<CoralWallFanBlock>("fire_coral_wall_fan", DEAD_FIRE_CORAL_WALL_FAN, BlockBehaviourUtil::create(Materials::OCEAN_PLANT, MaterialColors::RED)
-        .setRenderType(RenderType::WallCoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::WET_GRASS)
         .setLootFrom(FIRE_CORAL_FAN));
     HORN_CORAL_WALL_FAN = create<CoralWallFanBlock>("horn_coral_wall_fan", DEAD_HORN_CORAL_WALL_FAN, BlockBehaviourUtil::create(Materials::OCEAN_PLANT, MaterialColors::YELLOW)
-        .setRenderType(RenderType::WallCoralFan)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
@@ -3367,7 +3225,6 @@ void Blocks::init() {
         .setLightLevel([](auto) -> int32_t { return 15; })
         .notSolid());
     BAMBOO_SAPLING = create<BambooSaplingBlock>("bamboo_sapling", BlockBehaviourUtil::create(Materials::BAMBOO_SAPLING)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .setTickRandomly()
         .zeroHardnessAndResistance()
@@ -3375,7 +3232,6 @@ void Blocks::init() {
         .setHardnessAndResistance(1.0F)
         .setSound(SoundType::BAMBOO_SAPLING));
     BAMBOO = create<BambooBlock>("bamboo", BlockBehaviourUtil::create(Materials::BAMBOO, MaterialColors::FOLIAGE)
-        .setRenderType(RenderType::BambooStem)
         .setRenderLayer(RenderLayer::Cutout)
         .setTickRandomly()
         .zeroHardnessAndResistance()
@@ -3386,12 +3242,10 @@ void Blocks::init() {
         .zeroHardnessAndResistance()
         .notSolid());
     VOID_AIR = create<AirBlock>("void_air", BlockBehaviourUtil::create(Materials::AIR)
-        .setRenderType(RenderType::Air)
         .doesNotBlockMovement()
         .noDrops()
         .setAir());
     CAVE_AIR = create<AirBlock>("cave_air", BlockBehaviourUtil::create(Materials::AIR)
-        .setRenderType(RenderType::Air)
         .doesNotBlockMovement()
         .noDrops()
         .setAir());
@@ -3518,7 +3372,6 @@ void Blocks::init() {
         .setSound(SoundType::NYLIUM)
         .setTickRandomly());
     WARPED_FUNGUS = create<FungusBlock>("warped_fungus", BlockBehaviourUtil::create(Materials::PLANTS, MaterialColors::CYAN)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .zeroHardnessAndResistance()
         .doesNotBlockMovement()
@@ -3551,7 +3404,6 @@ void Blocks::init() {
         .setSound(SoundType::NYLIUM)
         .setTickRandomly());
     CRIMSON_FUNGUS = create<FungusBlock>("crimson_fungus", BlockBehaviourUtil::create(Materials::PLANTS, MaterialColors::NETHERRACK)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .zeroHardnessAndResistance()
         .doesNotBlockMovement()
@@ -3564,33 +3416,28 @@ void Blocks::init() {
         .setSound(SoundType::SHROOMLIGHT)
         .setLightLevel([](auto) -> int32_t { return 15; }));
     WEEPING_VINES = create<WeepingVinesTopBlock>("weeping_vines", BlockBehaviourUtil::create(Materials::PLANTS, MaterialColors::NETHERRACK)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .setTickRandomly()
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::NETHER_VINE));
     WEEPING_VINES_PLANT = create<WeepingVinesBlock>("weeping_vines_plant", BlockBehaviourUtil::create(Materials::PLANTS, MaterialColors::NETHERRACK)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::NETHER_VINE));
     TWISTING_VINES = create<TwistingVinesTopBlock>("twisting_vines", BlockBehaviourUtil::create(Materials::PLANTS, MaterialColors::CYAN)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .setTickRandomly()
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::NETHER_VINE));
     TWISTING_VINES_PLANT = create<TwistingVinesBlock>("twisting_vines_plant", BlockBehaviourUtil::create(Materials::PLANTS, MaterialColors::CYAN)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
         .setSound(SoundType::NETHER_VINE));
     CRIMSON_ROOTS = create<NetherRootsBlock>("crimson_roots", BlockBehaviourUtil::create(Materials::NETHER_PLANTS, MaterialColors::NETHERRACK)
-        .setRenderType(RenderType::Cross)
         .setRenderLayer(RenderLayer::Cutout)
         .doesNotBlockMovement()
         .zeroHardnessAndResistance()
@@ -3616,44 +3463,36 @@ void Blocks::init() {
         .setHardnessAndResistance(0.5F)
         .setSound(SoundType::WOOD));
     CRIMSON_FENCE = create<FenceBlock>("crimson_fence", BlockBehaviourUtil::create(Materials::NETHER_WOOD, CRIMSON_PLANKS->getMaterialColor())
-        .setRenderType(RenderType::Fence)
         .setHardnessAndResistance(2.0F, 3.0F)
         .setSound(SoundType::WOOD));
     WARPED_FENCE = create<FenceBlock>("warped_fence", BlockBehaviourUtil::create(Materials::NETHER_WOOD, WARPED_PLANKS->getMaterialColor())
-        .setRenderType(RenderType::Fence)
         .setHardnessAndResistance(2.0F, 3.0F)
         .setSound(SoundType::WOOD));
     CRIMSON_TRAPDOOR = create<TrapDoorBlock>("crimson_trapdoor", BlockBehaviourUtil::create(Materials::NETHER_WOOD, CRIMSON_PLANKS->getMaterialColor())
-        .setRenderType(RenderType::Trapdoor)
         .setRenderLayer(RenderLayer::Cutout)
         .setHardnessAndResistance(3.0F)
         .setSound(SoundType::WOOD)
         .notSolid()
         .setAllowsSpawn(neverAllowSpawn));
     WARPED_TRAPDOOR = create<TrapDoorBlock>("warped_trapdoor", BlockBehaviourUtil::create(Materials::NETHER_WOOD, WARPED_PLANKS->getMaterialColor())
-        .setRenderType(RenderType::Trapdoor)
         .setRenderLayer(RenderLayer::Cutout)
         .setHardnessAndResistance(3.0F)
         .setSound(SoundType::WOOD)
         .notSolid()
         .setAllowsSpawn(neverAllowSpawn));
     CRIMSON_FENCE_GATE = create<FenceGateBlock>("crimson_fence_gate", BlockBehaviourUtil::create(Materials::NETHER_WOOD, CRIMSON_PLANKS->getMaterialColor())
-        .setRenderType(RenderType::FenceGate)
         .setHardnessAndResistance(2.0F, 3.0F)
         .setSound(SoundType::WOOD));
     WARPED_FENCE_GATE = create<FenceGateBlock>("warped_fence_gate", BlockBehaviourUtil::create(Materials::NETHER_WOOD, WARPED_PLANKS->getMaterialColor())
-        .setRenderType(RenderType::FenceGate)
         .setHardnessAndResistance(2.0F, 3.0F)
         .setSound(SoundType::WOOD));
     CRIMSON_STAIRS = create<StairsBlock>("crimson_stairs", CRIMSON_PLANKS->getDefaultState(), BlockBehaviourUtil::from(CRIMSON_PLANKS));
     WARPED_STAIRS = create<StairsBlock>("warped_stairs", WARPED_PLANKS->getDefaultState(), BlockBehaviourUtil::from(WARPED_PLANKS));
     CRIMSON_BUTTON = create<WoodButtonBlock>("crimson_button", BlockBehaviourUtil::create(Materials::MISCELLANEOUS)
-        .setRenderType(RenderType::Button)
         .doesNotBlockMovement()
         .setHardnessAndResistance(0.5F)
         .setSound(SoundType::WOOD));
     WARPED_BUTTON = create<WoodButtonBlock>("warped_button", BlockBehaviourUtil::create(Materials::MISCELLANEOUS)
-        .setRenderType(RenderType::Button)
         .doesNotBlockMovement()
         .setHardnessAndResistance(0.5F)
         .setSound(SoundType::WOOD));
@@ -3757,7 +3596,6 @@ void Blocks::init() {
         .doesNotBlockMovement()
         .setHardnessAndResistance(0.5F));
     POLISHED_BLACKSTONE_BUTTON = create<StoneButtonBlock>("polished_blackstone_button", BlockBehaviourUtil::create(Materials::MISCELLANEOUS)
-        .setRenderType(RenderType::Button)
         .doesNotBlockMovement()
         .setHardnessAndResistance(0.5F));
     POLISHED_BLACKSTONE_WALL = create<WallBlock>("polished_blackstone_wall", BlockBehaviourUtil::from(POLISHED_BLACKSTONE));

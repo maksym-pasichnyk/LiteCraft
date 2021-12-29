@@ -1,6 +1,6 @@
 #pragma once
 
-#include <optional>
+#include <tl/optional.hpp>
 #include <glm/glm.hpp>
 
 struct Camera {
@@ -23,7 +23,7 @@ struct Camera {
     }
 
 private:
-    mutable std::optional<glm::mat4> _projection;
+    mutable tl::optional<glm::mat4> _projection;
 
     float _aspect = 0;
     float _field_of_view = 60.0f;

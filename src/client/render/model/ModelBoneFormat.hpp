@@ -3,15 +3,15 @@
 #include "ModelCubeFormat.hpp"
 
 #include <vector>
-#include <optional>
+#include <tl/optional.hpp>
 
 struct ModelBoneFormat {
     std::string name;
-    std::optional<std::string> parent;
+    tl::optional<std::string> parent;
 
     glm::vec3 pivot;
-    std::optional<glm::vec3> bind_pose_rotation;
-    std::optional<glm::vec3> rotation;
+    tl::optional<glm::vec3> bind_pose_rotation;
+    tl::optional<glm::vec3> rotation;
 
     bool never_render = false;
     bool mirror = false;

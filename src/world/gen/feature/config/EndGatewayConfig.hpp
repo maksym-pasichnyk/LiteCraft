@@ -1,9 +1,9 @@
 #pragma once
 
 #include <util/math/BlockPos.hpp>
-#include <optional>
+#include <tl/optional.hpp>
 
 struct EndGatewayConfig {
-    std::optional<BlockPos> exit;
+    tl::optional<BlockPos> exit;
     bool exact;
 };

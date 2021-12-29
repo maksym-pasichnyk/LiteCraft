@@ -38,7 +38,7 @@
 //        int pieceWeight = 0;
 //        int instancesLimit = 0;
 //        int instancesSpawned = 0;
-//        std::optional<int> optLimit = std::nullopt;
+//        tl::optional<int> optLimit = tl::nullopt;
 //
 //        auto canSpawnMoreStructures() const -> bool {
 //            return instancesLimit == 0 || instancesSpawned < instancesLimit;
@@ -50,7 +50,7 @@
 //
 //    static int totalWeight;
 //    static std::vector<PieceWeight> structurePieceList;
-//    static std::optional<Factory> strongComponentType;
+//    static tl::optional<Factory> strongComponentType;
 //
 //    static void prepareStructurePieces();
 //    static auto canAddStructurePieces() -> bool;
@@ -146,7 +146,7 @@
 //};
 //
 //struct StrongholdPieces::Stairs2 : Piece {
-//    std::optional<PieceWeight> lastPlaced = std::nullopt;
+//    tl::optional<PieceWeight> lastPlaced = tl::nullopt;
 //    std::vector<StructurePiece*> pendingChildren{};
 //
 //    using Piece::Piece;
@@ -179,7 +179,7 @@
 //
 //    bool addComponentParts(WorldGenRegion& region, TemplateManager& templates, ChunkGenerator& generator, Random& random, const BoundingBox& bb, const ChunkPos& chunkPos, const BlockPos& blockPos) override;
 //
-//    static auto findPieceBox(std::span<StructurePiece*> pieces, Random& random, int x, int y, int z, Direction facing) -> std::optional<BoundingBox> {
+//    static auto findPieceBox(std::span<StructurePiece*> pieces, Random& random, int x, int y, int z, Direction facing) -> tl::optional<BoundingBox> {
 //        auto bounds = BoundingBox::getComponentToAddBoundingBox(x, y, z, -1, -1, 0, 5, 5, 4, facing);
 //        auto piece = StructurePiece::findIntersecting(pieces, bounds);
 //        if (piece != nullptr && piece->getBoundingBox().minY == bounds.minY) {
@@ -190,7 +190,7 @@
 //                }
 //            }
 //        }
-//        return std::nullopt;
+//        return tl::nullopt;
 //    }
 //
 //    static auto createPiece(std::vector<StructurePiece*>& pieces, Random& random, int x, int y, int z, Direction facing, int componentIndex) -> Piece*;

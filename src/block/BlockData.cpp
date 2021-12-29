@@ -2,7 +2,23 @@
 #include "Blocks.hpp"
 #include "Block.hpp"
 
-#include <range/v3/algorithm.hpp>
+#include <Json.hpp>
+
+template<>
+auto Json::From<BlockData>::from(const Value& state) -> Json {
+    return Blocks::blocks.name(state.getBlock()).value();
+//    return {
+//        {"name", Blocks::blocks.name(state.getBlock()).value() }
+//    };
+}
+
+template<>
+auto Json::Into<BlockData>::into(const Json& obj) -> Result {
+    if (auto name = obj.as_string()) {
+        return Blocks::blocks.get(*name).value()->getDefaultState();
+    }
+    return Blocks::blocks.get(obj.at("name").as_string().value()).value()->getDefaultState();
+}
 
 bool BlockData::in(const BlockTag &tag) const {
     return getBlock()->in(tag);

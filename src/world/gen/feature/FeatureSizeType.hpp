@@ -1,6 +1,6 @@
 #pragma once
 
-#include <optional>
+#include <tl/optional.hpp>
 
 #include "TwoLayerFeature.hpp"
 #include "ThreeLayerFeature.hpp"
@@ -11,7 +11,7 @@
 struct FeatureSizeType : std::variant<TwoLayerFeature, ThreeLayerFeature> {
     using variant::variant;
 
-    std::optional<int> min_clipped_height() const {
+    tl::optional<int> min_clipped_height() const {
         return std::visit([](auto& self) -> decltype(auto) { return self.min_clipped_height; }, static_cast<const variant&>(*this));
     }
 

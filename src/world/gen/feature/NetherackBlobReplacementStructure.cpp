@@ -28,11 +28,11 @@ bool NetherackBlobReplacementStructure::generate(WorldGenRegion &reader, ChunkGe
     return flag;
 }
 
-auto NetherackBlobReplacementStructure::getLowestPosition(WorldGenRegion &reader, const BlockPos &start, Block *block) -> std::optional<BlockPos> {
+auto NetherackBlobReplacementStructure::getLowestPosition(WorldGenRegion &reader, const BlockPos &start, Block *block) -> tl::optional<BlockPos> {
     for (auto pos = start; pos.y > 1; pos = pos.down()) {
         if (reader.getData(pos).is(block)) {
             return pos;
         }
     }
-    return std::nullopt;
+    return tl::nullopt;
 }
