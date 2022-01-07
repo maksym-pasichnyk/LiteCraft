@@ -29,25 +29,30 @@ void Models::parse(const Json& obj) {
                 model_format->name = name.substr(0);
             }
             if (geometry.contains("bones")) {
-                model_format->bones = geometry.at("bones").as_array().value() | ranges::views::transform([](auto&& bone) {
-                    auto&& bone_name = bone.at("name").as_string().value();
-                    return std::pair{bone_name, std::make_unique<ModelBoneFormat>(ModelBoneFormat{
-                        .name = bone_name,
-                        .pivot = bone.value_or("pivot", glm::vec3{}),
-                        .never_render = bone.value_or("neverRender", false),
-                        .mirror = bone.value_or("mirror", false),
-                        .reset = bone.value_or("reset", false),
-                        .cubes = bone.contains("cubes")
-                             ? bone.at("cubes").as_array().value() | ranges::views::transform([](auto&& cube) {
-                                   return ModelCubeFormat{
-                                       .origin = cube.at("origin"),
-                                       .size = cube.at("size"),
-                                       .tex = cube.value_or("uv", glm::vec2{16, 16})
-                                   };
-                               }) | ranges::to_vector
-                             : std::vector<ModelCubeFormat>{}
-                    })};
-                }) | ranges::to<std::map<std::string, std::unique_ptr<ModelBoneFormat>>>();
+                model_format->bones = cpp_iter(geometry.at("bones").as_array().value())
+                    .map([](auto&& bone) {
+                        auto&& bone_name = bone.at("name").as_string().value();
+                        return std::pair{bone_name, std::make_unique<ModelBoneFormat>(ModelBoneFormat{
+                            .name = bone_name,
+                            .pivot = bone.value_or("pivot", glm::vec3{}),
+                            .never_render = bone.value_or("neverRender", false),
+                            .mirror = bone.value_or("mirror", false),
+                            .reset = bone.value_or("reset", false),
+                            .cubes = bone.find("cubes")
+                                .and_then([](auto&& o) { return o.as_array(); })
+                                .map_or([](auto&& cubes) {
+                                    return cpp_iter(cubes)
+                                        .map([](auto&& cube) {
+                                            return ModelCubeFormat{
+                                            .origin = cube.at("origin"),
+                                            .size = cube.at("size"),
+                                            .tex = cube.value_or("uv", glm::vec2{16, 16})
+                                        };
+                                    }).collect();
+                                }, std::vector<ModelCubeFormat>{})
+                        })};
+                    })
+                    .to<std::map<std::string, std::unique_ptr<ModelBoneFormat>>>();
             }
 
             models.add(model_format->name, std::move(model_format));
@@ -65,34 +70,42 @@ void Models::parse(const Json& obj) {
             model_format->texture_height = description.value_or("texture_height", 64);
 
             if (geometry.contains("bones")) {
-                model_format->bones = geometry.at("bones").as_array().value() | ranges::views::transform([](auto&& bone) {
-                    auto&& bone_name = bone.at("name").as_string().value();
-                    return std::pair{bone_name, std::make_unique<ModelBoneFormat>(ModelBoneFormat{
-                        .name = bone_name,
-                        .pivot = bone.value_or("pivot", glm::vec3{}),
-                        .never_render = bone.value_or("neverRender", false),
-                        .mirror = bone.value_or("mirror", false),
-                        .reset = bone.value_or("reset", false),
-                        .cubes = bone.contains("cubes")
-                            ? bone.at("cubes").as_array().value() | ranges::views::transform([](auto&& cube) {
-                                return ModelCubeFormat{
-                                    .origin = cube.at("origin"),
-                                    .rotation = cube.value_or("rotation", glm::vec3{}),
-                                    .size = cube.at("size"),
-                                    .tex = cube.contains("uv")
-                                        ? cube.at("uv").is_array()
-                                            ? ModelTexFormat{static_cast<glm::vec2>(cube.at("uv"))}
-                                            : ModelTexFormat{cube.at("uv").as_object().value() | ranges::views::transform([](auto&& element) {
-                                                return std::pair{element.first, ModelFaceFormat{
-                                                    .uv = element.second.at("uv")
-                                                }};
-                                            }) | ranges::to<std::unordered_map<std::string, ModelFaceFormat>>()}
-                                        : ModelTexFormat{glm::vec2{16, 16}}
-                                };
-                            }) | ranges::to_vector
-                            : std::vector<ModelCubeFormat>{}
-                    })};
-                }) | ranges::to<std::map<std::string, std::unique_ptr<ModelBoneFormat>>>();
+                model_format->bones = cpp_iter(geometry.at("bones").as_array().value())
+                    .map([](auto&& bone) {
+                        auto&& bone_name = bone.at("name").as_string().value();
+                        return std::pair{bone_name, std::make_unique<ModelBoneFormat>(ModelBoneFormat{
+                            .name = bone_name,
+                            .pivot = bone.value_or("pivot", glm::vec3{}),
+                            .never_render = bone.value_or("neverRender", false),
+                            .mirror = bone.value_or("mirror", false),
+                            .reset = bone.value_or("reset", false),
+                            .cubes = bone.find("cubes")
+                                .and_then([](auto&& o) { return o.as_array(); })
+                                .map_or([](auto&& cubes) {
+                                    return cpp_iter(cubes)
+                                        .map([](auto&& cube) {
+                                            return ModelCubeFormat{
+                                            .origin = cube.at("origin"),
+                                            .rotation = cube.value_or("rotation", glm::vec3{}),
+                                            .size = cube.at("size"),
+                                            .tex = cube.contains("uv")
+                                                ? cube.at("uv").is_array()
+                                                    ? ModelTexFormat{static_cast<glm::vec2>(cube.at("uv"))}
+                                                    : ModelTexFormat{
+                                                        cpp_iter(cube.at("uv").as_object().value())
+                                                            .map([](auto&& element) {
+                                                                return std::pair{element.first, ModelFaceFormat{
+                                                                    .uv = element.second.at("uv")
+                                                                }};
+                                                            }) | ranges::to<std::unordered_map<std::string, ModelFaceFormat>>()
+                                                    }
+                                                : ModelTexFormat{glm::vec2{16, 16}}
+                                        };
+                                    }).collect();
+                                }, std::vector<ModelCubeFormat>{})
+                        })};
+                    })
+                    .to<std::map<std::string, std::unique_ptr<ModelBoneFormat>>>();
             }
 
             models.add(model_format->name, std::move(model_format));

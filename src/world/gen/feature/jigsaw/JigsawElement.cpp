@@ -8,8 +8,8 @@
 
 auto JigsawElement::list(std::vector<Factory> factories) -> Factory {
     return [factories = std::move(factories)](JigsawProjection placement) -> std::unique_ptr<JigsawElement> {
-        auto pieces = factories | ranges::views::transform([placement](auto&& factory) { return factory(placement); });
-        return std::make_unique<ListJigsawPiece>(pieces | ranges::to_vector, placement);
+        auto pieces = cpp_iter(factories).map([placement](auto&& factory) { return factory(placement); }).collect();
+        return std::make_unique<ListJigsawPiece>(std::move(pieces), placement);
     };
 }
 

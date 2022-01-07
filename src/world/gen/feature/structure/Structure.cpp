@@ -22,7 +22,7 @@ auto Structure::generate(ChunkGenerator &generator, BiomeProvider &provider, Tem
             return nullptr;
         }
 
-        auto bounds = pieces.getBoundingBox().value();
+        const auto bounds = pieces.getBoundingBox().value();
         return new StructureStart(std::move(pieces.components), this, pos.x, pos.z, bounds, refCount, seed);
     }
     return nullptr;/*StructureStart.DUMMY*/;
@@ -30,12 +30,12 @@ auto Structure::generate(ChunkGenerator &generator, BiomeProvider &provider, Tem
 
 auto Structure::getChunkPosForStructure(const StructureSeparation &settings, int64_t seed, Random &random, int x, int z) -> ChunkPos {
     const auto [spacing, separation, salt] = settings;
-    const int ix = Math::floorDiv(x, spacing);
-    const int iz = Math::floorDiv(z, spacing);
+    const auto ix = Math::floorDiv(x, spacing);
+    const auto iz = Math::floorDiv(z, spacing);
     random.setLargeFeatureSeedWithSalt(seed, ix, iz, salt);
     int i1;
     int j1;
-    if (hasSimpleSeparation()) {
+    if (hasSimpleSeparation) {
         i1 = random.nextInt(spacing - separation);
         j1 = random.nextInt(spacing - separation);
     } else {

@@ -19,30 +19,16 @@ struct StructureStart;
 struct ChunkGenerator;
 struct TemplateManager;
 
-struct Structure {
-    auto(*deserialize)(const Json& obj) -> tl::optional<StructureConfig>;
-    PieceGenerator generatePieces;
-
-    Structure(decltype(deserialize) deserialize, PieceGenerator generatePieces) : deserialize(deserialize), generatePieces(generatePieces) {}
-    virtual ~Structure() = default;
-
-    virtual auto canGenerate(ChunkGenerator& generator, BiomeProvider& biomes, int64_t seed, Random& random, int x, int z, Biome& biome, const ChunkPos& pos, const StructureConfig& config) -> bool {
+struct Structure final {
+    bool hasSimpleSeparation = true;
+    auto(*configFromJson)(const Json& obj) -> tl::optional<StructureConfig> = [](auto...) -> tl::optional<StructureConfig> {
+        return NoFeatureConfig{};
+    };
+    auto(*canGenerate)(ChunkGenerator& generator, BiomeProvider& biomes, int64_t seed, Random& random, int x, int z, Biome& biome, const ChunkPos& pos, const StructureConfig& config) -> bool = [](auto...) -> bool {
         return true;
-    }
-    virtual auto hasSimpleSeparation() const -> bool {
-        return true;
-    }
+    };
+    void(*generatePieces)(StructurePieces&, StructureGenerateContext& context, const StructureConfig& config) = [](auto...) {};
 
+    auto getChunkPosForStructure(const StructureSeparation& settings, int64_t seed, Random& random, int x, int z) -> ChunkPos;
     auto generate(ChunkGenerator& generator, BiomeProvider& provider, TemplateManager& templateManager, int64_t seed, const ChunkPos& pos, Biome& biome, int refCount, Random& random, const StructureSeparation& settings, const StructureConfig& config) -> StructureStart*;
-
-    ChunkPos getChunkPosForStructure(const StructureSeparation& settings, int64_t seed, Random& random, int x, int z);
-};
-
-template<typename Config = NoFeatureConfig>
-struct CfgStructure : Structure {
-    CfgStructure(PieceGenerator piece_generator) : Structure(deserialize, piece_generator) {}
-
-    static auto deserialize(const Json& obj) -> tl::optional<StructureConfig> {
-        return Json::Into<std::decay_t<Config>>::into(obj);
-    }
 };

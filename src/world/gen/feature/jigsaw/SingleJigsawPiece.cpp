@@ -26,7 +26,7 @@ void SingleJigsawPiece::place(WorldGenRegion &region, TemplateManager &manager, 
         }
 
         const auto new_pos = settings.calculateConnectedPosition(info.pos).add(pos);
-        const auto new_state = info.state.rotate(settings.rotation);//.mirror(settings.mirror)
+        const auto new_state = info.state.mirror(settings.mirror).rotate(settings.rotation);
 
 //        if (!settings.boundingBox.isVecInside(new_pos)) {
 //            continue;
@@ -39,14 +39,16 @@ auto SingleJigsawPiece::getJigsawBlocks(TemplateManager &manager, const BlockPos
     auto templ = manager.get(location);
 
     const auto settings = PlacementSettings{.rotation = rotation};
-    auto blocks = templ->blocks | ranges::views::filter([](auto&& info) { return info.state.is(Blocks::JIGSAW); });
-    return blocks | ranges::views::transform([&settings, &pos](auto&& info) {
-        return BlockInfo {
-            .pos = settings.calculateConnectedPosition(info.pos).add(pos),
-            .state = info.state.rotate(settings.rotation),
-            .nbt = info.nbt,
-        };
-    }) | ranges::to_vector;
+    auto blocks = cpp_iter(templ->blocks).where([](auto&& info) { return info.state.is(Blocks::JIGSAW); });
+    return cpp_iter(blocks)
+        .map([&settings, &pos](auto&& info) {
+            return BlockInfo {
+                .pos = settings.calculateConnectedPosition(info.pos).add(pos),
+                .state = info.state.rotate(settings.rotation),
+                .nbt = info.nbt,
+            };
+        })
+        .collect();
 }
 
 auto SingleJigsawPiece::getBoundingBox(TemplateManager &manager, const BlockPos &pos, Rotation rotation) -> BoundingBox {

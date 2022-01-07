@@ -8,6 +8,8 @@
 #include <util/zlib/istream.hpp>
 #include <util/math/BoundingBox.hpp>
 
+#include <block/BlockData.hpp>
+
 struct BlockInfo {
     BlockPos pos;
     BlockData state;

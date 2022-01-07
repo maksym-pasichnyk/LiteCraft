@@ -19,7 +19,6 @@ PerlinNoiseGenerator Biome::TEMPERATURE_NOISE = PerlinNoiseGenerator(Random::fro
 PerlinNoiseGenerator Biome::FROZEN_TEMPERATURE_NOISE = PerlinNoiseGenerator(Random::from(3456), ranges::views::iota(-2, 0 + 1));
 PerlinNoiseGenerator Biome::INFO_NOISE = PerlinNoiseGenerator(Random::from(2345), ranges::views::single(0));
 
-
 void Biome::decorate(ChunkGenerator &generator, WorldGenRegion &region, TemplateManager& templates, int64_t seed, const BlockPos& pos) {
     const auto chunk_pos = ChunkPos::from(pos);
 
@@ -32,7 +31,7 @@ void Biome::decorate(ChunkGenerator &generator, WorldGenRegion &region, Template
 
         for (auto structure : Structures::stages[stage]) {
             if (auto it = main_chunk->references.find(structure); it != main_chunk->references.end()) {
-                for (auto ref_pos : it->second | ranges::views::transform([](int64_t i) { return ChunkPos::from(i); })) {
+                for (auto ref_pos : cpp_iter(it->second).map([](int64_t i) { return ChunkPos::from(i); })) {
                     auto chunk = region.getChunk(ref_pos.x, ref_pos.z);
                     if (auto start = chunk->starts.find(structure); start != chunk->starts.end()) {
                         random.setFeatureSeed(seed, k, stage);
@@ -72,7 +71,7 @@ bool Biome::doesWaterFreeze(WorldReader &world, const BlockPos &pos, bool mustBe
             if (!mustBeAtEdge) {
                 return true;
             }
-            bool flag = world.hasWater(pos.west()) &&
+            const auto flag = world.hasWater(pos.west()) &&
                         world.hasWater(pos.east()) &&
                         world.hasWater(pos.north()) &&
                         world.hasWater(pos.south());

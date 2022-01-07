@@ -1,9 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include <Iter.hpp>
 #include <glm/glm.hpp>
-#include <range/v3/view.hpp>
-#include <range/v3/algorithm.hpp>
 #include <util/Rotation.hpp>
 #include <util/Direction.hpp>
 
@@ -42,7 +41,7 @@ struct BlockPos : glm::ivec3 {
         const auto dx = x1 - x0 + 1;
         const auto dy = y1 - y0 + 1;
         const auto dz = z1 - z0 + 1;
-        return ranges::views::iota(0, dx * dy * dz) | ranges::views::transform([x0, y0, z0, dx, dy](int i) {
+        return Iter{ranges::views::iota(0, dx * dy * dz)}.map([x0, y0, z0, dx, dy](int i) {
             return from(x0 + (i % dx), y0 + ((i / dx) % dy), z0 + (i / dx / dy));
         });
     }

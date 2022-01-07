@@ -1,17 +1,15 @@
 #pragma once
 
 #include "StructurePiece.hpp"
+#include "TemplateManager.hpp"
 
 struct Template;
-struct TemplateManager;
 struct TemplateStructurePiece : StructurePiece {
-    std::string location;
     Template* structure_template;
     BlockPos structure_position;
+    PlacementSettings structure_settings;
 
-    TemplateStructurePiece(int componentIndex, TemplateManager& templates, std::string location, const BlockPos& position)
+    TemplateStructurePiece(int componentIndex, const BlockPos& position)
         : StructurePiece(componentIndex, BoundingBox{})
-        , location(std::move(location))
         , structure_position(position) {}
-
 };

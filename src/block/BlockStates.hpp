@@ -20,19 +20,21 @@ struct VariantRule {
     std::vector<std::pair<std::string, std::string>> properties;
 
     auto check(BlockData state) const -> bool {
-        return ranges::all_of(properties, [state](auto& rule) {
+        return cpp_iter(properties).all([state](auto& rule) {
             return PropertyUtil::string(state.get(rule.first)).value() == rule.second;
         });
     }
 
     static auto from(const std::string& str) -> VariantRule {
-        using namespace ranges::views;
-
         return VariantRule{
-            ranges::to_vector(transform(transform(split(str, ','), ranges::to<std::string>()), [](auto&& s) {
-                const auto pos = s.find('=');
-                return std::pair{ s.substr(0, pos), s.substr(pos + 1), };
-            }))
+            .properties = cpp_iter(str)
+                .split(',')
+                .map(ranges::to<std::string>())
+                .map([](auto&& s) {
+                    const auto pos = s.find('=');
+                    return std::pair{ s.substr(0, pos), s.substr(pos + 1), };
+                })
+                .collect()
         };
     }
 };

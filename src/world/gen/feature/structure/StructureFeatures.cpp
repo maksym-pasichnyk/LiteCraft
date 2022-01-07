@@ -21,7 +21,7 @@ void StructureFeatures::init() {
     ResourceManager::enumerate("definitions/configured_structure_features", [](std::istream& stream) {
         auto o = Json::Read::read(stream).value();
         auto structure = Structures::registry.get(o.at("type").as_string().value()).value();
-        auto config = structure->deserialize(o.at("config")).value();
+        auto config = structure->configFromJson(o.at("config")).value();
 
         registry.add(o.at("name").as_string().value(), std::make_unique<StructureFeature>(StructureFeature{
             .structure = structure,

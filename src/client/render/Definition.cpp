@@ -180,8 +180,6 @@ auto Json::Into<Multipart>::into(const Json& o) -> Result {
 
 template<>
 auto Json::Into<BlockState>::into(const Json& o) -> Result {
-    using namespace ranges::views;
-
     return BlockState{
         .variants = o.find("variants")
             .and_then([] (auto&& o) { return o.as_object(); })

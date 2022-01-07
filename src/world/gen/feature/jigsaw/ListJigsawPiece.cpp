@@ -5,12 +5,12 @@ auto ListJigsawPiece::to_json() -> Json {
 	return {
         {"type", "list"},
         {"projection", projection},
-        {"elements", elements | ranges::views::transform(std::mem_fn(&JigsawElement::to_json)) | ranges::to_vector}
+        {"elements", cpp_iter(elements).map(std::mem_fn(&JigsawElement::to_json)).collect()}
     };
 }
 auto ListJigsawPiece::from_json(const Json &o) -> std::unique_ptr<JigsawElement> {
     return std::make_unique<ListJigsawPiece>(
-        o.at("elements").as_array().value() | ranges::views::transform(&JigsawElement::from_json) | ranges::to_vector,
+        cpp_iter(o.at("elements").as_array().value()).map(&JigsawElement::from_json).collect(),
         o.at("projection")
     );
 }

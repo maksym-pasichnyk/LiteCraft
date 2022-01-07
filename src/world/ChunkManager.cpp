@@ -3,6 +3,7 @@
 #include "../CraftServer.hpp"
 
 #include <memory>
+#include <Iter.hpp>
 
 //todo: remove promise.hpp lib
 //todo: task chain
@@ -116,7 +117,7 @@ auto ChunkManager::generateChunk(int32_t chunk_x, int32_t chunk_z, ChunkStatus* 
     auto results = getChunksAsync(status->range, chunk_x, chunk_z, status->parent);
 
     return async::when_all(results).then(*executor, [this, status](const std::vector<ChunkResult>& results) {
-        auto chunks = results | ranges::views::transform(&ChunkResult::get) | ranges::to_vector;
+        auto chunks = cpp_iter(results).map(&ChunkResult::get).collect();
         auto chunk = chunks[chunks.size() / 2];
         status->generate(world, *lightManager, *generator, *templates, chunk->coords.x, chunk->coords.z, *chunk, chunks, world->seed);
         if (status == ChunkStatus::Full) {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "config/StructureConfig.hpp"
+#include "Iter.hpp"
 
 #include <util/Random.hpp>
 #include <util/Mirror.hpp>
@@ -46,7 +47,7 @@ struct StructurePiece {
     }
 
     static auto hasIntersecting(std::span<StructurePiece*> pieces, const BoundingBox& bb) -> bool {
-        return ranges::any_of(pieces, [&bb](auto piece) {
+        return cpp_iter(pieces).any([&bb](auto piece) {
             return piece->getBoundingBox().intersectsWith(bb);
         });
     }

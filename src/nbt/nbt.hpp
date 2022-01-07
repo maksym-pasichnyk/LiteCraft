@@ -1,19 +1,18 @@
 #pragma once
 
-#include <range/v3/range/conversion.hpp>
-#include <range/v3/view.hpp>
-#include <util/match.hpp>
-#include <tl/optional.hpp>
-#include <istream>
-#include <variant>
-#include <vector>
-#include <string>
-#include <array>
-#include <span>
-#include <list>
 #include <map>
 #include <bit>
-#include "spdlog/spdlog.h"
+#include <span>
+#include <list>
+#include <array>
+#include <vector>
+#include <string>
+#include <istream>
+#include <variant>
+#include <Iter.hpp>
+#include <util/match.hpp>
+#include <tl/optional.hpp>
+#include <spdlog/spdlog.h>
 
 struct Nbt {
 	struct Tag;
@@ -402,21 +401,21 @@ struct Nbt::Serialize<T> {
 template<typename T, size_t N>
 struct Nbt::Serialize<std::array<T, N>> {
     static auto to_tag(const std::array<T, N>& elements) -> Tag {
-        return elements | ranges::views::transform([](auto element) -> Tag { return std::move(element); }) | ranges::to<Nbt::List>();
+        return cpp_iter(elements).map([](auto element) -> Tag { return std::move(element); }).collect();
     }
 };
 
 template<typename T>
 struct Nbt::Serialize<std::vector<T>> {
     static auto to_tag(const std::vector<T> &elements) -> Tag {
-        return elements | ranges::views::transform([](auto element) -> Tag { return std::move(element); }) | ranges::to<Nbt::List>();
+        return cpp_iter(elements).map([](auto element) -> Tag { return std::move(element); }).collect();
     }
 };
 
 template<typename K, typename V, typename P, typename A>
 struct Nbt::Serialize<std::map<K, V, P, A>> {
     static auto to_tag(const std::map<K, V, P, A> &elements) -> Tag {
-        Nbt::Compound obj{};
+        auto obj = Nbt::Compound{};
         for (auto&& [k, v] : elements) {
             obj.emplace(std::get<String>(Tag(k).m_storage), Tag(v));
         }
@@ -513,7 +512,7 @@ struct Nbt::Deserialize<std::array<T, N>> {
 template<typename T>
 struct Nbt::Deserialize<std::vector<T>> {
 	static auto from_tag(const Tag& tag) -> tl::optional<std::vector<T>> {
-		return std::get<List>(tag.m_storage) | ranges::views::transform([](const auto& element) -> T { return element; }) | ranges::to<std::vector<T>>();
+		return cpp_iter(std::get<List>(tag.m_storage)).map([](const auto& element) -> T { return element; }).collect();
 	}
 };
 

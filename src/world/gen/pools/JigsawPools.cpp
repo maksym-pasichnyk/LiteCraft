@@ -50,12 +50,14 @@ void JigsawPools::init() {
     ResourceManager::enumerate("definitions/pools", [](std::istream& stream) {
         auto o = Json::Read::read(stream).value();
 
-        auto elements = o.at("elements").as_array().value() | ranges::views::transform([](const auto& element) {
-            return std::pair{
-                JigsawElement::from_json(element.at("element")),
-                static_cast<int>(element.at("weight"))
-            };
-        }) | ranges::to_vector;
+        auto elements = cpp_iter(o.at("elements").as_array().value())
+            .map([](const auto& element) {
+                return std::pair{
+                    JigsawElement::from_json(element.at("element")),
+                    static_cast<int>(element.at("weight"))
+                };
+            })
+            .collect();
 
         auto pieces = std::vector<JigsawElement *>{};
         for (auto&& [element, count] : elements) {
@@ -77,9 +79,11 @@ void JigsawPools::init() {
 //
 //        std::filesystem::create_directories(path.parent_path());
 //
-//        auto elements = pool->elements | ranges::views::transform([](const std::pair<std::unique_ptr<JigsawElement>, int>& element) -> Json {
-//            return Json{ {"element", element.first->to_json()}, {"weight", element.second} };
-//        }) | ranges::to_vector;
+//        auto elements = cpp_iter(pool->elements)
+//            .map([](const std::pair<std::unique_ptr<JigsawElement>, int>& element) -> Json {
+//                return Json{ {"element", element.first->to_json()}, {"weight", element.second} };
+//            })
+//            .collect();
 //
 //        std::ofstream out{path, std::ios::binary};
 //        out << Json{
