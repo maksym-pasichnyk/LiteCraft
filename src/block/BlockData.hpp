@@ -34,6 +34,8 @@ struct BlockData {
     auto get(Property prop) const -> PropertyValue;
     auto set(Property prop, const PropertyValue & property) const -> BlockData;
 
+    auto get(const std::string& prop) const -> PropertyValue;
+
     template<Property prop>
     auto get() const -> typename TypeFrom<prop>::type {
         return std::get<typename TypeFrom<prop>::type>(get(prop));

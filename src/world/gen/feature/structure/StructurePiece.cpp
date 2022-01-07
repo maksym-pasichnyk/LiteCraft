@@ -3,6 +3,7 @@
 #include "../../../WorldGenRegion.hpp"
 #include "../../../../block/Block.hpp"
 #include "../../../../block/Blocks.hpp"
+#include <spdlog/spdlog.h>
 
 BlockData StructurePiece::getBlockStateFromPos(WorldReader &reader, int x, int y, int z, const BoundingBox &bb) const {
     const auto pos = getRelativePosition(x, y, z);
@@ -126,13 +127,7 @@ void StructurePiece::generateMaybeBox(WorldGenRegion &region, const BoundingBox 
 void StructurePiece::setBlockState(WorldGenRegion &region, BlockData state, int x, int y, int z, const BoundingBox &bb) const {
     const auto pos = getRelativePosition(x, y, z);
     if (bb.isVecInside(pos)) {
-        if (mirror != Mirror::NONE) {
-            state = state.mirror(mirror);
-        }
-
-        if (rotation != Rotation::NONE) {
-            state = state.rotate(rotation);
-        }
+        state = state.mirror(mirror).rotate(rotation);
 
         region.setData(pos, state/*, 2*/);
 //        FluidState fluidstate = region.getFluidState(pos);

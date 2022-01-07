@@ -5,5 +5,5 @@
 struct VillageStructure : CfgStructure<JigsawConfig> {
     VillageStructure() : CfgStructure(&VillageStructure::createComponents) {}
 
-    static void createComponents(StructurePieces& pieces, StructureGenerateContext& context, const StructureConfig& config) {}
+    static void createComponents(StructurePieces& pieces, StructureGenerateContext& context, const StructureConfig& config);
 };

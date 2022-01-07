@@ -11,8 +11,8 @@ bool CoralClawFeature::generate(WorldGenRegion& reader, Random& random, const Bl
     const auto start_direction = random.nextElement(std::span(DirectionUtil::Plane::HORIZONTAL));
     std::array directions{
         start_direction,
-        DirectionUtil::rotateY(start_direction),
-        DirectionUtil::rotateYCCW(start_direction)
+            DirectionUtil::rotateY(start_direction),
+            DirectionUtil::rotateYCCW(start_direction)
     };
     //    Collections.shuffle(directions, random);
 

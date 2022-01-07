@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Block.hpp"
-#include <util/RotationUtil.hpp>
-#include <util/MirrorUtil.hpp>
+#include <util/Mirror.hpp>
+#include <util/Rotation.hpp>
 
 struct HorizontalBlock : Block {
     static constexpr auto FACING = Property::HORIZONTAL_FACING;

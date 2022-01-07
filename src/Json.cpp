@@ -1,4 +1,5 @@
 #include <Json.hpp>
+#include <glm/fwd.hpp>
 
 template <>
 auto Json::Into<std::string>::into(const Json& obj) -> Result {
@@ -11,53 +12,107 @@ auto Json::Into<bool>::into(const Json& obj) -> Result {
 }
 
 template <>
-auto Json::Into<float>::into(const Json& obj) -> Result {
+auto Json::Into<glm::f32>::into(const Json& obj) -> Result {
     return obj.as_f64();
 }
 
 template <>
-auto Json::Into<double>::into(const Json& obj) -> Result {
+auto Json::Into<glm::f64>::into(const Json& obj) -> Result {
     return obj.as_f64();
 }
 
 template <>
-auto Json::Into<int8_t>::into(const Json& obj) -> Result {
+auto Json::Into<glm::i8>::into(const Json& obj) -> Result {
     return obj.as_i64();
 }
 
 template <>
-auto Json::Into<int16_t>::into(const Json& obj) -> Result {
+auto Json::Into<glm::i16>::into(const Json& obj) -> Result {
     return obj.as_i64();
 }
 
 template <>
-auto Json::Into<int32_t>::into(const Json& obj) -> Result {
+auto Json::Into<glm::i32>::into(const Json& obj) -> Result {
     return obj.as_i64();
 }
 
 template <>
-auto Json::Into<int64_t>::into(const Json& obj) -> Result {
+auto Json::Into<glm::i64>::into(const Json& obj) -> Result {
     return obj.as_i64();
 }
 
 template <>
-auto Json::Into<uint8_t>::into(const Json& obj) -> Result {
+auto Json::Into<glm::u8>::into(const Json& obj) -> Result {
     return obj.as_i64();
 }
 
 template <>
-auto Json::Into<uint16_t>::into(const Json& obj) -> Result {
+auto Json::Into<glm::u16>::into(const Json& obj) -> Result {
     return obj.as_i64();
 }
 
 template <>
-auto Json::Into<uint32_t>::into(const Json& obj) -> Result {
+auto Json::Into<glm::u32>::into(const Json& obj) -> Result {
     return obj.as_i64();
 }
 
 template <>
-auto Json::Into<uint64_t>::into(const Json& obj) -> Result {
+auto Json::Into<glm::u64>::into(const Json& obj) -> Result {
     return obj.as_i64();
+}
+
+template<>
+auto Json::From<bool>::from(const bool& val) -> Json {
+    return Json::Bool{val};
+}
+
+template<>
+auto Json::From<glm::i8>::from(const Value& value) -> Self {
+    return Json::Number{static_cast<glm::i64>(value)};
+}
+
+template<>
+auto Json::From<glm::i16>::from(const Value& value) -> Self {
+    return Json::Number{static_cast<glm::i64>(value)};
+}
+
+template<>
+auto Json::From<glm::i32>::from(const Value& value) -> Self {
+    return Json::Number{static_cast<glm::i64>(value)};
+}
+
+template<>
+auto Json::From<glm::i64>::from(const Value& value) -> Self {
+    return Json::Number{static_cast<glm::i64>(value)};
+}
+
+template<>
+auto Json::From<glm::u8>::from(const Value& value) -> Self {
+    return Json::Number{static_cast<glm::i64>(value)};
+}
+
+template<>
+auto Json::From<glm::u16>::from(const Value& value) -> Self {
+    return Json::Number{static_cast<glm::i64>(value)};
+}
+
+template<>
+auto Json::From<glm::u32>::from(const Value& value) -> Self {
+    return Json::Number{static_cast<glm::i64>(value)};
+}
+
+template<>
+auto Json::From<glm::u64>::from(const Value& value) -> Self {
+    return Json::Number{static_cast<glm::i64>(value)};
+}
+
+template<>
+auto Json::From<glm::f32>::from(const Value &value) -> Self {
+    return Json::Number{static_cast<double>(value)};
+}
+template<>
+auto Json::From<glm::f64>::from(const Value &value) -> Self {
+    return Json::Number{static_cast<double>(value)};
 }
 
 struct Json::Read::Internal {

@@ -33,6 +33,7 @@ struct WorldGenRegion : virtual HeightReader, virtual WorldReader, virtual World
 	int32_t chunk_x;
 	int32_t chunk_z;
 
+    ChunkPos coords;
 	glm::ivec2 chunks_min{};
 	glm::ivec2 chunks_max{};
 
@@ -42,19 +43,18 @@ struct WorldGenRegion : virtual HeightReader, virtual WorldReader, virtual World
 
     BiomeMagnifier magnifier;
 
-	WorldGenRegion(ServerWorld* world, std::span<std::shared_ptr<Chunk>> chunks, int32_t radius, int32_t chunk_x, int32_t chunk_z, int64_t seed)
+	WorldGenRegion(ServerWorld* world, std::span<std::shared_ptr<Chunk>> chunks, int32_t radius, int32_t x, int32_t z, int64_t seed)
 	    : world(world)
 	    , seed(seed)
         , radius(radius)
 	    , size(radius * 2 + 1)
-	    , chunk_x(chunk_x)
-	    , chunk_z(chunk_z)
+        , coords{x, z}
 	    , chunks(chunks)
     {
-        chunks_min.x = chunk_x - radius;
-        chunks_min.y = chunk_z - radius;
-        chunks_max.x = chunk_x + radius;
-        chunks_max.y = chunk_z + radius;
+        chunks_min.x = x - radius;
+        chunks_min.y = z - radius;
+        chunks_max.x = x + radius;
+        chunks_max.y = z + radius;
 
         bounds_min.x = chunks_min.x << 4;
         bounds_min.y = chunks_min.y << 4;
@@ -71,10 +71,6 @@ struct WorldGenRegion : virtual HeightReader, virtual WorldReader, virtual World
 	auto chunkExists(int32_t x, int32_t z) const -> bool {
 		return chunks_min.x <= x && x <= chunks_max.x && chunks_min.y <= z && z <= chunks_max.y;
 	}
-
-    auto getMainChunkPos() const -> ChunkPos {
-        return {chunk_x, chunk_z};
-    }
 
 	auto getChunk(int32_t x, int32_t z) const -> Chunk* {
 		if (chunkExists(x, z)) {
@@ -109,7 +105,7 @@ struct WorldGenRegion : virtual HeightReader, virtual WorldReader, virtual World
         return getLightFor(pos.x, pos.y, pos.z, channel);
     }
 
-    auto getBiome(BlockPos pos) -> Biome* {
+    auto getBiome(const BlockPos& pos) -> Biome* {
         return getBiome(pos.x, pos.y, pos.z);
     }
 

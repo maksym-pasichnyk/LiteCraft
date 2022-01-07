@@ -3,10 +3,15 @@
 #include "ResourceManager.hpp"
 
 #include <set>
+#include <mutex>
+#include <unordered_set>
+#include <list>
 #include <string>
 #include <Json.hpp>
 #include <Texture.hpp>
 #include <range/v3/all.hpp>
+
+#include <thread>
 
 struct TextureRect {
 	int x;
@@ -31,90 +36,82 @@ struct TextureUVCoordinateSet {
 };
 
 struct TextureAtlasSprite {
-	struct Info {
-		std::string path;
-		NativeImage image;
+    std::string path;
+    NativeImage image;
+    int originX;
+    int originY;
 
-        auto channels() const -> int {
-            return image.channels;
-        }
+    auto channels() const -> int {
+        return image.channels;
+    }
+    auto pixels() const -> void* {
+        return image.pixels.get();
+    }
+    auto width() const -> int {
+        return image.width;
+    }
+    auto height() const -> int {
+        return image.height;
+    }
 
-		auto pixels() const -> void* {
-			return image.pixels.get();
-		}
-
-		auto width() const -> int {
-			return image.width;
-		}
-
-		auto height() const -> int {
-			return image.height;
-		}
-	};
-
-	Info info;
-	int originX;
-	int originY;
-
-	TextureAtlasSprite(Info info, int originX, int originY)
-		: info(std::move(info)), originX(originX), originY(originY) {}
+    auto rect() const -> TextureRect {
+        return TextureRect{
+            originX,
+            originY,
+            image.width,
+            image.height
+        };
+    }
 };
 
 struct SheetData {
 	std::vector<TextureAtlasSprite> sprites;
 	int width;
 	int height;
-
-	SheetData(std::vector<TextureAtlasSprite>&& sprites, int width, int height)
-		: sprites(std::move(sprites))
-		, width(width)
-		, height(height) {}
 };
 
 struct TextureAtlasPack {
     struct Holder {
-        TextureAtlasSprite::Info info;
-        int width;
-        int height;
-
-        Holder(TextureAtlasSprite::Info info)
-            : info(std::move(info))
-              , width(info.width())
-              , height(info.height()) {}
+        std::string path;
+        NativeImage image;
     };
 
     struct Slot {
-        Slot() = default;
-        Slot(int x, int y, int w, int h) : rect{x, y, w, h} {}
+        static auto from(int x, int y, int w, int h) -> Slot {
+            return Slot {
+                .rect = {x, y, w, h}
+            };
+        }
 
-        bool canFit(int width, int height) {
+        auto canFit(int width, int height) const -> bool {
             return width <= rect.width && height <= rect.height;
         }
 
-        bool addSlot(Holder* holderIn) {
-            if (canFit(holderIn->width, holderIn->height)) {
-                if (holder == nullptr) {
-                    holder = holderIn;
+        auto addSlot(Holder* holderIn) -> bool {
+            if (!canFit(holderIn->image.width, holderIn->image.height)) {
+                return false;
+            }
+            if (holder == nullptr) {
+                holder = holderIn;
 
-                    int originX = rect.x;
-                    int originY = rect.y;
-                    int w = holder->width;
-                    int h = holder->height;
+                const auto originX = rect.x;
+                const auto originY = rect.y;
+                const auto width = holder->image.width;
+                const auto height = holder->image.height;
 
-                    if (rect.width > w) {
-                        subSlots.emplace_back(new Slot(originX + w, originY, rect.width - w, h));
-                    }
-                    if (rect.height > h) {
-                        subSlots.emplace_back(new Slot(originX, originY + h, rect.width, rect.height - h));
-                    }
-
-                    return true;
+                if (rect.width > width) {
+                    subSlots.emplace_back(Slot::from(originX + width, originY, rect.width - width, height));
+                }
+                if (rect.height > height) {
+                    subSlots.emplace_back(Slot::from(originX, originY + height, rect.width, rect.height - height));
                 }
 
-                for (auto& slot : subSlots) {
-                    if (slot->addSlot(holderIn)) {
-                        return true;
-                    }
+                return true;
+            }
+
+            for (auto& slot : subSlots) {
+                if (slot.addSlot(holderIn)) {
+                    return true;
                 }
             }
             return false;
@@ -127,35 +124,34 @@ struct TextureAtlasPack {
             }
 
             for (auto& slot : subSlots) {
-                slot->getAllStitchSlots(std::forward<Fn>(fn));
+                slot.getAllStitchSlots(std::forward<Fn>(fn));
             }
         }
 
-        std::vector<std::unique_ptr<Slot>> subSlots;
+        std::list<Slot> subSlots;
         Holder* holder = nullptr;
-        TextureRect rect;
+        TextureRect rect{};
     };
 
     void addSprite(std::string path, NativeImage image) {
-        holders.emplace_back(std::make_unique<Holder>(TextureAtlasSprite::Info{std::move(path), std::move(image)}));
+        holders.emplace_back(std::make_unique<Holder>(Holder{std::move(path), std::move(image)}));
     }
 
     auto expandAndAllocateSlot(Holder* holder) -> bool {
         Slot* slot = nullptr;
 
         auto textureSize = std::max(
-                /*nextPowerOf2*/(currentWidth + holder->width),
-                /*nextPowerOf2*/(currentHeight + holder->height)
+            currentWidth + holder->image.width,
+            currentHeight + holder->image.height
         );
 
-        slots.reserve(2);
-        slots.emplace_back(std::make_unique<Slot>(currentWidth, 0, textureSize - currentWidth, currentHeight));
-        if (slots.back()->canFit(holder->width, holder->height)) {
-            slot = slots.back().get();
+        slots.emplace_back(Slot::from(currentWidth, 0, textureSize - currentWidth, currentHeight));
+        if (!slot && slots.back().canFit(holder->image.width, holder->image.height)) {
+            slot = &slots.back();
         }
-        slots.emplace_back(std::make_unique<Slot>(0, currentHeight, textureSize, textureSize - currentHeight));
-        if (!slot && slots.back()->canFit(holder->width, holder->height)) {
-            slot = slots.back().get();
+        slots.emplace_back(Slot::from(0, currentHeight, textureSize, textureSize - currentHeight));
+        if (!slot && slots.back().canFit(holder->image.width, holder->image.height)) {
+            slot = &slots.back();
         }
         currentWidth = textureSize;
         currentHeight = textureSize;
@@ -165,7 +161,7 @@ struct TextureAtlasPack {
 
     auto allocateSlot(Holder* holder) -> bool {
         for (auto& slot : slots) {
-            if (slot->addSlot(holder)) {
+            if (slot.addSlot(holder)) {
                 return true;
             }
         }
@@ -175,17 +171,17 @@ struct TextureAtlasPack {
 
     auto build() -> tl::optional<SheetData> {
         std::sort(holders.begin(), holders.end(), [](auto& b, auto& a) -> bool {
-            return a->width < b->width || (a->width == b->width) && (a->height < b->height);
+            return a->image.width < b->image.width || (a->image.width == b->image.width) && (a->image.height < b->image.height);
         });
 
         const auto textureSize = std::max(
-            nextPowerOf2(holders[0]->width),
-            nextPowerOf2(holders[0]->height)
+            nextPowerOf2(holders.at(0)->image.width),
+            nextPowerOf2(holders.at(0)->image.height)
         );
         currentWidth = textureSize;
         currentHeight = textureSize;
 
-        slots.emplace_back(new Slot(0, 0, textureSize, textureSize));
+        slots.emplace_back(Slot::from(0, 0, textureSize, textureSize));
         for (auto&& holder : holders) {
             if (!allocateSlot(holder.get())) {
                 return tl::nullopt;
@@ -194,16 +190,27 @@ struct TextureAtlasPack {
 
         auto sprites = std::vector<TextureAtlasSprite>{};
         getAllSlots([&sprites](Slot *slot) {
-            sprites.emplace_back(std::move(slot->holder->info), slot->rect.x, slot->rect.y);
+            sprites.emplace_back(
+                TextureAtlasSprite{
+                    std::move(slot->holder->path),
+                    std::move(slot->holder->image),
+                    slot->rect.x,
+                    slot->rect.y
+                }
+            );
         });
 
-        return SheetData(std::move(sprites), currentWidth, currentHeight);
+        return SheetData{
+            std::move(sprites),
+            currentWidth,
+            currentHeight
+        };
     }
 
     template <typename Fn>
     void getAllSlots(Fn&& fn) {
         for (auto&& slot : slots) {
-            slot->getAllStitchSlots(std::forward<Fn>(fn));
+            slot.getAllStitchSlots(std::forward<Fn>(fn));
         }
     }
 
@@ -220,7 +227,7 @@ struct TextureAtlasPack {
 
 private:
     std::vector<std::unique_ptr<Holder>> holders;
-    std::vector<std::unique_ptr<Slot>> slots;
+    std::list<Slot> slots;
 
     int currentWidth;
     int currentHeight;
@@ -243,21 +250,27 @@ struct TextureAnimation {
 };
 
 struct TextureAtlasItem {
-    glm::i32 x;
-    glm::i32 y;
-    glm::i32 width;
-    glm::i32 height;
-    TextureUVCoordinateSet coords;
+    TextureRect rect;
+    glm::ivec2 atlasSize;
+
+    [[nodiscard]] auto get_coords() const -> TextureUVCoordinateSet {
+        return TextureUVCoordinateSet{
+            .minU = glm::f32(rect.x) / glm::f32(atlasSize.x),
+            .minV = glm::f32(rect.y) / glm::f32(atlasSize.y),
+            .maxU = glm::f32(rect.x + rect.width) / glm::f32(atlasSize.x),
+            .maxV = glm::f32(rect.y + rect.height) / glm::f32(atlasSize.y),
+        };
+    }
 };
 
 struct TextureManager {
+    std::mutex mutex{};
+
     Texture2D atlas;
-    tl::optional<SheetData> sheet;
     TextureAtlasPack pack;
-    std::set<std::string> images;
-    std::map<std::string, TextureAtlasItem> items;
-    std::vector<TextureAnimation> animations;
     std::vector<glm::u8vec4> pixels;
+    std::vector<TextureAnimation> animations;
+    std::map<std::string, TextureAtlasItem> items;
 
     void tick(float delta) {
         auto flag = false;
@@ -271,41 +284,8 @@ struct TextureManager {
             animation.remaining_time = 0;
             animation.current_frame = (animation.current_frame + 1) % animation.frames.size();
 
-            auto& texture = items.at(animation.location);
-
-            const auto rect = TextureRect {
-                texture.x,
-                texture.y,
-                texture.width,
-                texture.height
-            };
-
-            int i2 = animation.image.channels * texture.width * texture.height * animation.frames[animation.current_frame].index;
-            if (animation.image.channels == 3) {
-                for (int y = rect.y; y < rect.y + rect.height; y++) {
-                    auto i = y * sheet->width + rect.x;
-
-                    for (int x = 0; x < rect.width; x++, i++) {
-                        pixels[i][0] = reinterpret_cast<unsigned char*>(animation.image.pixels.get())[i2++];
-                        pixels[i][1] = reinterpret_cast<unsigned char*>(animation.image.pixels.get())[i2++];
-                        pixels[i][2] = reinterpret_cast<unsigned char*>(animation.image.pixels.get())[i2++];
-                        pixels[i][3] = 0xFF;
-                    }
-                }
-            } else if (animation.image.channels == 4) {
-                for (int y = rect.y; y < rect.y + rect.height; y++) {
-                    auto i = y * sheet->width + rect.x;
-
-                    for (int x = 0; x < rect.width; x++, i++) {
-                        pixels[i][0] = reinterpret_cast<unsigned char*>(animation.image.pixels.get())[i2++];
-                        pixels[i][1] = reinterpret_cast<unsigned char*>(animation.image.pixels.get())[i2++];
-                        pixels[i][2] = reinterpret_cast<unsigned char*>(animation.image.pixels.get())[i2++];
-                        pixels[i][3] = reinterpret_cast<unsigned char*>(animation.image.pixels.get())[i2++];
-                    }
-                }
-            } else {
-                spdlog::error("unsupported format [channels = {}]", animation.image.channels);
-            }
+            auto&& sprite = items.at(animation.location);
+            upload(animation.image, sprite.rect, animation.frames[animation.current_frame].index);
         }
         if (flag) {
             atlas.setPixels(pixels);
@@ -314,26 +294,27 @@ struct TextureManager {
 
     auto get_texture(const std::string& name) const -> TextureUVCoordinateSet {
         if (auto it = items.find(name); it != items.end()) {
-            return it->second.coords;
+            return it->second.get_coords();
         }
         return TextureUVCoordinateSet{0, 0, 0, 0};
     }
 
-    void load_texture(ResourceManager& resources, const std::string& name) {
+    void load_texture(const std::string& name) {
         if (items.contains(name)) {
             return;
         }
-        images.emplace(name);
+        items.emplace(name, TextureAtlasItem{});
 
-        const auto location = ResourceLocation::from(name).get_location();
-        auto data = read_texture(resources, location).value();
-        if (auto anim = read_animation(resources, data, location)) {
-            auto pixels = new std::byte[data.width * data.width * data.channels];
+        const auto location = ResourceLocation::from(name);
+
+        auto data = read_texture(location).value();
+        if (auto anim = read_animation(data, location)) {
+            auto new_pixels = new glm::u8[data.width * data.width * data.channels];
             for (size_t i = 0; i < data.width * data.width * data.channels; ++i) {
-                pixels[i] = data.pixels[i];
+                new_pixels[i] = data.pixels[i];
             }
             pack.addSprite(name, NativeImage{
-                .pixels = NativeImage::ImageData{pixels},
+                .pixels = NativeImage::ImageData{new_pixels},
                 .width = data.width,
                 .height = data.width,
                 .channels = data.channels,
@@ -346,10 +327,9 @@ struct TextureManager {
         }
     }
 
-    auto read_animation(ResourceManager& resources, const NativeImage& data, const std::string& path) -> tl::optional<TextureAnimation> {
-        return resources
-            .open(fmt::format("assets/minecraft/textures/{}.png.mcmeta", path))
-            .and_then([](auto&& resource) { return Json::Read::read(*resource.io); })
+    auto read_animation(const NativeImage& data, const ResourceLocation& location) -> tl::optional<TextureAnimation> {
+        return Resources::open(fmt::format("assets/{}/textures/{}.png.mcmeta", location.get_namespace(), location.get_location()))
+            .and_then([](auto&& resource) { return Json::Read::read(*resource); })
             .map([&](auto&& meta) -> TextureAnimation {
                 auto&& animation = meta.at("animation");
                 const auto frame_time = animation.value_or("frametime", glm::i64(1));
@@ -394,70 +374,52 @@ struct TextureManager {
     }
 
     void build() {
-		sheet = pack.build();
+		auto sheet = pack.build();
 
-		for (const auto &sprite : sheet->sprites) {
-            auto& item = items[sprite.info.path];
-            const auto rect = TextureRect{
+        pixels = std::vector<glm::u8vec4>(sheet->width * sheet->height);
+        atlas = Texture2D(sheet->width, sheet->height, vk::Format::eR8G8B8A8Unorm);
+
+		for (auto&& sprite : sheet->sprites) {
+            auto& item = items.at(sprite.path);
+            item.rect = TextureRect{
                 sprite.originX,
                 sprite.originY,
-                sprite.info.width(),
-                sprite.info.height()
+                sprite.width(),
+                sprite.height()
             };
-            item.x = rect.x;
-            item.y = rect.y;
-            item.width = rect.width;
-            item.height = rect.height;
-            item.coords = TextureUVCoordinateSet{
-                .minU = glm::f32(rect.x) / glm::f32(sheet->width),
-                .minV = glm::f32(rect.y) / glm::f32(sheet->height),
-                .maxU = glm::f32(rect.x + rect.width) / glm::f32(sheet->width),
-                .maxV = glm::f32(rect.y + rect.height) / glm::f32(sheet->height),
-            };
+            item.atlasSize = glm::ivec2(sheet->width, sheet->height);
+            upload(sprite.image, item.rect, 0);
 		}
+        atlas.setPixels(pixels);
     }
 
-    void upload() {
-        pixels = std::vector<glm::u8vec4>(sheet->width * sheet->height);
+    void upload(const NativeImage& image, const TextureRect& rect, size_t frame) {
+        auto offset = image.channels * rect.width * rect.height * frame;
+        if (image.channels == 3) {
+            for (int y = rect.y; y < rect.y + rect.height; y++) {
+                auto i = y * atlas.width() + rect.x;
 
-        for (auto& sprite : sheet->sprites) {
-            const auto rect = TextureRect {
-                sprite.originX,
-                sprite.originY,
-                sprite.info.width(),
-                sprite.info.height()
-            };
-
-            int i2 = 0;
-            if (sprite.info.channels() == 3) {
-                for (int y = rect.y; y < rect.y + rect.height; y++) {
-                    auto i = y * sheet->width + rect.x;
-
-                    for (int x = 0; x < rect.width; x++, i++) {
-                        pixels[i][0] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
-                        pixels[i][1] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
-                        pixels[i][2] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
-                        pixels[i][3] = 0xFF;
-                    }
+                for (int x = 0; x < rect.width; x++, i++) {
+                    pixels[i][0] = image.pixels[offset++];
+                    pixels[i][1] = image.pixels[offset++];
+                    pixels[i][2] = image.pixels[offset++];
+                    pixels[i][3] = 0xFF;
                 }
-            } else if (sprite.info.channels() == 4) {
-                for (int y = rect.y; y < rect.y + rect.height; y++) {
-                    auto i = y * sheet->width + rect.x;
-
-                    for (int x = 0; x < rect.width; x++, i++) {
-                        pixels[i][0] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
-                        pixels[i][1] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
-                        pixels[i][2] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
-                        pixels[i][3] = reinterpret_cast<unsigned char*>(sprite.info.pixels())[i2++];
-                    }
-                }
-            } else {
-                spdlog::error("unsupported format [channels = {}]", sprite.info.channels());
             }
-        }
+        } else if (image.channels == 4) {
+            for (int y = rect.y; y < rect.y + rect.height; y++) {
+                auto i = y * atlas.width() + rect.x;
 
-        atlas = Texture2D(sheet->width, sheet->height, vk::Format::eR8G8B8A8Unorm);
-        atlas.setPixels(pixels);
+                for (int x = 0; x < rect.width; x++, i++) {
+                    pixels[i][0] = image.pixels[offset++];
+                    pixels[i][1] = image.pixels[offset++];
+                    pixels[i][2] = image.pixels[offset++];
+                    pixels[i][3] = image.pixels[offset++];
+                }
+            }
+        } else {
+            spdlog::error("unsupported format [channels = {}]", image.channels);
+        }
     }
 
     static auto instance() -> TextureManager& {
@@ -466,10 +428,11 @@ struct TextureManager {
     }
 
 private:
-    static auto read_texture(ResourceManager& resources, const std::string& name) -> tl::optional<NativeImage> {
+    static auto read_texture(const ResourceLocation& location) -> tl::optional<NativeImage> {
         for (auto ext : {"png", "tga"}) {
-            if (auto bytes = resources.load(fmt::format("assets/minecraft/textures/{}.{}", name, ext))) {
-                return NativeImage::read(*bytes, false);
+            const auto path = fmt::format("assets/{}/textures/{}.{}", location.get_namespace(), location.get_location(), ext);
+            if (auto resource = Resources::get(path)) {
+                return NativeImage::read(resource->bytes(), false);
             }
         }
         return tl::nullopt;

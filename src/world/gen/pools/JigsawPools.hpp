@@ -11,7 +11,7 @@ struct JigsawPools {
         return pools.get(name).value_or(nullptr);
     }
 
-    static void init(ResourceManager& resources);
+    static void init();
 };
 
 struct PlainVillagePools {

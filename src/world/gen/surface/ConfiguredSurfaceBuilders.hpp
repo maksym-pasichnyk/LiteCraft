@@ -10,5 +10,5 @@ struct ResourceManager;
 struct ConfiguredSurfaceBuilders {
     static Registry<ConfiguredSurfaceBuilder> builders;
 
-    static void init(ResourceManager& resources);
+    static void init();
 };

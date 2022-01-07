@@ -10,5 +10,5 @@ struct Models {
     static Registry<ModelFormat> models;
 
     static void parse(const Json& obj);
-    static void init(ResourceManager& resources);
+    static void init();
 };

@@ -67,15 +67,10 @@ void ChunkGenerator::generateCarvers(WorldGenRegion& region, int64_t seed, Chunk
 }
 
 void ChunkGenerator::generateFeatures(WorldGenRegion &region, Chunk& chunk, TemplateManager& templates) {
-    Random random{};
-
-    const auto chunkPos = region.getMainChunkPos();
-    const auto xStart = chunkPos.getStartX();
-    const auto zStart = chunkPos.getStartZ();
-    const auto seed = random.setDecorationSeed(region.getSeed(), xStart, zStart);
-
-    auto biome = biomeProvider->getNoiseBiome(chunkPos.getBlockX(2), 2, chunkPos.getBlockZ(2));
-    biome->decorate(*this, region, templates, seed, BlockPos(xStart, 0, zStart));
+    const auto coords = chunk.coords;
+    const auto seed = Random{}.setDecorationSeed(region.getSeed(), coords.getStartX(), coords.getStartZ());
+    auto biome = biomeProvider->getNoiseBiome(coords.getBlockX(2), 2, coords.getBlockZ(2));
+    biome->decorate(*this, region, templates, seed, coords.getStartBlock());
 }
 
 auto ChunkGenerator::getNoiseBiome(int x, int y, int z) -> Biome * {

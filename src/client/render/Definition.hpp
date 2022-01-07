@@ -9,6 +9,7 @@
 #include <glm/vec4.hpp>
 #include <tl/optional.hpp>
 #include <util/Direction.hpp>
+#include <glm/glm.hpp>
 
 enum class FaceIndex {
     Down,
@@ -32,6 +33,43 @@ struct RotationDefinition {
     DirectionAxis axis;
     glm::vec3 origin;
     bool rescale;
+
+    void rotate(std::span<glm::vec3> points) const {
+        // ix = 1, iy = 2 -> rotate around X axis
+        // ix = 2, iy = 0 -> rotate around Y axis
+        // ix = 1, iy = 0 -> rotate around Z axis
+        const auto [ix, iy] = std::array{
+            std::pair{1, 2},
+            std::pair{2, 0},
+            std::pair{1, 0}
+        }[static_cast<size_t>(axis)];
+
+        const auto ox = origin[ix];
+        const auto oy = origin[iy];
+
+        const auto s = glm::sin(glm::radians(angle));
+        const auto c = glm::cos(glm::radians(angle));
+
+        for (auto &point: points) {
+            const auto x = point[ix] - ox;
+            const auto y = point[iy] - oy;
+            point[ix] = y * s + x * c;
+            point[iy] = y * c - x * s;
+        }
+
+        if (rescale) {
+            const auto scale = glm::sqrt(2.0f);
+            for (auto &point: points) {
+                point[ix] *= scale;
+                point[iy] *= scale;
+            }
+        }
+
+        for (auto &point: points) {
+            point[ix] += ox;
+            point[iy] += oy;
+        }
+    }
 };
 
 struct ElementDefinition {
@@ -43,30 +81,22 @@ struct ElementDefinition {
     std::map<FaceIndex, FaceDefinition> faces;
 };
 
-struct ModelDefinition {
+struct RawModelDefinition {
     tl::optional<std::string> parent;
     bool ambientocclusion;
     std::map<std::string, std::string> textures;
     std::vector<ElementDefinition> elements;
 };
 
-struct VariantDefinition {
-    std::string model;
-    int x = 0;
-    int y = 0;
-    int z = 0;
-};
-
-struct MultipartRuleDefinition : std::variant<std::pair<std::string, std::vector<std::string>>, std::vector<std::vector<MultipartRuleDefinition>>> {
-    using variant::variant;
-};
-
-struct MultipartDefinition {
-    std::vector<MultipartRuleDefinition> rules;
-    std::vector<VariantDefinition> apply;
-};
-
-struct BlockStateDefinition {
-    std::vector<MultipartDefinition> multiparts;
-    std::map<std::string, std::vector<VariantDefinition>> variants;
+struct MultipartRule {
+    struct Match {
+        std::map<std::string, std::string> conditions;
+    };
+    struct Or {
+        std::vector<MultipartRule> rules;
+    };
+    struct And {
+        std::vector<MultipartRule> rules;
+    };
+    std::variant<Or, And, Match> rule;
 };

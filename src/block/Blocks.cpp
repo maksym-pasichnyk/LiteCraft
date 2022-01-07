@@ -1025,7 +1025,7 @@ static auto create(const std::string& name, Args &&...args) -> T* {
 static auto createLogBlock(const std::string& name, MaterialColor topColor, MaterialColor barkColor) -> Block* {
     return create<RotatedPillarBlock>(name, BlockBehaviourUtil::create(Materials::WOOD,
         [topColor, barkColor](const BlockData &data) -> MaterialColor {
-            return topColor;// data.get(RotatedPillarBlock::AXIS) == Direction::Axis::Y ? topColor : barkColor;
+            return topColor;// data.get(RotatedPillarBlock::AXIS) == DirectionAxis::Y ? topColor : barkColor;
         })
         .setHardnessAndResistance(2.0F)
         .setSound(SoundType::WOOD));

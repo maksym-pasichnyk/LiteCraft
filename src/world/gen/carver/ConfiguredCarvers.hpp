@@ -7,5 +7,5 @@ struct ConfiguredCarver;
 struct ConfiguredCarvers {
     static Registry<ConfiguredCarver> carvers;
 
-    static void init(ResourceManager& resources);
+    static void init();
 };

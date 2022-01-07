@@ -7,7 +7,7 @@
 auto Structure::generate(ChunkGenerator &generator, BiomeProvider &provider, TemplateManager &templateManager, int64_t seed, const ChunkPos &pos, Biome &biome, int refCount, Random &random, const StructureSeparation& settings, const StructureConfig &config) -> StructureStart* {
     const auto chunkpos = getChunkPosForStructure(settings, seed, random, pos.x, pos.z);
     if (pos == chunkpos && canGenerate(generator, provider, seed, random, pos.x, pos.z, biome, chunkpos, config)) {
-        StructurePieces pieces{};
+        auto pieces = StructurePieces{};
 
         auto context = StructureGenerateContext {
             generator,

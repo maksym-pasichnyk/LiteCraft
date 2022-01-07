@@ -9,8 +9,7 @@ bool MineshaftStructure::canGenerate(ChunkGenerator &generator, BiomeProvider &b
 void MineshaftStructure::createComponents(StructurePieces& pieces, StructureGenerateContext& context, const StructureConfig& config) {
     const auto& cfg = std::get<MineshaftConfig>(config);
     
-    Random random{};
-    random.setLargeFeatureSeed(context.seed, context.pos.x, context.pos.z);
+    auto random = Random::fromLargeFeatureSeed(context.seed, context.pos.x, context.pos.z);
 
     auto room = new MineshaftPieces::Room(0, random, context.pos.getBlockX(2), context.pos.getBlockZ(2), cfg.type);
     pieces.emplace(room);

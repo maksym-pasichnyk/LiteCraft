@@ -52,10 +52,6 @@ struct RawModel {
     }
 };
 
-struct Model {
-    std::vector<RawFace> quads;
-};
-
 struct RawModels {
     static Registry<RawModel> models;
 

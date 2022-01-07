@@ -5,12 +5,14 @@
 #include <vector>
 #include <cstring>
 #include <fstream>
-#include <tl/optional.hpp>
 #include <physfs.h>
 #include <filesystem>
+#include <glm/glm.hpp>
+#include <tl/optional.hpp>
 #include <spdlog/spdlog.h>
 
 #include "stb_image.hpp"
+#include "Resources.hpp"
 
 struct ResourceLocation {
     static auto from(const std::string& name) {
@@ -47,75 +49,14 @@ private:
     std::array<std::string, 2> _parts;
 };
 
-namespace physfs {
-    struct filebuf : std::streambuf {
-        filebuf() = default;
-        ~filebuf() override {
-            if (file != nullptr) {
-                PHYSFS_close(file);
-                file = nullptr;
-            }
-        }
-
-        auto open(const std::string& path) -> bool {
-            if (file != nullptr) { return false; }
-            file = PHYSFS_openRead(path.c_str());
-            return file != nullptr;
-        }
-
-        auto is_open() const -> bool {
-            return file != nullptr;
-        }
-
-        auto underflow() -> int_type override {
-            if (PHYSFS_eof(file)) {
-                return traits_type::eof();
-            }
-            const auto len = PHYSFS_readBytes(file, tmp.data(), tmp.size());
-            if (len < 1) {
-                return traits_type::eof();
-            }
-            setg(tmp.data(), tmp.data(), tmp.data() + len);
-            return traits_type::to_int_type(*gptr());
-        }
-
-        auto length() const -> size_t {
-            return PHYSFS_fileLength(file);
-        }
-
-    private:
-        PHYSFS_File* file = nullptr;
-        std::array<char, 1024> tmp{};
-    };
-
-    struct ifstream : std::istream {
-        explicit ifstream(const std::string& path) : std::istream(&buf) {
-            if (!buf.open(path)) {
-                setstate(ios_base::failbit);
-            }
-        }
-
-        auto length() const -> size_t {
-            return buf.length();
-        }
-
-    private:
-        filebuf buf{};
-    };
-
-    static auto exists(const std::string& path) -> bool {
-        return PHYSFS_exists(path.c_str());
-    }
-}
-
 struct NativeImage {
 	struct ImageDataFree {
-		void operator()(std::byte ptr[]) {
+		void operator()(glm::u8 ptr[]) {
 			stbi_image_free(ptr);
 		}
 	};
 
-	using ImageData = std::unique_ptr<std::byte[], ImageDataFree>;
+	using ImageData = std::unique_ptr<glm::u8[], ImageDataFree>;
 
 	ImageData pixels;
 	int width = 0;
@@ -135,7 +76,7 @@ struct NativeImage {
 			stbi_vertical_flip(pixels, width, height, channels * sizeof(stbi_uc));
 		}
 		return NativeImage{
-			.pixels = ImageData{static_cast<std::byte*>(static_cast<void*>(pixels))},
+			.pixels = ImageData{static_cast<glm::u8*>(static_cast<void*>(pixels))},
 			.width = width,
 			.height = height,
 			.channels = channels
@@ -166,164 +107,29 @@ private:
 	}
 };
 
-struct ResourceIO {
-    std::shared_ptr<std::istream> io;
-};
-
-struct ResourcePack {
-	ResourcePack() = default;
-	virtual ~ResourcePack() = default;
-
-	virtual auto load(const std::string& path) -> tl::optional<std::vector<char>> = 0;
-	virtual auto contains(const std::string& path) -> bool = 0;
-    virtual void enumerate(const std::string& path, void(*fn)(std::istream&)) = 0;
-
-    virtual auto open(const std::string& path) -> tl::optional<ResourceIO> = 0;
-};
-
-struct PhysFsResourcePack : ResourcePack {
-	explicit PhysFsResourcePack(std::string path) : base_path(std::move(path)) {}
-
-	auto contains(const std::string& path) -> bool override {
-		return physfs::exists(get_full_path(path));
-	}
-
-    auto open(const std::string& path) -> tl::optional<ResourceIO> override {
-        auto file = std::make_shared<physfs::ifstream>(get_full_path(path));
-        if (*file) {
-            return ResourceIO{.io = std::move(file)};
-        }
-        return tl::nullopt;
-    }
-
-	auto load(const std::string& path) -> tl::optional<std::vector<char>> override {
-        if (physfs::ifstream file{get_full_path(path)}) {
-            std::vector<char> bytes(file.length());
-            file.read(bytes.data(), bytes.size());
-            return bytes;
-        }
-		return tl::nullopt;
-	}
-
-    void enumerate(const std::string& directory, void(*fn)(std::istream&)) override {
-        struct recursive_directory_iterator {
-            static void next(const std::string& directory, void(*fn)(std::istream&)) {
-                auto files = PHYSFS_enumerateFiles(directory.c_str());
-                for (auto file = files; *file != nullptr; file++) {
-                    const auto path = fmt::format("{}/{}", directory.c_str(), *file);
-
-                    if (PHYSFS_isDirectory(path.c_str())) {
-                        next(path, fn);
-                    } else if (physfs::ifstream stream{path}) {
-                        fn(stream);
-                    }
-                }
-                PHYSFS_freeList(files);
-            }
-        };
-
-        if (auto full_path = get_full_path(directory); physfs::exists(full_path)) {
-            recursive_directory_iterator::next(get_full_path(directory), fn);
-        }
-    }
-
-private:
-	auto get_full_path(const std::string& path) const -> std::string {
-		return fmt::format("{}/{}", base_path, path);
-	}
-
-	std::string base_path;
-};
-
-struct FolderResourcePack : ResourcePack {
-	explicit FolderResourcePack(std::filesystem::path path) : base_path(std::move(path)) {}
-
-	auto contains(const std::string& path) -> bool override {
-		return std::filesystem::exists(get_full_path(path));
-	}
-
-    auto open(const std::string& path) -> tl::optional<ResourceIO> override {
-        auto file = std::make_shared<std::ifstream>(get_full_path(path));
-        if (*file) {
-            return ResourceIO{.io = std::move(file)};
-        }
-        return tl::nullopt;
-    }
-
-	auto load(const std::string& path) -> tl::optional<std::vector<char>> override {
-		const auto full_path = get_full_path(path);
-		if (std::ifstream stream{full_path, std::ios::binary}) {
-			std::vector<char> bytes(std::filesystem::file_size(full_path));
-			stream.read(bytes.data(), static_cast<std::streamsize>(bytes.size()));
-			return bytes;
-		}
-		return tl::nullopt;
-	}
-
-    void enumerate(const std::string& path, void(*fn)(std::istream&)) override {
-        if (const auto full_path = get_full_path(path); std::filesystem::exists(full_path)) {
-            for (auto &&entry : std::filesystem::recursive_directory_iterator{full_path}) {
-                if (entry.is_regular_file()) {
-                    if (std::ifstream stream{entry.path(), std::ios::binary}) {
-                        fn(stream);
-                    }
-                }
-            }
-        }
-    }
-
-private:
-	auto get_full_path(const std::string& path) const -> std::filesystem::path {
-		return base_path / path;
-	}
-
-	std::filesystem::path base_path;
-};
-
 struct ResourceManager {
-    static ResourceManager* mGlobalResourcePack;
-
-	void emplace(std::unique_ptr<ResourcePack>&& pack) {
-		packs.emplace_back(std::move(pack));
-	}
-
-	auto load(const std::string& path) -> tl::optional<std::vector<char>> {
-		for (auto& pack : packs) {
-			if (auto bytes = pack->load(path)) {
-				return bytes;
-			}
-		}
-		return tl::nullopt;
-	}
-
-    auto open(const std::string& path) -> tl::optional<ResourceIO> {
-        for (auto& pack : packs) {
-            if (auto resource = pack->open(path)) {
-                return resource;
-            }
-        }
-        return tl::nullopt;
-    }
-
-	template <typename Fn>
-	void for_each(const std::string& path, Fn&& fn) {
-		for (auto& pack : packs) {
-            if (auto resource = pack->open(path)) {
-                fn(*resource->io);
-            }
-		}
-	}
-
     template <typename Fn>
-    void enumerate(const std::string& path, Fn&& fn) {
-        thread_local auto callback = std::ref(fn);
-        for (auto& pack : packs) {
-            pack->enumerate(path, [](std::istream& stream) {
-                callback.get()(stream);
-            });
+    static void enumerate(const std::string& path, Fn&& fn) {
+        if (!PHYSFS_exists(path.c_str())) {
+            return;
         }
+        recursive_directory_iterator::next(path, fn);
     }
 
 private:
-	std::vector<std::unique_ptr<ResourcePack>> packs;
+    struct recursive_directory_iterator {
+        static void next(const std::string& directory, void(*fn)(std::istream&)) {
+            auto files = PHYSFS_enumerateFiles(directory.c_str());
+            for (auto file = files; *file != nullptr; file++) {
+                const auto path = fmt::format("{}/{}", directory.c_str(), *file);
+
+                if (PHYSFS_isDirectory(path.c_str())) {
+                    next(path, fn);
+                } else if (ResourceStream stream{path}) {
+                    fn(stream);
+                }
+            }
+            PHYSFS_freeList(files);
+        }
+    };
 };

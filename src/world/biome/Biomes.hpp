@@ -94,5 +94,5 @@ struct Biomes {
         return biomes.get(name).value_or(nullptr);
     }
 
-    static void init(ResourceManager& resources);
+    static void init();
 };

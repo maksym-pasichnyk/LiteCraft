@@ -6,10 +6,20 @@
 
 template<>
 auto Json::From<BlockData>::from(const Value& state) -> Json {
-    return Blocks::blocks.name(state.getBlock()).value();
-//    return {
-//        {"name", Blocks::blocks.name(state.getBlock()).value() }
-//    };
+    auto&& props = state.getBlock()->properties;
+    if (props.empty()) {
+        return Blocks::blocks.name(state.getBlock()).value();
+    }
+    return {
+        {"name", Blocks::blocks.name(state.getBlock()).value() },
+        {"state", [&] {
+             auto out = Json::Object{};
+             for (auto&& [k, v]: props) {
+                 out[k] = state.get(v);
+             }
+             return out;
+        }()}
+    };
 }
 
 template<>
@@ -53,6 +63,10 @@ auto BlockData::get(Property prop) const -> PropertyValue {
 }
 auto BlockData::set(Property prop, const PropertyValue &property) const -> BlockData {
     return getBlock()->binds.at(prop).second(*this, property);
+}
+
+auto BlockData::get(const std::string& prop) const -> PropertyValue {
+    return get(getBlock()->properties.at(prop));
 }
 
 auto BlockData::rotate(Rotation rotation) const -> BlockData {

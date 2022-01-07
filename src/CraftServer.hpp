@@ -22,7 +22,6 @@ using ClientNetHandler = PacketHandler<
 struct CraftServer {
     entt::registry ecs;
 
-    ResourceManager& resources;
     ClientNetHandler handler;
 
     std::unique_ptr<ServerWorld> world = nullptr;
@@ -33,7 +32,7 @@ struct CraftServer {
     bool request_stop = false;
     int viewDistance = -1;
 
-    explicit CraftServer(int viewDistance, ResourceManager& resources);
+    explicit CraftServer(int viewDistance);
 
     ~CraftServer() {
         listener.close();

@@ -17,8 +17,8 @@ auto Json::Into<StructureFeature*>::into(const Self& obj) -> Result {
     return StructureFeatures::registry.get(obj.as_string().value());
 }
 
-void StructureFeatures::init(ResourceManager& resources) {
-    resources.enumerate("definitions/configured_structure_features", [](std::istream& stream) {
+void StructureFeatures::init() {
+    ResourceManager::enumerate("definitions/configured_structure_features", [](std::istream& stream) {
         auto o = Json::Read::read(stream).value();
         auto structure = Structures::registry.get(o.at("type").as_string().value()).value();
         auto config = structure->deserialize(o.at("config")).value();

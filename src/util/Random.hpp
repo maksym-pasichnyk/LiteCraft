@@ -147,7 +147,12 @@ struct Random {
 		return i;
 	}
 
-
+    template<typename Type, size_t Extent>
+    constexpr void shuffle(std::span<Type, Extent> elements) {
+        for (auto i = elements.size(); i > 1; i--) {
+            std::swap(elements[i - 1], elements[nextInt(static_cast<int>(i))]);
+        }
+    }
 
     template<typename Type, size_t Extent>
     decltype(auto) nextElement(std::span<Type, Extent> elements) {

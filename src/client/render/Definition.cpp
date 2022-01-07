@@ -3,6 +3,7 @@
 #include <glm/fwd.hpp>
 #include <glm/vec2.hpp>
 #include <state/Property.hpp>
+#include <block/BlockStates.hpp>
 
 template <>
 auto Json::Into<FaceIndex>::into(const Json& o) -> Result {
@@ -96,8 +97,8 @@ auto Json::Into<ElementDefinition>::into(const Json &o) -> Result {
 }
 
 template<>
-auto Json::Into<ModelDefinition>::into(const Json& o) -> Result {
-    return ModelDefinition{
+auto Json::Into<RawModelDefinition>::into(const Json& o) -> Result {
+    return RawModelDefinition{
         .parent = o.find("parent"),
         .ambientocclusion = o.value_or("ambientocclusion", false),
         .textures = o.value_or("textures", std::map<std::string, std::string>{}),
@@ -106,57 +107,94 @@ auto Json::Into<ModelDefinition>::into(const Json& o) -> Result {
 }
 
 template<>
-auto Json::Into<VariantDefinition>::into(const Json& o) -> Result {
-    return VariantDefinition{
-        .model = o.at("model"),
-        .x = o.value_or("x", 0),
-        .y = o.value_or("y", 0),
-        .z = o.value_or("z", 0)
-    };
-}
-
-static auto splitString(const std::string& str, char delim) -> std::vector<std::string> {
-    auto out = std::vector<std::string>{};
-
-    auto pos = size_t(0);
-    auto start = size_t(0);
-    while ((pos = str.find(delim, start)) != std::string::npos) {
-        out.emplace_back(str.substr(start, pos - start));
-        start = pos + 1;
+auto Json::Into<MultipartRule>::into(Self const& self) -> Result {
+    if (auto o = self.find("OR")) {
+        return MultipartRule{ .rule = MultipartRule::Or{ .rules = *o } };
     }
-    out.emplace_back(str.substr(start, pos));
-    return out;
+    if (auto o = self.find("AND")) {
+        return MultipartRule{ .rule = MultipartRule::And{ .rules = *o } };
+    }
+    return MultipartRule{.rule = MultipartRule::Match { .conditions = self }};
 }
 
-static auto rulesFromJson(const Json& o) -> std::vector<MultipartRuleDefinition> {
-    auto rules = std::vector<MultipartRuleDefinition>{};
+template<>
+auto Json::Into<Model>::into(const Json& o) -> Result {
+    const auto location = o.at("model").as_string().value();
+    const auto x = o.value_or("x", 0);
+    const auto y = o.value_or("y", 0);
+    const auto z = o.value_or("z", 0);
 
-    for (auto&& [name, val] : o.as_object().value()) {
-        if (name == "OR") {
-            auto or_rules = std::vector<std::vector<MultipartRuleDefinition>>{};
-            for (auto&& sub : val.as_array().value()) {
-                or_rules.emplace_back(rulesFromJson(sub));
+    auto model = Model{};
+    const auto raw = RawModels::get(location);
+
+    for (auto&& face : raw->get_faces()) {
+        auto vertices = face.vertices;
+
+        const auto rot = [&](int ix, int iy, float angle) {
+            const auto origin = glm::vec3(0.5f);
+            const auto ox = origin[ix];
+            const auto oy = origin[iy];
+
+            const auto s = glm::sin(angle);
+            const auto c = glm::cos(angle);
+
+            for (auto& vertex : vertices) {
+                const auto x = vertex.pos[ix] - ox;
+                const auto y = vertex.pos[iy] - oy;
+                vertex.pos[ix] = (y * s + x * c) + ox;
+                vertex.pos[iy] = (y * c - x * s) + oy;
             }
-            rules.emplace_back(std::move(or_rules));
-        } else {
-            rules.emplace_back(std::pair{name, splitString(val.as_string().value(), '|')});
-        }
-    }
-    return rules;
-}
+        };
 
+        if (x != 0) {
+            rot(1, 2, glm::radians(glm::f32(x)));
+        }
+        if (y != 0) {
+            rot(2, 0, glm::radians(glm::f32(y)));
+        }
+        if (z != 0) {
+            rot(1, 0, glm::radians(glm::f32(z)));
+        }
+
+        auto texture = raw->get_texture(face.texture);
+        if (texture) {
+            TextureManager::instance().load_texture(*texture);
+        } else {
+            spdlog::error("missing texture {} for model {}", face.texture, location);
+        }
+        model.quads.emplace_back(ModelFace{
+            .layer = RenderLayer::Cutout,
+            .texture = texture.value_or("missing_texture"),
+            .vertices = vertices
+        });
+    }
+    return model;
+}
 template<>
-auto Json::Into<MultipartDefinition>::into(const Json& o) -> Result {
-    return MultipartDefinition{
-        .rules = o.find("when").map_or(rulesFromJson, std::vector<MultipartRuleDefinition>{}),
-        .apply = o.at("apply")
+auto Json::Into<Multipart>::into(const Json& o) -> Result {
+    return Multipart{
+        .apply = o.at("apply"),
+        .when = o.find("when").and_then(Json::Into<MultipartRule>::into),
     };
 }
 
 template<>
-auto Json::Into<BlockStateDefinition>::into(const Json& o) -> Result {
-    return BlockStateDefinition{
-        .multiparts = o.value_or("multipart", std::vector<MultipartDefinition>{}),
-        .variants = o.value_or("variants", std::map<std::string, std::vector<VariantDefinition>>{})
+auto Json::Into<BlockState>::into(const Json& o) -> Result {
+    using namespace ranges::views;
+
+    return BlockState{
+        .variants = o.find("variants")
+            .and_then([] (auto&& o) { return o.as_object(); })
+            .map_or([](auto&& o) {
+                auto out = std::vector<Variant>{};
+                for (auto&& [k, v] : o) {
+                    out.emplace_back(Variant{
+                        .rule = VariantRule::from(k),
+                        .models = v
+                    });
+                }
+                return out;
+            }, std::vector<Variant>{}),
+        .multiparts = o.value_or("multipart", std::vector<Multipart>{})
     };
 }

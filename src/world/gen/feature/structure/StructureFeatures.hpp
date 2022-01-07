@@ -12,5 +12,5 @@ struct ResourceManager;
 struct StructureFeatures {
     static Registry<StructureFeature> registry;
 
-    static void init(ResourceManager& resources);
+    static void init();
 };

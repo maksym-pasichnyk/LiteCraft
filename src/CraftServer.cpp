@@ -7,7 +7,7 @@
 
 // todo: fix cleanup crash (wait for chunk tasks finished? check around chunks?)
 
-CraftServer::CraftServer(int viewDistance, ResourceManager& resources) : resources(resources), viewDistance(viewDistance) {
+CraftServer::CraftServer(int viewDistance) : viewDistance(viewDistance) {
     listener = TcpListener::bind(SocketAddr::from(Ipv4Addr::localhost(), 0)).value();
     listener.set_blocking(false);
 

@@ -34,12 +34,13 @@ static auto shouldRenderFace(Block* block_a, Block* block_b) -> bool {
     return block_b->getMaterial() == Materials::LEAVES;
 }
 
-void tessellate(RenderLayerBuilder& builder, const glm::ivec3& pos, const Model& model) {
+void tessellate(RenderBuffer& rb, const glm::ivec3& pos, const Model& model) {
     for (auto&& quad : model.quads) {
+        auto builder = rb.getForLayer(quad.layer);
+
         builder.quad();
 
         const auto texture = TextureManager::instance().get_texture(quad.texture);
-
         for (auto&& vertex : quad.vertices) {
             const auto [x, y, z] = vertex.pos + glm::vec3(pos);
             const auto u = texture.getInterpolatedU(vertex.uv.x);
@@ -52,13 +53,10 @@ void tessellate(RenderLayerBuilder& builder, const glm::ivec3& pos, const Model&
 void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
 	rb.clear();
 
-    const auto start_x = blocks.chunk_x << 4;
-    const auto start_z = blocks.chunk_z << 4;
+    const auto start = blocks.coords.getStartBlock();
 
-    auto builder = rb.getForLayer(RenderLayer::Opaque);
-
-    for (int x = start_x; x < start_x + 16; x++) {
-        for (int z = start_z; z < start_z + 16; z++) {
+    for (int x = start.x; x < start.x + 16; x++) {
+        for (int z = start.z; z < start.z + 16; z++) {
             for (int y = 0; y < 256; y++) {
                 const auto pos = glm::ivec3{x, y, z};
                 const auto state = blocks.getData(pos);
@@ -68,8 +66,8 @@ void renderBlocks(RenderBuffer& rb, ChunkRenderCache& blocks) {
                     continue;
                 }
 
-                if (auto variant = BlockStates::get(block)->get_variant(state)) {
-                    tessellate(builder, pos, variant->get_model());
+                if (auto model = BlockStates::get(block)->get_model(state)) {
+                    tessellate(rb, pos, *model);
                 }
 //                renderLiquid(pos, block, rb, blocks);
             }

@@ -4,44 +4,60 @@
 #include <state/Property.hpp>
 #include <block/BlockData.hpp>
 #include <client/render/RawModels.hpp>
+#include <client/render/Definition.hpp>
+#include "AbstractBlock.hpp"
 
-struct Variant {
-    struct Rule {
-        Property property;
-        PropertyValue value;
+struct ModelFace {
+    RenderLayer layer;
+    std::string texture;
+    std::array<RawVertex, 4> vertices;
+};
 
-        [[nodiscard]] auto check(BlockData state) const -> bool {
-            return state.has(property) && (state.get(property) == value);
-        }
-    };
+struct Model {
+    std::vector<ModelFace> quads;
+};
+struct VariantRule {
+    std::vector<std::pair<std::string, std::string>> properties;
 
-    std::vector<Model> parts;
-    std::vector<Rule> rules;
-
-    [[nodiscard]] auto check(BlockData state) const -> bool {
-        return ranges::all_of(rules, [state](auto& test) {
-            return test.check(state);
+    auto check(BlockData state) const -> bool {
+        return ranges::all_of(properties, [state](auto& rule) {
+            return PropertyUtil::string(state.get(rule.first)).value() == rule.second;
         });
     }
 
-    [[nodiscard]] auto get_model() const -> const Model& {
-        return parts.at(0);
+    static auto from(const std::string& str) -> VariantRule {
+        using namespace ranges::views;
+
+        return VariantRule{
+            ranges::to_vector(transform(transform(split(str, ','), ranges::to<std::string>()), [](auto&& s) {
+                const auto pos = s.find('=');
+                return std::pair{ s.substr(0, pos), s.substr(pos + 1), };
+            }))
+        };
     }
 };
 
-struct BlockState {
-    std::vector<Variant> multipart;
-    std::vector<Variant> variants;
+struct Variant {
+    VariantRule rule;
+    std::vector<Model> models;
+};
 
-    [[nodiscard]] auto get_variant(BlockData state) const -> const Variant* {
-        for (auto& variant : multipart) {
-            if (variant.check(state)) {
-                return &variant;
-            }
+struct Multipart {
+    std::vector<Model> apply;
+    tl::optional<MultipartRule> when;
+};
+
+struct BlockState {
+    std::vector<Variant> variants;
+    std::vector<Multipart> multiparts;
+
+    [[nodiscard]] auto get_model(BlockData state) const -> const Model * {
+        for (auto& multipart : multiparts) {
+            return &multipart.apply.at(0);
         }
         for (auto& variant : variants) {
-            if (variant.check(state)) {
-                return &variant;
+            if (variant.rule.check(state)) {
+                return &variant.models.at(0);
             }
         }
         return nullptr;

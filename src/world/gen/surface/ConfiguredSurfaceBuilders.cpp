@@ -18,8 +18,8 @@ auto Json::Into<ConfiguredSurfaceBuilder*>::into(const Self& obj) -> Result {
     return ConfiguredSurfaceBuilders::builders.get(obj.as_string().value());
 }
 
-void ConfiguredSurfaceBuilders::init(ResourceManager& resources) {
-    resources.enumerate("definitions/configured_surface_builders", [](std::istream& stream) {
+void ConfiguredSurfaceBuilders::init() {
+    ResourceManager::enumerate("definitions/configured_surface_builders", [](std::istream& stream) {
         auto o = Json::Read::read(stream).value();
 
         builders.add(o.at("name").as_string().value(), std::make_unique<ConfiguredSurfaceBuilder>(ConfiguredSurfaceBuilder{

@@ -206,8 +206,6 @@ static auto getRotationDelta(const Transform& transform, glm::ivec2 delta, float
     return {};
 }
 
-ResourceManager* ResourceManager::mGlobalResourcePack;
-
 using ServerNetHandler = PacketHandler<
     SEncryptionRequestPacket,
     SEnableCompressionPacket,
@@ -231,7 +229,6 @@ struct Game : Blaze::Application {
     std::unique_ptr<ViewFrustum> frustum{};
     std::unique_ptr<Connection> connection{};
     std::unique_ptr<WorldRenderer> renderer{};
-    std::unique_ptr<ResourceManager> resources{};
     tl::optional<RayTraceResult> rayTraceResult{};
     std::shared_ptr<ImLogger> logger = std::make_shared<ImLogger>();
 
@@ -242,12 +239,7 @@ struct Game : Blaze::Application {
     void Init() override {
         camera.setSize(Screen::getSize());
 
-        resources = std::make_unique<ResourceManager>();
-        resources->emplace(std::make_unique<PhysFsResourcePack>("/client-extra"));
-        resources->emplace(std::make_unique<PhysFsResourcePack>("/resource_packs/vanilla"));
-        resources->emplace(std::make_unique<FolderResourcePack>(std::filesystem::current_path()));
-
-        ResourceManager::mGlobalResourcePack = resources.get();
+        PHYSFS_mount("client-extra.zip", nullptr, 1);
 
         loadResources();
         startLocalServer();
@@ -393,6 +385,7 @@ private:
         Materials::init();
         Blocks::init();
         BlockStates::init();
+        Models::init();
         States::init();
         BlockTags::init();
         Carvers::init();
@@ -400,21 +393,19 @@ private:
         Placements::init();
         Structures::init();
         SurfaceBuilders::init();
-        ConfiguredCarvers::init(*resources);
-        ConfiguredFeatures::init(*resources);
+        ConfiguredCarvers::init();
+        ConfiguredFeatures::init();
         ProcessorLists::init();
-        JigsawPools::init(*resources);
-        StructureFeatures::init(*resources);
-        ConfiguredSurfaceBuilders::init(*resources);
-
-        Biomes::init(*resources);
-        Models::init(*resources);
+        JigsawPools::init();
+        StructureFeatures::init();
+        ConfiguredSurfaceBuilders::init();
+        Biomes::init();
     }
 
     void startLocalServer() {
         const auto viewDistance = std::max(2, renderDistance - 1);
         world = std::make_unique<ClientWorld>(viewDistance);
-        server = std::make_unique<CraftServer>(viewDistance + 1, *resources);
+        server = std::make_unique<CraftServer>(viewDistance + 1);
         frustum = std::make_unique<ViewFrustum>(renderDistance);
 
         connection = std::make_unique<Connection>(entt::null, server->getLocalAddress());

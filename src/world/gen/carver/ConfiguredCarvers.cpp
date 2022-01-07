@@ -17,8 +17,8 @@ auto Json::Into<ConfiguredCarver*>::into(const Self& obj) -> Result {
     return ConfiguredCarvers::carvers.get(obj.as_string().value());
 }
 
-void ConfiguredCarvers::init(ResourceManager& resources) {
-    resources.enumerate("definitions/configured_carvers", [](std::istream& stream) {
+void ConfiguredCarvers::init() {
+    ResourceManager::enumerate("definitions/configured_carvers", [](std::istream& stream) {
         auto o = Json::Read::read(stream).value();
 
         carvers.add(o.at("name").as_string().value(), std::make_unique<ConfiguredCarver>(ConfiguredCarver{

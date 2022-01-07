@@ -6,8 +6,8 @@ struct JigsawBlock : Block {
     using Block::Block;
 
     struct Payload {
-        uint16_t orientation : 1;
-        uint16_t : 15;
+        uint16_t orientation : 4;
+        uint16_t : 12;
     };
 
     static constexpr auto ORIENTATION = Property::ORIENTATION;
@@ -26,5 +26,17 @@ struct JigsawBlock : Block {
         payload.orientation = static_cast<uint16_t>(orientation);
         state.dv = std::bit_cast<uint16_t>(payload);
         return state;
+    }
+
+    auto rotate(BlockData state, Rotation rotation) -> BlockData override {
+        return state.set<ORIENTATION>(RotationUtil::rotate(rotation, state.get<ORIENTATION>()));
+    }
+
+    static auto getFrontFacing(BlockData state) -> Direction {
+        return JigsawOrientations::getFrontFacing(state.get<ORIENTATION>());
+    }
+
+    static auto getTopFacing(BlockData state) -> Direction {
+        return JigsawOrientations::getTopFacing(state.get<ORIENTATION>());
     }
 };

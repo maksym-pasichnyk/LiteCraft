@@ -12,7 +12,7 @@ struct MineshaftPieces::Corridor : Piece {
         setCoordBaseMode(facing);
         hasRails = random.nextInt(3) == 0;
         hasSpiders = !hasRails && random.nextInt(23) == 0;
-        sectionCount = (DirectionUtil::getAxis(facing) == DirectionUtil::Axis::Z ? bounds.getZSize() : bounds.getXSize()) / 5;
+        sectionCount = (DirectionUtil::getAxis(facing) == DirectionAxis::Z ? bounds.getZSize() : bounds.getXSize()) / 5;
     }
 
     static tl::optional<BoundingBox> findCorridor(std::span<StructurePiece*> pieces, Random& random, int x, int y, int z, Direction facing);

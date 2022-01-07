@@ -13,6 +13,7 @@
 #include <list>
 #include <map>
 #include <bit>
+#include "spdlog/spdlog.h"
 
 struct Nbt {
 	struct Tag;
@@ -306,8 +307,8 @@ struct Nbt {
 
 		Tag(std::initializer_list<std::pair<const std::string, Tag>> v) noexcept : m_storage(Compound{v}) {}
 
-		template <typename T> requires (!std::is_same_v<std::decay_t<T>, Tag>)
-		Tag(T&& obj) : Tag(Serialize<std::decay_t<T>>::to_tag(std::forward<T>(obj))) {}
+//		template <typename T> requires (!std::is_same_v<std::decay_t<T>, Tag>)
+//		Tag(T&& obj) : Tag(Serialize<std::decay_t<T>>::to_tag(std::forward<T>(obj))) {}
 
         Tag& operator=(Tag&&) = default;
         Tag& operator=(const Tag&) = default;
@@ -316,6 +317,11 @@ struct Nbt {
 		operator T() const {
 			return Deserialize<std::decay_t<T>>::from_tag(*this).value();
 		}
+
+        template<typename T>
+        auto get() const -> T const& {
+            return std::get<T>(m_storage);
+        }
 
         Value m_storage;
 	};
@@ -330,16 +336,16 @@ struct Nbt {
 
 	template<typename T>
 	struct Serialize {
-		static auto to_tag(const T& val) -> Tag {
+		static auto to_tag(const T& val) -> Tag;/* {
 			return End{};
-		}
+		}*/
 	};
 
 	template<typename T>
 	struct Deserialize {
-		static auto from_tag(const Tag& obj) -> tl::optional<T> {
+		static auto from_tag(const Tag& obj) -> tl::optional<T>;/* {
 			return tl::nullopt;
-		}
+		}*/
 	};
 };
 
@@ -749,22 +755,22 @@ private:
 	}
 };
 
-static auto operator<<(std::ostream& out, const Nbt::Tag& tag) noexcept -> std::ostream& {
-//    Nbt::Dump::dump(out, tag);
-    return out;
-}
-
-static auto operator<<(std::ostream&& out, const Nbt::Tag& tag) noexcept -> std::ostream&& {
-//    Nbt::Dump::dump(out, tag);
-    return std::move(out);
-}
-
-static auto operator>>(std::istream& in, Nbt::Tag& tag) noexcept -> std::istream& {
-    tag = Nbt::Read::read(in).value();
-    return in;
-}
-
-static auto operator>>(std::istream&& in, Nbt::Tag& tag) noexcept -> std::istream&& {
-    tag = Nbt::Read::read(in).value();
-    return std::move(in);
-}
+//static auto operator<<(std::ostream& out, const Nbt::Tag& tag) noexcept -> std::ostream& {
+////    Nbt::Dump::dump(out, tag);
+//    return out;
+//}
+//
+//static auto operator<<(std::ostream&& out, const Nbt::Tag& tag) noexcept -> std::ostream&& {
+////    Nbt::Dump::dump(out, tag);
+//    return std::move(out);
+//}
+//
+//static auto operator>>(std::istream& in, Nbt::Tag& tag) noexcept -> std::istream& {
+//    tag = Nbt::Read::read(in).value();
+//    return in;
+//}
+//
+//static auto operator>>(std::istream&& in, Nbt::Tag& tag) noexcept -> std::istream&& {
+//    tag = Nbt::Read::read(in).value();
+//    return std::move(in);
+//}

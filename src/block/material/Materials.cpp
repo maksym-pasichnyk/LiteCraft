@@ -1,5 +1,11 @@
 #include "Materials.hpp"
 
+#include <array>
+#include <string>
+#include <fstream>
+#include <Json.hpp>
+#include <spdlog/fmt/fmt.h>
+
 BlockMaterial * Materials::AIR;
 BlockMaterial * Materials::STRUCTURE_VOID;
 BlockMaterial * Materials::PORTAL;
@@ -44,6 +50,18 @@ BlockMaterial * Materials::CORAL;
 BlockMaterial * Materials::GOURD;
 BlockMaterial * Materials::DRAGON_EGG;
 BlockMaterial * Materials::CAKE;
+
+template<>
+auto Json::From<PushReaction>::from(const Value &value) -> Self {
+    switch (value) {
+        case PushReaction::NORMAL: return "normal";
+        case PushReaction::DESTROY: return "destroy";
+        case PushReaction::BLOCK: return "block";
+        case PushReaction::IGNORE: return "ignore";
+        case PushReaction::PUSH_ONLY: return "push_only";
+    }
+    return {};
+}
 
 void Materials::init() {
     AIR = BlockMaterial::Builder(MaterialColors::AIR).doesNotBlockMovement().notOpaque().notSolid().replaceable().build();
@@ -90,4 +108,53 @@ void Materials::init() {
     GOURD = BlockMaterial::Builder(MaterialColors::FOLIAGE).pushDestroys().build();
     DRAGON_EGG = BlockMaterial::Builder(MaterialColors::FOLIAGE).pushDestroys().build();
     CAKE = BlockMaterial::Builder(MaterialColors::AIR).pushDestroys().build();
+
+    using namespace std::string_literals;
+
+    const auto materials = std::array {
+        std::pair{"air"s, AIR},
+        std::pair{"structure_void"s, STRUCTURE_VOID},
+        std::pair{"portal"s, PORTAL},
+        std::pair{"carpet"s, CARPET},
+        std::pair{"plants"s, PLANTS},
+        std::pair{"ocean_plant"s, OCEAN_PLANT},
+        std::pair{"tall_plants"s, TALL_PLANTS},
+        std::pair{"nether_plants"s, NETHER_PLANTS},
+        std::pair{"sea_grass"s, SEA_GRASS},
+        std::pair{"water"s, WATER},
+        std::pair{"bubble_column"s, BUBBLE_COLUMN},
+        std::pair{"lava"s, LAVA},
+        std::pair{"snow"s, SNOW},
+        std::pair{"fire"s, FIRE},
+        std::pair{"miscellaneous"s, MISCELLANEOUS},
+        std::pair{"web"s, WEB},
+        std::pair{"redstone_light"s, REDSTONE_LIGHT},
+        std::pair{"clay"s, CLAY},
+        std::pair{"earth"s, EARTH},
+        std::pair{"organic"s, ORGANIC},
+        std::pair{"packed_ice"s, PACKED_ICE},
+        std::pair{"sand"s, SAND},
+        std::pair{"sponge"s, SPONGE},
+        std::pair{"shulker"s, SHULKER},
+        std::pair{"wood"s, WOOD},
+        std::pair{"nether_wood"s, NETHER_WOOD},
+        std::pair{"bamboo_sapling"s, BAMBOO_SAPLING},
+        std::pair{"bamboo"s, BAMBOO},
+        std::pair{"wool"s, WOOL},
+        std::pair{"tnt"s, TNT},
+        std::pair{"leaves"s, LEAVES},
+        std::pair{"glass"s, GLASS},
+        std::pair{"ice"s, ICE},
+        std::pair{"cactus"s, CACTUS},
+        std::pair{"rock"s, ROCK},
+        std::pair{"iron"s, IRON},
+        std::pair{"snow_block"s, SNOW_BLOCK},
+        std::pair{"anvil"s, ANVIL},
+        std::pair{"barrier"s, BARRIER},
+        std::pair{"piston"s, PISTON},
+        std::pair{"coral"s, CORAL},
+        std::pair{"gourd"s, GOURD},
+        std::pair{"dragon_egg"s, DRAGON_EGG},
+        std::pair{"cake"s, CAKE}
+    };
 }

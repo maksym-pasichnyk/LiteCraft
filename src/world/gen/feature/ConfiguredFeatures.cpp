@@ -246,7 +246,7 @@ auto Json::Into<ConfiguredFeature*>::into(const Self& obj) -> Result {
     return ConfiguredFeatures::features.get(obj.as_string().value());
 }
 
-void ConfiguredFeatures::init(ResourceManager& resources) {
+void ConfiguredFeatures::init() {
     auto BEES_0002_PLACEMENT = new BeehiveTreeDecorator(0.002F);
     auto BEES_002_PLACEMENT = new BeehiveTreeDecorator(0.02F);
     auto BEES_005_PLACEMENT = new BeehiveTreeDecorator(0.05F);

@@ -5,5 +5,5 @@
 struct BastionRemnantStructure : CfgStructure<JigsawConfig> {
     BastionRemnantStructure() : CfgStructure(&BastionRemnantStructure::createComponents) {}
 
-    static void createComponents(StructurePieces& pieces, StructureGenerateContext& context, const StructureConfig& config) {}
+    static void createComponents(StructurePieces& pieces, StructureGenerateContext& context, const StructureConfig& config);
 };

@@ -7,7 +7,7 @@ bool NetherackBlobReplacementStructure::generate(WorldGenRegion &reader, ChunkGe
     const auto &cfg = std::get<BlobReplacementConfig>(config);
 
     const auto block = cfg.target.getBlock();
-    const auto start = getLowestPosition(reader, pos.clampAxisCoordinate(DirectionUtil::Axis::Y, 1, /*reader.getHeight()*/ 256 - 1).value(), block);
+    const auto start = getLowestPosition(reader, pos.clampAxisCoordinate(DirectionAxis::Y, 1, /*reader.getHeight()*/ 256 - 1).value(), block);
     if (!start.has_value()) {
         return false;
     }

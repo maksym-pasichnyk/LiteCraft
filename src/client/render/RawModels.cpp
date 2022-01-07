@@ -12,11 +12,11 @@ auto RawModels::get(const std::string& name) -> RawModel* {
         return *cache;
     }
 
-    const auto location = ResourceLocation::from(name).get_location();
+    const auto location = ResourceLocation::from(name);
 
-    auto o = ResourceManager::mGlobalResourcePack->open(fmt::format("assets/minecraft/models/{}.json", location))
-         .and_then([](const ResourceIO& resource) { return Json::Read::read(*resource.io); })
-         .map([](const Json& o) { return o.into<ModelDefinition>(); })
+    auto o = Resources::open(fmt::format("assets/{}/models/{}.json", location.get_namespace(), location.get_location()))
+         .and_then([](auto&& resource) { return Json::Read::read(*resource); })
+         .and_then(Json::Into<RawModelDefinition>::into)
          .value();
 
     auto model = std::make_unique<RawModel>();
@@ -38,49 +38,9 @@ auto RawModels::get(const std::string& name) -> RawModel* {
             glm::vec3(from.x,   to.y, to.z),
             glm::vec3(from.x, from.y, to.z),
         };
-
-        if (auto&& rotation = element.rotation) {
-            const auto angle = glm::radians(rotation->angle);
-            const auto origin = rotation->origin;
-            const auto rescale = rotation->rescale;
-
-            // ix = 2, iy = 1 -> rotate around X axis
-            // ix = 0, iy = 2 -> rotate around Y axis
-            // ix = 1, iy = 0 -> rotate around Z axis
-            const auto rot = [&](int ix, int iy) {
-                const auto ox = origin[ix];
-                const auto oy = origin[iy];
-
-                const auto s = glm::sin(angle);
-                const auto c = glm::cos(angle);
-
-                for (auto& point : points) {
-                    const auto x = point[ix] - ox;
-                    const auto y = point[iy] - oy;
-                    point[ix] = y * s + x * c;
-                    point[iy] = y * c - x * s;
-                }
-
-                if (rescale) {
-                    const auto scale = glm::sqrt(2.0f);
-                    for (auto& point : points) {
-                        point[ix] *= scale;
-                        point[iy] *= scale;
-                    }
-                }
-
-                for (auto& point : points) {
-                    point[ix] += ox;
-                    point[iy] += oy;
-                }
-            };
-
-            switch (rotation->axis) {
-                case DirectionAxis::X: rot(2, 1); break;
-                case DirectionAxis::Y: rot(0, 2); break;
-                case DirectionAxis::Z: rot(1, 0); break;
-            }
-        }
+        element.rotation.map([&points](auto&& self) {
+            self.rotate(points);
+        });
 
         const auto vertices = std::array{
             std::array{points[3], points[4], points[7], points[0]},
@@ -115,14 +75,14 @@ auto RawModels::get(const std::string& name) -> RawModel* {
                 glm::vec2(uv.z, uv.y),
                 glm::vec2(uv.z, uv.w),
             };
-            for (int i = 0; i < v.rotation; i += 90) {
-                uvs = std::array {
-                    glm::vec2(uvs[3].x, uvs[3].y),
-                    glm::vec2(uvs[0].x, uvs[0].y),
-                    glm::vec2(uvs[1].x, uvs[1].y),
-                    glm::vec2(uvs[2].x, uvs[2].y)
-                };
-            }
+//            for (int i = 0; i < v.rotation; i += 90) {
+//                uvs = std::array {
+//                    glm::vec2(uvs[3].x, uvs[3].y),
+//                    glm::vec2(uvs[0].x, uvs[0].y),
+//                    glm::vec2(uvs[1].x, uvs[1].y),
+//                    glm::vec2(uvs[2].x, uvs[2].y)
+//                };
+//            }
 
             model->faces.emplace_back(RawFace{
                 .texture = v.texture,

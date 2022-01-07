@@ -757,6 +757,94 @@ auto Json::Into<NoteBlockInstrument>::into(const Json& o) -> Result {
     return o.as_string().and_then(FromString<Value>::from);
 }
 
+template<>
+auto Json::From<Half>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+template<>
+auto Json::From<BedPart>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+template<>
+auto Json::From<SlabType>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+template<>
+auto Json::From<RailShape>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+template<>
+auto Json::From<ChestType>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+template<>
+auto Json::From<Direction>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+template<>
+auto Json::From<PistonType>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+template<>
+auto Json::From<AttachFace>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+template<>
+auto Json::From<WallHeight>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+template<>
+auto Json::From<StairsShape>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+template<>
+auto Json::From<RedstoneSide>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+template<>
+auto Json::From<BambooLeaves>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+template<>
+auto Json::From<DoorHingeSide>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+template<>
+auto Json::From<StructureMode>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+template<>
+auto Json::From<DirectionAxis>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+template<>
+auto Json::From<ComparatorMode>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+template<>
+auto Json::From<BellAttachment>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+template<>
+auto Json::From<DoubleBlockHalf>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+template<>
+auto Json::From<JigsawOrientation>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+template<>
+auto Json::From<NoteBlockInstrument>::from(const Value& value) -> Self {
+    return IntoString<Value>::into(value).value();
+}
+
+template<>
+auto Json::From<PropertyValue>::from(const Value& value) -> Self {
+    return match(value, []<typename T>(const T& item) -> Self {
+        return Self(item);
+    });
+}
+
 namespace {
     struct PropertyInfo {
         std::string name;

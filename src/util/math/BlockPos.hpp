@@ -4,8 +4,8 @@
 #include <glm/glm.hpp>
 #include <range/v3/view.hpp>
 #include <range/v3/algorithm.hpp>
-#include <util/RotationUtil.hpp>
-#include <util/DirectionUtil.hpp>
+#include <util/Rotation.hpp>
+#include <util/Direction.hpp>
 
 struct BlockPos : glm::ivec3 {
     using glm::ivec3::ivec3;
@@ -49,6 +49,10 @@ struct BlockPos : glm::ivec3 {
 
     static auto getAllInBox(const BlockPos& from, const BlockPos& to) {
         return getAllInBox(from.x, from.y, from.z, to.x, to.y, to.z);
+    }
+
+    constexpr auto add(const BlockPos& pos) const noexcept -> BlockPos {
+        return add(pos.x, pos.y, pos.z);
     }
 
     constexpr auto add(int dx, int dy, int dz) const noexcept -> BlockPos {

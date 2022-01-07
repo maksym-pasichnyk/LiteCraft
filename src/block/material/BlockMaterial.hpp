@@ -1,11 +1,11 @@
 #pragma once
 
-//#include "PushReaction.hpp"
+#include "PushReaction.hpp"
 #include "MaterialColors.hpp"
 
 struct BlockMaterial {
     MaterialColor color = MaterialColors::AIR;
-//    PushReaction pushReaction = PushReaction::NORMAL;
+    PushReaction pushReaction = PushReaction::NORMAL;
     bool isBlocksMovement = true;
     bool isReplaceable = false;
     bool isFlammable = false;
@@ -15,7 +15,7 @@ struct BlockMaterial {
 
     struct Builder {
         MaterialColor color;
-//        PushReaction pushReaction = PushReaction::NORMAL;
+        PushReaction pushReaction = PushReaction::NORMAL;
         bool isBlocksMovement = true;
         bool isReplaceable = false;
         bool isFlammable = false;
@@ -56,19 +56,19 @@ struct BlockMaterial {
         }
 
         constexpr Builder& pushDestroys() {
-//            pushReaction = PushReaction::DESTROY;
+            pushReaction = PushReaction::DESTROY;
             return *this;
         }
 
         constexpr Builder& pushBlocks() {
-//            pushReaction = PushReaction::BLOCK;
+            pushReaction = PushReaction::BLOCK;
             return *this;
         }
 
-        /*constexpr*/ BlockMaterial * build() {
+        /*constexpr*/ BlockMaterial* build() {
             return new BlockMaterial{
                 .color = color,
-//                .pushReaction = pushReaction,
+                .pushReaction = pushReaction,
                 .isBlocksMovement = isBlocksMovement,
                 .isReplaceable = isReplaceable,
                 .isFlammable = isFlammable,

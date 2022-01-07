@@ -6,7 +6,7 @@
 
 Registry<Biome> Biomes::biomes;
 
-void Biomes::init(ResourceManager& resources) {
+void Biomes::init() {
     static const auto ids = std::map<std::string, int> {
         { "ocean", 0 },
         { "plains", 1 },
@@ -89,7 +89,7 @@ void Biomes::init(ResourceManager& resources) {
         { "basalt_deltas", 173 }
     };
 
-    resources.enumerate("definitions/biomes/", [](std::istream& stream) {
+    ResourceManager::enumerate("definitions/biomes/", [](std::istream& stream) {
         auto o = Json::Read::read(stream).value();
         auto&& name = o.at("name").as_string().value();
 
