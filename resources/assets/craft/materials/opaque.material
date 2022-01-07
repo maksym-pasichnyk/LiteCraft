@@ -1,0 +1,51 @@
+{
+	"stages": [
+		{
+			"file": "craft:shaders/default.vert.spv",
+			"type": "vertex",
+			"entry": "main"
+		},
+		{
+			"file": "craft:shaders/default.frag.spv",
+			"type": "fragment",
+			"entry": "main"
+		}
+	],
+	"bindings": [
+		{
+			"stride": 28,
+			"input_rate": "vertex",
+			"attributes": [
+				{
+					"location": 0,
+					"format": "r32g32b32_sfloat",
+					"offset": 0
+				},
+				{
+					"location": 1,
+					"format": "r32g32_sfloat",
+					"offset": 12
+				},
+				{
+					"location": 2,
+					"format": "r8g8b8a8_unorm",
+					"offset": 20
+				},
+				{
+					"location": 3,
+					"format": "r8g8b8a8_unorm",
+					"offset": 24
+				}
+			]
+		}
+	],
+	"topology": "triangle_list",
+	"depth_test_enable": true,
+	"depth_write_enable": true,
+	"depth_compare_op": "less",
+	"cull_mode": "back",
+	"line_width": 1.0,
+	"attachments": [
+		{}
+	]
+}
