@@ -1,8 +1,10 @@
 #pragma once
 
 #include <vector>
+#include "camera.hpp"
 #include <glm/glm.hpp>
 #include <Material.hpp>
+#include <client/render/ViewFrustum.hpp>
 #include <client/render/chunk/ChunkRenderDispatcher.hpp>
 
 enum class RenderLayer;
@@ -19,16 +21,19 @@ struct CameraConstants {
 };
 
 struct WorldRenderer {
+    Camera camera{};
     Material entityMaterial;
     Material opaqueMaterial;
     Material cutoutMaterial;
     Material transparentMaterial;
 
+    ViewFrustum frustum;
     ChunkRenderDispatcher dispatcher{};
     std::vector<GraphicsBuffer> uniforms{};
     std::vector<ChunkRenderData*> chunkToRenders{};
 
-    WorldRenderer();
+    explicit WorldRenderer(int renderDistance);
+
     void drawTerrain(CommandBuffer cmd);
 
 private:

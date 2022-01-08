@@ -20,13 +20,11 @@ using ClientNetHandler = PacketHandler<
 >;
 
 struct CraftServer {
-    entt::registry ecs;
-
-    ClientNetHandler handler;
-
-    std::unique_ptr<ServerWorld> world = nullptr;
-    std::vector<std::thread> workers{};
+    entt::registry ecs{};
     TcpListener listener{};
+    ClientNetHandler handler{};
+    std::vector<std::thread> workers{};
+    std::unique_ptr<ServerWorld> world = nullptr;
 
 //    std::stop_source stop_source;
     bool request_stop = false;

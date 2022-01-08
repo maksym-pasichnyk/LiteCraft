@@ -2,6 +2,7 @@
 #include "world/ServerWorld.hpp"
 #include "world/ChunkManager.hpp"
 
+#include <Json.hpp>
 #include <functional>
 #include <transform.hpp>
 
@@ -12,7 +13,6 @@ CraftServer::CraftServer(int viewDistance) : viewDistance(viewDistance) {
     listener.set_blocking(false);
 
     world = std::make_unique<ServerWorld>(this, viewDistance);
-
     workers.emplace_back(&CraftServer::runLoop, this/*, stop_source.get_token()*/);
 }
 
@@ -28,32 +28,20 @@ void CraftServer::runLoop(/*std::stop_token &&token*/) {
             handler.handlePackets(*this, connection);
         });
 
-        ecs.view<Connection>().each([this](auto& connection) {
-            world->manager->tick(connection);
-        });
+        while (auto pos = world->manager->complete.try_pop()) {
+            const auto [x, z] = *pos;
+            auto chunk = world->manager->getChunk(x, z).get();
 
-//            const auto stride = (world->manager->viewDistance + 10 + 2) * 2 + 1;
-//            if (world->manager->holders.size() > stride * stride) {
-//                std::erase_if(world->manager->holders, [this](auto &it) {
-//                    const auto pos = ChunkPos::from(it.first);
-//                    const auto distance = ChunkManager::getChunkDistance(last_player_position, pos);
-//                    if (distance > (world->manager->viewDistance + 10)) {
-//                        for (size_t i = 0; i < 7; ++i) {
-////                            if (it.second->chunks[i].has_value()) {
-////                                fmt::print("{}\n", it.second->chunks[i]->get().use_count());
-////                                fmt::print("{}\n", it.second->chunks[i]->get().use_count());
-////                                fmt::print("\n");
-////                            }
-//                            if (it.second->chunks[i].has_value() && !it.second->chunks[i]->ready()) {
-//                                return false;
-//                            }
-//                        }
-//                        return true;
-//                    }
-//                    return false;
-//                });
-//            }
+            ecs.view<Connection>().each([o = chunk->to_json(), x = x, z = z](auto& connection) {
+                connection.send(SLoadChunkPacket{o, x, z});
+            });
+//            world->manager->complete.emplace(*pos);
+            break;
+        }
 
+//        ecs.view<Connection>().each([this](auto& connection) {
+//            world->manager->tick(connection);
+//        });
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
@@ -73,9 +61,11 @@ void CraftServer::onPacket(Connection& connection, const CEncryptionResponsePack
     const auto rotation = glm::vec2{};
 
     ecs.replace<Transform>(connection.player, position, rotation);
-//    ecs.view<Connection>().each([&position](auto e, auto&& c) {
-//        c.send(SSpawnPlayerPacket{position});
-//    });
+    ecs.view<Connection>().each([&position, player = connection.player](auto e, auto&& c) {
+        if (e != player) {
+            c.send(SSpawnPlayerPacket{position});
+        }
+    });
     connection.send(SJoinGamePacket{});
     connection.send(SPlayerPositionLookPacket{position, rotation});
 

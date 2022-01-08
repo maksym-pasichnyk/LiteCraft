@@ -20,16 +20,16 @@ ChunkManager::ChunkManager(ServerWorld *world, ChunkGenerator *generator, Templa
     , viewDistance(world->viewDistance) {}
 
 void ChunkManager::tick(Connection & connection) {
-    while (auto pos = complete.try_pop()) {
-        const auto [x, z] = *pos;
-        auto chunk = getChunk(x, z).get();
-
-        if (connection.send(SLoadChunkPacket{chunk, x, z})) {
-            continue;
-        }
-        complete.emplace(*pos);
-        break;
-    }
+//    while (auto pos = complete.try_pop()) {
+//        const auto [x, z] = *pos;
+//        auto chunk = getChunk(x, z).get();
+//
+//        if (connection.send(SLoadChunkPacket{chunk, x, z})) {
+//            continue;
+//        }
+//        complete.emplace(*pos);
+//        break;
+//    }
 }
 
 void ChunkManager::setChunkLoadedAtClient(Connection& connection, int chunk_x, int chunk_z, bool wasLoaded, bool needLoad) {
@@ -37,7 +37,7 @@ void ChunkManager::setChunkLoadedAtClient(Connection& connection, int chunk_x, i
         connection.send(SUnloadChunkPacket{chunk_x, chunk_z});
     } else if (needLoad && !wasLoaded) {
         if (auto chunk = getChunk(chunk_x, chunk_z)) {
-            connection.send(SLoadChunkPacket{chunk.get(), chunk_x, chunk_z});
+            connection.send(SLoadChunkPacket{chunk->to_json(), chunk_x, chunk_z});
         }
     }
 }

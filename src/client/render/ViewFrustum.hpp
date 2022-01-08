@@ -6,8 +6,8 @@
 
 struct ViewFrustum {
     int stride;
-    std::vector<ChunkRenderData> chunks;
     std::array<glm::vec4, 6> planes{};
+    std::vector<ChunkRenderData> chunks{};
 
     explicit ViewFrustum(int viewDistance) : stride(viewDistance * 2 + 1), chunks(stride * stride) {}
 

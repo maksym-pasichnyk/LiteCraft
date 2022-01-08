@@ -9,6 +9,7 @@
     <mapping directory="$PROJECT_DIR$/ThirdParty/Blaze/blaze/third_party/glm" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/Blaze/blaze/third_party/imgui" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/Blaze/blaze/third_party/optional" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ThirdParty/Blaze/blaze/third_party/physfs" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/Blaze/blaze/third_party/range-v3" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/Blaze/blaze/third_party/range-v3/doc/gh-pages" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/Blaze/blaze/third_party/spdlog" vcs="Git" />
@@ -18,11 +19,7 @@
     <mapping directory="$PROJECT_DIR$/ThirdParty/entt" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/function2" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/function2/test/googletest" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ThirdParty/magic_enum" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ThirdParty/physfs" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/promise.hpp" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ThirdParty/range-v3" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ThirdParty/range-v3/doc/gh-pages" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/zlib-ng" vcs="Git" />
   </component>
 </project>

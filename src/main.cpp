@@ -3,53 +3,48 @@
 #include <mutex>
 #include <memory>
 #include <iostream>
+#include <functional>
 
 #include <glm/glm.hpp>
 #include <entt/entt.hpp>
 #include <spdlog/spdlog.h>
-#include <glm/gtx/euler_angles.hpp>
 
-#include <util/Utils.hpp>
-#include <core/AppPlatform.hpp>
-
-#include "CraftServer.hpp"
-#include "TextureAtlas.hpp"
-#include "camera.hpp"
 #include "raytrace.hpp"
 #include "transform.hpp"
+#include "CraftServer.hpp"
+#include "TextureAtlas.hpp"
+
+#include <Time.hpp>
+#include <Blaze.hpp>
+#include <Input.hpp>
+#include <Screen.hpp>
+#include <Display.hpp>
+#include <Material.hpp>
+#include <ImLogger.hpp>
+#include <WorldRenderer.hpp>
+#include <misc/cpp/imgui_stdlib.h>
 
 #include <block/Blocks.hpp>
 #include <block/States.hpp>
+#include <block/BlockStates.hpp>
+#include <client/world/ClientWorld.hpp>
+#include <client/render/ViewFrustum.hpp>
+#include <client/render/model/Models.hpp>
+#include <client/render/ModelComponent.hpp>
+#include <client/render/chunk/ChunkRenderDispatcher.hpp>
 
 #include <world/biome/Biome.hpp>
 #include <world/biome/Biomes.hpp>
 #include <world/chunk/ChunkStatus.hpp>
-#include <world/gen/pools/JigsawPools.hpp>
-#include <world/gen/surface/SurfaceBuilders.hpp>
-#include <world/gen/feature/processor/ProcessorLists.hpp>
-
-#include <client/render/ModelComponent.hpp>
-#include <client/render/ViewFrustum.hpp>
-#include <client/render/chunk/ChunkRenderDispatcher.hpp>
-#include <client/render/model/Models.hpp>
-#include <client/world/ClientWorld.hpp>
-
-#include <Blaze.hpp>
-#include <Display.hpp>
-#include <ImLogger.hpp>
-#include <Input.hpp>
-#include <Material.hpp>
-#include <Screen.hpp>
-#include <Time.hpp>
-#include <WorldRenderer.hpp>
-#include <block/BlockStates.hpp>
-
 #include <world/gen/carver/Carvers.hpp>
 #include <world/gen/feature/Features.hpp>
+#include <world/gen/pools/JigsawPools.hpp>
 #include <world/gen/placement/Placements.hpp>
+#include <world/gen/surface/SurfaceBuilders.hpp>
 #include <world/gen/carver/ConfiguredCarvers.hpp>
 #include <world/gen/feature/ConfiguredFeatures.hpp>
 #include <world/gen/feature/structure/Structures.hpp>
+#include <world/gen/feature/processor/ProcessorLists.hpp>
 #include <world/gen/surface/ConfiguredSurfaceBuilders.hpp>
 #include <world/gen/feature/structure/StructureFeatures.hpp>
 
@@ -218,36 +213,98 @@ using ServerNetHandler = PacketHandler<
     SJoinGamePacket
 >;
 
-struct Game : Blaze::Application {
+struct AppState {
+    virtual ~AppState() = default;
+
+    virtual void Init() = 0;
+    virtual void Destroy() = 0;
+    virtual void Update() = 0;
+    virtual void DrawUI() = 0;
+    virtual void Draw(CommandBuffer cmd) = 0;
+};
+
+struct MainState : AppState {
+    entt::delegate<void()> onStartButton;
+    entt::delegate<void()> onExitButton;
+    entt::delegate<void(std::string const& ip, int port)> onConnectButton;
+
+    std::string ip = "127.0.0.1";
+    int port = 8080;
+
+    void Init() override {
+    }
+    void Destroy() override {
+//        onStartButton.reset();
+//        onExitButton.reset();
+    }
+    void Update() override {
+
+    }
+    void DrawUI() override {
+        const auto sz = glm::vec2(Screen::getSize());
+
+        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(sz.x, sz.y), ImGuiCond_Always);
+        ImGui::Begin("#Screen", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration);
+        ImGui::SetCursorPos(ImVec2(sz.x * 0.5f - 100, sz.y * 0.5f - 40));
+        ImGui::BeginGroup();
+        if (ImGui::Button("Start", ImVec2(200, 30))) {
+            onStartButton();
+        }
+        ImGui::SetNextItemWidth(200);
+        ImGui::InputText("IP", &ip);
+        ImGui::SetNextItemWidth(200);
+        ImGui::InputInt("Port", &port);
+        if (ImGui::Button("Connect", ImVec2(200, 30))) {
+            onConnectButton(ip, port);
+        }
+        if (ImGui::Button("Exit", ImVec2(200, 30))) {
+            onExitButton();
+        }
+        ImGui::EndGroup();
+        ImGui::End();
+    }
+    void Draw(CommandBuffer cmd) override {
+    }
+};
+
+struct GameState : AppState {
+    entt::delegate<void()> onExitGame{};
+
     const int renderDistance = 10;
 
-    Camera camera{};
+    tl::optional<SocketAddr> addr{};
+
     entt::registry ecs{};
     ServerNetHandler handler{};
     std::unique_ptr<ClientWorld> world{};
     std::unique_ptr<CraftServer> server{};
-    std::unique_ptr<ViewFrustum> frustum{};
     std::unique_ptr<Connection> connection{};
     std::unique_ptr<WorldRenderer> renderer{};
     tl::optional<RayTraceResult> rayTraceResult{};
-    std::shared_ptr<ImLogger> logger = std::make_shared<ImLogger>();
-
-    Game() {
-        spdlog::default_logger()->sinks().push_back(logger);
-    }
 
     void Init() override {
-        camera.setSize(Screen::getSize());
-
-        PHYSFS_mount("client-extra.zip", nullptr, 1);
-
-        loadResources();
         startLocalServer();
     }
     void Destroy() override {
+//        onExitGame.reset();
+        connection.reset();
         renderer.reset();
+        server.reset();
+        world.reset();
     }
+
     void Update() override {
+        static auto flag = false;
+        extern auto GetDisplay() -> Display&;
+        if (Input::isMouseButtonDown(MouseButton::Left)) {
+            flag = true;
+        } else if (Input::isKeyDown(KeyCode::eEscape)) {
+            flag = false;
+        }
+        if (GetDisplay().hasFocus()) {
+            Input::setLock(flag);
+        }
         handler.handlePackets(*this, *connection);
 
         TextureManager::instance().tick(Time::getDeltaTime());
@@ -336,24 +393,13 @@ struct Game : Blaze::Application {
                 }
             }
         });
-    }
-    void Render(CommandBuffer cmd) override {
-        setupCamera();
-        setupTerrain();
-        renderer->drawTerrain(cmd);
 
-        ecs.view<Transform, ModelComponent>().each([](const auto& tr, const auto& mr) {
-            // todo: animation
-//            const auto m = tr.localToWorldMatrix();
-//
-//            glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(m));
-//            glBindVertexArray(mr.mesh->vao);
-//            glDrawElements(GL_TRIANGLES, mr.mesh->index_count, GL_UNSIGNED_INT, nullptr);
-        });
+//        if (Input::isKeyDown(KeyCode::eEscape)) {
+//            onExitGame();
+//        }
     }
     void DrawUI() override {
         const auto screenSize = Screen::getSize();
-
         const auto position = glm::ivec3(glm::floor(ecs.get<Transform>(connection->player).position));
 
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
@@ -376,49 +422,42 @@ struct Game : Blaze::Application {
 
         ImGui::SetNextWindowPos(ImVec2(0, glm::f32(screenSize.y - 100)), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(glm::f32(screenSize.x), 100), ImGuiCond_Always);
-        logger->Draw("Console");
+//        logger->Draw("Console");
+    }
+    void Draw(CommandBuffer cmd) override {
+        setupCamera();
+        setupTerrain();
+        renderer->drawTerrain(cmd);
+//
+//        ecs.view<Transform, ModelComponent>().each([](const auto& tr, const auto& mr) {
+//// todo: animation
+////            const auto m = tr.localToWorldMatrix();
+////
+////            glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(m));
+////            glBindVertexArray(mr.mesh->vao);
+////            glDrawElements(GL_TRIANGLES, mr.mesh->index_count, GL_UNSIGNED_INT, nullptr);
+//        });
     }
 
 private:
-    void loadResources() {
-        ChunkStatus::init();
-        Materials::init();
-        Blocks::init();
-        BlockStates::init();
-        Models::init();
-        States::init();
-        BlockTags::init();
-        Carvers::init();
-        Features::init();
-        Placements::init();
-        Structures::init();
-        SurfaceBuilders::init();
-        ConfiguredCarvers::init();
-        ConfiguredFeatures::init();
-        ProcessorLists::init();
-        JigsawPools::init();
-        StructureFeatures::init();
-        ConfiguredSurfaceBuilders::init();
-        Biomes::init();
-    }
-
     void startLocalServer() {
         const auto viewDistance = std::max(2, renderDistance - 1);
         world = std::make_unique<ClientWorld>(viewDistance);
-        server = std::make_unique<CraftServer>(viewDistance + 1);
-        frustum = std::make_unique<ViewFrustum>(renderDistance);
 
-        connection = std::make_unique<Connection>(entt::null, server->getLocalAddress());
+        if (!addr) {
+            server = std::make_unique<CraftServer>(viewDistance + 1);
+            addr = server->getLocalAddress();
+        }
+        renderer = std::make_unique<WorldRenderer>(renderDistance);
+
+        connection = std::make_unique<Connection>(entt::null, *addr);
         connection->send(CHandshakePacket{720, ProtocolType::HANDSHAKING});
         connection->send(CLoginStartPacket{});
 
-        const auto stride = renderDistance * 2 + 1;
-        while (world->provider->chunkArray.getLoaded() < stride * stride) {
+        while (connection->player == entt::null) {
             handler.handlePackets(*this, *connection);
         }
-        spdlog::info("Game started: {}", server->getLocalAddress());
-
-        renderer = std::make_unique<WorldRenderer>();
+        spdlog::info("Game started: {}", *addr);
     }
 
 public:
@@ -433,11 +472,26 @@ public:
     void onPacket(Connection& _, const SLoginSuccessPacket& packet) {}
 
     void onPacket(Connection& _, const SLoadChunkPacket& packet) {
-        world->loadChunk(packet.x, packet.z, packet.chunk);
+        spdlog::info("LoadChunk: {}, {}", packet.x, packet.z);
+
+        auto chunk = new Chunk(ChunkPos::from(packet.x, packet.z));
+        auto&& sections = packet.o.at("sections").as_array().value();
+        for (auto i = 0; i < sections.size(); ++i) {
+            auto&& section = sections.at(i).as_array().value();
+            if (section.empty()) {
+                continue;
+            }
+            chunk->sections.at(i) = std::make_unique<ChunkSection>();
+            for (auto j = 0; j < section.size(); ++j) {
+                chunk->sections.at(i)->blocks.at(j) = section.at(j);
+            }
+        }
+
+        world->loadChunk(packet.x, packet.z, chunk);
 
         for (int x = packet.x - 1; x <= packet.x + 1; ++x) {
             for (int z = packet.z - 1; z <= packet.z + 1; ++z) {
-                frustum->markForRender(x, z);
+                renderer->frustum.markForRender(x, z);
             }
         }
     }
@@ -447,10 +501,18 @@ public:
     }
 
     void onPacket(Connection& _, const SChangeBlockPacket& packet) {
+        spdlog::info("ChangeBlock: {}, {}, {}", packet.pos.x, packet.pos.y, packet.pos.z);
+
+        auto chunk = world->getChunk(packet.pos.x >> 4, packet.pos.z >> 4);
+        if (!chunk) {
+            return;
+        }
+        chunk->setData(packet.pos, packet.block);
+
         const auto pos = packet.pos;
         for (int x = (pos.x - 1) >> 4; x <= (pos.x + 1) >> 4; x++) {
             for (int z = (pos.z - 1) >> 4; z <= (pos.z + 1) >> 4; z++) {
-                frustum->markForRender(x, z);
+                renderer->frustum.markForRender(x, z);
             }
         }
     }
@@ -473,11 +535,13 @@ public:
     }
 
     void onPacket(Connection& _, const SSpawnPlayerPacket& packet) {
+        spdlog::info("SpawnPlayer: {}, {}, {}", packet.pos.x, packet.pos.y, packet.pos.z);
+
         auto player = ecs.create();
         ecs.emplace<Transform>(player, packet.pos, glm::vec2{});
-        ecs.emplace<ModelComponent>(player, *Models::models.get("geometry.humanoid").value());
+//        ecs.emplace<ModelComponent>(player, *Models::models.get("geometry.humanoid").value());
 //        ecs.emplace<GravityComponent>(player);
-        ecs.emplace<VelocityComponent>(player);
+//        ecs.emplace<VelocityComponent>(player);
 //        ecs.emplace<CollisionComponent>(player);
     }
 
@@ -485,7 +549,8 @@ private:
     void setupCamera() {
         auto& transform = ecs.get<PlayerComponent>(connection->player).camera;
 
-        const auto projection = camera.getProjection();
+        renderer->camera.setSize(Screen::getSize());
+        const auto projection = renderer->camera.getProjection();
         const auto view = glm::inverse(transform.localToWorldMatrix());
         const auto camera_matrix = projection * view;
 
@@ -495,7 +560,7 @@ private:
         };
 
         renderer->uniforms[0].setData(&constants, sizeof(CameraConstants), 0);
-        frustum->ExtractPlanes(glm::transpose(camera_matrix), true);
+        renderer->frustum.ExtractPlanes(glm::transpose(camera_matrix), true);
     }
 
     void setupTerrain() {
@@ -512,11 +577,11 @@ private:
                 const auto from = glm::vec3{x << 4, 0, z << 4};
                 const auto to = from + glm::vec3{16, 256, 16};
 
-                if (!frustum->TestAABB(from, to)) {
+                if (!renderer->frustum.TestAABB(from, to)) {
                     continue;
                 }
 
-                auto& chunk = frustum->getChunk(x, z);
+                auto& chunk = renderer->frustum.getChunk(x, z);
 
                 if (std::exchange(chunk.needRender, false)) {
                     const auto dx = pos.x - x;
@@ -532,8 +597,93 @@ private:
     }
 };
 
+struct AppClient : Blaze::Application {
+    std::shared_ptr<ImLogger> logger = std::make_shared<ImLogger>();
+
+    std::unique_ptr<MainState> mainState{};
+    std::unique_ptr<GameState> gameState{};
+
+    AppState* state{};
+    AppState* nextState{};
+
+    AppClient() {
+        spdlog::default_logger()->sinks().push_back(logger);
+        PHYSFS_mount("client-extra.zip", nullptr, 1);
+
+        mainState = std::make_unique<MainState>();
+        mainState->onStartButton.connect<&AppClient::onStartButton>(this);
+        mainState->onExitButton.connect<&AppClient::onExitButton>(this);
+        mainState->onConnectButton.connect<&AppClient::onConnectButton>(this);
+
+        gameState = std::make_unique<GameState>();
+        gameState->onExitGame.connect<&AppClient::onExitGame>(this);
+    }
+
+    void Init() override {
+        ChunkStatus::init();
+        Materials::init();
+        Blocks::init();
+        BlockStates::init();
+        Models::init();
+        States::init();
+        BlockTags::init();
+        Carvers::init();
+        Features::init();
+        Placements::init();
+        Structures::init();
+        SurfaceBuilders::init();
+        ConfiguredCarvers::init();
+        ConfiguredFeatures::init();
+        ProcessorLists::init();
+        JigsawPools::init();
+        StructureFeatures::init();
+        ConfiguredSurfaceBuilders::init();
+        Biomes::init();
+
+        state = mainState.get();
+        state->Init();
+    }
+    void Destroy() override {
+        state->Destroy();
+    }
+    void Update() override {
+        if (nextState != nullptr) {
+            state->Destroy();
+            state = nextState;
+            state->Init();
+
+            nextState = nullptr;
+        }
+        state->Update();
+    }
+    void Draw(CommandBuffer cmd) override {
+        state->Draw(cmd);
+    }
+    void DrawUI() override {
+        state->DrawUI();
+    }
+
+    void onStartButton() {
+        nextState = gameState.get();
+    }
+
+    void onExitButton() {
+        extern auto GetDisplay() -> Display&;
+        GetDisplay().close();
+    }
+
+    void onConnectButton(std::string const& ip, int port) {
+        gameState->addr = SocketAddr::from(Ipv4Addr::from(ip).value(), port);
+        nextState = gameState.get();
+    }
+
+    void onExitGame() {
+        nextState = mainState.get();
+    }
+};
+
 auto Blaze::CreateApplication() -> std::unique_ptr<Application> {
-    return std::make_unique<Game>();
+    return std::make_unique<AppClient>();
 }
 
 //auto parse_command(std::string_view cmd, size_t& offset) -> tl::optional<std::string> {

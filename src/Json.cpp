@@ -444,6 +444,61 @@ auto Json::Read::read(std::istream& stream) /*noexcept*/ -> tl::optional<Json> {
     return Internal::read(stream);
 }
 
+void Json::Dump::pack(std::ostream &out, const Json &obj) {
+    match(obj.m_storage,
+      [&out](const Json::Null&) {
+        out << "null";
+      },
+      [&out](const Json::Bool& v) {
+        out << (v ? "true" : "false");
+      },
+      [&out](const Json::Number& v) {
+        return match(v, [&out](auto v) { out << v; });
+      },
+      [&out](const Json::String& v) {
+        out << '"' << v << '"';
+      },
+      [&out](const Json::Array &arr) {
+        out << '[';
+        if (!arr.empty()) {
+            pack(out, *arr.begin());
+
+            if (arr.size() > 1) {
+                const auto _begin = std::next(arr.begin());
+                const auto _end = arr.end();
+
+                for (auto v = _begin; v != _end; v++) {
+                    out << ',';
+                    pack(out, *v);
+                }
+            }
+        }
+        out << ']';
+      },
+      [&out](const Json::Object &obj) {
+        out << '{';
+        if (!obj.empty()) {
+            auto first = obj.begin();
+            out << fmt::format(R"("{}": )", first->first);
+            pack(out, first->second);
+
+            if (obj.size() > 1) {
+                const auto _begin = std::next(obj.begin());
+                const auto _end = obj.end();
+
+                for (auto v = _begin; v != _end; v++) {
+                    out << ',';
+                    out << fmt::format(R"("{}": )", v->first);
+                    pack(out, v->second);
+                }
+            }
+        }
+        out << '}';
+      },
+      [&out](const auto &) {}
+    );
+}
+
 void Json::Dump::dump(std::ostream &out, const Json &obj, int ident) {
     match(obj.m_storage,
       [&out](const Json::Null&) {

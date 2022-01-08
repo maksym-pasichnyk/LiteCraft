@@ -1,7 +1,8 @@
 #pragma once
 
-#include "block/BlockData.hpp"
+#include <Json.hpp>
 #include <glm/vec3.hpp>
+#include <block/BlockData.hpp>
 
 template <typename T>
 concept Packet = requires {
@@ -193,18 +194,29 @@ struct SLoginSuccessPacket {
 struct SLoadChunkPacket {
     static constexpr auto ID = SPacketType::LoadChunk;
 
-    Chunk* chunk;
+    Json o;
     int x;
     int z;
 
     void read(PacketData& data) {
-        chunk = static_cast<Chunk*>(data.read_pointer().value());
+        auto str = std::vector<char>(data.read_u64().value());
+        data.read_bytes_to(std::as_writable_bytes(std::span(str)));
+
+        std::stringstream in;
+        in.write(str.data(), str.size());
+
+        o = Json::Read::read(in).value();
         x = data.read_i32().value();
         z = data.read_i32().value();
     }
 
     void write(PacketData& data) const {
-        data.write_pointer(chunk);
+        std::stringstream out;
+        Json::Dump::pack(out, o);
+
+        auto s = out.str();
+        data.write_u64(s.size());
+        data.write_bytes(std::as_bytes(std::span(s)));
         data.write_i32(x);
         data.write_i32(z);
     }

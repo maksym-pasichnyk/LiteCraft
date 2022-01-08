@@ -6,7 +6,7 @@
 #include <TextureAtlas.hpp>
 #include <block/AbstractBlock.hpp>
 
-WorldRenderer::WorldRenderer() {
+WorldRenderer::WorldRenderer(int renderDistance) : frustum(renderDistance) {
     _createUniforms();
 
 //    entityMaterial = Material::LoadFromResources("craft:materials/entity.material");

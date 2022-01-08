@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.20)
 project(minecraft)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -lc++abi")
+
+option(BUILD_SHARED_LIBS OFF)
 
 add_definitions(-D_LIBCPP_ENABLE_CXX20_REMOVED_TYPE_TRAITS)
 
@@ -14,7 +15,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     target_compile_options(fmt PUBLIC /EHsc)
 endif()
 
-set(BUILD_SHARED_LIBS OFF)
 
 include(FetchContent)
 
@@ -22,7 +22,6 @@ include(FetchContent)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/entt")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/zlib-ng")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/asyncplusplus")
-
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Blaze")
 
 file(GLOB_RECURSE craft_source_files
@@ -53,7 +52,7 @@ set(craft_link_libraries
 )
 
 add_executable("${PROJECT_NAME}-server" "${craft_source_files}")
-add_executable("${PROJECT_NAME}-client" "${craft_source_files}" src/util/Orientation.hpp)
+add_executable("${PROJECT_NAME}-client" "${craft_source_files}")
 
 target_include_directories("${PROJECT_NAME}-client" PRIVATE ${craft_include_directories})
 target_include_directories("${PROJECT_NAME}-server" PRIVATE ${craft_include_directories})
