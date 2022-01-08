@@ -101,12 +101,8 @@ auto TemplateManager::readStructure(Nbt::Compound const& nbt) -> tl::optional<st
     return tl::nullopt;
 }
 
-struct DebugChunkGenerator : public ChunkGenerator {
-    std::vector<BlockData> states;
-    std::unique_ptr<Biome> biome;
-    glm::ivec2 grid{};
-
-    DebugChunkGenerator() : ChunkGenerator(std::make_unique<SingleBiomeProvider>(createBiome())) {
+struct DebugChunkGeneratorBase {
+    explicit DebugChunkGeneratorBase() {
         for (auto&& [name, block] : Blocks::blocks.objects) {
             for (auto state : block->validStates) {
                 states.emplace_back(state);
@@ -119,6 +115,44 @@ struct DebugChunkGenerator : public ChunkGenerator {
         grid.y = (states.size() - 1) / grid.x;
     }
 
+    auto createBiome() -> std::unique_ptr<Biome> {
+        return std::make_unique<Biome>(Biome {
+            .climate = BiomeClimate{},
+            .biomeGenerationSettings = BiomeGenerationSettings{},
+            .mobSpawnInfo = MobSpawnInfo{},
+            .depth = 0.0f,
+            .scale = 0.0f,
+            .category = BiomeCategory::NONE,
+            .effects = BiomeAmbience{}
+        });
+    }
+
+    auto getBlockStateFor(int x, int z) -> tl::optional<BlockData> {
+        //        if (x > 0 && z > 0 && x % 2 != 0 && z % 2 != 0) {
+        //            x = x / 2;
+        //            z = z / 2;
+        //            if (x <= grid.x && z <= grid.y) {
+        //                const auto i = std::abs(x * grid.x + z);
+        //                if (i < states.size()) {
+        //                    return states[i];
+        //                }
+        //            }
+        //        }
+        return tl::nullopt;
+    }
+
+    auto createBiomeSource() -> std::unique_ptr<SingleBiomeProvider> {
+        return std::make_unique<SingleBiomeProvider>(biome.get());
+    }
+private:
+    std::unique_ptr<Biome> biome = createBiome();
+    std::vector<BlockData> states{};
+    glm::ivec2 grid{};
+};
+
+struct DebugChunkGenerator : private DebugChunkGeneratorBase, public ChunkGenerator {
+    explicit DebugChunkGenerator() : DebugChunkGeneratorBase{}, ChunkGenerator(createBiomeSource()) {}
+
     void generateStructures(WorldGenRegion& region, Chunk& chunk, TemplateManager& templates) override {
         if (chunk.coords == ChunkPos::from(0, 0)) {
             auto feature = StructureFeatures::registry.get("shipwreck").value();
@@ -128,12 +162,10 @@ struct DebugChunkGenerator : public ChunkGenerator {
                 *this,
                 templates,
                 chunk.coords,
-                *biome,
+                *getNoiseBiome(0, 0, 0),
                 region.getSeed()
             };
             feature->structure->generatePieces(pieces, context, feature->config);
-
-            spdlog::info("pieces: {}", pieces.components.size());
 
             if (!pieces.empty()) {
                 auto bounds = pieces.getBoundingBox().value();
@@ -151,8 +183,7 @@ struct DebugChunkGenerator : public ChunkGenerator {
         }
     }
 
-    void generateTerrain(Chunk &chunk) override {
-    }
+    void generateTerrain(Chunk &chunk) override {}
 
     void generateSurface(WorldGenRegion &region, Chunk& chunk) override {
         for (int x = 0; x < 16; ++x) {
@@ -165,33 +196,6 @@ struct DebugChunkGenerator : public ChunkGenerator {
                 }
             }
         }
-    }
-
-    auto createBiome() -> Biome* {
-        biome = std::make_unique<Biome>(Biome {
-            .climate = BiomeClimate{},
-            .biomeGenerationSettings = BiomeGenerationSettings{},
-            .mobSpawnInfo = MobSpawnInfo{},
-            .depth = 0.0f,
-            .scale = 0.0f,
-            .category = BiomeCategory::NONE,
-            .effects = BiomeAmbience{}
-        });
-        return biome.get();
-    }
-
-    auto getBlockStateFor(int x, int z) -> tl::optional<BlockData> {
-//        if (x > 0 && z > 0 && x % 2 != 0 && z % 2 != 0) {
-//            x = x / 2;
-//            z = z / 2;
-//            if (x <= grid.x && z <= grid.y) {
-//                const auto i = std::abs(x * grid.x + z);
-//                if (i < states.size()) {
-//                    return states[i];
-//                }
-//            }
-//        }
-        return tl::nullopt;
     }
 };
 
