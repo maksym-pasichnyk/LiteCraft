@@ -9,8 +9,6 @@
 DynamicRegistry<Block*, BlockState> BlockStates::states;
 
 void BlockStates::init() {
-    auto& textures = TextureManager::instance();
-
     for (auto&& [name, block] : Blocks::blocks.objects) {
         const auto location = ResourceLocation::from(name);
 
@@ -21,5 +19,4 @@ void BlockStates::init() {
                 .value()
         ));
     }
-    textures.build();
 }

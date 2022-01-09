@@ -11,6 +11,7 @@
 
 #include "raytrace.hpp"
 #include "transform.hpp"
+#include "util/Utils.hpp"
 #include "CraftServer.hpp"
 #include "TextureAtlas.hpp"
 
@@ -501,8 +502,6 @@ public:
     }
 
     void onPacket(Connection& _, const SChangeBlockPacket& packet) {
-        spdlog::info("ChangeBlock: {}, {}, {}", packet.pos.x, packet.pos.y, packet.pos.z);
-
         auto chunk = world->getChunk(packet.pos.x >> 4, packet.pos.z >> 4);
         if (!chunk) {
             return;
@@ -624,6 +623,7 @@ struct AppClient : Blaze::Application {
         Materials::init();
         Blocks::init();
         BlockStates::init();
+        TextureManager::instance().build();
         Models::init();
         States::init();
         BlockTags::init();
@@ -682,8 +682,49 @@ struct AppClient : Blaze::Application {
     }
 };
 
-auto Blaze::CreateApplication() -> std::unique_ptr<Application> {
-    return std::make_unique<AppClient>();
+auto main(int argc, char* argv[]) -> int {
+    if constexpr (Utils::is_server()) {
+        PHYSFS_mount("client-extra.zip", nullptr, 1);
+
+        ChunkStatus::init();
+        Materials::init();
+        Blocks::init();
+        BlockStates::init();
+        Models::init();
+        States::init();
+        BlockTags::init();
+        Carvers::init();
+        Features::init();
+        Placements::init();
+        Structures::init();
+        SurfaceBuilders::init();
+        ConfiguredCarvers::init();
+        ConfiguredFeatures::init();
+        ProcessorLists::init();
+        JigsawPools::init();
+        StructureFeatures::init();
+        ConfiguredSurfaceBuilders::init();
+        Biomes::init();
+
+        const auto renderDistance = 10;
+        const auto viewDistance = std::max(2, renderDistance - 1);
+
+        auto server = std::make_unique<CraftServer>(viewDistance + 1);
+        spdlog::info("Start server: {}", server->getLocalAddress());
+        std::string input;
+        while (true) {
+            std::cin >> input;
+            if (input == "exit") {
+                break;
+            }
+            std::this_thread::yield();
+        }
+    } else {
+        Blaze::Start([] {
+            return std::make_unique<AppClient>();
+        });
+    }
+    return 0;
 }
 
 //auto parse_command(std::string_view cmd, size_t& offset) -> tl::optional<std::string> {

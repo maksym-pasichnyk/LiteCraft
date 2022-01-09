@@ -4,19 +4,26 @@ project(minecraft)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -lc++abi")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(BUILD_SHARED_LIBS OFF)
 
-add_definitions(-D_LIBCPP_ENABLE_CXX20_REMOVED_TYPE_TRAITS)
+add_definitions(
+    -DNOMINMAX
+    -DGLM_FORCE_INLINE
+    -DGLM_FORCE_SWIZZLE
+    -DWIN32_LEAN_AND_MEAN
+    -DGLM_FORCE_DEPTH_ZERO_TO_ONE
+    -DGLM_FORCE_DEFAULT_ALIGNED_GENTYPES
+    -D_LIBCPP_ENABLE_CXX20_REMOVED_TYPE_TRAITS
+)
+
+add_compile_options(-stdlib=libc++)
 
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(CMAKE_USE_SCHANNEL ON)
     target_compile_options(fmt PUBLIC /EHsc)
 endif()
-
-
-include(FetchContent)
 
 #add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/curl")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/entt")
@@ -71,3 +78,15 @@ target_compile_shaders("${PROJECT_NAME}-client"
     resources/assets/craft/shaders/entity.vert
     resources/assets/craft/shaders/transparent.frag
 )
+
+#find_program(iwyu_path NAMES include-what-you-use iwyu REQUIRED)
+#set_target_properties("${PROJECT_NAME}-client"
+#    PROPERTIES
+#        C_INCLUDE_WHAT_YOU_USE ${iwyu_path}
+#        CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path}
+#)
+#set_target_properties("${PROJECT_NAME}-server"
+#    PROPERTIES
+#        C_INCLUDE_WHAT_YOU_USE ${iwyu_path}
+#        CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path}
+#)
