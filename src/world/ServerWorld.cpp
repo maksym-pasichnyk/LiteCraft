@@ -240,8 +240,8 @@ ServerWorld::ServerWorld(CraftServer *server, int viewDistance) : server(server)
     };
 
     templates = std::make_unique<TemplateManager>();
-//    generator = std::make_unique<NoiseChunkGenerator>(seed, dimensionSettings, std::make_unique<OverworldBiomeProvider>(seed, false, false));
-    generator = std::make_unique<DebugChunkGenerator>();
+    generator = std::make_unique<NoiseChunkGenerator>(seed, dimensionSettings, std::make_unique<OverworldBiomeProvider>(seed, false, false));
+//    generator = std::make_unique<DebugChunkGenerator>();
 //        generator = std::make_unique<NoiseChunkGenerator>(seed, std::make_unique<SingleBiomeProvider>(Biomes::SWAMP));
     manager = std::make_unique<ChunkManager>(this, generator.get(), templates.get());
 }

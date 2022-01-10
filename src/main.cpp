@@ -14,6 +14,7 @@
 #include "util/Utils.hpp"
 #include "CraftServer.hpp"
 #include "TextureAtlas.hpp"
+#include "UserInterface.hpp"
 
 #include <Time.hpp>
 #include <Blaze.hpp>
@@ -270,6 +271,7 @@ struct MainState : AppState {
 };
 
 struct GameState : AppState {
+    std::shared_ptr<ImLogger> logger{};
     entt::delegate<void()> onExitGame{};
 
     const int renderDistance = 10;
@@ -284,6 +286,8 @@ struct GameState : AppState {
     std::unique_ptr<WorldRenderer> renderer{};
     tl::optional<RayTraceResult> rayTraceResult{};
 
+    explicit GameState(std::shared_ptr<ImLogger> logger) : logger(std::move(logger)) {}
+
     void Init() override {
         startLocalServer();
     }
@@ -296,11 +300,16 @@ struct GameState : AppState {
     }
 
     void Update() override {
+        extern auto GetUserInterface() -> UserInterface&;
+
         static auto flag = false;
         extern auto GetDisplay() -> Display&;
         if (Input::isMouseButtonDown(MouseButton::Left)) {
             flag = true;
         } else if (Input::isKeyDown(KeyCode::eEscape)) {
+            flag = false;
+        }
+        if (GetUserInterface().WantCaptureMouse()) {
             flag = false;
         }
         if (GetDisplay().hasFocus()) {
@@ -423,7 +432,7 @@ struct GameState : AppState {
 
         ImGui::SetNextWindowPos(ImVec2(0, glm::f32(screenSize.y - 100)), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(glm::f32(screenSize.x), 100), ImGuiCond_Always);
-//        logger->Draw("Console");
+        logger->Draw("Console");
     }
     void Draw(CommandBuffer cmd) override {
         setupCamera();
@@ -473,8 +482,6 @@ public:
     void onPacket(Connection& _, const SLoginSuccessPacket& packet) {}
 
     void onPacket(Connection& _, const SLoadChunkPacket& packet) {
-        spdlog::info("LoadChunk: {}, {}", packet.x, packet.z);
-
         auto chunk = new Chunk(ChunkPos::from(packet.x, packet.z));
         auto&& sections = packet.o.at("sections").as_array().value();
         for (auto i = 0; i < sections.size(); ++i) {
@@ -597,16 +604,13 @@ private:
 };
 
 struct AppClient : Blaze::Application {
-    std::shared_ptr<ImLogger> logger = std::make_shared<ImLogger>();
-
     std::unique_ptr<MainState> mainState{};
     std::unique_ptr<GameState> gameState{};
 
     AppState* state{};
     AppState* nextState{};
 
-    AppClient() {
-        spdlog::default_logger()->sinks().push_back(logger);
+    AppClient(std::shared_ptr<ImLogger> logger) {
         PHYSFS_mount("client-extra.zip", nullptr, 1);
 
         mainState = std::make_unique<MainState>();
@@ -614,7 +618,7 @@ struct AppClient : Blaze::Application {
         mainState->onExitButton.connect<&AppClient::onExitButton>(this);
         mainState->onConnectButton.connect<&AppClient::onConnectButton>(this);
 
-        gameState = std::make_unique<GameState>();
+        gameState = std::make_unique<GameState>(std::move(logger));
         gameState->onExitGame.connect<&AppClient::onExitGame>(this);
     }
 
@@ -720,8 +724,11 @@ auto main(int argc, char* argv[]) -> int {
             std::this_thread::yield();
         }
     } else {
-        Blaze::Start([] {
-            return std::make_unique<AppClient>();
+        auto logger = std::make_shared<ImLogger>();
+        spdlog::default_logger()->sinks().push_back(logger);
+
+        Blaze::Start([logger]() -> std::unique_ptr<Blaze::Application> {
+            return std::make_unique<AppClient>(logger);
         });
     }
     return 0;
