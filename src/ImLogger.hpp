@@ -8,9 +8,8 @@
 #include <spdlog/sinks/base_sink.h>
 
 struct ImLogger : public spdlog::sinks::base_sink<std::mutex> {
-    void Draw(const char *title) {
-        ImGui::Begin(title, nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
-        ImGui::BeginChild("Scrolling", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
+    void Draw(const ImVec2& size) {
+        ImGui::BeginChild("Scrolling", size, false, ImGuiWindowFlags_HorizontalScrollbar);
 
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
         clipper.Begin(static_cast<int>(lines.size()));
@@ -28,9 +27,10 @@ struct ImLogger : public spdlog::sinks::base_sink<std::mutex> {
         }
 
         ImGui::EndChild();
-        ImGui::End();
     }
-
+    void clear() {
+        lines.clear();
+    }
 protected:
     void sink_it_(const spdlog::details::log_msg& msg) override {
         switch (msg.level) {

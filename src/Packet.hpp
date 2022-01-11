@@ -3,6 +3,7 @@
 #include <Json.hpp>
 #include <glm/vec3.hpp>
 #include <block/BlockData.hpp>
+#include <world/chunk/Chunk.hpp>
 
 template <typename T>
 concept Packet = requires {
@@ -15,6 +16,72 @@ struct PacketHeader {
 
     static auto from(int id, int size) -> PacketHeader {
         return {.id = id, .size = size};
+    }
+};
+
+struct PacketBuffer {
+    std::span<const std::byte> data{};
+    size_t read_offset = 0;
+
+    static auto from(std::span<const std::byte> data) -> PacketBuffer {
+        return { .data = data };
+    }
+
+    /**************************************************************************/
+
+    auto read_bytes_to(std::span<std::byte> bytes) -> bool {
+        if (read_offset + bytes.size() > data.size()) {
+            return false;
+        }
+        std::memcpy(bytes.data(), data.data() + read_offset, bytes.size());
+        read_offset += bytes.size();
+        return true;
+    }
+
+    auto read_pointer() -> tl::optional<void*> {
+        return read<void*>();
+    }
+
+    auto read_i8() -> tl::optional<int8_t> {
+        return read<int8_t>();
+    }
+
+    auto read_i16() -> tl::optional<int16_t> {
+        return read<int16_t>();
+    }
+
+    auto read_i32() -> tl::optional<int32_t> {
+        return read<int32_t>();
+    }
+
+    auto read_i64() -> tl::optional<int64_t> {
+        return read<int64_t>();
+    }
+
+    auto read_u8() -> tl::optional<uint8_t> {
+        return read<uint8_t>();
+    }
+
+    auto read_u16() -> tl::optional<uint16_t> {
+        return read<uint16_t>();
+    }
+
+    auto read_u32() -> tl::optional<uint32_t> {
+        return read<int32_t>();
+    }
+
+    auto read_u64() -> tl::optional<uint64_t> {
+        return read<uint64_t>();
+    }
+
+private:
+    template <typename T>
+    auto read() -> tl::optional<T> {
+        std::array<std::byte, sizeof(T)> bytes{};
+        if (read_bytes_to(bytes)) {
+            return std::bit_cast<T>(bytes);
+        }
+        return tl::nullopt;
     }
 };
 
@@ -194,31 +261,46 @@ struct SLoginSuccessPacket {
 struct SLoadChunkPacket {
     static constexpr auto ID = SPacketType::LoadChunk;
 
-    Json o;
-    int x;
-    int z;
+    glm::i32 x;
+    glm::i32 z;
+    glm::i32 sections{};
+    std::vector<std::byte> bytes{};
+
+    static auto from(Chunk const& chunk) -> SLoadChunkPacket {
+        auto sections = 0;
+        auto bytes = std::vector<std::byte>{};
+        for (size_t i = 0; i < chunk.sections.size(); ++i) {
+            if (!chunk.sections[i]) {
+                continue;
+            }
+
+            sections |= 1 << i;
+
+            auto blocks = std::as_bytes(std::span(chunk.sections[i]->blocks));
+            bytes.insert(bytes.end(), blocks.begin(), blocks.end());
+        }
+        return {
+            .x = chunk.coords.x,
+            .z = chunk.coords.z,
+            .sections = sections,
+            .bytes = std::move(bytes)
+        };
+    }
 
     void read(PacketData& data) {
-        auto str = std::vector<char>(data.read_u64().value());
-        data.read_bytes_to(std::as_writable_bytes(std::span(str)));
-
-        std::stringstream in;
-        in.write(str.data(), str.size());
-
-        o = Json::Read::read(in).value();
         x = data.read_i32().value();
         z = data.read_i32().value();
+        sections = data.read_i32().value();
+        bytes.resize(data.read_u64().value());
+        data.read_bytes_to(bytes);
     }
 
     void write(PacketData& data) const {
-        std::stringstream out;
-        Json::Dump::pack(out, o);
-
-        auto s = out.str();
-        data.write_u64(s.size());
-        data.write_bytes(std::as_bytes(std::span(s)));
         data.write_i32(x);
         data.write_i32(z);
+        data.write_i32(sections);
+        data.write_u64(bytes.size());
+        data.write_bytes(bytes);
     }
 };
 

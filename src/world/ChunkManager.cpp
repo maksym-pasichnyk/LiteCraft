@@ -32,12 +32,12 @@ void ChunkManager::tick(Connection & connection) {
 //    }
 }
 
-void ChunkManager::setChunkLoadedAtClient(Connection& connection, int chunk_x, int chunk_z, bool wasLoaded, bool needLoad) {
+void ChunkManager::setChunkLoadedAtClient(Connection& connection, int x, int z, bool wasLoaded, bool needLoad) {
     if (wasLoaded && !needLoad) {
-        connection.send(SUnloadChunkPacket{chunk_x, chunk_z});
+        connection.send(SUnloadChunkPacket{x, z});
     } else if (needLoad && !wasLoaded) {
-        if (auto chunk = getChunk(chunk_x, chunk_z)) {
-            connection.send(SLoadChunkPacket{chunk->to_json(), chunk_x, chunk_z});
+        if (auto chunk = getChunk(x, z)) {
+            connection.send(SLoadChunkPacket::from(*chunk));
         }
     }
 }
@@ -49,24 +49,24 @@ void ChunkManager::updatePlayerPosition(Connection & connection, const ChunkPos&
         const auto xEnd = std::max(newChunkPos.x, oldChunkPos.x) + viewDistance;
         const auto zEnd = std::max(newChunkPos.z, oldChunkPos.z) + viewDistance;
 
-        for (int chunk_x = xStart; chunk_x <= xEnd; chunk_x++) {
-            for (int chunk_z = zStart; chunk_z <= zEnd; chunk_z++) {
-                const bool wasLoaded = getChunkDistance(oldChunkPos, chunk_x, chunk_z) <= viewDistance;
-                const bool needLoad = getChunkDistance(newChunkPos, chunk_x, chunk_z) <= viewDistance;
+        for (int x = xStart; x <= xEnd; x++) {
+            for (int z = zStart; z <= zEnd; z++) {
+                const bool wasLoaded = getChunkDistance(oldChunkPos, x, z) <= viewDistance;
+                const bool needLoad = getChunkDistance(newChunkPos, x, z) <= viewDistance;
 
-                setChunkLoadedAtClient(connection, chunk_x, chunk_z, wasLoaded, needLoad);
+                setChunkLoadedAtClient(connection, x, z, wasLoaded, needLoad);
             }
         }
     } else {
-        for (int32_t chunk_x = oldChunkPos.x - viewDistance; chunk_x <= oldChunkPos.x + viewDistance; chunk_x++) {
-            for (int32_t chunk_z = oldChunkPos.z - viewDistance; chunk_z <= oldChunkPos.z + viewDistance; chunk_z++) {
-                setChunkLoadedAtClient(connection, chunk_x, chunk_z, true, false);
+        for (int32_t x = oldChunkPos.x - viewDistance; x <= oldChunkPos.x + viewDistance; x++) {
+            for (int32_t z = oldChunkPos.z - viewDistance; z <= oldChunkPos.z + viewDistance; z++) {
+                setChunkLoadedAtClient(connection, x, z, true, false);
             }
         }
 
-        for (int32_t chunk_x = newChunkPos.x - viewDistance; chunk_x <= newChunkPos.x + viewDistance; chunk_x++) {
-            for (int32_t chunk_z = newChunkPos.z - viewDistance; chunk_z <= newChunkPos.z + viewDistance; chunk_z++) {
-                setChunkLoadedAtClient(connection, chunk_x, chunk_z, false, true);
+        for (int32_t x = newChunkPos.x - viewDistance; x <= newChunkPos.x + viewDistance; x++) {
+            for (int32_t z = newChunkPos.z - viewDistance; z <= newChunkPos.z + viewDistance; z++) {
+                setChunkLoadedAtClient(connection, x, z, false, true);
             }
         }
     }

@@ -68,17 +68,6 @@ struct Chunk {
 
     explicit Chunk(const ChunkPos& pos) : coords{pos} {}
 
-    auto to_json() const -> Json {
-        return Json{
-            {
-                "sections",
-                cpp_iter(sections)
-                    .map([](auto&& section) { return section ? Json(section->blocks) : Json(Json::Array{}); })
-                    .collect()
-            }
-        };
-    }
-
     auto getLightSources() -> std::span<const BlockPos> {
         return blockLightSources;
     }

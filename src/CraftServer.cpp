@@ -32,8 +32,8 @@ void CraftServer::runLoop(/*std::stop_token &&token*/) {
             const auto [x, z] = *pos;
             auto chunk = world->manager->getChunk(x, z).get();
 
-            ecs.view<Connection>().each([o = chunk->to_json(), x = x, z = z](auto& connection) {
-                connection.send(SLoadChunkPacket{o, x, z});
+            ecs.view<Connection>().each([packet = SLoadChunkPacket::from(*chunk)](auto& connection) {
+                connection.send(packet);
             });
 //            world->manager->complete.emplace(*pos);
             break;

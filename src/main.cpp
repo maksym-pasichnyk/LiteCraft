@@ -240,7 +240,6 @@ struct MainState : AppState {
 //        onExitButton.reset();
     }
     void Update() override {
-
     }
     void DrawUI() override {
         const auto sz = glm::vec2(Screen::getSize());
@@ -278,6 +277,9 @@ struct GameState : AppState {
 
     tl::optional<SocketAddr> addr{};
 
+    bool focus = false;
+    std::string command{};
+
     entt::registry ecs{};
     ServerNetHandler handler{};
     std::unique_ptr<ClientWorld> world{};
@@ -289,6 +291,8 @@ struct GameState : AppState {
     explicit GameState(std::shared_ptr<ImLogger> logger) : logger(std::move(logger)) {}
 
     void Init() override {
+        focus = false;
+        command.clear();
         startLocalServer();
     }
     void Destroy() override {
@@ -300,21 +304,6 @@ struct GameState : AppState {
     }
 
     void Update() override {
-        extern auto GetUserInterface() -> UserInterface&;
-
-        static auto flag = false;
-        extern auto GetDisplay() -> Display&;
-        if (Input::isMouseButtonDown(MouseButton::Left)) {
-            flag = true;
-        } else if (Input::isKeyDown(KeyCode::eEscape)) {
-            flag = false;
-        }
-        if (GetUserInterface().WantCaptureMouse()) {
-            flag = false;
-        }
-        if (GetDisplay().hasFocus()) {
-            Input::setLock(flag);
-        }
         handler.handlePackets(*this, *connection);
 
         TextureManager::instance().tick(Time::getDeltaTime());
@@ -330,10 +319,10 @@ struct GameState : AppState {
 
             const auto speed = Input::isKeyPressed(KeyCode::eLeftShift) ? 50.0f : 5.0f;
             const auto states = std::array{
-                Input::isKeyPressed(KeyCode::eUpArrow) ? -1 : 0,
-                Input::isKeyPressed(KeyCode::eLeftArrow) ? -1 : 0,
-                Input::isKeyPressed(KeyCode::eDownArrow) ? 1 : 0,
-                Input::isKeyPressed(KeyCode::eRightArrow) ? 1 : 0
+                Input::isKeyPressed(KeyCode::eW) ? -1 : 0,
+                Input::isKeyPressed(KeyCode::eA) ? -1 : 0,
+                Input::isKeyPressed(KeyCode::eS) ? 1 : 0,
+                Input::isKeyPressed(KeyCode::eD) ? 1 : 0
             };
             const auto direction = glm::ivec4(states[1] + states[3], 0, states[0] + states[2], 1);
 
@@ -404,6 +393,17 @@ struct GameState : AppState {
             }
         });
 
+        if (Input::isMouseButtonDown(MouseButton::Left)) {
+            focus = true;
+        } else if (Input::isKeyDown(KeyCode::eEscape)) {
+            focus = false;
+        }
+        if (extern auto GetUserInterface() -> UserInterface&; GetUserInterface().WantCaptureMouse()) {
+            focus = false;
+        }
+        if (extern auto GetDisplay() -> Display&; GetDisplay().hasFocus()) {
+            Input::setLock(focus);
+        }
 //        if (Input::isKeyDown(KeyCode::eEscape)) {
 //            onExitGame();
 //        }
@@ -430,9 +430,26 @@ struct GameState : AppState {
         }
         ImGui::End();
 
-        ImGui::SetNextWindowPos(ImVec2(0, glm::f32(screenSize.y - 100)), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(glm::f32(screenSize.x), 100), ImGuiCond_Always);
-        logger->Draw("Console");
+        ImGui::SetNextWindowSize(ImVec2(glm::f32(screenSize.x), 0), ImGuiCond_Always);
+        ImGui::Begin("Console", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+        logger->Draw(ImVec2(0, 100));
+        ImGui::SetNextItemWidth(screenSize.x - 16);
+        ImGui::InputText("##command", &command);
+        if (ImGui::IsItemFocused() && Input::isKeyDown(KeyCode::eEnter) && !command.empty()) {
+            if (command.starts_with('/')) {
+                auto cmd = std::string_view(command).substr(1);
+                if (cmd == "clear") {
+                    logger->clear();
+                } else {
+                    spdlog::info("unknown command: {}", cmd);
+                }
+            } else {
+                spdlog::info("{}", command);
+            }
+            command.clear();
+        }
+        ImGui::SetWindowPos(ImVec2(0, glm::f32(screenSize.y - ImGui::GetWindowHeight())), ImGuiCond_Always);
+        ImGui::End();
     }
     void Draw(CommandBuffer cmd) override {
         setupCamera();
@@ -482,16 +499,13 @@ public:
     void onPacket(Connection& _, const SLoginSuccessPacket& packet) {}
 
     void onPacket(Connection& _, const SLoadChunkPacket& packet) {
+        auto blocks = PacketBuffer::from(packet.bytes);
+
         auto chunk = new Chunk(ChunkPos::from(packet.x, packet.z));
-        auto&& sections = packet.o.at("sections").as_array().value();
-        for (auto i = 0; i < sections.size(); ++i) {
-            auto&& section = sections.at(i).as_array().value();
-            if (section.empty()) {
-                continue;
-            }
-            chunk->sections.at(i) = std::make_unique<ChunkSection>();
-            for (auto j = 0; j < section.size(); ++j) {
-                chunk->sections.at(i)->blocks.at(j) = section.at(j);
+        for (size_t i = 0; i < chunk->sections.size(); ++i) {
+            if ((packet.sections & (1 << i)) != 0) {
+                chunk->sections[i] = std::make_unique<ChunkSection>();
+                blocks.read_bytes_to(std::as_writable_bytes(std::span(chunk->sections[i]->blocks)));
             }
         }
 

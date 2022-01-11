@@ -128,16 +128,16 @@ struct DebugChunkGeneratorBase {
     }
 
     auto getBlockStateFor(int x, int z) -> tl::optional<BlockData> {
-        //        if (x > 0 && z > 0 && x % 2 != 0 && z % 2 != 0) {
-        //            x = x / 2;
-        //            z = z / 2;
-        //            if (x <= grid.x && z <= grid.y) {
-        //                const auto i = std::abs(x * grid.x + z);
-        //                if (i < states.size()) {
-        //                    return states[i];
-        //                }
-        //            }
-        //        }
+        if (x > 0 && z > 0 && x % 2 != 0 && z % 2 != 0) {
+            x = x / 2;
+            z = z / 2;
+            if (x <= grid.x && z <= grid.y) {
+                const auto i = std::abs(x * grid.x + z);
+                if (i < states.size()) {
+                    return states[i];
+                }
+            }
+        }
         return tl::nullopt;
     }
 
@@ -154,33 +154,33 @@ struct DebugChunkGenerator : private DebugChunkGeneratorBase, public ChunkGenera
     explicit DebugChunkGenerator() : DebugChunkGeneratorBase{}, ChunkGenerator(createBiomeSource()) {}
 
     void generateStructures(WorldGenRegion& region, Chunk& chunk, TemplateManager& templates) override {
-        if (chunk.coords == ChunkPos::from(0, 0)) {
-            auto feature = StructureFeatures::registry.get("shipwreck").value();
-
-            auto pieces = StructurePieces{};
-            auto context = StructureGenerateContext{
-                *this,
-                templates,
-                chunk.coords,
-                *getNoiseBiome(0, 0, 0),
-                region.getSeed()
-            };
-            feature->structure->generatePieces(pieces, context, feature->config);
-
-            if (!pieces.empty()) {
-                auto bounds = pieces.getBoundingBox().value();
-                auto start = new StructureStart(
-                    std::move(pieces.components),
-                    feature->structure,
-                    context.pos.x,
-                    context.pos.z,
-                    bounds,
-                    1,
-                    context.seed
-                );
-                chunk.addStructureStart(feature->structure, start);
-            }
-        }
+//        if (chunk.coords == ChunkPos::from(0, 0)) {
+//            auto feature = StructureFeatures::registry.get("shipwreck").value();
+//
+//            auto pieces = StructurePieces{};
+//            auto context = StructureGenerateContext{
+//                *this,
+//                templates,
+//                chunk.coords,
+//                *getNoiseBiome(0, 0, 0),
+//                region.getSeed()
+//            };
+//            feature->structure->generatePieces(pieces, context, feature->config);
+//
+//            if (!pieces.empty()) {
+//                auto bounds = pieces.getBoundingBox().value();
+//                auto start = new StructureStart(
+//                    std::move(pieces.components),
+//                    feature->structure,
+//                    context.pos.x,
+//                    context.pos.z,
+//                    bounds,
+//                    1,
+//                    context.seed
+//                );
+//                chunk.addStructureStart(feature->structure, start);
+//            }
+//        }
     }
 
     void generateTerrain(Chunk &chunk) override {}
@@ -240,8 +240,8 @@ ServerWorld::ServerWorld(CraftServer *server, int viewDistance) : server(server)
     };
 
     templates = std::make_unique<TemplateManager>();
-    generator = std::make_unique<NoiseChunkGenerator>(seed, dimensionSettings, std::make_unique<OverworldBiomeProvider>(seed, false, false));
-//    generator = std::make_unique<DebugChunkGenerator>();
+//    generator = std::make_unique<NoiseChunkGenerator>(seed, dimensionSettings, std::make_unique<OverworldBiomeProvider>(seed, false, false));
+    generator = std::make_unique<DebugChunkGenerator>();
 //        generator = std::make_unique<NoiseChunkGenerator>(seed, std::make_unique<SingleBiomeProvider>(Biomes::SWAMP));
     manager = std::make_unique<ChunkManager>(this, generator.get(), templates.get());
 }
