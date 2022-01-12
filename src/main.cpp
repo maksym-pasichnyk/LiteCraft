@@ -306,11 +306,12 @@ struct GameState : AppState {
     void Update() override {
         handler.handlePackets(*this, *connection);
 
-        TextureManager::instance().tick(Time::getDeltaTime());
+        renderer->tick();
 
         /**************************************************************************************************************/
         const auto dt = Time::getDeltaTime();
         const auto delta = Input::getMouseDelta();
+
         ecs.view<PlayerComponent, Transform, VelocityComponent>().each([dt, delta](auto& p, auto& tr, auto& vel) {
             p.camera.rotation -= getRotationDelta(p.camera, delta, dt);
             p.camera.rotation.y = glm::clamp(p.camera.rotation.y, -90.0f, 90.0f);
@@ -434,19 +435,22 @@ struct GameState : AppState {
         ImGui::Begin("Console", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
         logger->Draw(ImVec2(0, 100));
         ImGui::SetNextItemWidth(screenSize.x - 16);
-        ImGui::InputText("##command", &command);
-        if (ImGui::IsItemFocused() && Input::isKeyDown(KeyCode::eEnter) && !command.empty()) {
-            if (command.starts_with('/')) {
-                auto cmd = std::string_view(command).substr(1);
-                if (cmd == "clear") {
-                    logger->clear();
+        if (ImGui::InputText("##command", &command, ImGuiInputTextFlags_EnterReturnsTrue)) {
+            ImGui::SetKeyboardFocusHere(-1);
+
+            if (!command.empty()) {
+                if (command.starts_with('/')) {
+                    auto cmd = std::string_view(command).substr(1);
+                    if (cmd == "clear") {
+                        logger->clear();
+                    } else {
+                        spdlog::info("unknown command: {}", cmd);
+                    }
                 } else {
-                    spdlog::info("unknown command: {}", cmd);
+                    spdlog::info("{}", command);
                 }
-            } else {
-                spdlog::info("{}", command);
+                command.clear();
             }
-            command.clear();
         }
         ImGui::SetWindowPos(ImVec2(0, glm::f32(screenSize.y - ImGui::GetWindowHeight())), ImGuiCond_Always);
         ImGui::End();
@@ -624,7 +628,7 @@ struct AppClient : Blaze::Application {
     AppState* state{};
     AppState* nextState{};
 
-    AppClient(std::shared_ptr<ImLogger> logger) {
+    explicit AppClient(std::shared_ptr<ImLogger> logger) {
         PHYSFS_mount("client-extra.zip", nullptr, 1);
 
         mainState = std::make_unique<MainState>();

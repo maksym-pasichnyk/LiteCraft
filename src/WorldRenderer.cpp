@@ -3,6 +3,7 @@
 #include <CommandBuffer.hpp>
 #include <GraphicsBuffer.hpp>
 
+#include <Time.hpp>
 #include <TextureAtlas.hpp>
 #include <block/AbstractBlock.hpp>
 
@@ -22,6 +23,10 @@ WorldRenderer::WorldRenderer(int renderDistance) : frustum(renderDistance) {
 
     transparentMaterial.SetTexture(1, TextureManager::instance().atlas);
     transparentMaterial.SetConstantBuffer(0, uniforms[0]);
+}
+
+void WorldRenderer::tick() {
+    TextureManager::instance().tick(Time::getDeltaTime());
 }
 
 void WorldRenderer::drawTerrain(CommandBuffer cmd) {

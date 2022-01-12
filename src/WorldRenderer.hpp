@@ -34,6 +34,7 @@ struct WorldRenderer {
 
     explicit WorldRenderer(int renderDistance);
 
+    void tick();
     void drawTerrain(CommandBuffer cmd);
 
 private:
