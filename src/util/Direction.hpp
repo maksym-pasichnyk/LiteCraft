@@ -44,12 +44,12 @@ struct DirectionUtil {
     };
 
     static constexpr auto AXIS = std::array {
-            DirectionAxis::Y,
-            DirectionAxis::Y,
-            DirectionAxis::Z,
-            DirectionAxis::Z,
-            DirectionAxis::X,
-            DirectionAxis::X
+        DirectionAxis::Y,
+        DirectionAxis::Y,
+        DirectionAxis::Z,
+        DirectionAxis::Z,
+        DirectionAxis::X,
+        DirectionAxis::X
     };
 
     static constexpr auto AXIS_DIRECTION = std::array {

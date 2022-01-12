@@ -121,7 +121,8 @@ auto FromString<Direction>::from(const Self& s) -> Result {
         {"east", Direction::EAST},
         {"west", Direction::WEST},
         {"up", Direction::UP},
-        {"down", Direction::DOWN}
+        {"down", Direction::DOWN},
+        {"bottom", Direction::DOWN}
     };
 
     if (auto it = table.find(s); it != table.end()) {

@@ -34,19 +34,31 @@ static auto shouldRenderFace(Block* block_a, Block* block_b) -> bool {
     return block_b->getMaterial() == Materials::LEAVES;
 }
 
-void tessellate(RenderBuffer& rb, const glm::ivec3& pos, const Model& model) {
-    for (auto&& quad : model.quads) {
-        auto builder = rb.getForLayer(quad.layer);
+static void tessellate(RenderBuffer& rb, const ModelFace& quad, const glm::ivec3& pos) {
+    auto builder = rb.getForLayer(quad.layer);
 
-        builder.quad();
+    builder.quad();
 
-        const auto texture = TextureManager::instance().get_texture(quad.texture);
-        for (auto&& vertex : quad.vertices) {
-            const auto [x, y, z] = vertex.pos + glm::vec3(pos);
-            const auto u = texture.getInterpolatedU(vertex.uv.x);
-            const auto v = texture.getInterpolatedV(vertex.uv.y);
-            builder.vertex(x, y, z, u, v, 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    const auto texture = TextureManager::instance().get_texture(quad.texture);
+    for (auto&& vertex : quad.vertices) {
+        const auto [x, y, z] = vertex.pos + glm::vec3(pos);
+        const auto u = texture.getInterpolatedU(vertex.uv.x);
+        const auto v = texture.getInterpolatedV(vertex.uv.y);
+        builder.vertex(x, y, z, u, v, 0xFF, 0xFF, 0xFF, 0xFFFF, 1.0f);
+    }
+}
+
+static void tessellate(RenderBuffer& rb, const glm::ivec3& pos, const Model& model) {
+    for (auto&& [face, quads] : model.faces) {
+        // todo: check if side culled
+
+        for (auto&& quad : quads) {
+            tessellate(rb, quad, pos);
         }
+    }
+
+    for (auto&& quad : model.quads) {
+        tessellate(rb, quad, pos);
     }
 }
 

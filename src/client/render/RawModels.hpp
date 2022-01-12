@@ -10,6 +10,7 @@
 #include <tl/optional.hpp>
 #include <util/Registry.hpp>
 #include <vector>
+#include "util/Direction.hpp"
 
 struct RawVertex {
     glm::vec3 pos;
@@ -18,6 +19,7 @@ struct RawVertex {
 
 struct RawFace {
     std::string texture;
+    tl::optional<Direction> cullface;
     std::array<RawVertex, 4> vertices;
 };
 

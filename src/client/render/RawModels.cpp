@@ -5,7 +5,54 @@
 #include <glm/glm.hpp>
 #include <ResourceManager.hpp>
 
+static auto MISSING_MODEL_MESH = R"({
+    "textures": {
+        "particle": "missingno",
+        "missingno": "missingno"
+    },
+    "elements": [
+        {
+            "from": [ 0, 0, 0 ],
+            "to": [ 16, 16, 16 ],
+            "faces": {
+                "down":  { "uv": [ 0, 0, 16, 16 ], "cullface": "down",  "texture": "#missingno" },
+                "up":    { "uv": [ 0, 0, 16, 16 ], "cullface": "up",    "texture": "#missingno" },
+                "north": { "uv": [ 0, 0, 16, 16 ], "cullface": "north", "texture": "#missingno" },
+                "south": { "uv": [ 0, 0, 16, 16 ], "cullface": "south", "texture": "#missingno" },
+                "west":  { "uv": [ 0, 0, 16, 16 ], "cullface": "west",  "texture": "#missingno" },
+                "east":  { "uv": [ 0, 0, 16, 16 ], "cullface": "east",  "texture": "#missingno" }
+            }
+        }
+    ]
+})";
+
 Registry<RawModel> RawModels::models;
+
+struct RawElementRotation {
+    glm::vec3 scale;
+    glm::vec3 origin;
+    glm::quat transform;
+
+    static auto from(const RotationDefinition& definition) -> RawElementRotation {
+        const auto axis = [axis = definition.axis] {
+            switch (axis) {
+                case DirectionAxis::X: return glm::vec3(1, 0, 0);
+                case DirectionAxis::Y: return glm::vec3(0, 1, 0);
+                case DirectionAxis::Z: return glm::vec3(0, 0, 1);
+            }
+        }();
+        const auto rescale = definition.rescale ? 1.0f / glm::cos(glm::abs(glm::radians(definition.angle))) : 1.0f;
+        return {
+            .scale = glm::mix(axis, glm::vec3(1.0f), rescale),
+            .origin = definition.origin,
+            .transform = glm::angleAxis(glm::radians(definition.angle), axis),
+        };
+    }
+
+    auto rotate(const glm::vec3& pos) const -> glm::vec3 {
+        return transform * (pos - origin) * scale + origin;
+    }
+};
 
 auto RawModels::get(const std::string& name) -> RawModel* {
     if (auto cache = models.get(name)) {
@@ -38,9 +85,12 @@ auto RawModels::get(const std::string& name) -> RawModel* {
             glm::vec3(from.x,   to.y, to.z),
             glm::vec3(from.x, from.y, to.z),
         };
-        element.rotation.map([&points](auto&& self) {
-            self.rotate(points);
-        });
+        const auto rotation = element.rotation.map(RawElementRotation::from);
+        if (rotation.has_value()) {
+            for (auto& pos : points) {
+                pos = rotation->rotate(pos);
+            }
+        }
 
         const auto vertices = std::array{
             std::array{points[3], points[4], points[7], points[0]},
@@ -54,11 +104,11 @@ auto RawModels::get(const std::string& name) -> RawModel* {
         for (auto&& [face, v] : element.faces) {
             const auto uv = v.uv.map_or_else([](auto uv) { return uv; }, [&, face = face] {
                 switch (face) {
-                    case FaceIndex::South: case FaceIndex::North:
+                    case Direction::SOUTH: case Direction::NORTH:
                         return glm::vec4(from[0], from[1], to[0], to[1]);
-                    case FaceIndex::East: case FaceIndex::West:
+                    case Direction::EAST: case Direction::WEST:
                         return glm::vec4(from[2], from[1], to[2], to[1]);
-                    case FaceIndex::Up: case FaceIndex::Down:
+                    case Direction::UP: case Direction::DOWN:
                         return glm::vec4(from[0], from[2], to[0], to[2]);
                 }
             });
@@ -86,6 +136,7 @@ auto RawModels::get(const std::string& name) -> RawModel* {
 
             model->faces.emplace_back(RawFace{
                 .texture = v.texture,
+                .cullface = v.cullface,
                 .vertices = std::array{
                     RawVertex{xyz[0], uvs[0] / 16.0f},
                     RawVertex{xyz[1], uvs[1] / 16.0f},

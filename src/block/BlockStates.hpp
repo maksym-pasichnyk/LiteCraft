@@ -15,12 +15,12 @@ struct ModelFace {
 
 struct Model {
     std::vector<ModelFace> quads;
+    std::map<Direction, std::vector<ModelFace>> faces;
 
     auto join(const Model& model) const -> Model {
         auto out = *this;
-        for (auto&& quad : model.quads) {
-            out.quads.emplace_back(quad);
-        }
+        out.quads.insert(out.quads.end(), model.quads.begin(), model.quads.end());
+        out.faces.insert(model.faces.begin(), model.faces.end());
         return out;
     }
 };
