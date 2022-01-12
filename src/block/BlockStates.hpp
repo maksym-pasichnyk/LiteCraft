@@ -15,7 +15,16 @@ struct ModelFace {
 
 struct Model {
     std::vector<ModelFace> quads;
+
+    auto join(const Model& model) const -> Model {
+        auto out = *this;
+        for (auto&& quad : model.quads) {
+            out.quads.emplace_back(quad);
+        }
+        return out;
+    }
 };
+
 struct VariantRule {
     std::vector<std::pair<std::string, std::string>> properties;
 
@@ -47,22 +56,72 @@ struct Variant {
 struct Multipart {
     std::vector<Model> apply;
     tl::optional<MultipartRule> when;
+
+    auto check(BlockData state) const -> bool {
+        return when.map_or([state](const MultipartRule& rule) -> bool {
+            return eval(rule, state);
+        }, true);
+    }
+
+    static auto eval(const MultipartRule& rule, BlockData state) -> bool {
+        return match(rule.rule,
+            [state](const MultipartRule::Or& rule) {
+                return cpp_iter(rule.rules).any([state](auto&& rule) {
+                    return eval(rule, state);
+                });
+            },
+            [state](const MultipartRule::And& rule) {
+                return cpp_iter(rule.rules).all([state](auto&& rule) {
+                    return eval(rule, state);
+                });
+            },
+            [state](const MultipartRule::Match& rule) {
+                for (auto&& [k, v] : rule.conditions) {
+                    const auto prop = PropertyUtil::string(state.get(k)).value();
+                    const auto flag = cpp_iter(v)
+                        .split('|')
+                        .map(ranges::to<std::string>())
+                        .any([&prop](auto&& s) {
+                            return s == prop;
+                        });
+                    if (!flag) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        );
+    }
 };
+
+static thread_local auto MULTIPART_CACHE = std::map<BlockData, Model>{};
 
 struct BlockState {
     std::vector<Variant> variants;
     std::vector<Multipart> multiparts;
 
     [[nodiscard]] auto get_model(BlockData state) const -> const Model * {
-        for (auto& multipart : multiparts) {
-            return &multipart.apply.at(0);
+        if (auto it = MULTIPART_CACHE.find(state); it != MULTIPART_CACHE.end()) {
+            return &it->second;
         }
-        for (auto& variant : variants) {
-            if (variant.rule.check(state)) {
-                return &variant.models.at(0);
+        MULTIPART_CACHE.emplace(state, [this, state] {
+            if (multiparts.empty()) {
+                for (auto& variant : variants) {
+                    if (variant.rule.check(state)) {
+                        return variant.models.at(0);
+                    }
+                }
             }
-        }
-        return nullptr;
+            auto model = tl::optional<Model>{};
+            for (auto& multipart : multiparts) {
+                if (!multipart.check(state)) {
+                    continue;
+                }
+                model = model ? model->join(multipart.apply.at(0)) : multipart.apply.at(0);
+            }
+            return model.value_or(Model{});
+        }());
+        return &MULTIPART_CACHE.at(state);
     }
 };
 
