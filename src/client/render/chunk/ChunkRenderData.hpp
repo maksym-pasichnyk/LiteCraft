@@ -2,15 +2,26 @@
 
 #include <array>
 #include <Mesh.hpp>
+#include <block/BlockData.hpp>
 #include <client/render/RenderBuffer.hpp>
 #include <client/render/ModelComponent.hpp>
 
+struct TileEntity {
+    BlockPos pos;
+    BlockData state;
+};
+
 struct ChunkRenderData {
-    Mesh mesh{};
     RenderBuffer rb{};
+    std::vector<TileEntity> tmpTileEntities;
+
+    Mesh mesh{};
     bool needRender = false;
+    std::vector<TileEntity> tileEntities{};
 
     void update() {
+        tileEntities = std::exchange(tmpTileEntities, std::vector<TileEntity>{});
+
         glm::i32 index_count = 0;
         for (auto& subindices : rb.indices) {
             index_count += static_cast<glm::i32>(subindices.size());

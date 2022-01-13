@@ -7,7 +7,7 @@
 #include <client/render/ViewFrustum.hpp>
 #include <client/render/chunk/ChunkRenderDispatcher.hpp>
 
-enum class RenderLayer;
+enum class RenderType;
 
 struct Material;
 struct CommandBuffer;
@@ -21,6 +21,7 @@ struct CameraConstants {
 };
 
 struct WorldRenderer {
+    Mesh mesh{};
     Camera camera{};
     Material entityMaterial;
     Material opaqueMaterial;
@@ -38,6 +39,6 @@ struct WorldRenderer {
     void drawTerrain(CommandBuffer cmd);
 
 private:
-    void _drawChunks(CommandBuffer cmd, const Material& material, RenderLayer layer);
+    void _drawChunks(CommandBuffer cmd, const Material& material, RenderType renderType);
     void _createUniforms();
 };

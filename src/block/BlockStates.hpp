@@ -8,7 +8,6 @@
 #include "AbstractBlock.hpp"
 
 struct ModelFace {
-    RenderLayer layer;
     std::string texture;
     std::array<RawVertex, 4> vertices;
 };
@@ -100,7 +99,7 @@ struct BlockState {
     std::vector<Variant> variants;
     std::vector<Multipart> multiparts;
 
-    [[nodiscard]] auto get_model(BlockData state) const -> const Model * {
+    [[nodiscard]] auto get_model(BlockData state) const -> const Model* {
         if (auto it = MULTIPART_CACHE.find(state); it != MULTIPART_CACHE.end()) {
             return &it->second;
         }

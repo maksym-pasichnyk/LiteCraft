@@ -1,8 +1,9 @@
 #pragma once
 
 #include "BlockData.hpp"
-#include "block/material/BlockMaterial.hpp"
+#include "BlockRenderShape.hpp"
 #include "material/DyeColors.hpp"
+#include "block/material/BlockMaterial.hpp"
 
 #include <glm/vec3.hpp>
 #include <functional>
@@ -18,11 +19,6 @@ enum class TintType {
 };
 
 enum class RenderType {
-    Air,
-    Block
-};
-
-enum class RenderLayer {
     Opaque,
     Cutout,
     Transparent
@@ -88,10 +84,6 @@ enum class EntityType;
 struct AbstractBlock;
 
 struct BlockBehaviour {
-//    using TintTypeImpl = auto(*)(const BlockData&) -> TintType;
-//    using RenderTypeImpl = auto(*)(const BlockData& data) -> RenderType;
-//    using RenderLayerImpl = auto(*)(const BlockData& data) -> RenderLayer;
-
     using BlockColorImpl = std::function<MaterialColor(const BlockData& data)>;
     using LightLevelImpl = auto(*)(const BlockData& data) -> int32_t;
     using PositionPredicate = auto(*)(BlockReader& reader, const BlockData& data, const BlockPos& pos) -> bool;
@@ -105,8 +97,8 @@ struct BlockBehaviour {
         return 0;
     };
     TintType tintType = TintType::None;
-    RenderType renderType = RenderType::Block;
-    RenderLayer renderLayer = RenderLayer::Opaque;
+    RenderType renderType = RenderType::Opaque;
+    BlockRenderShape renderShape = BlockRenderShape::MODEL;
 
     float resistance = 0.0f;
     float hardness = 0.0f;
@@ -208,18 +200,18 @@ struct BlockBehaviour {
         return *this;
     }
 
-    BlockBehaviour &setTintType(TintType v) {
-        tintType = v;
+    BlockBehaviour &setTintType(TintType type) {
+        tintType = type;
         return *this;
     }
 
-    BlockBehaviour &setRenderType(RenderType v) {
-        renderType = v;
+    BlockBehaviour &setRenderShape(BlockRenderShape shape) {
+        renderShape = shape;
         return *this;
     }
 
-    BlockBehaviour &setRenderLayer(RenderLayer v) {
-        renderLayer = v;
+    BlockBehaviour &setRenderType(RenderType type) {
+        renderType = type;
         return *this;
     }
 
@@ -296,12 +288,12 @@ struct AbstractBlock {
         return behaviour.tintType;
     }
 
-    auto getRenderType() const -> RenderType {
-        return behaviour.renderType;
+    auto getRenderShape() const -> BlockRenderShape {
+        return behaviour.renderShape;
     }
 
-    auto getRenderLayer() const -> RenderLayer {
-        return behaviour.renderLayer;
+    auto getRenderType() const -> RenderType {
+        return behaviour.renderType;
     }
 
     virtual auto isValidPosition(const BlockData& data, WorldReader &reader, const BlockPos &pos) -> bool {

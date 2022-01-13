@@ -630,6 +630,7 @@ struct AppClient : Blaze::Application {
 
     explicit AppClient(std::shared_ptr<ImLogger> logger) {
         PHYSFS_mount("client-extra.zip", nullptr, 1);
+        PHYSFS_mount("Vanilla_Resource_Pack_1.16.220.zip", nullptr, 1);
 
         mainState = std::make_unique<MainState>();
         mainState->onStartButton.connect<&AppClient::onStartButton>(this);

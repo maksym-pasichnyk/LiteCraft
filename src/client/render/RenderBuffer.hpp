@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <glm/glm.hpp>
 
-enum class RenderLayer;
+enum class RenderType;
 
 struct Vertex {
     glm::vec3 pos;
@@ -16,26 +16,26 @@ struct Vertex {
 
 struct RenderLayerBuilder {
     std::vector<Vertex>& vertices;
-    std::vector<int>& indices;
+    std::vector<glm::u32>& indices;
 
     void quad() {
         const auto i = vertices.size();
-        indices.push_back(i + 0);
-        indices.push_back(i + 1);
-        indices.push_back(i + 2);
-        indices.push_back(i + 0);
-        indices.push_back(i + 2);
-        indices.push_back(i + 3);
+        indices.push_back(static_cast<glm::u32>(i + 0));
+        indices.push_back(static_cast<glm::u32>(i + 1));
+        indices.push_back(static_cast<glm::u32>(i + 2));
+        indices.push_back(static_cast<glm::u32>(i + 0));
+        indices.push_back(static_cast<glm::u32>(i + 2));
+        indices.push_back(static_cast<glm::u32>(i + 3));
     }
 
     void quadInv() {
         const auto i = vertices.size();
-        indices.push_back(i + 0);
-        indices.push_back(i + 2);
-        indices.push_back(i + 1);
-        indices.push_back(i + 0);
-        indices.push_back(i + 3);
-        indices.push_back(i + 2);
+        indices.push_back(static_cast<glm::u32>(i + 0));
+        indices.push_back(static_cast<glm::u32>(i + 2));
+        indices.push_back(static_cast<glm::u32>(i + 1));
+        indices.push_back(static_cast<glm::u32>(i + 0));
+        indices.push_back(static_cast<glm::u32>(i + 3));
+        indices.push_back(static_cast<glm::u32>(i + 2));
     }
 
     void vertex(float x, float y, float z, float u, float v, uint8_t r, uint8_t g, uint8_t b, int32_t packedLight, float ao) {
@@ -55,7 +55,7 @@ struct RenderLayerBuilder {
 
 struct RenderBuffer {
     std::vector<Vertex> vertices;
-    std::array<std::vector<int32_t>, 3> indices{};
+    std::array<std::vector<glm::u32>, 3> indices{};
 
     RenderBuffer() {
         vertices.reserve(20000);
@@ -64,7 +64,7 @@ struct RenderBuffer {
         indices[2].reserve(20000);
     }
 
-    auto getForLayer(RenderLayer layer) -> RenderLayerBuilder {
+    auto get(RenderType layer) -> RenderLayerBuilder {
         return RenderLayerBuilder {
             .vertices = vertices,
             .indices = indices[static_cast<size_t>(layer)]

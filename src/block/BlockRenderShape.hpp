@@ -1,6 +1,6 @@
 #pragma once
 
-enum class BlockRenderType {
+enum class BlockRenderShape {
     INVISIBLE,
     ENTITY,
     MODEL

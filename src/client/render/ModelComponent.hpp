@@ -12,6 +12,8 @@ struct BlockVertex {
     glm::vec2 coords;
 };
 
+static_assert(sizeof(BlockVertex) == 32);
+
 struct ModelVertexBuilder {
     std::vector<BlockVertex> vertices;
     std::vector<int> indices;
@@ -51,26 +53,21 @@ struct ModelVertexBuilder {
 
 struct ModelComponent {
     Mesh mesh;
-    
+
     explicit ModelComponent(const ModelFormat& model_format) /*: material(material)*/ {
-//        const auto attributes = std::array{
-//            VertexArrayAttrib{0, 3, GL_FLOAT, GL_FALSE, offsetof(BlockVertex, vertex)},
-//            VertexArrayAttrib{1, 3, GL_FLOAT, GL_FALSE, offsetof(BlockVertex, normal)},
-//            VertexArrayAttrib{2, 2, GL_FLOAT, GL_FALSE, offsetof(BlockVertex, coords)},
-//        };
-//
-//        const auto bindings = std::array{
-//            VertexArrayBinding{0, 0},
-//            VertexArrayBinding{1, 0},
-//            VertexArrayBinding{2, 0}
-//        };
-//
-//        mesh = std::make_unique<Mesh>(attributes, bindings, sizeof(BlockVertex), GL_STREAM_DRAW);
+        ModelVertexBuilder builder{};
+        render(builder, model_format, glm::vec3(0.0f));
         
+        mesh.setIndexBufferParams(builder.indices.size(), sizeof(glm::u32));
+        mesh.setIndexBufferData(std::as_bytes(std::span(builder.indices)), 0);
+
+        mesh.setVertexBufferParams(builder.vertices.size(), sizeof(BlockVertex));
+        mesh.setVertexBufferData(std::as_bytes(std::span(builder.vertices)), 0);
+    }
+
+    static void render(ModelVertexBuilder& builder, const ModelFormat& model_format, const glm::vec3& pos) {
         const auto tex_width = model_format.texture_width;
         const auto tex_height = model_format.texture_height;
-
-        ModelVertexBuilder builder{};
 
         for (auto&& [name, bone] : model_format.bones) {
             if (bone->never_render) continue;
@@ -79,9 +76,9 @@ struct ModelComponent {
                 auto&& from = cube.origin;
                 auto&& size = cube.size;
 
-                const auto x0 = from.x / 16.0f;
-                const auto y0 = from.y / 16.0f;
-                const auto z0 = from.z / 16.0f;
+                const auto x0 = pos.x + from.x / 16.0f;
+                const auto y0 = pos.y + from.y / 16.0f;
+                const auto z0 = pos.z + from.z / 16.0f;
                 const auto x1 = x0 + size.x / 16.0f;
                 const auto y1 = y0 + size.y / 16.0f;
                 const auto z1 = z0 + size.z / 16.0f;
@@ -187,12 +184,6 @@ struct ModelComponent {
                 );
             }
         }
-
-        mesh.setIndexBufferParams(builder.indices.size(), sizeof(glm::u32));
-        mesh.setIndexBufferData(std::as_bytes(std::span(builder.indices)), 0);
-
-        mesh.setVertexBufferParams(builder.vertices.size(), sizeof(BlockVertex));
-        mesh.setVertexBufferData(std::as_bytes(std::span(builder.vertices)), 0);
     }
 
     static void create_face(ModelVertexBuilder& builder, const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec3& p4, float u0, float v0, float u1, float v1, int texWidth, int texHeight, const glm::vec3& normal) {
@@ -200,6 +191,7 @@ struct ModelComponent {
         const auto inv_h = 1.0f / static_cast<float>(texHeight);
 
         builder.quad();
+        builder.quadInv();
         builder.vertex(p1.x, p1.y, p1.z, u0 * inv_w, v0 * inv_h, normal.x, normal.y, normal.z);
         builder.vertex(p2.x, p2.y, p2.z, u0 * inv_w, v1 * inv_h, normal.x, normal.y, normal.z);
         builder.vertex(p3.x, p3.y, p3.z, u1 * inv_w, v1 * inv_h, normal.x, normal.y, normal.z);
@@ -208,6 +200,7 @@ struct ModelComponent {
 
     static void create_quad(ModelVertexBuilder& builder, const glm::vec3& normal, const std::array<PositionTextureVertex, 4>& vertices) {
         builder.quad();
+        builder.quadInv();
         for (const auto& vertex : vertices) {
             builder.vertex(vertex.x, vertex.y, vertex.z, vertex.u, vertex.v, normal.x, normal.y, normal.z);
         }

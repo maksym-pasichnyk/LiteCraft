@@ -155,13 +155,11 @@ auto Json::Into<Model>::into(const Json& o) -> Result {
 
         if (cullface.has_value()) {
             model.faces[*cullface].emplace_back(ModelFace{
-                .layer = RenderLayer::Cutout,
                 .texture = texture.value_or("missing_texture"),
                 .vertices = vertices
             });
         } else {
             model.quads.emplace_back(ModelFace{
-                .layer = RenderLayer::Cutout,
                 .texture = texture.value_or("missing_texture"),
                 .vertices = vertices
             });
