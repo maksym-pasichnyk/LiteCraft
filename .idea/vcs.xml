@@ -14,12 +14,10 @@
     <mapping directory="$PROJECT_DIR$/ThirdParty/Blaze/blaze/third_party/range-v3/doc/gh-pages" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/Blaze/blaze/third_party/spdlog" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/asyncplusplus" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ThirdParty/co_lib" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ThirdParty/curl" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ThirdParty/continuable" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/entt" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/function2" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/function2/test/googletest" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ThirdParty/promise.hpp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ThirdParty/zlib-ng" vcs="Git" />
   </component>
 </project>

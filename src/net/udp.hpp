@@ -1,94 +1,26 @@
 #pragma once
 
 #include "sock.hpp"
-#include "ip.hpp"
 
-#ifdef _WIN32
-#include <WinSock2.h>
-#include <ws2ipdef.h>
-#endif
+#include <span>
+#include <tl/optional.hpp>
+
+struct Ipv4Addr;
+struct SocketAddr;
 
 struct UdpSocket {
     Socket s;
 
-    static auto bind(const SocketAddr& addr) -> tl::optional<UdpSocket> {
-        auto s = Socket::create(addr.inner.sin_family, SOCK_DGRAM, IPPROTO_UDP);
-        if (!s.has_value()) {
-            return tl::nullopt;
-        }
-        auto name = std::bit_cast<sockaddr>(addr.inner);
-        if (::bind(s->fd, &name, sizeof(sockaddr)) == -1) {
-            s->close();
-            return tl::nullopt;
-        }
-        return UdpSocket{*s};
-    }
+    static auto bind(const SocketAddr& addr) -> tl::optional<UdpSocket>;
 
-    void close() {
-        s.close();
-    }
-
-    void set_blocking(bool flag) const {
-        s.set_blocking(flag);
-    }
-
-    void set_broadcast(bool flag) const {
-        const int optval = flag ? 1 : 0;
-#ifdef _WIN32
-        setsockopt(s.fd, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<const char *>(&optval), sizeof(optval));
-#else
-        setsockopt(s.fd, SOL_SOCKET, SO_BROADCAST, &optval, sizeof(optval));
-#endif
-    }
-
-    void set_reuse_port(bool flag) const {
-#ifdef _WIN32
-#else
-        const int optval = flag ? 1 : 0;
-        setsockopt(s.fd, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
-#endif
-    }
-
-    void set_reuse_address(bool flag) const {
-        const int optval = flag ? 1 : 0;
-#ifdef _WIN32
-        setsockopt(s.fd, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&optval), sizeof(optval));
-#else
-        setsockopt(s.fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-#endif
-    }
-
-    void join_multicast_v4(Ipv4Addr imr_multiaddr, Ipv4Addr imr_interface) const {
-        ip_mreq mreq{};
-        mreq.imr_multiaddr = imr_multiaddr.inner;
-        mreq.imr_interface = imr_interface.inner;
-#ifdef _WIN32
-        setsockopt(s.fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, reinterpret_cast<const char *>(&mreq), sizeof(mreq));
-#else
-        setsockopt(s.fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
-#endif
-    }
-
-    void leave_multicast_v4(Ipv4Addr imr_multiaddr, Ipv4Addr imr_interface) const {
-        ip_mreq mreq{};
-        mreq.imr_multiaddr = imr_multiaddr.inner;
-        mreq.imr_interface = imr_interface.inner;
-#ifdef _WIN32
-        setsockopt(s.fd, IPPROTO_IP, IP_DROP_MEMBERSHIP, reinterpret_cast<const char *>(&mreq), sizeof(mreq));
-#else
-        setsockopt(s.fd, IPPROTO_IP, IP_DROP_MEMBERSHIP, &mreq, sizeof(mreq));
-#endif
-    }
-
-    auto send(std::span<const std::byte> bytes) -> tl::optional<size_t> {
-        return s.send(bytes);
-    }
-
-    auto send_to(std::span<const std::byte> bytes, const SocketAddr& addr) -> tl::optional<size_t> {
-        return s.send_to(bytes, addr);
-    }
-
-    auto recv(std::span<std::byte> bytes) -> tl::optional<std::pair<size_t, SocketAddr>> {
-        return s.recv(bytes);
-    }
+    void close();
+    void set_blocking(bool flag) const;
+    void set_broadcast(bool flag) const;
+    void set_reuse_port(bool flag) const;
+    void set_reuse_address(bool flag) const;
+    void join_multicast_v4(const Ipv4Addr& imr_multiaddr, const Ipv4Addr& imr_interface) const;
+    void leave_multicast_v4(const Ipv4Addr& imr_multiaddr, const Ipv4Addr& imr_interface) const;
+    auto send(std::span<const std::byte> bytes) const -> tl::optional<size_t>;
+    auto send_to(std::span<const std::byte> bytes, const SocketAddr& addr) const -> tl::optional<size_t>;
+    auto recv(std::span<std::byte> bytes) const -> tl::optional<std::pair<size_t, SocketAddr>>;
 };

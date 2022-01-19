@@ -34,13 +34,13 @@ struct Biome {
     static PerlinNoiseGenerator FROZEN_TEMPERATURE_NOISE;
     static PerlinNoiseGenerator INFO_NOISE;
 
-    BiomeClimate climate;
-    BiomeGenerationSettings biomeGenerationSettings;
-    MobSpawnInfo mobSpawnInfo;
-    float depth;
-    float scale;
-    BiomeCategory category;
-    BiomeAmbience effects;
+    BiomeClimate climate{};
+    BiomeGenerationSettings biomeGenerationSettings{};
+    MobSpawnInfo mobSpawnInfo{};
+    float depth = 0.0f;
+    float scale = 0.0f;
+    BiomeCategory category = BiomeCategory::NONE;
+    BiomeAmbience effects{};
 
 //     Crash on MacOS
 //    ThreadLocal<linked_unordered_map<uint64_t, float>> temperatureCache{};

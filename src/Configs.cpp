@@ -708,29 +708,23 @@ auto Json::From<BiomeAmbience>::from(const Value& ambience) -> Self {
 }
 
 template<>
-auto Json::Into<BiomeAmbience>::into(const Self& obj) -> Result {
-    return obj.as_object().map([](auto&& o) {
-        auto foliage_color = o.find("foliage_color");
-        auto grass_color = o.find("grass_color");
-        auto particle = o.find("particle");
-        auto ambient_sound = o.find("ambient_sound");
-        auto additions_sound = o.find("additions_sound");
-        auto music = o.find("music");
-
-        return BiomeAmbience{
-            .fogColor = o.at("fog_color"),
-            .waterColor = o.at("water_color"),
-            .waterFogColor = o.at("water_fog_color"),
-            .skyColor = o.at("sky_color"),
-            .foliageColor = foliage_color != o.end() ? tl::optional(foliage_color->second) : tl::nullopt,
-            .grassColor = grass_color != o.end() ? tl::optional(grass_color->second) : tl::nullopt,
-            .grassColorModifier = o.at("grass_color_modifier"),
-            .particle = particle != o.end() ? tl::optional(particle->second) : tl::nullopt,
-            .ambientSound = ambient_sound != o.end() ? tl::optional(ambient_sound->second) : tl::nullopt,
-            .additionsSound = additions_sound != o.end() ? tl::optional(additions_sound->second) : tl::nullopt,
-            .music = music != o.end() ? tl::optional(music->second) : tl::nullopt
-        };
-    });
+auto Json::Into<BiomeAmbience>::into(const Self& o) -> Result {
+    if (!o.is_object()) {
+        return tl::nullopt;
+    }
+    return BiomeAmbience{
+        .fogColor = o.at("fog_color"),
+        .waterColor = o.at("water_color"),
+        .waterFogColor = o.at("water_fog_color"),
+        .skyColor = o.at("sky_color"),
+        .foliageColor = o.find("foliage_color"),
+        .grassColor = o.find("grass_color"),
+        .grassColorModifier = o.at("grass_color_modifier"),
+        .particle = o.find("particle"),
+        .ambientSound = o.find("ambient_sound"),
+        .additionsSound = o.find("additions_sound"),
+        .music = o.find("music")
+    };
 }
 
 template<>

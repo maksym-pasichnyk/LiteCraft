@@ -146,11 +146,11 @@ struct Nbt {
 			value.emplace(std::move(name), std::forward<T>(tag));
 		}
 
-		Tag& at(const std::string &name) {
+		auto at(const std::string &name) -> Tag& {
 			return value.at(name);
 		}
 
-		const Tag& at(const std::string &name) const {
+		auto at(const std::string &name) const -> const Tag& {
 			return value.at(name);
 		}
 
@@ -158,15 +158,18 @@ struct Nbt {
 			return value.erase(name);
 		}
 
-		auto find(const std::string &name) {
-			return value.find(name);
+		auto find(const std::string &name) const -> tl::optional<const Tag&> {
+            if (auto it = value.find(name); it != value.end()) {
+                return {it->second};
+            }
+			return tl::nullopt;
 		}
 
-		auto find(const std::string &name) const {
-			return value.find(name);
-		}
+//		auto find(const std::string &name) const {
+//			return value.find(name);
+//		}
 
-		bool contains(const std::string &name) const {
+		auto contains(const std::string &name) const -> bool {
 			return value.contains(name);
 		}
 

@@ -2,8 +2,8 @@
 
 #include <array>
 #include <istream>
-#include <tl/optional.hpp>
 #include <zlib-ng.h>
+#include <tl/optional.hpp>
 
 struct zlib_streambuf : std::streambuf {
     explicit zlib_streambuf(std::streambuf* sbuf) : sbuf(sbuf) {

@@ -90,7 +90,9 @@ auto TemplateManager::readStructure(Nbt::Compound const& nbt) -> tl::optional<st
                         };
                     }(),
                     .state = palette.at(nbt.at("state").get<Nbt::Int>()),
-                    .nbt = nbt.contains("nbt") ? tl::optional(nbt.at("nbt").get<Nbt::Compound>()) : tl::nullopt
+                    .nbt = nbt.find("nbt").map([](auto&& nbt) {
+                        return nbt.get<Nbt::Compound>();
+                    })
                 };
             }());
         }
@@ -116,15 +118,7 @@ struct DebugChunkGeneratorBase {
     }
 
     auto createBiome() -> std::unique_ptr<Biome> {
-        return std::make_unique<Biome>(Biome {
-            .climate = BiomeClimate{},
-            .biomeGenerationSettings = BiomeGenerationSettings{},
-            .mobSpawnInfo = MobSpawnInfo{},
-            .depth = 0.0f,
-            .scale = 0.0f,
-            .category = BiomeCategory::NONE,
-            .effects = BiomeAmbience{}
-        });
+        return std::make_unique<Biome>();
     }
 
     auto getBlockStateFor(int x, int z) -> tl::optional<BlockData> {

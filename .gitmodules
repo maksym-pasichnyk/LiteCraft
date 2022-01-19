@@ -1,18 +1,6 @@
 [submodule "ThirdParty/entt"]
 	path = ThirdParty/entt
 	url = https://github.com/skypjack/entt.git
-[submodule "ThirdParty/promise.hpp"]
-	path = ThirdParty/promise.hpp
-	url = https://github.com/BlackMATov/promise.hpp.git
-[submodule "ThirdParty/range-v3"]
-	path = ThirdParty/range-v3
-	url = https://github.com/ericniebler/range-v3
-[submodule "ThirdParty/curl"]
-	path = ThirdParty/curl
-	url = https://github.com/curl/curl.git
-[submodule "ThirdParty/physfs"]
-	path = ThirdParty/physfs
-	url = https://github.com/icculus/physfs.git
 [submodule "ThirdParty/zlib-ng"]
 	path = ThirdParty/zlib-ng
 	url = https://github.com/zlib-ng/zlib-ng.git
@@ -28,12 +16,3 @@
 [submodule "ThirdParty/Blaze"]
 	path = ThirdParty/Blaze
 	url = https://github.com/maksym-pasichnyk/Blaze.git
-[submodule "ThirdParty/co_lib"]
-	path = ThirdParty/co_lib
-	url = https://github.com/dmitryikh/co_lib.git
-[submodule "ThirdParty/magic_enum"]
-	path = ThirdParty/magic_enum
-	url = https://github.com/Neargye/magic_enum.git
-[submodule "ThirdParty/optional"]
-	path = ThirdParty/optional
-	url = https://github.com/TartanLlama/optional.git

@@ -1,5 +1,8 @@
 #pragma once
 
+#pragma push_macro("IGNORE")
+#undef IGNORE
+
 enum class PushReaction {
     NORMAL,
     DESTROY,
@@ -7,3 +10,5 @@ enum class PushReaction {
     IGNORE,
     PUSH_ONLY
 };
+
+#pragma pop_macro("IGNORE")

@@ -6,6 +6,10 @@ set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
+
 option(BUILD_SHARED_LIBS OFF)
 
 add_definitions(
@@ -18,16 +22,13 @@ add_definitions(
     -D_LIBCPP_ENABLE_CXX20_REMOVED_TYPE_TRAITS
 )
 
-add_compile_options(-stdlib=libc++)
-
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(CMAKE_USE_SCHANNEL ON)
-    target_compile_options(fmt PUBLIC /EHsc)
 endif()
 
 #add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/curl")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/entt")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/zlib-ng")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/zlib-ng" "${CMAKE_CURRENT_BINARY_DIR}/zlib_build")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/asyncplusplus")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Blaze")
 
@@ -38,8 +39,8 @@ file(GLOB_RECURSE craft_source_files
 
 set(craft_include_directories
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
-    "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui"
-    "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/range-v3/include"
+    "${CMAKE_CURRENT_BINARY_DIR}/zlib_build"
+    "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/zlib-ng"
     "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/asyncplusplus/include"
 )
 set(craft_compile_definitions
@@ -51,12 +52,14 @@ set(craft_compile_definitions
 )
 set(craft_link_libraries
     EnTT
-#    libcurl
-    zlibstatic
-#    WS2_32
+    zlib
     Async++
     blaze
 )
+
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+    set(craft_link_libraries "${craft_link_libraries};WS2_32")
+endif()
 
 add_executable("${PROJECT_NAME}-server" "${craft_source_files}")
 add_executable("${PROJECT_NAME}-client" "${craft_source_files}")

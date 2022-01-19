@@ -3,7 +3,7 @@
 #endif
 
 #include <spdlog/spdlog.h>
-#include <curl/curl.h>
+//#include <curl/curl.h>
 #include <filesystem>
 #include <physfs.h>
 #include <fstream>
@@ -23,7 +23,7 @@ namespace {
             WSAStartup(MAKEWORD(2, 2), &wsaData);
 #endif
             PHYSFS_init(nullptr);
-            PHYSFS_mount(std::filesystem::current_path().c_str(), nullptr, 1);
+            PHYSFS_mount(std::filesystem::current_path().string().c_str(), nullptr, 1);
         }
 
         ~Bootstrap() {

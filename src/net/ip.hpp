@@ -2,8 +2,8 @@
 
 #include <bit>
 #include <array>
-#include <tl/optional.hpp>
 #include <string_view>
+#include <tl/optional.hpp>
 #include <spdlog/spdlog.h>
 
 #ifdef _WIN32

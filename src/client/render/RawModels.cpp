@@ -1,6 +1,7 @@
 #include "RawModels.hpp"
 #include "Definition.hpp"
 
+#include <array>
 #include <Json.hpp>
 #include <glm/glm.hpp>
 #include <ResourceManager.hpp>
@@ -40,6 +41,7 @@ struct RawElementRotation {
                 case DirectionAxis::Y: return glm::vec3(0, 1, 0);
                 case DirectionAxis::Z: return glm::vec3(0, 0, 1);
             }
+            return glm::vec3(0);
         }();
         const auto rescale = definition.rescale ? 1.0f / glm::cos(glm::abs(glm::radians(definition.angle))) : 1.0f;
         return {
@@ -111,6 +113,7 @@ auto RawModels::get(const std::string& name) -> RawModel* {
                     case Direction::UP: case Direction::DOWN:
                         return glm::vec4(from[0], from[2], to[0], to[2]);
                 }
+                return glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
             });
 
             const auto xyz = std::array{
@@ -134,15 +137,17 @@ auto RawModels::get(const std::string& name) -> RawModel* {
 //                };
 //            }
 
+            const auto raw_vertices = std::array{
+                RawVertex{xyz[0], uvs[0] / 16.0f},
+                RawVertex{xyz[1], uvs[1] / 16.0f},
+                RawVertex{xyz[2], uvs[2] / 16.0f},
+                RawVertex{xyz[3], uvs[3] / 16.0f}
+            };
+
             model->faces.emplace_back(RawFace{
                 .texture = v.texture,
                 .cullface = v.cullface,
-                .vertices = std::array{
-                    RawVertex{xyz[0], uvs[0] / 16.0f},
-                    RawVertex{xyz[1], uvs[1] / 16.0f},
-                    RawVertex{xyz[2], uvs[2] / 16.0f},
-                    RawVertex{xyz[3], uvs[3] / 16.0f}
-                }
+                .vertices = raw_vertices
             });
         }
     }

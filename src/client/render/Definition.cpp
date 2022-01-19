@@ -81,7 +81,7 @@ auto Json::Into<ElementDefinition>::into(const Json &o) -> Result {
 template<>
 auto Json::Into<RawModelDefinition>::into(const Json& o) -> Result {
     return RawModelDefinition{
-        .parent = o.find("parent"),
+        .parent = o.find("parent").and_then([](auto&& o) { return o.as_string(); }),
         .ambientocclusion = o.value_or("ambientocclusion", false),
         .textures = o.value_or("textures", std::map<std::string, std::string>{}),
         .elements = o.value_or("elements", std::vector<ElementDefinition>{})
@@ -91,12 +91,12 @@ auto Json::Into<RawModelDefinition>::into(const Json& o) -> Result {
 template<>
 auto Json::Into<MultipartRule>::into(Self const& self) -> Result {
     if (auto o = self.find("OR")) {
-        return MultipartRule{ .rule = MultipartRule::Or{ .rules = *o } };
+        return MultipartRule{ .rule = MultipartRule::Or{ .rules = o->into<std::vector<MultipartRule>>() } };
     }
     if (auto o = self.find("AND")) {
-        return MultipartRule{ .rule = MultipartRule::And{ .rules = *o } };
+        return MultipartRule{ .rule = MultipartRule::And{ .rules = o->into<std::vector<MultipartRule>>() } };
     }
-    return MultipartRule{.rule = MultipartRule::Match { .conditions = self }};
+    return MultipartRule{.rule = MultipartRule::Match { .conditions = self.into<std::map<std::string, std::string>>() }};
 }
 
 struct ModelRotation {
