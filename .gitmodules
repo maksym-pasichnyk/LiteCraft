@@ -4,12 +4,6 @@
 [submodule "ThirdParty/zlib-ng"]
 	path = ThirdParty/zlib-ng
 	url = https://github.com/zlib-ng/zlib-ng.git
-[submodule "ThirdParty/continuable"]
-	path = ThirdParty/continuable
-	url = https://github.com/Naios/continuable.git
-[submodule "ThirdParty/function2"]
-	path = ThirdParty/function2
-	url = https://github.com/Naios/function2.git
 [submodule "ThirdParty/asyncplusplus"]
 	path = ThirdParty/asyncplusplus
 	url = https://github.com/Amanieu/asyncplusplus.git
