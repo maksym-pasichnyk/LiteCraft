@@ -16,7 +16,7 @@ struct FaceDefinition {
     int rotation;
     std::string texture;
     tl::optional<int> tintindex;
-    tl::optional<glm::vec4> uv;
+    glm::vec4 uv;
     tl::optional<Direction> cullface;
 };
 

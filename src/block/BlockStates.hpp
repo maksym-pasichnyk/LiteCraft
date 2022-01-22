@@ -1,11 +1,11 @@
 #pragma once
 
+#include "AbstractBlock.hpp"
 #include <util/Registry.hpp>
 #include <state/Property.hpp>
 #include <block/BlockData.hpp>
-#include <client/render/RawModels.hpp>
-#include <client/render/Definition.hpp>
-#include "AbstractBlock.hpp"
+#include <client/render/model/RawModels.hpp>
+#include <client/render/model/Definition.hpp>
 
 struct ModelFace {
     std::string texture;

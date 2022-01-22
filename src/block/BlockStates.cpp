@@ -4,7 +4,7 @@
 
 #include <TextureAtlas.hpp>
 #include <ResourceManager.hpp>
-#include <client/render/Definition.hpp>
+#include <client/render/model/Definition.hpp>
 
 DynamicRegistry<Block*, BlockState> BlockStates::states;
 

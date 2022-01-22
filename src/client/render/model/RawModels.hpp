@@ -1,16 +1,16 @@
 #pragma once
 
-#include <TextureAtlas.hpp>
+#include <map>
 #include <array>
+#include <string>
+#include <vector>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <map>
-#include <string>
 #include <tl/optional.hpp>
+#include <TextureAtlas.hpp>
 #include <util/Registry.hpp>
-#include <vector>
-#include "util/Direction.hpp"
+#include <util/Direction.hpp>
 
 struct RawVertex {
     glm::vec3 pos;

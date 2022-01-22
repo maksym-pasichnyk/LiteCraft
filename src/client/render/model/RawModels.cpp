@@ -1,9 +1,9 @@
 #include "RawModels.hpp"
 #include "Definition.hpp"
+#include "FaceInfo.hpp"
 
 #include <array>
 #include <Json.hpp>
-#include <glm/glm.hpp>
 #include <ResourceManager.hpp>
 
 static auto MISSING_MODEL_MESH = R"({
@@ -60,7 +60,6 @@ auto RawModels::get(const std::string& name) -> RawModel* {
     if (auto cache = models.get(name)) {
         return *cache;
     }
-
     const auto location = ResourceLocation::from(name);
 
     auto o = Resources::open(fmt::format("assets/{}/models/{}.json", location.get_namespace(), location.get_location()))
@@ -76,78 +75,68 @@ auto RawModels::get(const std::string& name) -> RawModel* {
         const auto from = element.from;
         const auto to = element.to;
 
-        auto points = std::array {
-            glm::vec3(from.x, from.y, from.z),
-            glm::vec3(from.x,   to.y, from.z),
-            glm::vec3(  to.x,   to.y, from.z),
-            glm::vec3(  to.x, from.y, from.z),
+        auto shape = std::array<glm::f32, 6>{};
+        shape[FaceInfo::Constants::MIN_X] = from.x;
+        shape[FaceInfo::Constants::MIN_Y] = from.y;
+        shape[FaceInfo::Constants::MIN_Z] = from.z;
+        shape[FaceInfo::Constants::MAX_X] = to.x;
+        shape[FaceInfo::Constants::MAX_Y] = to.y;
+        shape[FaceInfo::Constants::MAX_Z] = to.z;
 
-            glm::vec3(  to.x, from.y, to.z),
-            glm::vec3(  to.x,   to.y, to.z),
-            glm::vec3(from.x,   to.y, to.z),
-            glm::vec3(from.x, from.y, to.z),
-        };
         const auto rotation = element.rotation.map(RawElementRotation::from);
-        if (rotation.has_value()) {
-            for (auto& pos : points) {
-                pos = rotation->rotate(pos);
-            }
-        }
-
-        const auto vertices = std::array{
-            std::array{points[3], points[4], points[7], points[0]},
-            std::array{points[5], points[2], points[1], points[6]},
-            std::array{points[0], points[1], points[2], points[3]},
-            std::array{points[4], points[5], points[6], points[7]},
-            std::array{points[7], points[6], points[1], points[0]},
-            std::array{points[3], points[2], points[5], points[4]},
-        };
 
         for (auto&& [face, v] : element.faces) {
-            const auto uv = v.uv.map_or_else([](auto uv) { return uv; }, [&, face = face] {
-                switch (face) {
-                    case Direction::SOUTH: case Direction::NORTH:
-                        return glm::vec4(from[0], from[1], to[0], to[1]);
-                    case Direction::EAST: case Direction::WEST:
-                        return glm::vec4(from[2], from[1], to[2], to[1]);
-                    case Direction::UP: case Direction::DOWN:
-                        return glm::vec4(from[0], from[2], to[0], to[2]);
+            auto xyz = std::array<glm::vec3, 4>{};
+            for (auto i = size_t(0); i < 4; ++i) {
+                auto&& info = FaceInfos::get(face).info[i];
+                xyz[i] = glm::vec3(
+                    shape[info.xFace],
+                    shape[info.yFace],
+                    shape[info.zFace]
+                );
+                if (rotation.has_value()) {
+                    xyz[i] = rotation->rotate(xyz[i]);
                 }
-                return glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
-            });
-
-            const auto xyz = std::array{
-                vertices[size_t(face)][0] / 16.0f,
-                vertices[size_t(face)][1] / 16.0f,
-                vertices[size_t(face)][2] / 16.0f,
-                vertices[size_t(face)][3] / 16.0f
+            }
+            const auto uvs = [&v = v] {
+                switch ((v.rotation / 90) % 4) {
+                    default:
+                    case 0: return std::array{
+                        glm::vec2(v.uv.x, v.uv.y),
+                        glm::vec2(v.uv.x, v.uv.w),
+                        glm::vec2(v.uv.z, v.uv.w),
+                        glm::vec2(v.uv.z, v.uv.y)
+                    };
+                    case 1: return std::array{
+                        glm::vec2(v.uv.x, v.uv.w),
+                        glm::vec2(v.uv.z, v.uv.w),
+                        glm::vec2(v.uv.z, v.uv.y),
+                        glm::vec2(v.uv.x, v.uv.y)
+                    };
+                    case 2: return std::array{
+                        glm::vec2(v.uv.z, v.uv.w),
+                        glm::vec2(v.uv.z, v.uv.y),
+                        glm::vec2(v.uv.x, v.uv.y),
+                        glm::vec2(v.uv.x, v.uv.w)
+                    };
+                    case 3: return std::array{
+                        glm::vec2(v.uv.z, v.uv.y),
+                        glm::vec2(v.uv.x, v.uv.y),
+                        glm::vec2(v.uv.x, v.uv.w),
+                        glm::vec2(v.uv.z, v.uv.w)
+                    };
+                }
+            }();
+            const auto vertices = std::array{
+                RawVertex{xyz[0] / 16.0f, uvs[0] / 16.0f},
+                RawVertex{xyz[1] / 16.0f, uvs[1] / 16.0f},
+                RawVertex{xyz[2] / 16.0f, uvs[2] / 16.0f},
+                RawVertex{xyz[3] / 16.0f, uvs[3] / 16.0f}
             };
-            auto uvs = std::array {
-                glm::vec2(uv.x, uv.w),
-                glm::vec2(uv.x, uv.y),
-                glm::vec2(uv.z, uv.y),
-                glm::vec2(uv.z, uv.w),
-            };
-//            for (int i = 0; i < v.rotation; i += 90) {
-//                uvs = std::array {
-//                    glm::vec2(uvs[3].x, uvs[3].y),
-//                    glm::vec2(uvs[0].x, uvs[0].y),
-//                    glm::vec2(uvs[1].x, uvs[1].y),
-//                    glm::vec2(uvs[2].x, uvs[2].y)
-//                };
-//            }
-
-            const auto raw_vertices = std::array{
-                RawVertex{xyz[0], uvs[0] / 16.0f},
-                RawVertex{xyz[1], uvs[1] / 16.0f},
-                RawVertex{xyz[2], uvs[2] / 16.0f},
-                RawVertex{xyz[3], uvs[3] / 16.0f}
-            };
-
             model->faces.emplace_back(RawFace{
                 .texture = v.texture,
                 .cullface = v.cullface,
-                .vertices = raw_vertices
+                .vertices = vertices
             });
         }
     }

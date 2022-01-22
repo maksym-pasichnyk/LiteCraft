@@ -1,10 +1,14 @@
 #include "Definition.hpp"
 
-#include <glm/fwd.hpp>
-#include <glm/glm.hpp>
-#include <glm/ext.hpp>
 #include <state/Property.hpp>
 #include <block/BlockStates.hpp>
+
+template <typename T> struct FromString {
+    using Self = std::string;
+    using Result = tl::optional<T>;
+
+    static auto from(const Self& s) -> Result;
+};
 
 template <typename T> struct IntoString {
     using Value = T;
@@ -47,17 +51,6 @@ auto Json::Into<glm::vec4>::into(const Json& obj) -> Result {
 }
 
 template<>
-auto Json::Into<FaceDefinition>::into(const Json &o) -> Result {
-    return FaceDefinition{
-        .rotation = o.value_or("rotation", 0),
-        .texture = o.at("texture"),
-        .tintindex = o.value_or("tintindex", -1),
-        .uv = o.find("uv"),
-        .cullface = o.find("cullface").and_then(Json::Into<Direction>::into),
-    };
-}
-
-template<>
 auto Json::Into<RotationDefinition>::into(const Json &o) -> Result {
     return RotationDefinition{
         .angle = o.at("angle"),
@@ -69,12 +62,48 @@ auto Json::Into<RotationDefinition>::into(const Json &o) -> Result {
 
 template<>
 auto Json::Into<ElementDefinition>::into(const Json &o) -> Result {
+    const auto from = o.at("from").into<glm::vec3>();
+    const auto to = o.at("to").into<glm::vec3>();
+
     return ElementDefinition{
-        .from = o.at("from"),
-        .to = o.at("to"),
+        .from = from,
+        .to = to,
         .rotation = o.find("rotation"),
         .shade = o.value_or("shade", false),
-        .faces = o.value_or("faces", std::map<Direction, FaceDefinition>{})
+        .faces = o.find("faces")
+            .and_then([](auto&& o) { return o.as_object(); })
+            .map([&](auto&& o) {
+                auto out = std::map<Direction, FaceDefinition>{};
+                for (auto&& [k, v] : o) {
+                    const auto face = FromString<Direction>::from(k).value();
+                    out.emplace(face, FaceDefinition{
+                        .rotation = v.value_or("rotation", 0),
+                        .texture = v.at("texture"),
+                        .tintindex = v.value_or("tintindex", -1),
+                        .uv = v.find("uv")
+                            .map_or_else([](auto&& o) { return o.into<glm::vec4>(); }, [&] {
+                                switch (face) {
+                                    case Direction::DOWN:
+                                        return glm::vec4(from.x, 16.0f - to.z, to.x, 16.0f - from.z);
+                                    case Direction::UP:
+                                        return glm::vec4(from.x, from.z, to.x, to.z);
+                                    case Direction::NORTH:
+                                        return glm::vec4(16.0f - to.x, 16.0f - to.y, 16.0f - from.x, 16.0f - from.y);
+                                    case Direction::SOUTH:
+                                        return glm::vec4(from.x, 16.0f - to.y, to.x, 16.0f - from.y);
+                                    case Direction::WEST:
+                                        return glm::vec4(from.z, 16.0f - to.y, to.z, 16.0f - from.y);
+                                    case Direction::EAST:
+                                        return glm::vec4(16.0f - to.z, 16.0f - to.y, 16.0f - from.z, 16.0f - from.y);
+                                }
+                                return glm::vec4(16.0f - to.x, 16.0f - to.y, 16.0f - from.x, 16.0f - from.y);
+                            }),
+                        .cullface = v.find("cullface").and_then(Json::Into<Direction>::into),
+                    });
+                }
+                return out;
+            })
+            .value_or(std::map<Direction, FaceDefinition>{})
     };
 }
 
@@ -104,7 +133,7 @@ struct ModelRotation {
 
     static auto from(glm::i32 x, glm::i32 y) -> ModelRotation {
         const auto a = glm::angleAxis(-glm::radians(glm::f32(y)), glm::vec3(0, 1, 0));
-        const auto b = glm::angleAxis(glm::radians(glm::f32(x)), glm::vec3(1, 0, 0));
+        const auto b = glm::angleAxis(-glm::radians(glm::f32(x)), glm::vec3(1, 0, 0));
         return { .transform = a * b };
     }
 
