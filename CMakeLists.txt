@@ -1,13 +1,17 @@
 cmake_minimum_required(VERSION 3.20)
 project(minecraft)
 
+include(FetchContent)
+
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
 
 set(BUILD_SHARED_LIBS OFF)
 
@@ -25,11 +29,20 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(CMAKE_USE_SCHANNEL ON)
 endif()
 
-#add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/curl")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/entt")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/zlib-ng" "${CMAKE_CURRENT_BINARY_DIR}/zlib_build")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/asyncplusplus")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Blaze")
+FetchContent_Declare(entt
+    GIT_REPOSITORY https://github.com/skypjack/entt.git
+)
+FetchContent_Declare(zlib-ng
+    GIT_REPOSITORY https://github.com/zlib-ng/zlib-ng.git
+    GIT_TAG develop
+)
+FetchContent_Declare(Blaze
+    GIT_REPOSITORY https://github.com/maksym-pasichnyk/Blaze.git
+)
+FetchContent_Declare(asyncplusplus
+    GIT_REPOSITORY https://github.com/Amanieu/asyncplusplus.git
+)
+FetchContent_MakeAvailable(entt zlib-ng Blaze asyncplusplus)
 
 file(GLOB_RECURSE craft_source_files
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
@@ -38,9 +51,6 @@ file(GLOB_RECURSE craft_source_files
 
 set(craft_include_directories
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
-    "${CMAKE_CURRENT_BINARY_DIR}/zlib_build"
-    "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/zlib-ng"
-    "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/asyncplusplus/include"
 )
 set(craft_compile_definitions
     -D_USE_MATH_DEFINES

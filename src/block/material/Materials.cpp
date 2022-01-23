@@ -6,6 +6,8 @@
 #include <Json.hpp>
 #include <spdlog/fmt/fmt.h>
 
+#undef IGNORE
+
 BlockMaterial * Materials::AIR;
 BlockMaterial * Materials::STRUCTURE_VOID;
 BlockMaterial * Materials::PORTAL;

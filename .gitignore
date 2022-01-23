@@ -3,3 +3,6 @@ build
 bin
 lib
 resources/imgui.ini
+
+.idea/workspace.xml
+.idea/vcs.xml
