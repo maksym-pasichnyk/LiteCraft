@@ -81,7 +81,7 @@ auto Json::Into<ElementDefinition>::into(const Json &o) -> Result {
                         .texture = v.at("texture"),
                         .tintindex = v.value_or("tintindex", -1),
                         .uv = v.find("uv")
-                            .map_or_else([](auto&& o) { return o.into<glm::vec4>(); }, [&] {
+                            .map_or_else([](auto&& o) { return o.template into<glm::vec4>(); }, [&] {
                                 switch (face) {
                                     case Direction::DOWN:
                                         return glm::vec4(from.x, 16.0f - to.z, to.x, 16.0f - from.z);

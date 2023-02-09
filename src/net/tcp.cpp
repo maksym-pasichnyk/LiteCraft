@@ -69,7 +69,7 @@ auto TcpListener::accept() const -> tl::optional<std::pair<TcpStream, SocketAddr
 
     sockaddr addr{};
 
-    Socket c {::accept(s.fd, &addr, &len)};
+    Socket c {(uintptr_t)::accept(s.fd, &addr, &len)};
     if (c.fd == -1) {
         return tl::nullopt;
     }

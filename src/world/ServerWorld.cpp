@@ -91,7 +91,7 @@ auto TemplateManager::readStructure(Nbt::Compound const& nbt) -> tl::optional<st
                     }(),
                     .state = palette.at(nbt.at("state").get<Nbt::Int>()),
                     .nbt = nbt.find("nbt").map([](auto&& nbt) {
-                        return nbt.get<Nbt::Compound>();
+                        return nbt.template get<Nbt::Compound>();
                     })
                 };
             }());

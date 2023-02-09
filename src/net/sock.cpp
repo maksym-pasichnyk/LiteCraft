@@ -15,7 +15,7 @@ auto Socket::create(int af, int type, int protocol) -> tl::optional<Socket> {
     if (fd == -1) {
         return tl::nullopt;
     }
-    return std::bit_cast<Socket>(fd);
+    return std::bit_cast<Socket>((uintptr_t) fd);
 }
 
 void Socket::close() const {

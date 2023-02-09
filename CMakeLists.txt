@@ -5,7 +5,7 @@ include(FetchContent)
 
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -36,13 +36,15 @@ FetchContent_Declare(zlib-ng
     GIT_REPOSITORY https://github.com/zlib-ng/zlib-ng.git
     GIT_TAG develop
 )
-FetchContent_Declare(Blaze
-    GIT_REPOSITORY https://github.com/maksym-pasichnyk/Blaze.git
-)
+#FetchContent_Declare(Blaze
+#    GIT_REPOSITORY https://github.com/maksym-pasichnyk/Blaze.git
+#)
 FetchContent_Declare(asyncplusplus
     GIT_REPOSITORY https://github.com/Amanieu/asyncplusplus.git
 )
-FetchContent_MakeAvailable(entt zlib-ng Blaze asyncplusplus)
+FetchContent_MakeAvailable(entt zlib-ng #[[Blaze]] asyncplusplus)
+
+add_subdirectory(Blaze)
 
 file(GLOB_RECURSE craft_source_files
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
