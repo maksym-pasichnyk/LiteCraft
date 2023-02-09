@@ -36,15 +36,13 @@ FetchContent_Declare(zlib-ng
     GIT_REPOSITORY https://github.com/zlib-ng/zlib-ng.git
     GIT_TAG develop
 )
-#FetchContent_Declare(Blaze
-#    GIT_REPOSITORY https://github.com/maksym-pasichnyk/Blaze.git
-#)
+FetchContent_Declare(Blaze
+    GIT_REPOSITORY https://github.com/maksym-pasichnyk/Blaze.git
+)
 FetchContent_Declare(asyncplusplus
     GIT_REPOSITORY https://github.com/Amanieu/asyncplusplus.git
 )
-FetchContent_MakeAvailable(entt zlib-ng #[[Blaze]] asyncplusplus)
-
-add_subdirectory(Blaze)
+FetchContent_MakeAvailable(entt zlib-ng Blaze asyncplusplus)
 
 file(GLOB_RECURSE craft_source_files
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
